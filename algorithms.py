@@ -1,17 +1,4 @@
 import json
-s
-status=['the Community','t.report for MOD-MAIL','the Server','out for Spam','t.report for MOD-MAIL']
-
-
-async def change_status():
-  await client.wait_until_ready()
-  NowPlaying = cycle(status)
-  tortoise = client.get_guild(577192344529404154)
-  while not client.is_closed():
-    CurrentStatus=next(NowPlaying)
-    await client.change_presence(status =discord.Status.online, activity = discord.Activity
-    (type=discord.ActivityType.watching, name= CurrentStatus))
-    await asyncio.sleep(15)
 
 
 def EventManage(arg):
