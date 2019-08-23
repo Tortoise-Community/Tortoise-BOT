@@ -2,7 +2,7 @@
 Fully functional Bot for Discord coded in Discord.py
 
 ###Features and Commands :
-
+```
 **MOD MAIL**
 To report anything (misbehavior/offensive-content/shit-post) behind the back more effectively.
  *How to use:*
@@ -53,3 +53,4 @@ To report anything (misbehavior/offensive-content/shit-post) behind the back mor
    slap      Slaps a member
    
     
+```
