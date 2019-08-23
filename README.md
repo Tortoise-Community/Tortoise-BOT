@@ -5,7 +5,7 @@
 ```
 MOD MAIL
 To report anything (misbehavior/offensive-content/shit-post) behind the back more effectively.
- *How to use:*
+ *How to use:
    Type  t.report  in the bot DM and you are good to go.
    This will open a two-way communication medium between you and the entire staff team.
    where you can chat with one of the mod and resolve the issue.
