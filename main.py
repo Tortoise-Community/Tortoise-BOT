@@ -36,6 +36,100 @@ async def change_status():
     (type=discord.ActivityType.watching, name= CurrentStatus))
     await asyncio.sleep(15)
 
+    
+@client.event
+async def on_message(message):
+  if message.author.bot:
+        return     
+  for i in bannedwords:
+    if i in message.content.lower():
+        xchannel = client.get_channel(597119801701433357)
+        if len(message.author.roles)==2:
+         if bannedwords[i]=='swear':
+          await message.delete()
+          dembed = discord.Embed(title="Warning!",description=f"Swear detected: ||{i}||  by **{message.author.name}** in {message.channel}\n {message.author.mention} Get yourself a role to use swears , Also if found offensive for the community guidlines or to any members you will be booted from the community \n Use <#603651772950773761> to get a role",color=0xFFC300)
+          msg="**MESSAGE CLEARED**   REASON: `Use of curse detected`"
+          await message.channel.send(msg)
+          await xchannel.send(embed=dembed)
+        if bannedwords[i]=='Racial Abuse':
+         await message.delete()
+         msg="**MESSAGE CLEARED**   REASON: `Use of Racial Abuse detected`"
+         await message.channel.send(msg)
+         dembed = discord.Embed(title = f"**Infraction information**",description= f"\n**NAME: **{message.author.name}\n**TYPE: **Ban\n**REASON: **Usage of Racial Abuse inside the community.\n**ATTEMPT: **1\n**DURATION: **Permenent"  , color = 0xFF0000)
+         dembed.set_footer(text="Tortoise Community")
+         dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **Usage of Racial Abuse inside the community.  \n**DURATION: **Permenent\n"""  , color = 0xFF0000)
+         dmembed.set_footer(text="Tortoise Community")
+         await xchannel.send(embed=dembed)
+         await message.author.send(embed=dmembed)
+         await message.author.ban()
+         
+        tortoise = client.get_guild(577192344529404154)
+        Admin= tortoise.get_role(577196762691928065) 
+        mod = tortoise.get_role(577368219875278849) 
+        '''if Admin not in message.author.roles : 
+         if bannedwords[i]=='Discord link':
+           await message.delete()
+           await message.channel.send("**MESSAGE CLEARED**   REASON: `Discord link detected`")
+           Advertiser_id=str(message.author.id)
+           Advertisers=open("selfpromotion.txt","r+")
+           Warned_once=Advertisers.read().splitlines()
+           if Advertiser_id in Warned_once:
+             await xchannel.send(f"Use of **Discord link** by**{message.author}**  detected  in {message.channel.mention}\n  {message.author.mention} is here by **BANNED** from the server\n\n** DURATION:** `Permenent ` \n **REASON:**`Self-Advertising in the server `" )
+             await message.author.send("You have violated the Rules of the community and action is taken against you. \n**TYPE: **`Ban`\n**REASON: **` Self-Advertising inside the community `\n**DURATION: **`Permenent` \n\n             **Tortoise community** ")
+             await message.author.ban()
+           else:
+            await xchannel.send(f"Discord link detected. Used by **{message.author}** in {message.channel.mention}.\n {message.author.mention} Self-Advertisement is  **NOT-ALLOWED ** inside the Community. If you are caught again with this, you will be directly banned. " )
+            Advertisers.write("\n"+Advertiser_id)
+           Advertisers.close()'''
+        if bannedwords[i]=='Racial Slur' or bannedwords[i]=='Homophobic Slur':
+         await message.delete()
+         guy=str(message.author.id)
+         if bannedwords[i]=='Racial Slur':
+           reason="Racial Slur"
+         else:
+            reason="Homophobic Slur"
+         await message.channel.send(f"**MESSAGE CLEARED**   REASON: `Use of {reason} detected`")
+         person=str(message.author)
+         msg=str(message.content)
+         record=open("deletedmessages.txt","r+")
+         record.write("\n"+person+" : "+msg)
+         record.close()
+         blacklist=open("blacklist1.txt","r+")
+         blacklisted=blacklist.read().splitlines()
+         if guy in blacklisted:
+            attempt='2'
+            warnn='FINAL-WARNING!'
+            warn=open("blacklist2.txt","r+")
+            warned = warn.read().splitlines()
+            if guy in warned:
+              attempt='3'
+              dembed = discord.Embed(title = f"**Infraction information**",description= f"\n**NAME: **{message.author.name}\n**TYPE: **Ban\n**REASON: **Using {reason}s\n**ATTEMPT: **{attempt}\n**DURATION: **Permenent"  , color = 0xFF0000)
+              dembed.set_footer(text="Tortoise Community")
+              dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **Use of {reason}s inside the community.\n**DURATION: **Permenent\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)"""  , color = 0xFF0000)
+              dmembed.set_footer(text="Tortoise Community")
+              await xchannel.send(embed=dembed)
+              await message.author.send(embed=dmembed)
+              await message.author.ban()
+            else:
+              warn.write("\n"+guy)
+            warn.close()
+         else:
+            attempt='1'
+            warnn='FIRST-WARNING!'
+            blacklist.write("\n"+guy)
+         blacklist.close()
+         if attempt!='3':
+          dembed = discord.Embed(title="**Warning!**",description=f"{reason} detected : ||{i}||  by **{message.author}** in {message.channel.mention}\n **{warnn}** {message.author.mention}  {reason}s are **STRICTLY BANNED ** inside the Community \n**ATTEMPTS:**{attempt}",color=0xFF8B00)
+          dembed.set_footer(text="Tortoise Community")
+          await channelx.send(embed=dembed)
+
+         if attempt=='2':
+          dembed = discord.Embed(title="Warning!",description=f"We have detected your use of {reason} which are **STRICTLY PROHIBITED** inside the community.\nThis an infringement of our server rules stated in <#591662973307584513>.\nConsider this as the **FINAL WARNING**. If you are picked up repeating this again, Direct action will be taken.\nIf this happened by a mistake please contact one of the moderators to review the messages",color=0xFF8B00)
+          dembed.set_footer(text="Tortoise Community")
+          await message.author.send(embed=dembed)
+
+  await client.process_commands(message)    
+    
 
 @client.event
 async def on_ready():
