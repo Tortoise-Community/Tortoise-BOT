@@ -54,4 +54,13 @@ MEMBER COMMANDS:
    
     
 ```
+## Modules used
+```
+discord
+praw
+itertools
+os
+random 
+time
+
 
