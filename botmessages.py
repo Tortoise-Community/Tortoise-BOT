@@ -1,20 +1,4 @@
 import discord
-from discord.ext import commands
-import praw
-import os
-import random
-from algorithms  import *
-from classes  import *
-from events  import *
-from botmessages import *
-import time
-import asyncio
-from itertools import cycle
-import welcome
-from welcome import *
-from dictionary import *
-
-
 
 verified = discord.Embed(title = f"""Greetings from the ** Tortoise Community!** \n\nYou are now a verified member of the community <:verified:610713784268357632> \nBy joining the server you have agreed to abide by its rules .\nPlease read #welcome and make yourself at home.\n   """ , color = 0x13D910)
 
