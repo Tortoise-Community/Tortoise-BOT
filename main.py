@@ -1,3 +1,4 @@
+from datetime import datetime
 import discord
 from discord.ext import commands
 import praw
@@ -14,13 +15,15 @@ import botmessages
 from botmessages import *
 client = commands.Bot(command_prefix='t.')
 game = 'Managing Tortoise community'
-botid = 4446546548594480650
+botid = 22982983019820919
 
-reddite = praw.Reddit(client_id='Your-id',
-                      client_secret='Your-secret',
-                      user_agent='your-agent',
-                      username='your-user-name')
 
+
+
+reddite = praw.Reddit(client_id='Your ID',
+                      client_secret='Your Secret',
+                      user_agent='somerandos',
+                      username='pyUsagi')
 
 
 status=['the Community','t.report for MOD-MAIL','the Server','out for Spam','t.report for MOD-MAIL']
@@ -30,15 +33,19 @@ async def change_status():
   await client.wait_until_ready()
   NowPlaying = cycle(status)
   tortoise = client.get_guild(577192344529404154)
+  eventchannel=tortoise.get_channel(607597453545570325)
+  testchannel=tortoise.get_channel(581139962611892229)
   while not client.is_closed():
     CurrentStatus=next(NowPlaying)
     await client.change_presence(status =discord.Status.online, activity = discord.Activity
     (type=discord.ActivityType.watching, name= CurrentStatus))
     await asyncio.sleep(15)
+        
 
-    
 @client.event
 async def on_message(message):
+  tortoise = client.get_guild(577192344529404154)
+  staff = discord.utils.get(tortoise.roles, name="Admin")
   if message.author.bot:
         return     
   for i in bannedwords:
@@ -58,7 +65,7 @@ async def on_message(message):
          dembed = discord.Embed(title = f"**Infraction information**",description= f"\n**NAME: **{message.author.name}\n**TYPE: **Ban\n**REASON: **Usage of Racial Abuse inside the community.\n**ATTEMPT: **1\n**DURATION: **Permenent"  , color = 0xFF0000)
          dembed.set_footer(text="Tortoise Community")
          dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **Usage of Racial Abuse inside the community.  \n**DURATION: **Permenent\n"""  , color = 0xFF0000)
-         dmembed.set_footer(text="Tortoise Community")
+         dmembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
          await xchannel.send(embed=dembed)
          await message.author.send(embed=dmembed)
          await message.author.ban()
@@ -66,7 +73,9 @@ async def on_message(message):
         tortoise = client.get_guild(577192344529404154)
         Admin= tortoise.get_role(577196762691928065) 
         mod = tortoise.get_role(577368219875278849) 
-        '''if Admin not in message.author.roles : 
+        if staff in message.author.roles:
+          return
+        else:  
          if bannedwords[i]=='Discord link':
            await message.delete()
            await message.channel.send("**MESSAGE CLEARED**   REASON: `Discord link detected`")
@@ -74,13 +83,19 @@ async def on_message(message):
            Advertisers=open("selfpromotion.txt","r+")
            Warned_once=Advertisers.read().splitlines()
            if Advertiser_id in Warned_once:
-             await xchannel.send(f"Use of **Discord link** by**{message.author}**  detected  in {message.channel.mention}\n  {message.author.mention} is here by **BANNED** from the server\n\n** DURATION:** `Permenent ` \n **REASON:**`Self-Advertising in the server `" )
-             await message.author.send("You have violated the Rules of the community and action is taken against you. \n**TYPE: **`Ban`\n**REASON: **` Self-Advertising inside the community `\n**DURATION: **`Permenent` \n\n             **Tortoise community** ")
+             spembed = discord.Embed(title = f"**Infraction information**",description= f"\n**NAME: **{message.author.name}\n**TYPE: **Ban\n**REASON: **Self Promotion \n**ATTEMPT: **2\n**DURATION: **Permenent"  , color = 0xFF0000)
+             spembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
+             await xchannel.send(embed=spembed)
+             spdembed = discord.Embed(title = f"**Infraction information**",description= f"\n**TYPE: **Ban\n**REASON: **Self Promotion \n**ATTEMPT: **2\n**DURATION: **Permenent"  , color = 0xFF0000)
+             spdembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
+             await message.author.send(embed=spdembed)
              await message.author.ban()
            else:
-            await xchannel.send(f"Discord link detected. Used by **{message.author}** in {message.channel.mention}.\n {message.author.mention} Self-Advertisement is  **NOT-ALLOWED ** inside the Community. If you are caught again with this, you will be directly banned. " )
+            dembed = discord.Embed(title="**Warning!**",description=f"Discord Link detected by **{message.author.mention}** in {message.channel.mention}\n  {message.author.name} Self Promotion is **Forbidden** inside the Community \n**ATTEMPTS:** 1",color=0xFF8B00)
+            dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png") 
+            mess = await xchannel.send(embed=dembed)
             Advertisers.write("\n"+Advertiser_id)
-           Advertisers.close()'''
+           Advertisers.close()
         if bannedwords[i]=='Racial Slur' or bannedwords[i]=='Homophobic Slur':
          await message.delete()
          guy=str(message.author.id)
@@ -104,9 +119,9 @@ async def on_message(message):
             if guy in warned:
               attempt='3'
               dembed = discord.Embed(title = f"**Infraction information**",description= f"\n**NAME: **{message.author.name}\n**TYPE: **Ban\n**REASON: **Using {reason}s\n**ATTEMPT: **{attempt}\n**DURATION: **Permenent"  , color = 0xFF0000)
-              dembed.set_footer(text="Tortoise Community")
+              dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
               dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **Use of {reason}s inside the community.\n**DURATION: **Permenent\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)"""  , color = 0xFF0000)
-              dmembed.set_footer(text="Tortoise Community")
+              dmembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
               await xchannel.send(embed=dembed)
               await message.author.send(embed=dmembed)
               await message.author.ban()
@@ -120,44 +135,63 @@ async def on_message(message):
          blacklist.close()
          if attempt!='3':
           dembed = discord.Embed(title="**Warning!**",description=f"{reason} detected : ||{i}||  by **{message.author}** in {message.channel.mention}\n **{warnn}** {message.author.mention}  {reason}s are **STRICTLY BANNED ** inside the Community \n**ATTEMPTS:**{attempt}",color=0xFF8B00)
-          dembed.set_footer(text="Tortoise Community")
-          await channelx.send(embed=dembed)
+          dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
+          await xchannel.send(embed=dembed)
 
          if attempt=='2':
           dembed = discord.Embed(title="Warning!",description=f"We have detected your use of {reason} which are **STRICTLY PROHIBITED** inside the community.\nThis an infringement of our server rules stated in <#591662973307584513>.\nConsider this as the **FINAL WARNING**. If you are picked up repeating this again, Direct action will be taken.\nIf this happened by a mistake please contact one of the moderators to review the messages",color=0xFF8B00)
-          dembed.set_footer(text="Tortoise Community")
+          dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
           await message.author.send(embed=dembed)
 
-  await client.process_commands(message)    
-    
+  await client.process_commands(message)          
+
+  
+       
 
 @client.event
 async def on_ready():
     print('All set')
 
-#----------------------------------------------------------------------------------------------------------------------
-#Adds role to the user based on reaction
-"""You will need to make a role and a custom emoji of the same name and add a seperate channel for this function to work"""
-reaction_channel_id = 56518465156515646546
+
+
+ 
 @client.event
 async def on_raw_reaction_add(payload):
-  if payload.channel_id == reaction_channel_id:
-        guild_id = payload.guild_id
-        guild = discord.utils.find(lambda g : g.id == guild_id, client.guilds)
-        member = discord.utils.find(lambda m : m.id == payload.user_id,guild.members)
-        role = discord.utils.get(guild.roles,name = payload.emoji.name )
-        await member.add_roles(role)
-
+  if payload.channel_id == 603651772950773761:
+        guild = client.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+        role = _get_assignable_role(payload, guild)
+        if role is not None:
+            await member.add_roles(role)
+            await member.send(f"`{role.name}` ** has been assigned to you in the tortoise community **")
 
 @client.event
 async def on_raw_reaction_remove(payload):
-  if payload.channel_id == reaction_channel_id:
-        guild_id = payload.guild_id
-        guild = discord.utils.find(lambda g : g.id == guild_id, client.guilds)
-        member = discord.utils.find(lambda m : m.id == payload.user_id,guild.members)
-        role = discord.utils.get(guild.roles,name = payload.emoji.name )
-        await member.remove_roles(role)
-#----------------------------------------------------------------------------------------------------------------------
+  if payload.channel_id == 603651772950773761:
+        guild = client.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+        role = _get_assignable_role(payload, guild)
+        if role is not None:
+            await member.remove_roles(role)    
+
+
+
+def _get_assignable_role(payload, guild):
+    role_id = self_assignable_roles.get(payload.emoji.id)
+    if role_id is not None:
+        role = guild.get_role(role_id)
+        if role is not None:
+            return role
+        else:
+            print(f"Emoji id found in dictionary but role id {role_id} not found in guild!")
+    else:
+        print(f"No mapping for emoji {payload.emoji.id} in self_assignable_roles!")
+    return None
+ 
+ 
+ 
+
+
 
 
 @client.event
@@ -165,6 +199,8 @@ async def on_guild_join(ctx):
     print(f'joined {ctx.guild.name}')
     embed = discord.Embed(description="I'm the Tortoise BOT (beta. I'm here for Bot testing and development.  use `T.` before a command",
                           color=0x3498db)
+
+
 
 
 @client.event
@@ -178,7 +214,7 @@ async def on_member_remove(member: discord.Member):
   systemlog=client.get_channel(593883395436838942)
   embed = discord.Embed(title = f"""**Goodbye!**\n{member.name} has left the Tortoise Community""" , color = 0xFF0000)
   await systemlog.send(embed = embed)
-
+       
 
 class MyHelpCommand(commands.MinimalHelpCommand):
     def get_command_signature(self, command):
@@ -201,9 +237,10 @@ class admins(commands.Cog):
     async def kick(self, ctx, member: discord.Member, *, reason='No specific reason'):
         channelx=client.get_channel(597119801701433357)
         """kick a member , You will require the permissions to use this command"""
-        dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **{reason}\n**DURATION: **24 hours\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)\nYou can rejoin the server after the cooldown from here"""  , color = 0xFF0000)
+        dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **{reason}\n**DURATION: **24 hours\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)\nYou can rejoin the server after the cooldown from here"""  , color = 0xFF0000)   
         dmembed.set_footer(text="Tortoise Community")
-        dembed = discord.Embed(title = f"**{member.name} is kicked from the server.**",description= f"\n**REASON: **`{reason}`\n**DURATION: **`24 hours`"  , color = 0xFF0000)
+        dembed = discord.Embed(title = f"**Infraction information     **",description= f"\n**NAME: **{member.name}\n**TYPE: **Kick\n**REASON: **{reason}s\n**DURATION: **24 hours"  , color = 0xFF0000)
+        dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
         await member.send(embed = dmembed)
         await channelx.send(embed = dembed)
         await member.kick(reason = reason)
@@ -213,26 +250,28 @@ class admins(commands.Cog):
     async def ban(self, ctx, member: discord.Member, *, reason='No specific reason'):
         """Bans a member , You will require the permissions to use this command"""
         channelx=client.get_channel(597119801701433357)
-        dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **{reason}\n**DURATION: **Permenent\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)"""  , color = 0xFF0000)
-        dmembed.set_footer(text="Tortoise Community")
-        dembed = discord.Embed(title = f"**{member.name} is banned from the server.**",description= f"\n**REASON: **{reason}\n**DURATION: **Permenent"  , color = 0xFF0000)
+        dmembed = discord.Embed(title = f"**Infraction information**",description= f"""\n**TYPE: **Ban\n**REASON: **{reason}\n**DURATION: **Permenent\n(If this happened by a mistake,contact <@125759308515246080> for reviewal)"""  , color = 0xFF0000)   
+        dmembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
+        dembed = discord.Embed(title = f"**Infraction information     **",description= f"\n**NAME: **{member.name}\n**TYPE: **Ban\n**REASON: **{reason}s\n**DURATION: **Permenent"  , color = 0xFF0000)
+        dembed.set_author(name="Tortoise Community",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
         await member.send(embed = dmembed)
         await channelx.send(embed = dembed)
         await member.ban(reason=reason)
-
+                                                
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role("Admin","Moderator","Helpers")
     async def warn(self,ctx,member:discord.Member,*,reason):
        """Warns a member , you will require the permissions to use this command """
        channelx=client.get_channel(597119801701433357)
        embed = discord.Embed(title = f"**{member.name} You have been warned for {reason}**",description= f" If you are planning to repeat this again, the mods may administer punishment for the action."  , color = 0xF4D03F )
        await ctx.channel.purge(limit=1)
-       await channelx.send(f"{member.mention}")
+       msg= await channelx.send(f"{member.mention}")
+       await msg.delete()
        await channelx.send(embed=embed)
-
+ 
     @commands.command()
-    @commands.has_permissions(manage_roles=True)
+    @commands.has_any_role("Admin","Moderator","Helpers")
     async def role(self, ctx, role_: discord.Role, member: discord.Member):
         # adds a role to a member
 
@@ -247,7 +286,7 @@ class admins(commands.Cog):
             await member.send(embed=dmbed)
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role("Admin","Moderator","Helpers")
     async def clear(self, ctx, amount: int):
         """clears messages, you will require the Manage messages permission to use this command"""
 
@@ -255,9 +294,9 @@ class admins(commands.Cog):
             await ctx.send('Please specify the number of messages you want to clear ... example ```t.clear 6```')
         else:
             await ctx.channel.purge(limit=amount+1)
-            await ctx.send('**MESSAGES CLEARED** ' + ctx.message.author.mention)
+            mess = await ctx.send('**MESSAGES CLEARED** ' + ctx.message.author.mention)
             time.sleep(3)
-            await ctx.channel.purge(limit=1)
+            await mess.delete()
 
 
 class fun(commands.Cog):
@@ -297,7 +336,10 @@ class fun(commands.Cog):
             embed = discord.Embed(description=ctx.message.author.mention + ' DAD! DONT SHOOT YOURSELF')
             embed.set_image(url="https://media.giphy.com/media/f2fVSJWddYb6g/giphy.gif")
             await ctx.send(embed=embed)
+
+
         else:
+
             embed = discord.Embed(
                 description=member.mention + ' shot by ' + ctx.message.author.mention + ' :gun: :boom: ')
             embed.set_image(url='https://i.gifer.com/XdhK.gif')
@@ -307,9 +349,9 @@ class fun(commands.Cog):
 class other(commands.Cog):
 
     @commands.command()
-    async def say(self, ctx, arg):
+    async def say(self, ctx, *,arg):
         """Says something"""
-
+        await ctx.channel.purge(limit=1)
         await ctx.send(arg)
 
     @commands.command()
@@ -345,9 +387,12 @@ class other(commands.Cog):
     async def github(self,ctx):
       """GitHub repository"""
 
-      embed = discord.Embed(title = """ Github repository""" , url = "https://github.com/fwizzz/Tortoise-Discord-Bot/" , color = 0x206694)
+      embed = discord.Embed(title = """Tortoise-BOT github repository""" , url = "https://github.com/Tortoise-Community/Tortoise-BOT" , color = 0x206694)
 
       await ctx.send(embed = embed)
+
+
+  
 
 
 class tortoise_server(commands.Cog):
@@ -365,7 +410,7 @@ class tortoise_server(commands.Cog):
         await ctx.message.author.add_roles(role)
         syslog = discord.Embed(title = f"""**Welcome!**\n{ctx.message.author.name} has joined the Tortoise Community""" , color = 0x13D910)
         await systemlog.send(embed = syslog)
-        await ctx.author.send(embed=verified)
+        await ctx.author.send(embed=verified)  
         await cpointchannel.purge(limit=100)
         await cpointchannel.send("<@&605808609195982864>")
         await cpointchannel.send("Hi there!\nWelcome to **Tortoise Community** discord server.\n"+rules+'\n If you are ready to abide the rules of the community, Please Type **t.accept** to join the server\n(If you are having trouble verifying,contact Admin)')
@@ -376,14 +421,14 @@ class tortoise_server(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def announce(self, ctx, arg):
         channel = client.get_channel(578197131526144024)
-        await channel.send(arggg)
+        await channel.send(arg)
         await ctx.send('Announced ✅')
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_role("Admin")
     async def welcome(self, ctx, arg):
         channel = client.get_channel(591662973307584513)
-        await channel.send(text)
+        await channel.send(arg)
         await ctx.send('Added in Welcome✅')
 
 
@@ -391,46 +436,60 @@ class tortoise_server(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def test(self, ctx, arg):
        tortoise = client.get_guild(577192344529404154)
-       pass
+       events = client.get_channel(607597453545570325)
+       msg =  await ctx.send('testing✅')
+       await msg.add_reaction("👍")
 
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role("Admin","Moderator")
     async def events(self, ctx, arg):
-      EventManage(arg.lower())
+      EventManage(arg.lower())   
       embed=discord.Embed(title="**Success!**",description=f"Events Turned {arg.upper()} successfully  ",color= 0x13D910)
       await ctx.send(embed = embed)
-
+    
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role("Admin","Moderator")
     async def announcements(self, ctx, arg):
-      AnnounceManage(arg.lower())
+      AnnounceManage(arg.lower())   
       embed=discord.Embed(title="**Success!**",description=f"Announcements Turned **{arg.upper()}** successfully  ",color= 0x13D910)
       await ctx.send(embed = embed)
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_any_role("Admin","Moderator","Helpers")
+    async def mute(self,ctx,member:discord.Member,duration="10 minutes",*,reason="For some reason"):
+      tortoise = client.get_guild(577192344529404154)
+      muted = tortoise.get_role(610126555867512870)
+      x = tortoise.get_role(599647985198039050)
+      await member.remove_roles(x)
+      await member.add_roles(muted)
+
+     
+
+     
+    @commands.command()
+    @commands.has_any_role("Admin","Moderator","Helpers")
     async def attend(self, ctx):
       tortoise = client.get_guild(577192344529404154)
-      xchannel = tortoise.get_channel(581139962611892229)
+      xchannel = tortoise.get_channel(580809054067097600) 
       if ctx.channel.id==580809054067097600:
-       report_attend=False
+       report_attend=False 
        data= get_data()
        for i in data["reporters"]:
          if i["status"]=="false":
-           report_attend=True
+           report_attend=True 
            i.update(status="True")
            set_data(data)
            member=tortoise.get_member(i["user_id"])
            await member.send(embed = modbed)
-           embed = discord.Embed(title = f"You can chat and resolve the issue here:" ,description=f"**MEMBER ONLINE:** {member.name} \n type `t.stop` to end the session. " ,color = 0xF2771A)
-           embed.set_author(name="MOD-MAIL",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
-           await ctx.author.send(embed=embed)
+           gembed = discord.Embed(title = f"You can chat and resolve the issue here:" ,description=f"**MEMBER ONLINE:** {member.name} \n type `t.stop` to end the session. " ,color = 0xF2771A)
+           gembed.set_author(name="MOD-MAIL",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
+           await ctx.author.send(embed=gembed)
            def check_2(m):
              return m.guild is None and (m.author.id == ctx.author.id or m.author.id == i["user_id"])
-
+ 
            while True:
-            try:
+            try: 
 
              wait_msg = await client.wait_for('message',check=check_2, timeout=500)
              if wait_msg.content == "t.stop":
@@ -438,28 +497,39 @@ class tortoise_server(commands.Cog):
                 await ctx.author.send(embed=stembed)
                 break
              elif wait_msg.author.id == ctx.author.id:
-                await member.send(wait_msg.content)
+                if wait_msg.attachments:
+                    url = wait_msg.attachments[0].url
+                    xembed.set_image(url=url)
+                    await member.send(embed=xembed)
+                else:    
+                 await member.send(wait_msg.content)
              elif wait_msg.author.id == i["user_id"]:
-                await ctx.author.send(wait_msg.content)
-            except asyncio.TimeoutError:
-                await member.send(embed = mailtimeout)
-                break
-           break
+                if wait_msg.attachments:
+                    url = wait_msg.attachments[0].url
+                    xembed.set_image(url=url)
+                    await ctx.author.send(embed=xembed)
+                else:    
+                 await ctx.author.send(wait_msg.content)
+
+            except asyncio.TimeoutError:   
+                await member.send(embed = mailtimeout) 
+                break   
+           break 
        if report_attend==False:
          await ctx.send(embed=Freport_bed)
        elif report_attend == True:
-         await ctx.send(embed=Treport_bed)
+         await ctx.send(embed=Treport_bed)    
 
     @commands.command()
     @commands.dm_only()
     async def submit(self, ctx):
-     """To submit answer of events.(Works only on dm)"""
+     """To submit answer of events.(Works only on dm)""" 
      Event=get_event()
-     if Event=="off":
+     if Event=="off": 
       embed = discord.Embed(title = f"""**There are no live events at this moment**\nStay tuned for more events.""" , color = 0xFF0000)
-      await ctx.send(embed = embed)
-     elif Event == "on":
-      contestant=str(ctx.author.id)
+      await ctx.send(embed = embed) 
+     elif Event == "on": 
+      contestant=str(ctx.author.id) 
       submitted=open("contestants.txt","r+")
       participated=submitted.read().splitlines()
       if contestant in participated:
@@ -470,28 +540,30 @@ class tortoise_server(commands.Cog):
         def inner_check(message):
           return message.author == author and message.channel==channel
         return inner_check
-       await ctx.send("**Paste your code below : **")
+       await ctx.send("**Paste your code below : (no formatting required) **")
        try:
         msg=await client.wait_for('message',check=check(ctx.author,ctx.channel), timeout=30)
         tortoise = client.get_guild(577192344529404154)
         channel = tortoise.get_channel(610079185569841153)
         events = tortoise.get_channel(607597453545570325)
+        winner = tortoise.get_role(615629355875565568)
+        member = tortoise.get_member(ctx.message.author.id)
         if "```"in msg.clean_content:
          await channel.send(f"{ctx.message.author.name}'s submission\n\n{msg.clean_content}")
         else:
           await channel.send(f"{ctx.message.author.name}'s submission\n\n```py\n{msg.clean_content}```")
-        await ctx.send(embed = subsuccess)
+        await ctx.send(embed = subsuccess)  
         submitted.write("\n"+contestant)
         embed = discord.Embed(title = f"""{ctx.author.name} has submitted the code!:thumbsup:""" , color = 0xF2771A)
         await events.send(embed = embed)
-       except asyncio.TimeoutError:
+       except asyncio.TimeoutError:   
         await ctx.send(embed = subtimeout)
-      submitted.close()
-
+      submitted.close() 
+      
     @commands.command()
     @commands.dm_only()
     async def bug(self, ctx):
-       """To report bugs with in the bot functions.(Works only on dm)"""
+       """To report bugs with in the bot functions.(Works only on dm)""" 
        def check(author,channel):
         def inner_check(message):
           return message.author == author and message.channel==channel
@@ -505,33 +577,47 @@ class tortoise_server(commands.Cog):
          await channel.send(f"<@&594468482859663370>\n{ctx.message.author.name} just reported a possible bug:\n\n{msg.clean_content}")
         else:
           await channel.send(f"<@&594468482859663370>\n{ctx.message.author.name} just reported a possible bug:\n\n```\n{msg.clean_content}```")
-          await ctx.send(embed = bugsuccess)
-       except asyncio.TimeoutError:
+          await ctx.send(embed = bugsuccess)  
+       except asyncio.TimeoutError:   
           await ctx.send(embed = bugtimeout)
-
+       
     @commands.command()
     @commands.dm_only()
     async def report(self, ctx):
        data=get_data()
-       for user in data["reporters"]:
+       for user in data["reporters"]: 
         if user["user_id"]== ctx.author.id and user["status"]=="false":
-          await ctx.send(embed=errorbed)
-          return
+          await ctx.send(embed=errorbed) 
+          return 
        tortoise = client.get_guild(577192344529404154)
-       xchannel = tortoise.get_channel(580809054067097600)
+       xchannel = tortoise.get_channel(580809054067097600) 
        await ctx.send(embed=membed)
        create_issue(ctx.author.id)
        embed = discord.Embed(title = f"**OPEN-REPORT!**" ,description=f"{ctx.author.mention} just opened up a report.\n\nType in` t.attend` to attend " ,color = 0xF2771A)
        embed.set_author(name="MOD-MAIL",icon_url="https://i.ibb.co/rxM1zqC/bot-2.png")
-       await xchannel.send(f"<@&605808609128873985>")
-       await xchannel.send(embed=embed)
-
+       await xchannel.send(f"<@&605808609128873985>")    
+       await xchannel.send(embed=embed)  
+      
 
     @commands.command()
     async def stop(self, ctx):
-      pass
+      pass   
+    
+    @commands.command()
+    @commands.has_role("Admin")
+    async def count(self, ctx,arg):
+      await ctx.channel.purge(limit=1)
+      message = await ctx.send(arg) 
+      argg=int(arg)
+      while argg:
+        mins ,secs =divmod(argg,60)
+        content ='**{:02d}:{:02d}**'.format(mins, secs)
+        await message.edit(content=content)
+        argg-=1
+        time.sleep(1)
+      await message.delete()
 
-
+ 
 class reddit(commands.Cog):
     @commands.command()
     async def meme(self, ctx):
@@ -575,7 +661,8 @@ class reddit(commands.Cog):
 
 @client.event
 async def on_command_error(ctx, error):
-   embed=discord.Embed(title="**Not your day boi!**",description=f"{error}",color=0xF40000)
+   errormes= randomerror()
+   embed=discord.Embed(title=errormes,description=f"{error}",color=0xF40000)
    await ctx.send(embed=embed)
 
 client.add_cog(admins(client))
