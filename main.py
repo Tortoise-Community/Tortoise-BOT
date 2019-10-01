@@ -10,7 +10,6 @@ startup_extensions = ["verification",
                       "tortoise_server",
                       "other",
                       "reddit",
-                      "verification",
                       "help",
                       "cmd_error_handler"]
 
