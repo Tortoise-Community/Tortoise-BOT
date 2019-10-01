@@ -22,7 +22,7 @@ class Other(commands.Cog):
         await ctx.send(f'```{ctx.guild.member_count}```')
 
     @commands.command()
-    async def status(self, ctx, *, member: discord.Member):
+    async def status(self, ctx, member: discord.Member):
         """Returns the status of a member."""
 
         if member.id == sidekick_bot_id:
@@ -33,7 +33,7 @@ class Other(commands.Cog):
             await ctx.send(f"```{member} is {member.status}.```")
 
     @commands.command()
-    async def pfp(self, ctx, *, member: discord.Member = None):
+    async def pfp(self, ctx, member: discord.Member = None):
         """Displays the profile picture of a member."""
 
         if member is None:
