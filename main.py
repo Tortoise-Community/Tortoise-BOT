@@ -56,6 +56,6 @@ if __name__ == "__main__":
             print(f"Loaded {cog_path}")
         except Exception as e:
             traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
-            print(traceback_msg)
+            print(f"Failed to load cog {cog_path} - traceback:{traceback_msg}")
     TOKEN = os.environ.get("Tok")
     bot.run(TOKEN)
