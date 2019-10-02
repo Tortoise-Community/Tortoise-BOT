@@ -1,3 +1,4 @@
+import time
 import discord
 from discord.ext import commands
 
@@ -49,6 +50,15 @@ class Other(commands.Cog):
 
         embed = discord.Embed(title="""Tortoise-BOT github repository""", url=github_repo_link, color=0x206694)
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def ping(self, ctx):
+        """Replies to a ping."""
+        start = time.perf_counter()
+        message = await ctx.send("Pong!")
+        end = time.perf_counter()
+        duration = (end - start) * 1000
+        await message.edit(content=f':ping_pong: {duration:.2f}ms')
 
 
 def setup(bot):
