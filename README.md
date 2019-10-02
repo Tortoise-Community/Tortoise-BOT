@@ -62,6 +62,8 @@ MEMBER COMMANDS:
 
 ## Installation Instructions
 
+  If you are wanting to run the bot for testing reasons you can check out the installation instructions below. Make sure add in a token.
+
   ```markdown
   git clone https://github.com/Tortoise-Community/Tortoise-BOT.git
   <!-- Clone the repo -->  
