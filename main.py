@@ -1,7 +1,7 @@
-import os
 import traceback
 import discord
 from discord.ext import commands
+from config_handler import ConfigHandler
 
 startup_extensions = ["verification",
                       "security",
@@ -13,7 +13,14 @@ startup_extensions = ["verification",
                       "help",
                       "cmd_error_handler"]
 
-bot = commands.Bot(command_prefix="!")
+
+class Bot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        self.config = ConfigHandler()
+        super(Bot, self).__init__(*args, **kwargs)
+
+
+bot = Bot(command_prefix="!")
 
 
 @bot.command(hidden=True)
@@ -56,5 +63,5 @@ if __name__ == "__main__":
         except Exception as e:
             traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
             print(f"Failed to load cog {cog_path} - traceback:{traceback_msg}")
-    TOKEN = os.environ.get("Tok")
+    TOKEN = bot.config.get_token()
     bot.run(TOKEN)
