@@ -19,5 +19,10 @@ class ConfigHandler:
         except Exception as e:
             logger.critical(f"Can't load json config: {e}")
 
-    def get_token(self):
-        return self._config["token"]
+    def get_key(self, key):
+        try:
+            return self._config[key]
+        except KeyError as e:
+            error_message = f"Key '{key}' not found in json config! {e}"
+            logger.critical(error_message)
+            raise KeyError(error_message)
