@@ -1,8 +1,6 @@
 import discord
 from discord.ext import commands
 
-event_submission_channel_id = 610079185569841153
-
 
 class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
@@ -28,7 +26,7 @@ class TortoiseServer(commands.Cog):
             await ctx.send("You took too long to reply.")
             return
 
-        event_submission_channel = self.bot.get_channel(event_submission_channel_id)
+        event_submission_channel = self.bot.get_channel(self.bot.config.get_key("event_submission_channel_id"))
 
         title = f"Submission from {ctx.author}"
         embed = discord.Embed(title=title, description=code_msg.content, color=ctx.me.top_role.color)
