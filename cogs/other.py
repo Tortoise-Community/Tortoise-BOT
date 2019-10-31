@@ -2,9 +2,6 @@ import time
 import discord
 from discord.ext import commands
 
-github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
-sidekick_bot_id = 577140178791956500
-
 
 class Other(commands.Cog):
     def __init__(self, bot):
@@ -26,7 +23,7 @@ class Other(commands.Cog):
     async def status(self, ctx, member: discord.Member):
         """Returns the status of a member."""
 
-        if member.id == sidekick_bot_id:
+        if member.id == self.bot.config.get_key("sidekick_bot_id"):
             await ctx.send("**I AM ONLINE , CAN'T YOU SEE?**")
         elif member.is_on_mobile():
             await ctx.send(f"```{member} is {member.status} but is on phone.```")
@@ -48,7 +45,9 @@ class Other(commands.Cog):
     async def github(self, ctx):
         """GitHub repository"""
 
-        embed = discord.Embed(title="""Tortoise-BOT github repository""", url=github_repo_link, color=0x206694)
+        embed = discord.Embed(title="Tortoise-BOT github repository",
+                              url=self.bot.config.get_key("github_repo_link"),
+                              color=0x206694)
         await ctx.send(embed=embed)
 
     @commands.command()
