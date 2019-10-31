@@ -2,6 +2,8 @@ import discord
 from discord.ext import commands
 from discord.errors import Forbidden
 
+support_admin_id = 125759308515246080
+
 
 class Admins(commands.Cog):
     def __init__(self, bot):
@@ -31,7 +33,7 @@ class Admins(commands.Cog):
 
         dm_embed = discord.Embed(title=msg_title,
                                  description=(f"{msg_description}"
-                                              f"\nIf this happened by a mistake contact <@{self.bot.config.get_key('support_admin_id')}>"
+                                              f"\nIf this happened by a mistake contact <@{support_admin_id}>"
                                               "\nYou can rejoin the server after the cooldown from here"),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
@@ -67,7 +69,7 @@ class Admins(commands.Cog):
 
         dm_embed = discord.Embed(title=msg_title,
                                  description=(f"{msg_description}",
-                                              f"\nIf this happened by a mistake contact <@{self.bot.config.get_key('support_admin_id')}>"),
+                                              f"\nIf this happened by a mistake contact <@{support_admin_id}>"),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
         try:
