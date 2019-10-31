@@ -1,3 +1,12 @@
 {
+  "default_prefix": "t.",
+  "deterrence_log_channel_id": 597119801701433357,
+  "sidekick_bot_id": 577140178791956500,
+  "event_submission_channel_id": 610079185569841153,
+  "unverified_role_id": 628674026927161374,
+  "verified_role_id": 599647985198039050,
+  "verification_channel_id": 602156675863937024,
+  "system_log_channel_id": 593883395436838942,
+  "github_repo_link": "https://github.com/Tortoise-Community/Tortoise-BOT",
   "token": "INSERT TOKEN HERE"
 }

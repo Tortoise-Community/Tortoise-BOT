@@ -17,10 +17,10 @@ startup_extensions = ["verification",
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         self.config = ConfigHandler()
-        super(Bot, self).__init__(*args, **kwargs)
+        super(Bot, self).__init__(*args, command_prefix=self.config.get_key("default_prefix"), **kwargs)
 
 
-bot = Bot(command_prefix="!")
+bot = Bot()
 
 
 @bot.command(hidden=True)
@@ -63,5 +63,5 @@ if __name__ == "__main__":
         except Exception as e:
             traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
             print(f"Failed to load cog {cog_path} - traceback:{traceback_msg}")
-    TOKEN = bot.config.get_token()
-    bot.run(TOKEN)
+
+    bot.run(bot.config.get_key("token"))
