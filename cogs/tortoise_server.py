@@ -34,6 +34,19 @@ class TortoiseServer(commands.Cog):
 
         await event_submission_channel.send(embed=embed)
 
+        
+    @commands.command()
+    @commands.has_role('Admin')
+    async def count(self, ctx, start: int):
+        await ctx.message.delete()
+        message = await ctx.send(start)
+        while start:
+            minutes, secs = divmod(start, 60)
+            content = "{:02d}:{:02d}".format(minutes, secs)
+            await message.edit(content=content)
+            start -= 1
+            await asyncio.sleep(1)
+        await message.delete()
 
 def setup(bot):
     bot.add_cog(TortoiseServer(bot))
