@@ -1,2 +1,4 @@
 discord.py==1.2.3
 praw
+discord
+youtube_dl
