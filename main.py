@@ -11,7 +11,8 @@ startup_extensions = ["verification",
                       "other",
                       "reddit",
                       "help",
-                      "cmd_error_handler"]
+                      "cmd_error_handler",
+                      "music"]
 
 
 class Bot(commands.Bot):
