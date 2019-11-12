@@ -6,7 +6,10 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
-
+       
+    announcements_channel_id = 578197131526144024
+    welcome_channel_id = 591662973307584513
+  
     @commands.command()
     @commands.guild_only()
     async def submit(self, ctx):
@@ -48,5 +51,35 @@ class TortoiseServer(commands.Cog):
             await asyncio.sleep(1)
         await message.delete()
 
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def announce(self, ctx, *, arg):
+        announcements_channel = self.bot.get_channel(announcements_channel_id)
+        await announcements_channel.send(arg)
+        await ctx.send("Announced ✅")  
+        
+    @commands.command()
+    @commands.has_role("Admin")
+    async def welcome(self, ctx, *, arg):
+        channel = self.bot.get_channel(welcome_channel_id)
+        await channel.send(arg)
+        await ctx.send("Added in Welcome ✅")
+    
+    @commands.command()
+    @commands.dm_only()
+    async def report(self, ctx):
+        data = get_data()
+        for user in data["reporters"]:
+            if user["user_id"] == ctx.author.id and user["status"] == "false":
+                await ctx.send(embed=errorbed)
+                return
+        channel = self.client.get_channel(580809054067097600)
+        await ctx.send(embed=membed)
+        create_issue(ctx.author.id)
+        embed = discord.Embed(title=f"**Report Opened!**", description=f"{ctx.author.mention} opened a report.\n\nType in `t.attend` to attend the report.", color=0xF2771A)
+        embed.set_author(name="Mod-Mail", icon_url=ctx.me.avatar_url)
+        await channel.send(f"<@&605808609128873985>")
+        await channel.send(embed=embed)
+    
 def setup(bot):
     bot.add_cog(TortoiseServer(bot))
