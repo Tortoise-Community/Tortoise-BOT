@@ -1,4 +1,6 @@
-discord.py==1.2.3
+discord.py==1.2.5
 praw
 discord
 youtube_dl
+databases
+sqlalchemy
