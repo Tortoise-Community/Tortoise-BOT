@@ -3,20 +3,19 @@ import praw
 import discord
 from discord.ext import commands
 
-reddite = praw.Reddit(client_id="",
-                      client_secret="",
-                      user_agent="Tortoise Discord Bot",
-                      username="")
-
 
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.reddit = praw.Reddit(client_id=self.bot.config.get_key("praw_client_id"),
+                                  client_secret=self.bot.config.get_key("praw_client_secret"),
+                                  user_agent="Tortoise Discord Bot"
+                                  )
 
     @commands.command()
     async def meme(self, ctx):
         """Sends you the dankest of the dank memes from reddit"""
-        subreddit = reddite.subreddit("memes")
+        subreddit = self.reddit.subreddit("memes")
         hot_memes = list(subreddit.hot(limit=100))
         rand_post = random.choice(hot_memes)
         embed = discord.Embed(title=rand_post.title,
@@ -29,7 +28,7 @@ class Reddit(commands.Cog):
     @commands.command()
     async def newpost(self, ctx, subreddit):
         """Sends you the fresh posts from specific subreddit."""
-        sub = reddite.subreddit(subreddit)
+        sub = self.reddit.subreddit(subreddit)
         new_posts = list(sub.new(limit=10))
         rand_post = random.choice(new_posts)
         embed = discord.Embed(title=rand_post.title,
@@ -42,7 +41,7 @@ class Reddit(commands.Cog):
     @commands.command()
     async def hotpost(self, ctx, subreddit):
         """sends you the hottest posts from a subreddit."""
-        sub = reddite.subreddit(subreddit)
+        sub = self.reddit.subreddit(subreddit)
         host_posts = list(sub.hot(limit=10))
         rand_post = random.choice(host_posts)
         embed = discord.Embed(title=rand_post.title,
