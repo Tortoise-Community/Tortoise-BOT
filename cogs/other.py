@@ -8,16 +8,15 @@ class Other(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def say(self, ctx, *, arg):
+    async def say(self, ctx, *, message):
         """Says something"""
-
         await ctx.message.delete()
-        await ctx.send(arg)
+        await ctx.send(message)
 
     @commands.command()
     async def members(self, ctx):
         """Returns the number of members in a server."""
-        await ctx.send(f'```{ctx.guild.member_count}```')
+        await ctx.send(f"```{ctx.guild.member_count}```")
 
     @commands.command()
     async def status(self, ctx, member: discord.Member):
@@ -57,7 +56,7 @@ class Other(commands.Cog):
         message = await ctx.send("Pong!")
         end = time.perf_counter()
         duration = (end - start) * 1000
-        await message.edit(content=f':ping_pong: {duration:.2f}ms')
+        await message.edit(content=f":ping_pong: {duration:.2f}ms")
 
 
 def setup(bot):

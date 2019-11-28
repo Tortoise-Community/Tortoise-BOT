@@ -34,8 +34,6 @@ class DatabaseHandler:
         if not self._does_member_exists(user_id, guild_id):
             self.session.add(Member(user_id, guild_id))
             self.session.commit()
-        else:
-            print(user_id, "already exists")
 
     def _does_member_exists(self, user_id, guild_id):
         return self.session.query(Member).filter_by(user_id=user_id, guild_id=guild_id).first()
@@ -74,10 +72,6 @@ class Guild(Base):
 
 
 if __name__ == "__main__":
-    username = "root"
-    password = ""
-    host = "localhost"
-    database_name = "test"
-    url = DatabaseHandler.construct_mysql_connection_url(username, password, host, database_name)
+    url = DatabaseHandler.construct_mysql_connection_url("root", "", "localhost", "test")
     database_handler = DatabaseHandler(url)
     database_handler.add_member(170208380739256320, 109891165154738176)
