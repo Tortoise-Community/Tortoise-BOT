@@ -11,13 +11,13 @@ startup_extensions = ["verification",
                       "other",
                       "reddit",
                       "help",
-                      "cmd_error_handler",
-                      "music"]
+                      "music",
+                      "cmd_error_handler"]
 
 
 class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
-        self.config = ConfigHandler()
+        self.config = ConfigHandler("bot_config.json")
         super(Bot, self).__init__(*args, command_prefix=self.config.get_key("default_prefix"), **kwargs)
 
 
