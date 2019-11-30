@@ -1,6 +1,5 @@
-discord.py==1.2.5
+discord.py[voice]
 praw
-discord
 youtube_dl
 sqlalchemy
 pymysql
