@@ -5,3 +5,4 @@ youtube_dl
 sqlalchemy
 pymysql
 aiohttp
+PyNaCl
