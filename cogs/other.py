@@ -1,6 +1,7 @@
 import time
 import discord
 from discord.ext import commands
+from utils.embed_handler import info
 
 
 class Other(commands.Cog):
@@ -16,47 +17,50 @@ class Other(commands.Cog):
     @commands.command()
     async def members(self, ctx):
         """Returns the number of members in a server."""
-        await ctx.send(f"```{ctx.guild.member_count}```")
+        await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
 
     @commands.command()
-    async def status(self, ctx, member: discord.Member):
+    async def status(self, ctx, member: discord.Member = None):
         """Returns the status of a member."""
+        if member is None:
+            member = ctx.author
 
-        if member.id == self.bot.config.get_key("sidekick_bot_id"):
-            await ctx.send("**I AM ONLINE , CAN'T YOU SEE?**")
-        elif member.is_on_mobile():
-            await ctx.send(f"```{member} is {member.status} but is on phone.```")
+        if member.is_on_mobile():
+            message = f"{member.mention} is {member.status} but is on phone."
         else:
-            await ctx.send(f"```{member} is {member.status}.```")
+            message = f"{member.mention} is {member.status}."
+
+        await ctx.send(embed=info(message, ctx.me, "Status"))
 
     @commands.command()
     async def pfp(self, ctx, member: discord.Member = None):
         """Displays the profile picture of a member."""
-
         if member is None:
-            await ctx.send(f"Your avatar {ctx.author.avatar_url}")
+            message, url = "Your avatar", ctx.author.avatar_url
         elif member == ctx.me:
-            await ctx.send(f"My avatar {member.avatar_url}")
+            message, url = "My avatar", member.avatar_url
         else:
-            await ctx.send(f"{member} avatar {member.avatar_url}")
+            message, url = f"{member} avatar", member.avatar_url
 
-    @commands.command()
+        embed = info(message, ctx.me)
+        embed.set_image(url=url)
+        await ctx.send(embed=embed)
+
+    @commands.command(aliases=["git"])
     async def github(self, ctx):
         """GitHub repository"""
-
-        embed = discord.Embed(title="Tortoise-BOT github repository",
-                              url=self.bot.config.get_key("github_repo_link"),
-                              color=0x206694)
+        link = self.bot.config.get_key('github_repo_link')
+        embed = info(f"[Tortoise github repository]({link})", ctx.me, "Github")
         await ctx.send(embed=embed)
 
     @commands.command()
     async def ping(self, ctx):
         """Replies to a ping."""
         start = time.perf_counter()
-        message = await ctx.send("Pong!")
+        message = await ctx.send(embed=info("Pong!", ctx.me))
         end = time.perf_counter()
         duration = (end - start) * 1000
-        await message.edit(content=f":ping_pong: {duration:.2f}ms")
+        await message.edit(embed=info(f":ping_pong: {duration:.2f}ms", ctx.me, "Pong!"))
 
 
 def setup(bot):
