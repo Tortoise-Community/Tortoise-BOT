@@ -3,7 +3,13 @@ import youtube_dl
 import asyncio
 from discord.ext import commands
 
+
+class Music(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
 youtube_dl.utils.bug_reports_message = lambda: ''
+
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -16,7 +22,7 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0'
+    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
 }
 
 ffmpeg_options = {
@@ -48,10 +54,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 
-class Music(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
     @commands.command()
     async def join(self, ctx, *, channel: discord.VoiceChannel):
         """Joins a voice channel"""
@@ -63,7 +65,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, url):
-        """Plays from yt"""
+        """Plays from a url (almost anything youtube_dl supports)"""
 
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
@@ -71,6 +73,7 @@ class Music(commands.Cog):
 
         await ctx.send('Now playing: {}'.format(player.title))
 
+        
     @commands.command()
     async def volume(self, ctx, volume: int):
         """Changes the player's volume"""
@@ -96,8 +99,7 @@ class Music(commands.Cog):
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
         elif ctx.voice_client.is_playing():
-            ctx.voice_client.stop()
-
-
+            ctx.voice_client.stop()        
+        
 def setup(bot):
     bot.add_cog(Music(bot))
