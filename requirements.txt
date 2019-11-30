@@ -4,3 +4,4 @@ discord
 youtube_dl
 sqlalchemy
 pymysql
+aiohttp
