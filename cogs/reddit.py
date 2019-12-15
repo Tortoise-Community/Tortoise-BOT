@@ -1,3 +1,4 @@
+import os
 import random
 import praw
 import discord
@@ -7,8 +8,8 @@ from discord.ext import commands
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.reddit = praw.Reddit(client_id=self.bot.config.get_key("praw_client_id"),
-                                  client_secret=self.bot.config.get_key("praw_client_secret"),
+        self.reddit = praw.Reddit(client_id=os.getenv("PRAW_CLIENT_ID"),
+                                  client_secret=os.getenv("PRAW_CLIENT_SECRET"),
                                   user_agent="Tortoise Discord Bot"
                                   )
 
@@ -45,7 +46,7 @@ class Reddit(commands.Cog):
         host_posts = list(sub.hot(limit=10))
         rand_post = random.choice(host_posts)
         embed = discord.Embed(title=rand_post.title,
-                              description=f':thumbsup: {rand_post.score}\n\n:speech_balloon: {len(rand_post.comments)}',
+                              description=f":thumbsup: {rand_post.score}\n\n:speech_balloon: {len(rand_post.comments)}",
                               url=rand_post.url,
                               colour=0x3498db)
         embed.set_image(url=rand_post.url)

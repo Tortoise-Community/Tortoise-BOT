@@ -1,7 +1,8 @@
+import os
 import traceback
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from config_handler import ConfigHandler
 
 startup_extensions = ["verification",
                       "security",
@@ -16,9 +17,10 @@ startup_extensions = ["verification",
 
 
 class Bot(commands.Bot):
+    DEFAULT_PREFIX = "!"
+
     def __init__(self, *args, **kwargs):
-        self.config = ConfigHandler("bot_config.json")
-        super(Bot, self).__init__(*args, command_prefix=self.config.get_key("default_prefix"), **kwargs)
+        super(Bot, self).__init__(*args, command_prefix=Bot.DEFAULT_PREFIX, **kwargs)
 
 
 bot = Bot()
@@ -56,6 +58,8 @@ async def on_ready():
     print(f"Logged in as {bot.user.name} with ID {bot.user.id} \t d.py version: {discord.__version__}")
 
 if __name__ == "__main__":
+    load_dotenv()
+
     for extension in startup_extensions:
         cog_path = f"cogs.{extension}"
         try:
@@ -65,4 +69,4 @@ if __name__ == "__main__":
             traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
             print(f"Failed to load cog {cog_path} - traceback:{traceback_msg}")
 
-    bot.run(bot.config.get_key("token"))
+    bot.run(os.getenv("BOT_TOKEN"))

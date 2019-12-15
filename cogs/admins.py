@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.errors import Forbidden
 
 support_admin_id = 125759308515246080
+deterrence_log_channel_id = 597119801701433357
 
 
 class Admins(commands.Cog):
@@ -28,7 +29,7 @@ class Admins(commands.Cog):
                                                       f"{msg_description}"),
                                          color=0xFF0000)
         deterrence_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
-        deterrence_log_channel = self.bot.get_channel(self.bot.config.get_key("deterrence_log_channel_id"))
+        deterrence_log_channel = self.bot.get_channel(deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = discord.Embed(title=msg_title,
@@ -64,7 +65,7 @@ class Admins(commands.Cog):
                                                       f"{msg_description}"),
                                          color=0xFF0000)
         deterrence_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
-        deterrence_log_channel = self.bot.get_channel(self.bot.config.get_key("deterrence_log_channel_id"))
+        deterrence_log_channel = self.bot.get_channel(deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = discord.Embed(title=msg_title,
@@ -88,7 +89,7 @@ class Admins(commands.Cog):
         You will require appropriate role to use this command.
 
         """
-        deterrence_log_channel = self.bot.get_channel(self.bot.config.get_key("deterrence_log_channel_id"))
+        deterrence_log_channel = self.bot.get_channel(deterrence_log_channel_id)
         embed = discord.Embed(title=f"**{member.name} You have been warned for {reason}**",
                               description=f"If you are planning to repeat this again, "
                                           f"the mods may administer punishment for the action.",

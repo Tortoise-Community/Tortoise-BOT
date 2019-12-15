@@ -3,6 +3,8 @@ import discord
 from discord.ext import commands
 from utils.embed_handler import info
 
+github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
+
 
 class Other(commands.Cog):
     def __init__(self, bot):
@@ -49,8 +51,7 @@ class Other(commands.Cog):
     @commands.command(aliases=["git"])
     async def github(self, ctx):
         """GitHub repository"""
-        link = self.bot.config.get_key('github_repo_link')
-        embed = info(f"[Tortoise github repository]({link})", ctx.me, "Github")
+        embed = info(f"[Tortoise github repository]({github_repo_link})", ctx.me, "Github")
         await ctx.send(embed=embed)
 
     @commands.command()
