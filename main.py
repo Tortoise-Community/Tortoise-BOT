@@ -13,6 +13,7 @@ startup_extensions = ["verification",
                       "reddit",
                       "help",
                       "music",
+                      "socket_comm",
                       "cmd_error_handler"]
 
 
@@ -27,7 +28,7 @@ bot = Bot()
 
 
 @bot.command(hidden=True)
-@commands.is_owner()
+#@commands.is_owner()
 async def load(ctx, extension_path):
     """
     Loads an extension.
@@ -40,7 +41,7 @@ async def load(ctx, extension_path):
 
 
 @bot.command(hidden=True)
-@commands.is_owner()
+#@commands.is_owner()
 async def unload(ctx, extension_path):
     """
     Unloads an extension.
