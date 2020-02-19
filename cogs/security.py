@@ -14,7 +14,7 @@ class Security(commands.Cog):
     async def on_message(self, message):
 
         ctx = message.channel
-        if message.author == message.guild.me:
+        if message.guild is None or message.author == message.guild.me:
             return
 
         # Check for invites
