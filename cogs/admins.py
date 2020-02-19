@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from discord.errors import Forbidden
 
-support_admin_id = 125759308515246080
 deterrence_log_channel_id = 597119801701433357
 
 
@@ -34,7 +33,7 @@ class Admins(commands.Cog):
 
         dm_embed = discord.Embed(title=msg_title,
                                  description=(f"{msg_description}"
-                                              f"\nIf this happened by a mistake contact <@{support_admin_id}>"
+                                              f"\nIf this happened by a mistake contact moderators."
                                               "\nYou can rejoin the server after the cooldown from here"),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
@@ -49,7 +48,7 @@ class Admins(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
-    async def ban(self, ctx, member: discord.Member, *, reason="No specific reason"):
+    async def ban(self, ctx, member: discord.Member, *, reason="Reason not stated."):
         """
         Bans  member from the guild.
         You will require ban_members permissions to use this command.
@@ -70,7 +69,7 @@ class Admins(commands.Cog):
 
         dm_embed = discord.Embed(title=msg_title,
                                  description=(f"{msg_description}",
-                                              f"\nIf this happened by a mistake contact <@{support_admin_id}>"),
+                                              f"\nIf this happened by a mistake contact moderators."),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
         try:

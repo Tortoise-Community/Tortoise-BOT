@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 announcements_channel_id = 578197131526144024
-welcome_channel_id = 591662973307584513
+welcome_channel_id = 657704940080201739
 event_submission_channel_id = 610079185569841153
 
 
@@ -40,7 +40,7 @@ class TortoiseServer(commands.Cog):
         await event_submission_channel.send(embed=embed)
 
     @commands.command()
-    @commands.has_role("Admin")
+    @commands.has_permissions(manage_messages=True)
     async def count(self, ctx, start: int):
         await ctx.message.delete()
         message = await ctx.send(start)
@@ -60,7 +60,7 @@ class TortoiseServer(commands.Cog):
         await ctx.send("Announced ✅")  
         
     @commands.command()
-    @commands.has_role("Admin")
+    @commands.has_permissions(manage_messages=True)
     async def welcome(self, ctx, *, arg):
         channel = self.bot.get_channel(welcome_channel_id)
         await channel.send(arg)
