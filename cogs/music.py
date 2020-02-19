@@ -53,7 +53,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
-
     @commands.command()
     async def join(self, ctx, *, channel: discord.VoiceChannel):
         """Joins a voice channel"""
@@ -72,7 +71,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
             ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
 
         await ctx.send('Now playing: {}'.format(player.title))
-
         
     @commands.command()
     async def volume(self, ctx, volume: int):

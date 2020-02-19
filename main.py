@@ -23,40 +23,38 @@ class Bot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=Bot.DEFAULT_PREFIX, **kwargs)
 
+    @staticmethod
+    async def on_ready():
+        print("Successfully logged in and booted...!")
+        print(f"Logged in as {bot.user.name} with ID {bot.user.id} \t d.py version: {discord.__version__}")
+
 
 bot = Bot()
 
 
 @bot.command(hidden=True)
-#@commands.is_owner()
-async def load(ctx, extension_path):
+@commands.is_owner()
+async def load(ctx, extension_name):
     """
     Loads an extension.
-    :param extension_path: full path, dotted access, example:
-                           cogs.admin
-
+    :param extension_name: extension name
     """
+    extension_path = f"cogs.{extension_name}"
     bot.load_extension(extension_path)
     await ctx.send(f"{extension_path} loaded.")
 
 
 @bot.command(hidden=True)
-#@commands.is_owner()
-async def unload(ctx, extension_path):
+@commands.is_owner()
+async def unload(ctx, extension_name):
     """
     Unloads an extension.
-    :param extension_path: full path, dotted access, example:
-                           cogs.admin
-
+    :param extension_name: extension name
     """
+    extension_path = f"cogs.{extension_name}"
     bot.unload_extension(extension_path)
     await ctx.send(f"{extension_path} unloaded.")
 
-
-@bot.event
-async def on_ready():
-    print("Successfully logged in and booted...!")
-    print(f"Logged in as {bot.user.name} with ID {bot.user.id} \t d.py version: {discord.__version__}")
 
 if __name__ == "__main__":
     load_dotenv()
