@@ -1,49 +1,55 @@
-import asyncio
+import socket
 from discord.ext import commands
 
 
 class SocketCommunication(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.socket_server = asyncio.start_server(self.handle_client, "localhost", 15555)
-        self.server_task = self.bot.loop.create_task(self.socket_server)
-        #self.cog_loaded = True
+        self.verified_clients = set()
+        self.bot.loop.create_task(self.run_server(self.get_server()))
+
+    @classmethod
+    def get_server(cls):
+        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        server.bind(("localhost", 15555))
+        server.listen(8)
+        server.setblocking(False)
+        return server
 
     def cog_unload(self):
-        """
-        Stop socket task so new socket connection could be opened when the cog gets loaded again.
-
-        """
-        #self.server_task.cancel()
-        #self.socket_server.close()
-        #self.cog_loaded = False
-        # unload it and the server will burn
         pass
 
     async def test(self, message):
         test_channel = self.bot.get_channel(581139962611892229)
         await test_channel.send(message)
 
-    async def handle_client(self, reader, writer):
-        print("Socket connection established, listening...")
-        while True:
+    async def handle_client(self, client):
+        request = None
+        while request != "quit":
             try:
-                request = (await reader.read(255)).decode("utf8")
+                request = (await self.bot.loop.sock_recv(client, 255)).decode("utf8")
             except ConnectionResetError:
-                print("Connection lost.. closing.")
-                writer.close()
-                return
+                # If the client disconnects without sending quit.
+                print(f"{client.getpeername()} disconnected.")
+                break
 
-            """if not self.cog_loaded:
-                # Quick fix for unloading/loading cogs
-                print("Cog not loaded, exiting loop")
-                writer.close()
-                return"""
+            print(f"Server got:{request}")
+            await self.test(f"Client says:{request}")
+            response = f"Okay: '{request}'"
 
-            await self.test(request)
-            response = "Successfully got: " + request
-            writer.write(response.encode("utf8"))
-            await writer.drain()
+            try:
+                await self.bot.loop.sock_sendall(client, response.encode("utf8"))
+            except BrokenPipeError:
+                # If the client closes the connection too quickly or just does't even bother listening to response we'll
+                # get this, so just ignore
+                pass
+        client.close()
+
+    async def run_server(self, server: socket.socket):
+        while True:
+            client, _ = await self.bot.loop.sock_accept(server)
+            print(f"{client.getpeername()} connected.")
+            self.bot.loop.create_task(self.handle_client(client))
 
 
 def setup(bot):
