@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.errors import Forbidden
 
 deterrence_log_channel_id = 597119801701433357
+muted_role_id = 610126555867512870
 
 
 class Admins(commands.Cog):
@@ -133,6 +134,13 @@ class Admins(commands.Cog):
         """
         await ctx.channel.purge(limit=amount + 1)
         await ctx.send(f"**MESSAGES CLEARED** {ctx.author.mention}", delete_after=3)
+
+    @commands.command()
+    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_messages=True, manage_roles=True)
+    async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
+        muted_role = ctx.guild.get_role(610126555867512870)
+        await member.add_roles(muted_role, reason=reason)
 
 
 def setup(bot):

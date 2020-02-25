@@ -12,20 +12,6 @@ class TortoiseServer(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    async def announce(self, ctx, *, arg):
-        announcements_channel = self.bot.get_channel(announcements_channel_id)
-        await announcements_channel.send(arg)
-        await ctx.send("Announced ✅")
-
-    @commands.command()
-    @commands.has_role("Admin")
-    async def welcome(self, ctx, *, arg):
-        channel = self.bot.get_channel(welcome_channel_id)
-        await channel.send(arg)
-        await ctx.send("Added in Welcome ✅")
-
-    @commands.command()
     @commands.has_any_role("Admin", "Moderator")
     async def events(self, ctx, arg):
         EventManage(arg.lower())
@@ -35,22 +21,13 @@ class TortoiseServer(commands.Cog):
         await ctx.send(embed=embed)
     
     @commands.command()
-    @commands.has_any_role("Admin","Moderator")
+    @commands.has_any_role("Admin", "Moderator")
     async def announcements(self, ctx, arg):
         AnnounceManage(arg.lower())
         embed = discord.Embed(title="**Success!**",
                               description=f"Announcements turned **{arg.upper()}** successfully!",
                               color=0x13D910)
         await ctx.send(embed=embed)
-
-    @commands.command()
-    @commands.has_any_role("Admin", "Moderator", "Helpers")
-    async def mute(self, ctx, member: discord.Member, duration="10 minutes", *, reason="For some reason"):
-        tortoise = self.bot.get_guild(577192344529404154)
-        muted = tortoise.get_role(610126555867512870)
-        x = tortoise.get_role(599647985198039050)
-        await member.remove_roles(x)
-        await member.add_roles(muted)
 
     @commands.command()
     @commands.has_any_role("Admin", "Moderator", "Helpers")
@@ -199,24 +176,6 @@ class TortoiseServer(commands.Cog):
         embed.set_author(name="MOD-MAIL", icon_url=ctx.me.avatar_url)
         await xchannel.send(f"<@&605808609128873985>")
         await xchannel.send(embed=embed)
-    
-    @commands.command()
-    @commands.has_role("Admin")
-    async def count(self, ctx, start: int):
-        """
-        Countdown from start to 0.
-        One second at a time
-
-        """
-        await ctx.message.delete()
-        message = await ctx.send(start)
-        while start:
-            minutes, secs = divmod(start, 60)
-            content = "**{:02d}:{:02d}**".format(minutes, secs)
-            await message.edit(content=content)
-            start -= 1
-            await asyncio.sleep(1)
-        await message.delete()
 
 
 def setup(bot):

@@ -90,9 +90,12 @@ class TortoiseServer(commands.Cog):
         await event_submission_channel.send(embed=embed)
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    async def count(self, ctx, start: int):
-        await ctx.message.delete()
+    async def countdown(self, ctx, start: int):
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+
         message = await ctx.send(start)
         while start:
             minutes, secs = divmod(start, 60)
@@ -108,7 +111,7 @@ class TortoiseServer(commands.Cog):
         announcements_channel = self.bot.get_channel(announcements_channel_id)
         await announcements_channel.send(arg)
         await ctx.send("Announced ✅")  
-        
+
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     async def welcome(self, ctx, *, arg):
