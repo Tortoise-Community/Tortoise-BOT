@@ -6,19 +6,19 @@ from discord.ext import commands
 
 startup_extensions = ["verification",
                       "security",
-                      "admins",
+                      "bot_owner_commands",
+                      "moderation",
                       "fun",
                       "tortoise_server",
                       "other",
                       "reddit",
                       "help",
                       "music",
-                      "socket_comm",
                       "cmd_error_handler"]
 
 
 class Bot(commands.Bot):
-    DEFAULT_PREFIX = "!"
+    DEFAULT_PREFIX = "."
 
     def __init__(self, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=Bot.DEFAULT_PREFIX, **kwargs)
@@ -29,35 +29,9 @@ class Bot(commands.Bot):
         print(f"Logged in as {bot.user.name} with ID {bot.user.id} \t d.py version: {discord.__version__}")
 
 
-bot = Bot()
-
-
-@bot.command(hidden=True)
-@commands.is_owner()
-async def load(ctx, extension_name):
-    """
-    Loads an extension.
-    :param extension_name: extension name
-    """
-    extension_path = f"cogs.{extension_name}"
-    bot.load_extension(extension_path)
-    await ctx.send(f"{extension_path} loaded.")
-
-
-@bot.command(hidden=True)
-@commands.is_owner()
-async def unload(ctx, extension_name):
-    """
-    Unloads an extension.
-    :param extension_name: extension name
-    """
-    extension_path = f"cogs.{extension_name}"
-    bot.unload_extension(extension_path)
-    await ctx.send(f"{extension_path} unloaded.")
-
-
 if __name__ == "__main__":
     load_dotenv()
+    bot = Bot()
 
     for extension in startup_extensions:
         cog_path = f"cogs.{extension}"
