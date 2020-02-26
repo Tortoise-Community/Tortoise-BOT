@@ -1,3 +1,4 @@
+import json
 import socket
 from discord.ext import commands
 
@@ -5,6 +6,7 @@ from discord.ext import commands
 class SocketCommunication(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.tokens = ("abc", "test")
         self.verified_clients = set()
         self.bot.loop.create_task(self.run_server(self.get_server()))
 
@@ -25,6 +27,7 @@ class SocketCommunication(commands.Cog):
 
     async def handle_client(self, client):
         request = None
+        client_name = client.getpeername()
         while request != "quit":
             try:
                 request = (await self.bot.loop.sock_recv(client, 255)).decode("utf8")
@@ -33,17 +36,52 @@ class SocketCommunication(commands.Cog):
                 print(f"{client.getpeername()} disconnected.")
                 break
 
-            print(f"Server got:{request}")
-            await self.test(f"Client says:{request}")
-            response = f"Okay: '{request}'"
-
             try:
-                await self.bot.loop.sock_sendall(client, response.encode("utf8"))
-            except BrokenPipeError:
-                # If the client closes the connection too quickly or just does't even bother listening to response we'll
-                # get this, so just ignore
-                pass
+                request = json.loads(request)
+            except json.JSONDecodeError:
+                response = "Not a valid JSON formatted request."
+                await self.send_to_client(client, response)
+                print(f"{client_name}:{response}\n{request}")
+                continue
+
+            print(f"Server got:\n{request}")
+
+            if client_name not in self.verified_clients:
+                token = request.get("Auth")
+                if token is not None and token in self.tokens:
+                    self.verified_clients.add(client_name)
+                    response = "Verification successful."
+                    await self.send_to_client(client, response)
+                    print(f"{client_name}:{response}\n{request}")
+                    continue
+                else:
+                    response = "Verification unsuccessful, closing conn."
+                    await self.send_to_client(client, response)
+                    print(f"{client_name}:{response}\n{request}")
+                    break
+
+            await self.parse_request(request, client)
+        print(f"Closing {client_name}")
         client.close()
+
+    async def send_to_client(self, client, msg):
+        try:
+            await self.bot.loop.sock_sendall(client, msg.encode("utf8"))
+        except BrokenPipeError:
+            # If the client closes the connection too quickly or just does't even bother listening to response we'll
+            # get this, so just ignore
+            pass
+
+    async def parse_request(self, request: dict, client):
+        """
+        Dict with possible keys:
+        "Send" sends value to text channel
+        """
+        send = request.get("Send")
+        if send is not None:
+            await self.test(f"Client says:{send}")
+            response = f"Success."
+            await self.send_to_client(client, response)
 
     async def run_server(self, server: socket.socket):
         while True:

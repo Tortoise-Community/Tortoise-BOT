@@ -14,6 +14,7 @@ startup_extensions = ["verification",
                       "reddit",
                       "help",
                       "music",
+                      "socket_comm",
                       "cmd_error_handler"]
 
 
