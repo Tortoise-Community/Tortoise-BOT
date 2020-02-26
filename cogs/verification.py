@@ -2,9 +2,8 @@ import random
 import discord
 from discord.ext import commands
 
-captchas = [("9GphJ", 'https://cdn.discordapp.com/attachments/581139962611892229/622697748788936704/blog74054e389122fd355363104c1990700d__t_e048fd7a0f1e.png'), 
-            ("PRNU", 'https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png'),
-            ("PQJRYD", 'https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg')]
+captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png"),
+            ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
 unverified_role_id = 605808609195982864
 verified_role_id = 599647985198039050
 verification_channel_id = 602156675863937024

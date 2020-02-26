@@ -14,12 +14,11 @@ startup_extensions = ["verification",
                       "reddit",
                       "help",
                       "music",
-                      "socket_comm",
                       "cmd_error_handler"]
 
 
 class Bot(commands.Bot):
-    DEFAULT_PREFIX = "."
+    DEFAULT_PREFIX = "t."
 
     def __init__(self, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=Bot.DEFAULT_PREFIX, **kwargs)
