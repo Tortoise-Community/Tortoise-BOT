@@ -13,8 +13,8 @@ class SocketCommunication(commands.Cog):
     @classmethod
     def get_server(cls):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind(("localhost", 15555))
-        server.listen(8)
+        server.bind(("0.0.0.0", 15555))
+        server.listen(3)
         server.setblocking(False)
         return server
 
