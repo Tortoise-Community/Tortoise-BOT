@@ -1,5 +1,10 @@
+![Python-Versions](https://img.shields.io/badge/python-3.6%20%7C%203.7-blue?style=flat-square)
+![Discord.py-Version](https://img.shields.io/badge/discord.py-1.2.3-blue?style=flat-square)
+
 # Tortoise-BOT
 **Fully functional Bot for Discord coded in Discord.py**
+
+<img align="right" src="https://i.imgur.com/7LrGjdG.jpg" width=40%>
 
 ## Features and Commands :
 ```
@@ -54,6 +59,27 @@ MEMBER COMMANDS:
    
     
 ```
+
+## Installation Instructions
+
+  If you are wanting to run the bot for testing reasons you can check out the installation instructions below. Make sure add in a token.
+
+  ```markdown
+  git clone https://github.com/Tortoise-Community/Tortoise-BOT.git
+  <!-- Clone the repo -->  
+
+  cd Tortoise-BOT
+  <!-- Change directories into the project -->
+
+  pip install --requirement requirements.txt
+  <!-- Use this if you only have python 3 installed. -->
+
+  or
+
+  pip3 install  --requirement requirements.txt
+  <!-- Use this if you have two versions of python and / or you have python 2 and python 3. -->  
+  ```
+
 ## Modules used
 ```
 discord
