@@ -1,0 +1,7 @@
+discord.py[voice]
+praw
+youtube_dl
+sqlalchemy
+pymysql
+aiohttp
+python-dotenv
