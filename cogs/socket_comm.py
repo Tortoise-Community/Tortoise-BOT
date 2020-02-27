@@ -39,8 +39,8 @@ class SocketCommunication(commands.Cog):
             try:
                 request = json.loads(request)
             except json.JSONDecodeError:
-                response = "Not a valid JSON formatted request."
-                await self.send_to_client(client, response)
+                response = {"status": 400, "response": "Not a valid JSON formatted request."}
+                await self.send_to_client(client, json.dumps(response))
                 print(f"{client_name}:{response}\n{request}")
                 continue
 
@@ -50,13 +50,13 @@ class SocketCommunication(commands.Cog):
                 token = request.get("Auth")
                 if token is not None and token in self.tokens:
                     self.verified_clients.add(client_name)
-                    response = "Verification successful."
-                    await self.send_to_client(client, response)
+                    response = {"status": 200}
+                    await self.send_to_client(client, json.dumps(response))
                     print(f"{client_name}:{response}\n{request}")
                     continue
                 else:
-                    response = "Verification unsuccessful, closing conn."
-                    await self.send_to_client(client, response)
+                    response = {"status": 401, "response": "Verification unsuccessful, closing conn."}
+                    await self.send_to_client(client, json.dumps(response))
                     print(f"{client_name}:{response}\n{request}")
                     break
 
@@ -80,8 +80,8 @@ class SocketCommunication(commands.Cog):
         send = request.get("Send")
         if send is not None:
             await self.test(f"Client says:{send}")
-            response = f"Success."
-            await self.send_to_client(client, response)
+            response = {"status": 200}
+            await self.send_to_client(client, json.dumps(response))
 
     async def run_server(self, server: socket.socket):
         while True:
