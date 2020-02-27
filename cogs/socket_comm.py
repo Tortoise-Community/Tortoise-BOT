@@ -33,7 +33,7 @@ class SocketCommunication(commands.Cog):
                 request = (await self.bot.loop.sock_recv(client, 255)).decode("utf8")
             except ConnectionResetError:
                 # If the client disconnects without sending quit.
-                print(f"{client.getpeername()} disconnected.")
+                print(f"{client_name} disconnected.")
                 break
 
             try:
