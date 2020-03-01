@@ -14,7 +14,7 @@ class SocketCommunication(commands.Cog):
     def get_server(cls):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("localhost", 15555))
-        server.listen(8)
+        server.listen(3)
         server.setblocking(False)
         return server
 
