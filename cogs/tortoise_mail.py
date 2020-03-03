@@ -8,6 +8,9 @@ from utils.embed_handler import mod_mail
 mod_mail_report_channel_id = 581139962611892229
 code_submissions_channel_id = 581139962611892229
 bug_reports_channel_id = 581139962611892229
+mod_mail_emoji_id = 620502308815503380
+event_emoji_id = 611403448750964746
+bug_emoji_id = 610825682070798359
 
 
 class UnsupportedFileExtension(Exception):
@@ -27,7 +30,7 @@ class ModMail(commands.Cog):
     Check if user blocks dms.
     Add timeout so user can't spam.
     Prettify with embeds.
-    Delete message saying user submitted mod mail request after it's accepted by admin? Or
+    Delete message saying 'user submitted mod mail request' after it's accepted by admin? Or
     just add a command to list current pending ones.
     Add logging to file
     """
@@ -38,11 +41,11 @@ class ModMail(commands.Cog):
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
         self.active_bug_reports = set()
-        # Keys are custom emoji IDs, subdict message is the message appearing in the bot DM and callable
+        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM and callable
         # is the method to call when that option is selected.
-        self._options = {620502308815503380: {"message": "Mod mail", "callable": self.create_mod_mail},
-                         611403448750964746: {"message": "Event submission", "callable": self.create_event_submission},
-                         610825682070798359: {"message": "Bug report", "callable": self.create_bug_report}}
+        self._options = {mod_mail_emoji_id: {"message": "Mod mail", "callable": self.create_mod_mail},
+                         event_emoji_id: {"message": "Event submission", "callable": self.create_event_submission},
+                         bug_emoji_id: {"message": "Bug report", "callable": self.create_bug_report}}
         # User IDs for which the trigger_typing() is active, so we don't spam the method.
         self._typing_active = set()
 
@@ -99,7 +102,7 @@ class ModMail(commands.Cog):
         await destination_user.trigger_typing()
         self._typing_active.remove(user.id)
 
-    def _get_dict_key_by_value(self, value: int) ->int:
+    def _get_dict_key_by_value(self, value: int) -> int:
         for key, v in self.active_mod_mails.items():
             if v == value:
                 return key
