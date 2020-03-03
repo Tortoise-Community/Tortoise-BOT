@@ -68,9 +68,6 @@ class ModMail(commands.Cog):
 
         if self.is_any_session_active(message.author.id):
             return
-        elif message.author.id in self.active_mod_mails.values():
-            # Don't clutter mod DMs if he's in mod mail.
-            return
         else:
             await self.send_dm_options(output=message.author)
 
@@ -81,7 +78,8 @@ class ModMail(commands.Cog):
 
     def is_any_session_active(self, user_id: int) -> bool:
         # If the mod mail or anything else is active don't clutter the active session
-        return any(user_id in active for active in (self.active_mod_mails,
+        return any(user_id in active for active in (self.active_mod_mails.keys(),
+                                                    self.active_mod_mails.values(),
                                                     self.active_event_submissions,
                                                     self.active_bug_reports))
 
@@ -215,8 +213,8 @@ class ModMail(commands.Cog):
         elif user_id not in self.pending_mod_mails:
             await ctx.send("That user is not registered for mod mail.")
             return
-        elif mod.id in self.active_mod_mails.values():
-            await ctx.send("You already have a active mod mail.")
+        elif self.is_any_session_active(mod.id):
+            await ctx.send("You already have one of active sessions (reports/mod mail etc).")
             return
 
         self.pending_mod_mails.remove(user_id)
@@ -226,7 +224,7 @@ class ModMail(commands.Cog):
                         f"messages directly to him. Type `close` to close this mod mail.")
         await mod.send(f"`You have accepted {user.name}` mod mail request. Replying here in DM will transfer "
                        f"messages directly to them. Type `close` to close this mod mail.")
-        await mod.send("Mod mail initialized, check your DMs.", delete_after=10)
+        await ctx.send("Mod mail initialized, check your DMs.", delete_after=10)
 
         def mod_mail_check(msg):
             return msg.guild is None and msg.author.id in (user_id, mod.id)
@@ -235,7 +233,6 @@ class ModMail(commands.Cog):
 
         while True:
             try:
-                print(f"Current timeout: {_timeout}")
                 mail_msg = await self.bot.wait_for("message", check=mod_mail_check, timeout=_timeout)
             except TimeoutError:
                 timeout_msg = "Mod mail closed due to inactivity."
@@ -258,9 +255,9 @@ class ModMail(commands.Cog):
 
             # Deal with user-mod communication
             if mail_msg.author == user:
-                await mod.send(mail_msg.content)
+                await mod.send(f"{user.name} says:{mail_msg.content}")
             elif mail_msg.author == mod:
-                await user.send(mail_msg.content)
+                await user.send(f"{mod.name} says:{mail_msg.content}")
 
 
 def setup(bot):
