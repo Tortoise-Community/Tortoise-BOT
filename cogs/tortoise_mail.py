@@ -41,6 +41,8 @@ class ModMail(commands.Cog):
         self._options = {620502308815503380: {"message": "Mod mail", "callable": self.create_mod_mail},
                          611403448750964746: {"message": "Event submission", "callable": self.create_event_submission},
                          610825682070798359: {"message": "Bug report", "callable": self.create_bug_report}}
+        # User IDs for which the trigger_typing() is active, so we don't spam the method.
+        self._typing_active = set()
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -70,6 +72,35 @@ class ModMail(commands.Cog):
             return
         else:
             await self.send_dm_options(output=message.author)
+
+    @commands.Cog.listener()
+    async def on_typing(self, channel, user, when):
+        if not isinstance(channel, discord.DMChannel):
+            return
+        elif not self.is_any_session_active(user.id):
+            return
+        elif user.id in self._typing_active:
+            return
+
+        destination_id = self.active_mod_mails.get(user.id)
+        if destination_id is None:
+            # If it's None there is no user with that ID that has opened mod mail request.
+            # However we can still have the mod/admin that could be attending mod mail
+            destination_id = self._get_dict_key_by_value(user.id)
+            if destination_id is None:
+                # If it's again None then there is no such ID in either user nor mods/admins
+                return
+
+        self._typing_active.add(user.id)
+        destination_user = self.bot.get_user(destination_id)
+        # Per docs: Active for 10s or until first message
+        await destination_user.trigger_typing()
+        self._typing_active.remove(user.id)
+
+    def _get_dict_key_by_value(self, value: int) ->int:
+        for key, v in self.active_mod_mails.items():
+            if v == value:
+                return key
 
     async def send_dm_options(self, *, output):
         for emoji_id, sub_dict in self._options.items():
