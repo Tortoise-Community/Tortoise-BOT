@@ -19,14 +19,19 @@ class UnsupportedFileEncoding(ValueError):
 
 class ModMail(commands.Cog):
     """
+    Only one guild supported.
+
     TODO:
     Check if emoji id error deleted.
     Check if user blocks dms.
     Add timeout so user can't spam.
     Prettify with embeds.
+    Delete message saying user submitted mod mail request after it's accepted by admin? Or
+    just add a command to list current pending ones.
     """
     def __init__(self, bot):
         self.bot = bot
+        # Key is user id value is mod/admin id
         self.active_mod_mails = {}
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
@@ -62,6 +67,9 @@ class ModMail(commands.Cog):
             return
 
         if self.is_any_session_active(message.author.id):
+            return
+        elif message.author.id in self.active_mod_mails.values():
+            # Don't clutter mod DMs if he's in mod mail.
             return
         else:
             await self.send_dm_options(output=message.author)
@@ -136,8 +144,9 @@ class ModMail(commands.Cog):
 
     async def _wait_for(self, container: set, user: discord.User) -> Union[discord.Message, None]:
         """
-        Simple custom wait_for that waits for user reply for 5 minutes and has ability to cancel the wait and
-        deal with errors.
+        Simple custom wait_for that waits for user reply for 5 minutes and has ability to cancel the wait,
+        deal with errors and deal with containers (which mark users that are currently doing something aka
+        event submission/bug report etc).
         :param container: set, container holding active user sessions by having their IDs in it.
         :param user: Discord user to wait reply from
         :return: Union[Message, None] message representing user reply, can be none representing invalid reply.
@@ -186,6 +195,72 @@ class ModMail(commands.Cog):
             raise UnsupportedFileEncoding("Unsupported file encoding, please only use utf-8")
 
         return content
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def attend(self, ctx, user_id: int):
+        # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
+        first_timeout = 10_800
+        # Flag for above variable. False means there has been no messages from the user.
+        first_timeout_flag = False
+        # After the user sends first reply this is the timeout we use.
+        regular_timeout = 600
+
+        user = self.bot.get_user(user_id)
+        mod = ctx.author
+
+        if user is None:
+            await ctx.send("That user cannot be found or you entered incorrect ID.")
+            return
+        elif user_id not in self.pending_mod_mails:
+            await ctx.send("That user is not registered for mod mail.")
+            return
+        elif mod.id in self.active_mod_mails.values():
+            await ctx.send("You already have a active mod mail.")
+            return
+
+        self.pending_mod_mails.remove(user_id)
+        self.active_mod_mails[user_id] = mod.id
+
+        await user.send(f"`{mod.name}` has accepted your mod mail request. Replying here in DM will transfer "
+                        f"messages directly to him. Type `close` to close this mod mail.")
+        await mod.send(f"`You have accepted {user.name}` mod mail request. Replying here in DM will transfer "
+                       f"messages directly to them. Type `close` to close this mod mail.")
+        await mod.send("Mod mail initialized, check your DMs.", delete_after=10)
+
+        def mod_mail_check(msg):
+            return msg.guild is None and msg.author.id in (user_id, mod.id)
+
+        _timeout = first_timeout
+
+        while True:
+            try:
+                print(f"Current timeout: {_timeout}")
+                mail_msg = await self.bot.wait_for("message", check=mod_mail_check, timeout=_timeout)
+            except TimeoutError:
+                timeout_msg = "Mod mail closed due to inactivity."
+                await mod.send(timeout_msg)
+                await user.send(timeout_msg)
+                break
+
+            # Deal with dynamic timeout.
+            if mail_msg.author == user and not first_timeout_flag:
+                first_timeout_flag = True
+                _timeout = regular_timeout
+
+            # Deal with canceling mod mail
+            if mail_msg.content.lower() == "close":
+                close_msg = "Mod mail successfully closed."
+                await mod.send(close_msg)
+                await user.send(close_msg)
+                del self.active_mod_mails[user_id]
+                break
+
+            # Deal with user-mod communication
+            if mail_msg.author == user:
+                await mod.send(mail_msg.content)
+            elif mail_msg.author == mod:
+                await user.send(mail_msg.content)
 
 
 def setup(bot):
