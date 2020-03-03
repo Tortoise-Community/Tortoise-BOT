@@ -56,6 +56,18 @@ def failure(message: str) -> Embed:
     return simple_embed(message, "Failure", Colour.red())
 
 
+def mod_mail(author: User, message: str) -> Embed:
+    """
+    Embed used for mod mail.
+    :param author: discord.User , to whom the embed will be authored.
+    :param message: str message to display in embed.
+    :return:
+    """
+    embed = Embed(description=message)
+    embed.set_author(name=author.name, icon_url=author.avatar_url)
+    return embed
+
+
 def get_top_role_color(member: Union[Member, User]):
     """
     Tries to get member top role color and if fails return Embed.Empty - This makes it work in DMs.

@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from asyncio import TimeoutError
 from typing import Union
+from utils.embed_handler import mod_mail
 
 
 mod_mail_report_channel_id = 581139962611892229
@@ -28,6 +29,7 @@ class ModMail(commands.Cog):
     Prettify with embeds.
     Delete message saying user submitted mod mail request after it's accepted by admin? Or
     just add a command to list current pending ones.
+    Add logging to file
     """
     def __init__(self, bot):
         self.bot = bot
@@ -286,9 +288,9 @@ class ModMail(commands.Cog):
 
             # Deal with user-mod communication
             if mail_msg.author == user:
-                await mod.send(f"{user.name} says:{mail_msg.content}")
+                await mod.send(embed=mod_mail(user, mail_msg.content))
             elif mail_msg.author == mod:
-                await user.send(f"{mod.name} says:{mail_msg.content}")
+                await user.send(embed=mod_mail(mod, mail_msg.content))
 
 
 def setup(bot):
