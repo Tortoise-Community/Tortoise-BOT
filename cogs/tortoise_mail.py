@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from asyncio import TimeoutError
 from typing import Union
-from utils.embed_handler import mod_mail
+from utils.embed_handler import authored, failure, success, info
 
 
 mod_mail_report_channel_id = 581139962611892229
@@ -22,18 +22,6 @@ class UnsupportedFileEncoding(ValueError):
 
 
 class ModMail(commands.Cog):
-    """
-    Only one guild supported.
-
-    TODO:
-    Check if emoji id error deleted.
-    Check if user blocks dms.
-    Add timeout so user can't spam.
-    Prettify with embeds.
-    Delete message saying 'user submitted mod mail request' after it's accepted by admin? Or
-    just add a command to list current pending ones.
-    Add logging to file
-    """
     def __init__(self, bot):
         self.bot = bot
         # Key is user id value is mod/admin id
@@ -109,8 +97,13 @@ class ModMail(commands.Cog):
 
     async def send_dm_options(self, *, output):
         for emoji_id, sub_dict in self._options.items():
-            dm_msg = await output.send(sub_dict["message"])
-            await dm_msg.add_reaction(self.bot.get_emoji(emoji_id))
+            reaction = self.bot.get_emoji(emoji_id)
+            if reaction is None:
+                print(f"Sending DM options failed as emoji ID {emoji_id} is not found.")
+                return
+            else:
+                dm_msg = await output.send(sub_dict["message"])
+                await dm_msg.add_reaction(reaction)
 
     def is_any_session_active(self, user_id: int) -> bool:
         # If the mod mail or anything else is active don't clutter the active session
@@ -121,13 +114,14 @@ class ModMail(commands.Cog):
 
     async def create_mod_mail(self, user: discord.User):
         if user.id in self.pending_mod_mails:
-            await user.send("You already have a pending mod mail, please be patient.")
+            await user.send(embed=failure("You already have a pending mod mail, please be patient."))
             return
 
         mod_mail_report_channel = self.bot.get_channel(mod_mail_report_channel_id)
-        await mod_mail_report_channel.send(f"User `{user.name}` ID:{user.id} submitted for mod mail.")
+        submission_embed = authored(user, f"`{user.id}` submitted for mod mail.")
+        await mod_mail_report_channel.send(embed=submission_embed)
         self.pending_mod_mails.add(user.id)
-        await user.send("Mod mail was sent to admins, please wait for on of the admins to accept.")
+        await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
 
     async def create_event_submission(self, user: discord.User):
         user_reply = await self._wait_for(self.active_event_submissions, user)
@@ -137,20 +131,20 @@ class ModMail(commands.Cog):
         try:
             possible_attachment = await self.get_message_txt_attachment(user_reply)
         except (UnsupportedFileExtension, UnsupportedFileEncoding) as e:
-            await user.send(f"Error: {e} , canceling.")
+            await user.send(embed=failure(f"Error: {e} , canceling."))
             self.active_event_submissions.remove(user.id)
             return
 
         event_submission = user_reply.content if possible_attachment is None else possible_attachment
         if len(event_submission) < 10:
-            await user.send("Too short - seems invalid, canceling.")
+            await user.send(embed=failure("Too short - seems invalid, canceling."))
             self.active_event_submissions.remove(user.id)
             return
 
         code_submissions_channel = self.bot.get_channel(code_submissions_channel_id)
-        await code_submissions_channel.send(f"User `{user.name}` ID:{user.id} submitted code submission: "
+        await code_submissions_channel.send(f"User `{user}` ID:{user.id} submitted code submission: "
                                             f"{event_submission}")
-        await user.send("Event submission successfully submitted.")
+        await user.send(embed=success("Event submission successfully submitted."))
         self.active_event_submissions.remove(user.id)
 
     async def create_bug_report(self, user: discord.User):
@@ -161,19 +155,19 @@ class ModMail(commands.Cog):
         try:
             possible_attachment = await self.get_message_txt_attachment(user_reply)
         except (UnsupportedFileExtension, UnsupportedFileEncoding) as e:
-            await user.send(f"Error: {e} , canceling.")
+            await user.send(embed=failure(f"Error: {e} , canceling."))
             self.active_bug_reports.remove(user.id)
             return
 
         bug_report = user_reply.content if possible_attachment is None else possible_attachment
         if len(bug_report) < 10:
-            await user.send("Too short - seems invalid, canceling.")
+            await user.send(embed=failure("Too short - seems invalid, canceling."))
             self.active_bug_reports.remove(user.id)
             return
 
         bug_report_channel = self.bot.get_channel(bug_reports_channel_id)
-        await bug_report_channel.send(f"User `{user.name}` ID:{user.id} submitted bug report: {bug_report}")
-        await user.send("Bug report successfully submitted, thank you.")
+        await bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {bug_report}")
+        await user.send(embed=success("Bug report successfully submitted, thank you."))
         self.active_bug_reports.remove(user.id)
 
     async def _wait_for(self, container: set, user: discord.User) -> Union[discord.Message, None]:
@@ -189,18 +183,18 @@ class ModMail(commands.Cog):
             return msg.guild is None and msg.author == user
 
         container.add(user.id)
-        await user.send("Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
-                        "You have 5m, type `cancel` to cancel right away.")
+        await user.send(embed=info("Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
+                                   "You have 5m, type `cancel` to cancel right away."))
 
         try:
             user_reply = await self.bot.wait_for("message", check=check, timeout=300)
         except TimeoutError:
-            await user.send("You took too long to reply.")
+            await user.send(embed=failure("You took too long to reply."))
             container.remove(user.id)
             return
 
         if user_reply.content.lower() == "cancel":
-            await user.send("Successfully canceled.")
+            await user.send(embed=success("Successfully canceled."))
             container.remove(user.id)
             return
 
@@ -244,23 +238,27 @@ class ModMail(commands.Cog):
         mod = ctx.author
 
         if user is None:
-            await ctx.send("That user cannot be found or you entered incorrect ID.")
+            await ctx.send(embed=failure("That user cannot be found or you entered incorrect ID."))
             return
         elif user_id not in self.pending_mod_mails:
-            await ctx.send("That user is not registered for mod mail.")
+            await ctx.send(embed=failure("That user is not registered for mod mail."))
             return
         elif self.is_any_session_active(mod.id):
-            await ctx.send("You already have one of active sessions (reports/mod mail etc).")
+            await ctx.send(embed=failure("You already have one of active sessions (reports/mod mail etc)."))
             return
 
         self.pending_mod_mails.remove(user_id)
         self.active_mod_mails[user_id] = mod.id
 
-        await user.send(f"`{mod.name}` has accepted your mod mail request. Replying here in DM will transfer "
-                        f"messages directly to him. Type `close` to close this mod mail.")
-        await mod.send(f"`You have accepted {user.name}` mod mail request. Replying here in DM will transfer "
-                       f"messages directly to them. Type `close` to close this mod mail.")
-        await ctx.send("Mod mail initialized, check your DMs.", delete_after=10)
+        await user.send(embed=authored(mod, f"has accepted your mod mail request.\n"
+                                            "Reply here in DMs to chat with them.\n"
+                                            "This mod mail will be logged, by continuing you agree to that.\n"
+                                            "Type `close` to close this mod mail."))
+        await mod.send(embed=success(f"You have accepted `{user}` mod mail request.\n"
+                                     "Reply here in DMs to chat with them.\n"
+                                     "This mod mail will be logged.\n"
+                                     "Type `close` to close this mod mail."))
+        await ctx.send(embed=success("Mod mail initialized, check your DMs."), delete_after=10)
 
         def mod_mail_check(msg):
             return msg.guild is None and msg.author.id in (user_id, mod.id)
@@ -271,9 +269,9 @@ class ModMail(commands.Cog):
             try:
                 mail_msg = await self.bot.wait_for("message", check=mod_mail_check, timeout=_timeout)
             except TimeoutError:
-                timeout_msg = "Mod mail closed due to inactivity."
-                await mod.send(timeout_msg)
-                await user.send(timeout_msg)
+                timeout_embed = failure("Mod mail closed due to inactivity.")
+                await mod.send(embed=timeout_embed)
+                await user.send(embed=timeout_embed)
                 break
 
             # Deal with dynamic timeout.
@@ -283,17 +281,17 @@ class ModMail(commands.Cog):
 
             # Deal with canceling mod mail
             if mail_msg.content.lower() == "close":
-                close_msg = "Mod mail successfully closed."
-                await mod.send(close_msg)
-                await user.send(close_msg)
+                close_embed = success(f"Mod mail successfully closed by {mail_msg.author}.")
+                await mod.send(embed=close_embed)
+                await user.send(embed=close_embed)
                 del self.active_mod_mails[user_id]
                 break
 
             # Deal with user-mod communication
             if mail_msg.author == user:
-                await mod.send(embed=mod_mail(user, mail_msg.content))
+                await mod.send(mail_msg.content)
             elif mail_msg.author == mod:
-                await user.send(embed=mod_mail(mod, mail_msg.content))
+                await user.send(mail_msg.content)
 
 
 def setup(bot):
