@@ -1,8 +1,12 @@
 import discord
 from discord.ext import commands
 from discord.errors import Forbidden
+from utils.embed_handler import info
 
 deterrence_log_channel_id = 597119801701433357
+moderation_channel_id = 581139962611892229
+unverified_role_id = 605808609195982864
+verification_channel_id = 602156675863937024
 muted_role_id = 610126555867512870
 
 
@@ -139,8 +143,24 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     @commands.has_permissions(manage_messages=True, manage_roles=True)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
-        muted_role = ctx.guild.get_role(610126555867512870)
+        muted_role = ctx.guild.get_role(muted_role_id)
         await member.add_roles(muted_role, reason=reason)
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def dm_unverified(self, ctx):
+        verification_channel = self.bot.get_channel(verification_channel_id)
+        unverified_role = ctx.guild.get_role(unverified_role_id)
+        unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
+
+        for member in unverified_members:
+            try:
+                await member.send(f"Hey {member.mention}!\n",
+                                  f"You've been in our guild **{ctx.guild.name}** for quite a long time..",
+                                  f"We noticed you still didn't verify so please go to our channel "
+                                  f"{verification_channel.mention} and verify.")
+            except Forbidden:
+                pass
 
 
 def setup(bot):
