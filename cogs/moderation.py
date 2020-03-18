@@ -147,6 +147,7 @@ class Admins(commands.Cog):
         await member.add_roles(muted_role, reason=reason)
 
     @commands.command()
+    @commands.cooldown(1, 300, commands.BucketType.guild)
     @commands.has_permissions(manage_messages=True)
     async def dm_unverified(self, ctx):
         verification_channel = self.bot.get_channel(verification_channel_id)
