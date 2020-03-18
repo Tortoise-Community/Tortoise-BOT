@@ -156,10 +156,10 @@ class Admins(commands.Cog):
 
         for member in unverified_members:
             try:
-                await member.send(f"Hey {member.mention}!\n",
-                                  f"You've been in our guild **{ctx.guild.name}** for quite a long time..",
-                                  f"We noticed you still didn't verify so please go to our channel "
-                                  f"{verification_channel.mention} and verify.")
+                await member.send((f"Hey {member.mention}!\n",
+                                   f"You've been in our guild **{ctx.guild.name}** for quite a long time..",
+                                   f"We noticed you still didn't verify so please go to our channel "
+                                   f"{verification_channel.mention} and verify."))
                 count += 1
             except Forbidden:
                 pass
