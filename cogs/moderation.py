@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.errors import Forbidden
-from utils.embed_handler import info
+from utils.embed_handler import info, success
 
 deterrence_log_channel_id = 597119801701433357
 moderation_channel_id = 581139962611892229
@@ -152,6 +152,7 @@ class Admins(commands.Cog):
         verification_channel = self.bot.get_channel(verification_channel_id)
         unverified_role = ctx.guild.get_role(unverified_role_id)
         unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
+        count = 0
 
         for member in unverified_members:
             try:
@@ -159,8 +160,11 @@ class Admins(commands.Cog):
                                   f"You've been in our guild **{ctx.guild.name}** for quite a long time..",
                                   f"We noticed you still didn't verify so please go to our channel "
                                   f"{verification_channel.mention} and verify.")
+                count += 1
             except Forbidden:
                 pass
+
+        await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
 
 
 def setup(bot):
