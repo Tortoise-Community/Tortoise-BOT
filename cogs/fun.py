@@ -26,6 +26,11 @@ class Fun(commands.Cog):
         embed.set_image(url="https://i.gifer.com/XdhK.gif")
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["table", "flip"])
+    async def throw(self, ctx):
+        """Throw a table in anger."""
+        await ctx.send("```(╯°□°)╯︵ ┻━┻```")
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
