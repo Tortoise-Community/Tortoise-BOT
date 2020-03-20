@@ -16,5 +16,6 @@ class Bot(commands.Bot):
         if not self.is_ready() or self.is_closed():
             return
 
+        message = message[:1980] + "...too long" if len(message) > 1980 else message
         error_log_channel = self.get_channel(Bot.error_log_channel_id)
         await error_log_channel.send(message)

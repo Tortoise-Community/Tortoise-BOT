@@ -71,8 +71,8 @@ class CommandErrorHandler(commands.Cog):
 
         # Ignore all other exception types, but print them to stderr
         print("Ignoring exception in command {}:".format(ctx.command), file=sys.stderr)
-
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        await self.bot.log_error(f"```{type(error)}\n{error}```")
                 
 
 def setup(bot):
