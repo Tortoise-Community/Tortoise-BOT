@@ -192,7 +192,7 @@ class ModMail(commands.Cog):
 
         container.add(user.id)
         await user.send(embed=info("Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
-                                   "You have 5m, type `cancel` to cancel right away."))
+                                   "You have 5m, type `cancel` to cancel right away.", user))
 
         try:
             user_reply = await self.bot.wait_for("message", check=check, timeout=300)
