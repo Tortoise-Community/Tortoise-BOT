@@ -1,8 +1,8 @@
-import discord
-from discord.ext import commands
 import psutil
 import time
 import os
+import discord
+from discord.ext import commands
 from utils.embed_handler import info
 
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"

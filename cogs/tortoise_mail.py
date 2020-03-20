@@ -1,7 +1,7 @@
-import discord
-from discord.ext import commands
 from asyncio import TimeoutError
 from typing import Union
+import discord
+from discord.ext import commands
 from utils.embed_handler import authored, failure, success, info
 
 

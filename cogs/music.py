@@ -1,7 +1,7 @@
-import discord
-from youtube_dl import YoutubeDL
 import asyncio
+import discord
 from discord.ext import commands
+from youtube_dl import YoutubeDL
 from utils.embed_handler import failure
 
 # For all options see:
