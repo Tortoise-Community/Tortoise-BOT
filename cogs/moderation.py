@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.errors import Forbidden
-from utils.embed_handler import info, success
+from utils.embed_handler import success
 
 deterrence_log_channel_id = 597119801701433357
 moderation_channel_id = 581139962611892229
@@ -73,7 +73,7 @@ class Admins(commands.Cog):
         await deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = discord.Embed(title=msg_title,
-                                 description=(f"{msg_description}",
+                                 description=(f"{msg_description}"
                                               f"\nIf this happened by a mistake contact moderators."),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
@@ -95,8 +95,8 @@ class Admins(commands.Cog):
         """
         deterrence_log_channel = self.bot.get_channel(deterrence_log_channel_id)
         embed = discord.Embed(title=f"**{member.name} You have been warned for {reason}**",
-                              description=f"If you are planning to repeat this again, "
-                                          f"the mods may administer punishment for the action.",
+                              description=("If you are planning to repeat this again, "
+                                           "the mods may administer punishment for the action."),
                               color=0xF4D03F)
         await ctx.message.delete()
         await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
@@ -111,7 +111,6 @@ class Admins(commands.Cog):
         You will require appropriate role to use this command.
 
         """
-
         await member.add_roles(role)
         embed = discord.Embed(title=f"Role Added!",
                               description=f"{member.mention} now has the role {role.mention}",
@@ -157,10 +156,11 @@ class Admins(commands.Cog):
 
         for member in unverified_members:
             try:
-                await member.send((f"Hey {member.mention}!\n",
-                                   f"You've been in our guild **{ctx.guild.name}** for quite a long time..",
-                                   f"We noticed you still didn't verify so please go to our channel "
-                                   f"{verification_channel.mention} and verify."))
+                msg = (f"Hey {member.mention}!\n"
+                       f"You've been in our guild **{ctx.guild.name}** for quite a long time.."
+                       f"We noticed you still didn't verify so please go to our channel "
+                       f"{verification_channel.mention} and verify.")
+                await member.send(msg)
                 count += 1
             except Forbidden:
                 pass
