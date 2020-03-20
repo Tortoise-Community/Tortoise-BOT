@@ -60,7 +60,7 @@ def authored(author: Union[Member, User], message: str) -> Embed:
     :return: discord.Embed
     """
     embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
-    embed.set_author(name=author, icon_url=author.avatar_url)
+    embed.set_author(name=author.name, icon_url=author.avatar_url)
     return embed
 
 
