@@ -127,7 +127,7 @@ class SocketCommunication(commands.Cog):
         members = request.get("Members")
         if members is not None:
             logger.debug(f"Beginning MEMBERS request from {client_name}")
-            response["Members"] = self.get_member_activities(members)
+            response["Members"] = await self.get_member_activities(members)
             logger.debug(f"Done MEMBERS request from {client_name}, returning {response}")
             await self.send_to_client(client, json.dumps(response))
             logger.debug(f"{client_name} returned members successfully.")
