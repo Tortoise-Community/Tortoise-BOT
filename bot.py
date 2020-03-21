@@ -12,10 +12,17 @@ class Bot(commands.Bot):
         print("Successfully logged in and booted...!")
         print(f"Logged in as {self.user.name} with ID {self.user.id} \t d.py version: {discord.__version__}")
 
+    async def on_error(self, event: str, *args, **kwargs):
+        msg = (f"Event error exception!\n"
+               f"Event: {event}\n"
+               f"Args:{args}\n"
+               f"Kwargs:{kwargs}")
+        await self.log_error(msg)
+
     async def log_error(self, message: str):
         if not self.is_ready() or self.is_closed():
             return
 
         message = message[:1980] + "...too long" if len(message) > 1980 else message
         error_log_channel = self.get_channel(Bot.error_log_channel_id)
-        await error_log_channel.send(message)
+        await error_log_channel.send(f"```{message}```")
