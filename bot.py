@@ -5,8 +5,8 @@ from discord.ext import commands
 class Bot(commands.Bot):
     error_log_channel_id = 690650346665803777
 
-    def __init__(self, *args, **kwargs):
-        super(Bot, self).__init__(*args, command_prefix="t.", **kwargs)
+    def __init__(self, *args, prefix, **kwargs):
+        super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
 
     async def on_ready(self):
         print("Successfully logged in and booted...!")

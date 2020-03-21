@@ -5,11 +5,19 @@ from dotenv import load_dotenv
 from bot import Bot
 
 
-banned_extensions = ("test",)
+load_dotenv()
+if os.environ.get("DEBUG", "false").lower() == "true":
+    banned_extensions = ("security", "tortoise_server", "verification",)
+    default_prefix = "."
+    print(f"Debug bot banned extension: {banned_extensions}")
+else:
+    banned_extensions = ("socket_comm",)
+    default_prefix = "t."
+    print(f"Main bot banned extension: {banned_extensions}")
+
 
 if __name__ == "__main__":
-    load_dotenv()
-    bot = Bot()
+    bot = Bot(prefix=default_prefix)
     for extension_path in Path("./cogs").glob("*.py"):
         extension_name = extension_path.stem
         if extension_name in banned_extensions:
