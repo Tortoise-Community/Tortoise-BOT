@@ -2,15 +2,16 @@ from asyncio import TimeoutError
 from typing import Union
 import discord
 from discord.ext import commands
-from utils.embed_handler import authored, failure, success, info
+from utils.embed_handler import authored, failure, success, info, embed_space
 
 
+tortoise_guild_id = 577192344529404154
 mod_mail_report_channel_id = 581139962611892229
 code_submissions_channel_id = 581139962611892229
 bug_reports_channel_id = 581139962611892229
 mod_mail_emoji_id = 620502308815503380
 event_emoji_id = 611403448750964746
-bug_emoji_id = 610825682070798359
+bug_emoji_id = 690635117655359559
 
 
 class UnsupportedFileExtension(Exception):
@@ -104,14 +105,21 @@ class ModMail(commands.Cog):
                 return key
 
     async def send_dm_options(self, *, output):
-        for emoji_id, sub_dict in self._options.items():
-            reaction = self.bot.get_emoji(emoji_id)
-            if reaction is None:
-                print(f"Sending DM options failed as emoji ID {emoji_id} is not found.")
+        tortoise_guild = self.bot.get_guild(tortoise_guild_id)
+        emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
+        msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
+
+        embed = discord.Embed(description=msg_options)
+        embed.set_footer(text=f"Tortoise Community{embed_space * 100}")
+        embed.set_thumbnail(url=str(tortoise_guild.icon_url))
+        msg = await output.send(embed=embed)
+
+        for emoji in emoji_map.keys():
+            if emoji is None:
+                print(f"Sending DM options failed as emoji is not found.")
                 return
             else:
-                dm_msg = await output.send(sub_dict["message"])
-                await dm_msg.add_reaction(reaction)
+                await msg.add_reaction(emoji)
 
     def is_any_session_active(self, user_id: int) -> bool:
         # If the mod mail or anything else is active don't clutter the active session
