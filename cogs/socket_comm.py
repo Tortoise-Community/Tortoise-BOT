@@ -142,19 +142,26 @@ class SocketCommunication(commands.Cog):
     async def get_member_activities(self, members: List[int]) -> Dict[int, str]:
         response_activities = {}
         tortoise_guild = self.bot.get_guild(577192344529404154)
+        logger.debug(f"Processing members: {members}")
         for member_id in members:
+            logger.debug(f"Processing member: {member_id}")
             member = tortoise_guild.get_member(int(member_id))
+
             if member is None:
+                logger.debug(f"Member {member_id} not found.")
                 response_activities[member_id] = "None"
                 continue
 
             activity = member.activity
             if activity is None:
+                logger.debug(f"Member {member_id} does not have any activity.")
                 response_activities[member_id] = "None"
                 continue
             elif activity.type == ActivityType.playing:
+                logger.debug(f"Member {member_id} is playing.")
                 response_activities[member_id] = f"Playing {activity.name}"
             elif activity.type == ActivityType.streaming:
+                logger.debug(f"Member {member_id} is streaming.")
                 response_activities[member_id] = f"Streaming {activity}"
             else:
                 # For cases where it is None, CustomActivity or Activity(watching, listening)
@@ -162,7 +169,8 @@ class SocketCommunication(commands.Cog):
                 logger.debug(type(activity.type))
                 response_activities[member_id] = str(activity)
 
-            return response_activities
+        logger.debug(f"Processing members done, returning: {response_activities}")
+        return response_activities
 
 
 def setup(bot):
