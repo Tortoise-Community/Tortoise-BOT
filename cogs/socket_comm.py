@@ -1,3 +1,4 @@
+import os
 import json
 import socket
 import logging
@@ -17,7 +18,7 @@ logger.addHandler(console)
 class SocketCommunication(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.tokens = ("abc", "test")
+        self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
         logger.debug("Starting socket comm...")
         self._socket_server = SocketCommunication.create_server()
@@ -85,7 +86,7 @@ class SocketCommunication(commands.Cog):
 
             if client not in self.verified_clients:
                 token = request.get("Auth")
-                if token is not None and token in self.tokens:
+                if token is not None and token == self.auth_token:
                     self.verified_clients.add(client)
                     response = {"status": 200}
                     await self.send_to_client(client, json.dumps(response))

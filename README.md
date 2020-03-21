@@ -37,9 +37,11 @@ PRAW_CLIENT_ID=put_something_here
 PRAW_CLIENT_SECRET=put_something_here
 BOT_TOKEN=put_something_here
 API_REFRESH_TOKEN=put_something_here
+SOCKET_AUTH_TOKEN=put_something_here
+DEBUG=False
 ```
 
-Values other than `BOT_TOKEN` are not needed, 
+The most important is `BOT_TOKEN`, others are not needed.
 
 ```bash
 python main.py
