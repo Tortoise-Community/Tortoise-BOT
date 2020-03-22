@@ -5,6 +5,7 @@ import logging
 from sys import stdout
 from typing import List, Dict
 from discord.ext import commands
+from discord import HTTPException
 from discord.activity import ActivityType
 
 logger = logging.getLogger(__name__)
@@ -14,13 +15,17 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 logger.addHandler(console)
 
+tortoise_guild_id = 577192344529404154
+tortoise_log_channel_id = 581139962611892229
+verified_role_id = 599647985198039050
+unverified_role_id = 605808609195982864
+
 
 class SocketCommunication(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
-        logger.debug("Starting socket comm...")
         self._socket_server = SocketCommunication.create_server()
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
 
@@ -47,10 +52,12 @@ class SocketCommunication(commands.Cog):
 
     @staticmethod
     def create_server():
+        logger.debug("Starting socket comm server...")
         server = socket.socket()
         server.bind(("0.0.0.0", 15555))
         server.listen(3)
         server.setblocking(False)
+        logger.debug("Socket comm server started.")
         return server
 
     async def run_server(self, server: socket.socket):
@@ -133,6 +140,13 @@ class SocketCommunication(commands.Cog):
             await self.send_to_client(client, json.dumps(response))
             logger.debug(f"{client_name} returned members successfully.")
 
+        verify = request.get("Verify")
+        if verify is not None:
+            logger.debug(f"Got verify: {verify}")
+            response = await self.verify_member(verify)
+            logger.debug(f"Done MEMBERS request from {client_name}, returning {response}")
+            await self.send_to_client(client, json.dumps(response))
+
     async def send_to_channel_test(self, message):
         logger.debug(f"Sending {message} to channel.")
         test_channel = self.bot.get_channel(581139962611892229)
@@ -171,6 +185,33 @@ class SocketCommunication(commands.Cog):
 
         logger.debug(f"Processing members done, returning: {response_activities}")
         return response_activities
+
+    async def verify_member(self, member_id: str) -> Dict[int, str]:
+        try:
+            member_id = int(member_id)
+        except ValueError:
+            return {400: "ID formatted wrong."}
+
+        guild = self.bot.get_guild(tortoise_guild_id)
+        verified_role = guild.get_role(verified_role_id)
+        unverified_role = guild.get_role(unverified_role_id)
+        log_channel = guild.get_channel(tortoise_log_channel_id)
+        if verified_role is None or guild is None or log_channel is None or unverified_role is None:
+            return {500: "Tortoise IDs not found."}
+
+        member = guild.get_member(member_id)
+        if member is None:
+            return {404: "Member not found"}
+
+        try:
+            await member.remove_roles(unverified_role)
+        except HTTPException:
+            return {500: "Bot could't remove unverified role"}
+
+        await member.add_roles(verified_role)
+        await member.send("You are now verified.")
+        await log_channel.send(f"{member.mention} is now verified.")
+        return {200: "Successfully verified."}
 
 
 def setup(bot):
