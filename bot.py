@@ -12,7 +12,7 @@ class Bot(commands.Bot):
 
     def __init__(self, *args, prefix, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
-        self.api_client = APIClient()
+        self.api_client = APIClient(self.loop)
         self.add_command(self.load)
 
     async def on_ready(self):

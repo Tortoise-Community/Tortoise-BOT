@@ -51,17 +51,14 @@ class SocketCommunication(commands.Cog):
             return
 
         logger.info(f"Checking new member {member.name}")
-        async with aiohttp.ClientSession() as session:
-            data = await session.get(f"https://api.tortoisecommunity.ml/verify-confirmation/{member.id}")
-            data = await data.json(content_type=None)
+        data = await self.bot.api_client.get(f"verify-confirmation/{member.id}")
 
         verified = data.get("verified")
         if verified is None:
             # User doesn't exist in database, add him
             data = {"user_id": member.id, "guild_id": member.guild.id}
             logger.info(f"Updating database {data}")
-            async with aiohttp.ClientSession() as session:
-                await session.post("https://api.tortoisecommunity.ml/members", json=data)
+            await self.bot.api_client.post("members", json=data)
             logger.info("Database update done.")
         elif verified:
             logger.info(f"Member {member.id} is verified in database, adding roles..")
@@ -229,8 +226,7 @@ class SocketCommunication(commands.Cog):
 
         data = {"user_id": member.id, "guild_id": guild.id, "name": str(member), "verified": True}
         logger.info(f"Updating database {data}")
-        async with aiohttp.ClientSession() as session:
-            await session.put(f"https://api.tortoisecommunity.ml/members/edit/{member.id}", json=data)
+        await self.bot.api_client.post(f"members/edit/{member.id}", json=data)
         logger.info("Database update done.")
 
         await member.add_roles(verified_role)

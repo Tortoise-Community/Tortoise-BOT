@@ -1,9 +1,11 @@
 import os
 import aiohttp
+from dotenv import load_dotenv
 from typing import Optional
 
 # Don't put / at end
 API_URL = "https://api.tortoisecommunity.ml"
+load_dotenv()
 
 
 class ResponseCodeError(ValueError):
@@ -26,9 +28,9 @@ class ResponseCodeError(ValueError):
 
 
 class APIClient:
-    def __init__(self):
+    def __init__(self, loop):
         self.auth_header = {"Authorization": f"Token {os.getenv('API_REFRESH_TOKEN')}"}
-        self.session = aiohttp.ClientSession(headers=self.auth_header)
+        self.session = aiohttp.ClientSession(loop=loop, headers=self.auth_header)
 
     @staticmethod
     def _url_for(endpoint: str) -> str:
