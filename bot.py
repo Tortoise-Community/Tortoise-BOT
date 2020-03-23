@@ -2,6 +2,7 @@ import logging
 import traceback
 import discord
 from discord.ext import commands
+from api_client import APIClient
 
 logger = logging.getLogger(__name__)
 
@@ -11,6 +12,7 @@ class Bot(commands.Bot):
 
     def __init__(self, *args, prefix, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
+        self.api_client = APIClient()
         self.add_command(self.load)
 
     async def on_ready(self):
