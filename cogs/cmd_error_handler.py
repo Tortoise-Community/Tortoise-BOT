@@ -1,7 +1,10 @@
 import traceback
+import logging
 import math
 import discord
 from discord.ext import commands
+
+logger = logging.getLogger(__name__)
 
 
 class CommandErrorHandler(commands.Cog):
@@ -64,7 +67,7 @@ class CommandErrorHandler(commands.Cog):
             return
 
         exception_msg = traceback.format_exc()
-        print(f"Ignoring exception in command {ctx.commmand}: {exception_msg}")
+        logger.info(f"Ignoring exception in command {ctx.commmand}: {exception_msg}")
         await self.bot.log_error(f"{ctx.command} error: {exception_msg}")
                 
 

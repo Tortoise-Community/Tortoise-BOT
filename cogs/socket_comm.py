@@ -2,18 +2,12 @@ import os
 import json
 import socket
 import logging
-from sys import stdout
 from typing import List, Dict
 from discord.ext import commands
 from discord import HTTPException
 from discord.activity import ActivityType
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(message)s")
-console = logging.StreamHandler(stdout)
-console.setFormatter(formatter)
-logger.addHandler(console)
 
 tortoise_guild_id = 577192344529404154
 tortoise_log_channel_id = 581139962611892229

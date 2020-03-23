@@ -1,8 +1,11 @@
+import logging
 from asyncio import TimeoutError
 from typing import Union
 import discord
 from discord.ext import commands
 from utils.embed_handler import authored, failure, success, info, embed_space
+
+logger = logging.getLogger(__name__)
 
 
 tortoise_guild_id = 577192344529404154
@@ -116,7 +119,7 @@ class ModMail(commands.Cog):
 
         for emoji in emoji_map.keys():
             if emoji is None:
-                print(f"Sending DM options failed as emoji is not found.")
+                logger.warning(f"Sending DM options failed as emoji is not found.")
                 return
             else:
                 await msg.add_reaction(emoji)
