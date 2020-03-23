@@ -66,9 +66,9 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send("You do not have permission to use this command.")
             return
 
-        exception_msg = traceback.format_exc()
-        logger.info(f"Ignoring exception in command {ctx.commmand}: {exception_msg}")
-        await self.bot.log_error(f"{ctx.command} error: {exception_msg}")
+        exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
+        logger.warning(exception_msg)
+        await self.bot.log_error(exception_msg)
                 
 
 def setup(bot):

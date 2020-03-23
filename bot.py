@@ -18,7 +18,9 @@ class Bot(commands.Bot):
         logger.info(f"Logged in as {self.user.name} with ID {self.user.id} \t d.py version: {discord.__version__}")
 
     async def on_error(self, event: str, *args, **kwargs):
-        await self.log_error(f"{event} event error exception!\n{traceback.format_exc()}")
+        msg = f"{event} event error exception!\n{traceback.format_exc()}"
+        logger.critical(msg)
+        await self.log_error(msg)
 
     async def log_error(self, message: str):
         if not self.is_ready() or self.is_closed():
