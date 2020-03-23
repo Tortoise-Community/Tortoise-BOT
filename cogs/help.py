@@ -1,7 +1,7 @@
 import logging
 import discord
 from discord.ext import commands
-from utils.embed_handler import embed_space
+from .utils.embed_handler import embed_space
 
 logger = logging.getLogger(__name__)
 

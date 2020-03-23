@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.errors import Forbidden
-from utils.embed_handler import success
+from .utils.embed_handler import success
 
 deterrence_log_channel_id = 597119801701433357
 moderation_channel_id = 581139962611892229
