@@ -6,7 +6,7 @@ from typing import List, Dict
 from discord.ext import commands
 from discord import HTTPException, Member
 from discord.activity import ActivityType
-import aiohttp
+from api_client import ResponseCodeError
 
 logger = logging.getLogger(__name__)
 
@@ -45,22 +45,34 @@ class SocketCommunication(commands.Cog):
             # Not supported on Windows
             pass
 
+    @commands.command()
+    async def test_verified(self, ctx, member_id: int):
+        try:
+            data = await self.bot.api_client.get(f"verify-confirmation/{member_id}")
+        except ResponseCodeError:
+            await ctx.send("Does not exist")
+            return
+        await ctx.send(data)
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.guild.id != tortoise_guild_id:
             return
 
         logger.info(f"Checking new member {member.name}")
-        data = await self.bot.api_client.get(f"verify-confirmation/{member.id}")
 
-        verified = data.get("verified")
-        if verified is None:
+        try:
+            data = await self.bot.api_client.get(f"verify-confirmation/{member.id}")
+        except ResponseCodeError:
             # User doesn't exist in database, add him
             data = {"user_id": member.id, "guild_id": member.guild.id}
-            logger.info(f"Updating database {data}")
+            logger.info(f"Doesn't exist, updating database {data}")
             await self.bot.api_client.post("members", json=data)
             logger.info("Database update done.")
-        elif verified:
+            return
+
+        verified = data.get("verified")
+        if verified:
             logger.info(f"Member {member.id} is verified in database, adding roles..")
             await self.add_verified_roles_to_member(member)
         else:
@@ -226,7 +238,7 @@ class SocketCommunication(commands.Cog):
 
         data = {"user_id": member.id, "guild_id": guild.id, "name": str(member), "verified": True}
         logger.info(f"Updating database {data}")
-        await self.bot.api_client.post(f"members/edit/{member.id}", json=data)
+        await self.bot.api_client.put(f"members/edit/{member.id}", json=data)
         logger.info("Database update done.")
 
         await member.add_roles(verified_role)

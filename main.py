@@ -16,11 +16,11 @@ root_logger.addHandler(console)
 
 load_dotenv()
 if os.environ.get("DEBUG", "false").lower() == "true":
-    banned_extensions = ("security", "tortoise_server", "captcha_verification")
+    banned_extensions = ("security", "tortoise_server", "captcha_verification", "socket_comm")
     default_prefix = "."
     root_logger.info(f"Running as debug bot. Banned extensions: {banned_extensions}")
 else:
-    banned_extensions = ("socket_comm", "captcha_verification")
+    banned_extensions = ("captcha_verification",)
     default_prefix = "t."
     root_logger.info(f"Running as main bot. Banned extension: {banned_extensions}")
 
