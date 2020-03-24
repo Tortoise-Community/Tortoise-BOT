@@ -153,27 +153,33 @@ class SocketCommunication(commands.Cog):
         client_name = client.getpeername()
         response = {"status": 200}
 
-        send = request.get("Send")
+        send = request.get("send")
         if send is not None:
             logger.info(f"Beginning SEND request from {client_name}")
             await self.send_to_channel_test(f"Client says:{send}")
             await self.send_to_client(client, json.dumps(response))
             logger.info(f"Done SEND request from {client_name}")
+            return
 
-        members = request.get("Members")
+        members = request.get("members")
         if members is not None:
             logger.info(f"Beginning MEMBERS request from {client_name}")
             response["Members"] = await self.get_member_activities(members)
             logger.info(f"Done MEMBERS request from {client_name}, returning {response}")
             await self.send_to_client(client, json.dumps(response))
             logger.info(f"{client_name} returned members successfully.")
+            return
 
-        verify = request.get("Verify")
+        verify = request.get("verify")
         if verify is not None:
             logger.info(f"Got verify: {verify}")
             response = await self.verify_member(verify)
             logger.info(f"Done MEMBERS request from {client_name}, returning {response}")
             await self.send_to_client(client, json.dumps(response))
+            return
+
+        response = {"status": 400}
+        await self.send_to_client(client, json.dumps(response))
 
     async def send_to_channel_test(self, message):
         logger.info(f"Sending {message} to channel.")
