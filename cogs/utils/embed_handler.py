@@ -2,6 +2,12 @@ from typing import Union
 from discord import Embed, Color, Member, User
 
 
+# Embeds are not monospaced so we need to use spaces to make different lines "align"
+# But discord doesn't like spaces and strips them down.
+# Using a combination of zero width space + regular space solves stripping problem.
+embed_space = "\u200b "
+
+
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
     return embed
@@ -60,7 +66,7 @@ def authored(author: Union[Member, User], message: str) -> Embed:
     :return: discord.Embed
     """
     embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
-    embed.set_author(name=author, icon_url=author.avatar_url)
+    embed.set_author(name=author.name, icon_url=author.avatar_url)
     return embed
 
 

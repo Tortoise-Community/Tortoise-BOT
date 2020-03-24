@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from utils.embed_handler import info
+from .utils.embed_handler import info
 
 
 class Fun(commands.Cog):
@@ -25,6 +25,11 @@ class Fun(commands.Cog):
         embed = info(f"{member.mention} shot by {ctx.author.mention}  :gun: :boom:", ctx.me, "Boom!")
         embed.set_image(url="https://i.gifer.com/XdhK.gif")
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["table", "flip"])
+    async def throw(self, ctx):
+        """Throw a table in anger."""
+        await ctx.send("```(╯°□°)╯︵ ┻━┻```")
 
 
 def setup(bot):

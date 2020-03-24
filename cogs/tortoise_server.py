@@ -1,6 +1,10 @@
+import logging
 import asyncio
 import discord
 from discord.ext import commands
+
+logger = logging.getLogger(__name__)
+
 
 announcements_channel_id = 578197131526144024
 welcome_channel_id = 657704940080201739
@@ -58,9 +62,9 @@ class TortoiseServer(commands.Cog):
             if role is not None:
                 return role
             else:
-                print(f"Emoji id found in dictionary but role id {role_id} not found in guild!")
+                logger.critical(f"Emoji id found in dictionary but role id {role_id} not found in guild!")
         else:
-            print(f"No mapping for emoji {payload.emoji.id} in self_assignable_roles!")
+            logger.critical(f"No mapping for emoji {payload.emoji.id} in self_assignable_roles!")
 
     @commands.command()
     @commands.guild_only()

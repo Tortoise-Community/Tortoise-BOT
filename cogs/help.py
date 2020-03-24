@@ -1,12 +1,9 @@
 import logging
 import discord
 from discord.ext import commands
+from .utils.embed_handler import embed_space
 
 logger = logging.getLogger(__name__)
-# Embeds are not monospaced so we need to use spaces to make different lines "align"
-# But discord doesn't like spaces and strips them down.
-# Using a combination of zero width space + regular space solves stripping problem.
-embed_space = "\u200b "
 
 
 class PrettyHelpCommand(commands.MinimalHelpCommand):

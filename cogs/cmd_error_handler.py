@@ -1,16 +1,13 @@
 import traceback
+import logging
 import math
-import sys
 import discord
 from discord.ext import commands
 
+logger = logging.getLogger(__name__)
+
 
 class CommandErrorHandler(commands.Cog):
-    """
-    Source https://gist.github.com/AileenLumina/510438b241c16a2960e9b0b014d9ed06
-
-    """
-
     def __init__(self, bot):
         self.bot = bot
     
@@ -69,10 +66,9 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send("You do not have permission to use this command.")
             return
 
-        # Ignore all other exception types, but print them to stderr
-        print("Ignoring exception in command {}:".format(ctx.command), file=sys.stderr)
-
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
+        logger.warning(exception_msg)
+        await self.bot.log_error(exception_msg)
                 
 
 def setup(bot):

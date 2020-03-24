@@ -1,8 +1,8 @@
-import discord
-from youtube_dl import YoutubeDL
 import asyncio
+import discord
 from discord.ext import commands
-from utils.embed_handler import failure
+from youtube_dl import YoutubeDL
+from .utils.embed_handler import failure
 
 # For all options see:
 # https://github.com/ytdl-org/youtube-dl/blob/3e4cedf9e8cd3157df2457df7274d0c842421945/youtube_dl/YoutubeDL.py#L137-L312
@@ -45,7 +45,7 @@ class Music(commands.Cog):
     async def cog_command_error(self, ctx, error):
         """A local error handler for all errors arising from commands in this cog."""
         if isinstance(error, VoiceConnectionError):
-            await ctx.send(embed=failure(error))
+            await ctx.send(embed=failure(str(error)))
 
     @commands.command(aliases=["connect"])
     async def join(self, ctx, *, channel: discord.VoiceChannel = None):

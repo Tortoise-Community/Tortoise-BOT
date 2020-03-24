@@ -1,8 +1,12 @@
 import discord
 from discord.ext import commands
 from discord.errors import Forbidden
+from .utils.embed_handler import success
 
 deterrence_log_channel_id = 597119801701433357
+moderation_channel_id = 581139962611892229
+unverified_role_id = 605808609195982864
+verification_channel_id = 602156675863937024
 muted_role_id = 610126555867512870
 
 
@@ -69,7 +73,7 @@ class Admins(commands.Cog):
         await deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = discord.Embed(title=msg_title,
-                                 description=(f"{msg_description}",
+                                 description=(f"{msg_description}"
                                               f"\nIf this happened by a mistake contact moderators."),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
@@ -91,8 +95,8 @@ class Admins(commands.Cog):
         """
         deterrence_log_channel = self.bot.get_channel(deterrence_log_channel_id)
         embed = discord.Embed(title=f"**{member.name} You have been warned for {reason}**",
-                              description=f"If you are planning to repeat this again, "
-                                          f"the mods may administer punishment for the action.",
+                              description=("If you are planning to repeat this again, "
+                                           "the mods may administer punishment for the action."),
                               color=0xF4D03F)
         await ctx.message.delete()
         await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
@@ -107,7 +111,6 @@ class Admins(commands.Cog):
         You will require appropriate role to use this command.
 
         """
-
         await member.add_roles(role)
         embed = discord.Embed(title=f"Role Added!",
                               description=f"{member.mention} now has the role {role.mention}",
@@ -139,8 +142,30 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(manage_roles=True)
     @commands.has_permissions(manage_messages=True, manage_roles=True)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
-        muted_role = ctx.guild.get_role(610126555867512870)
+        muted_role = ctx.guild.get_role(muted_role_id)
         await member.add_roles(muted_role, reason=reason)
+
+    @commands.command()
+    @commands.cooldown(1, 300, commands.BucketType.guild)
+    @commands.has_permissions(manage_messages=True)
+    async def dm_unverified(self, ctx):
+        verification_channel = self.bot.get_channel(verification_channel_id)
+        unverified_role = ctx.guild.get_role(unverified_role_id)
+        unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
+        count = 0
+
+        for member in unverified_members:
+            try:
+                msg = (f"Hey {member.mention}!\n"
+                       f"You've been in our guild **{ctx.guild.name}** for quite a long time.."
+                       f"We noticed you still didn't verify so please go to our channel "
+                       f"{verification_channel.mention} and verify.")
+                await member.send(msg)
+                count += 1
+            except Forbidden:
+                pass
+
+        await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
 
 
 def setup(bot):

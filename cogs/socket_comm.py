@@ -1,56 +1,112 @@
+import os
 import json
 import socket
 import logging
-from sys import stdout
+from typing import List, Dict
 from discord.ext import commands
+from discord import HTTPException, Member
 from discord.activity import ActivityType
+from api_client import ResponseCodeError
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(message)s")
-console = logging.StreamHandler(stdout)
-console.setFormatter(formatter)
-logger.addHandler(console)
+
+tortoise_guild_id = 577192344529404154
+tortoise_log_channel_id = 581139962611892229
+verified_role_id = 599647985198039050
+unverified_role_id = 605808609195982864
 
 
 class SocketCommunication(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.tokens = ("abc", "test")
+        self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
-        logger.debug("Starting socket comm...")
-        self.bot.loop.create_task(self.run_server(self.get_server()))
+        self._socket_server = SocketCommunication.create_server()
+        self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
 
-    @classmethod
-    def get_server(cls):
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def cog_unload(self):
+        logger.info("Unloading socket comm, closing connections.")
+        logger.info(f"Canceling server task..")
+        self.task.cancel()
+
+        for client in self.verified_clients:
+            try:
+                logger.info(f"Closing client {client}")
+                client.close()
+            except OSError:
+                pass
+
+        try:
+            logger.info("Server shutdown..")
+            self._socket_server.shutdown(socket.SHUT_RDWR)
+            logger.info("Server closing..")
+            self._socket_server.close()
+        except OSError:
+            # Not supported on Windows
+            pass
+
+    @commands.command()
+    async def test_verified(self, ctx, member_id: int):
+        try:
+            data = await self.bot.api_client.get(f"verify-confirmation/{member_id}")
+        except ResponseCodeError:
+            await ctx.send("Does not exist")
+            return
+        await ctx.send(data)
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        if member.guild.id != tortoise_guild_id:
+            return
+
+        logger.info(f"Checking new member {member.name}")
+
+        try:
+            data = await self.bot.api_client.get(f"verify-confirmation/{member.id}")
+        except ResponseCodeError:
+            # User doesn't exist in database, add him
+            data = {"user_id": member.id, "guild_id": member.guild.id}
+            logger.info(f"Doesn't exist, updating database {data}")
+            await self.bot.api_client.post("members", json=data)
+            logger.info("Database update done.")
+            return
+
+        verified = data.get("verified")
+        if verified:
+            logger.info(f"Member {member.id} is verified in database, adding roles..")
+            await self.add_verified_roles_to_member(member)
+        else:
+            logger.info(f"Member {member.id} is not verified in database. Waiting for socket")
+
+    @staticmethod
+    def create_server():
+        logger.info("Starting socket comm server...")
+        server = socket.socket()
         server.bind(("0.0.0.0", 15555))
         server.listen(3)
         server.setblocking(False)
+        logger.info("Socket comm server started.")
         return server
 
-    def cog_unload(self):
-        pass
+    async def run_server(self, server: socket.socket):
+        while True:
+            client, _ = await self.bot.loop.sock_accept(server)
+            client_name = client.getpeername()
+            logger.info(f"{client_name} connected.")
+            self.bot.loop.create_task(self.handle_client(client, client_name))
 
-    async def test(self, message):
-        logger.debug(f"Sending {message} to channel.")
-        test_channel = self.bot.get_channel(581139962611892229)
-        await test_channel.send(message)
-        logger.debug(f"Sent {message} to channel!")
-
-    async def handle_client(self, client):
+    async def handle_client(self, client, client_name: str):
         request = None
-        client_name = client.getpeername()
         while request != "quit":
             try:
                 request = (await self.bot.loop.sock_recv(client, 255)).decode("utf8")
             except ConnectionResetError:
                 # If the client disconnects without sending quit.
-                logger.debug(f"{client_name} disconnected.")
+                logger.info(f"{client_name} disconnected.")
                 break
 
             if not request:
-                logger.debug("Empty, closing.")
+                logger.info("Empty, closing.")
                 break
 
             try:
@@ -58,15 +114,15 @@ class SocketCommunication(commands.Cog):
             except json.JSONDecodeError:
                 response = {"status": 400, "response": "Not a valid JSON formatted request."}
                 await self.send_to_client(client, json.dumps(response))
-                logger.debug(f"{client_name}:{response}\n{request}")
+                logger.info(f"{client_name}:{response}\n{request}")
                 continue
 
-            logger.debug(f"Server got:\n{request}")
+            logger.info(f"Server got:\n{request}")
 
-            if client_name not in self.verified_clients:
+            if client not in self.verified_clients:
                 token = request.get("Auth")
-                if token is not None and token in self.tokens:
-                    self.verified_clients.add(client_name)
+                if token is not None and token == self.auth_token:
+                    self.verified_clients.add(client)
                     response = {"status": 200}
                     await self.send_to_client(client, json.dumps(response))
                     logger.info(f"{client_name} successfully authorized.")
@@ -74,7 +130,7 @@ class SocketCommunication(commands.Cog):
                 else:
                     response = {"status": 401, "response": "Verification unsuccessful, closing conn."}
                     await self.send_to_client(client, json.dumps(response))
-                    logger.debug(f"{client_name}:{response}\n{request}")
+                    logger.info(f"{client_name}:{response}\n{request}")
                     break
 
             await self.parse_request(request, client)
@@ -83,7 +139,7 @@ class SocketCommunication(commands.Cog):
 
     async def send_to_client(self, client, msg):
         try:
-            await self.bot.loop.sock_sendall(client, bytes(msg.encode("utf8")))
+            await self.bot.loop.sock_sendall(client, bytes(msg.encode("unicode_escape")))
         except BrokenPipeError:
             # If the client closes the connection too quickly or just does't even bother listening to response we'll
             # get this, so just ignore
@@ -95,50 +151,120 @@ class SocketCommunication(commands.Cog):
         "Send" sends value to text channel
         """
         client_name = client.getpeername()
+        response = {"status": 200}
 
-        send = request.get("Send")
+        send = request.get("send")
         if send is not None:
-            logger.debug(f"Beginning SEND request from {client_name}")
-            await self.test(f"Client says:{send}")
-            response = {"status": 200}
+            logger.info(f"Beginning SEND request from {client_name}")
+            await self.send_to_channel_test(f"Client says:{send}")
             await self.send_to_client(client, json.dumps(response))
-            logger.debug(f"Done SEND request from {client_name}")
+            logger.info(f"Done SEND request from {client_name}")
+            return
 
-        members = request.get("Members")
+        members = request.get("members")
         if members is not None:
-            logger.debug(f"Beginning MEMBERS request from {client_name}")
-            response_activities = {}
-            tortoise_guild = self.bot.get_guild(577192344529404154)
-            for member_id in members:
-                member = tortoise_guild.get_member(int(member_id))
-                if member is None:
-                    response_activities[member_id] = "None"
-                    continue
-
-                activity = member.activity
-                if activity is None:
-                    response_activities[member_id] = "None"
-                    continue
-                elif activity.type == ActivityType.playing:
-                    response_activities[member_id] = f"Playing {activity.name}"
-                elif activity.type == ActivityType.streaming:
-                    response_activities[member_id] = f"Streaming {activity}"
-                else:
-                    # For cases where it is None, CustomActivity or Activity(watching, listening)
-                    logger.debug(activity.type)
-                    logger.debug(type(activity.type))
-                    response_activities[member_id] = str(activity)
-
-            response = {"status": 200, "Members": response_activities}
-            logger.debug(f"Done MEMBERS request from {client_name}, returning {response}")
+            logger.info(f"Beginning MEMBERS request from {client_name}")
+            response["Members"] = await self.get_member_activities(members)
+            logger.info(f"Done MEMBERS request from {client_name}, returning {response}")
             await self.send_to_client(client, json.dumps(response))
-            logger.debug(f"{client_name} returned members successfully.")
+            logger.info(f"{client_name} returned members successfully.")
+            return
 
-    async def run_server(self, server: socket.socket):
-        while True:
-            client, _ = await self.bot.loop.sock_accept(server)
-            logger.info(f"{client.getpeername()} connected.")
-            self.bot.loop.create_task(self.handle_client(client))
+        verify = request.get("verify")
+        if verify is not None:
+            logger.info(f"Got verify: {verify}")
+            response = await self.verify_member(verify)
+            logger.info(f"Done MEMBERS request from {client_name}, returning {response}")
+            await self.send_to_client(client, json.dumps(response))
+            return
+
+        response = {"status": 400}
+        await self.send_to_client(client, json.dumps(response))
+
+    async def send_to_channel_test(self, message):
+        logger.info(f"Sending {message} to channel.")
+        test_channel = self.bot.get_channel(581139962611892229)
+        await test_channel.send(message)
+        logger.info(f"Sent {message} to channel!")
+
+    async def get_member_activities(self, members: List[int]) -> Dict[int, str]:
+        response_activities = {}
+        tortoise_guild = self.bot.get_guild(577192344529404154)
+        logger.info(f"Processing members: {members}")
+        for member_id in members:
+            logger.info(f"Processing member: {member_id}")
+            member = tortoise_guild.get_member(int(member_id))
+
+            if member is None:
+                logger.info(f"Member {member_id} not found.")
+                response_activities[member_id] = "None"
+                continue
+
+            activity = member.activity
+            if activity is None:
+                logger.info(f"Member {member_id} does not have any activity.")
+                response_activities[member_id] = "None"
+                continue
+            elif activity.type == ActivityType.playing:
+                logger.info(f"Member {member_id} is playing.")
+                response_activities[member_id] = f"Playing {activity.name}"
+            elif activity.type == ActivityType.streaming:
+                logger.info(f"Member {member_id} is streaming.")
+                response_activities[member_id] = f"Streaming {activity}"
+            else:
+                # For cases where it is None, CustomActivity or Activity(watching, listening)
+                logger.info(activity.type)
+                logger.info(type(activity.type))
+                response_activities[member_id] = str(activity)
+
+        logger.info(f"Processing members done, returning: {response_activities}")
+        return response_activities
+
+    async def verify_member(self, member_id: str) -> Dict[int, str]:
+        try:
+            member_id = int(member_id)
+        except ValueError:
+            return {400: "ID formatted wrong."}
+
+        guild = self.bot.get_guild(tortoise_guild_id)
+        verified_role = guild.get_role(verified_role_id)
+        unverified_role = guild.get_role(unverified_role_id)
+        log_channel = guild.get_channel(tortoise_log_channel_id)
+        if verified_role is None or guild is None or log_channel is None or unverified_role is None:
+            return {500: "Tortoise IDs not found."}
+
+        member = guild.get_member(member_id)
+        if member is None:
+            return {404: "Member not found"}
+
+        try:
+            await member.remove_roles(unverified_role)
+        except HTTPException:
+            return {500: "Bot could't remove unverified role"}
+
+        data = {"user_id": member.id, "guild_id": guild.id, "name": str(member), "verified": True}
+        logger.info(f"Updating database {data}")
+        await self.bot.api_client.put(f"members/edit/{member.id}", json=data)
+        logger.info("Database update done.")
+
+        await member.add_roles(verified_role)
+        await member.send("You are now verified.")
+        await log_channel.send(f"{member.mention} is now verified.")
+        return {200: "Successfully verified."}
+
+    async def add_verified_roles_to_member(self, member: Member):
+        guild = self.bot.get_guild(tortoise_guild_id)
+        verified_role = guild.get_role(verified_role_id)
+        unverified_role = guild.get_role(unverified_role_id)
+        log_channel = guild.get_channel(tortoise_log_channel_id)
+        try:
+            await member.remove_roles(unverified_role)
+        except HTTPException:
+            logger.info(f"Bot could't remove unverified role {unverified_role}")
+
+        await member.add_roles(verified_role)
+        await member.send("Welcome back.")
+        await log_channel.send(f"{member.mention} has returned.")
 
 
 def setup(bot):
