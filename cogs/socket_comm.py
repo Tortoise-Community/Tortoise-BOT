@@ -4,7 +4,7 @@ import socket
 import logging
 import asyncio
 from datetime import datetime, timezone
-from typing import List, Dict
+from typing import List, Dict, Iterable
 from discord.ext import commands
 from discord import HTTPException, ActivityType, Member
 from api_client import ResponseCodeError
@@ -71,6 +71,7 @@ class SocketCommunication(commands.Cog):
         self.bot = bot
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
+        self._database_role_update_lock = False
         self._socket_server = SocketCommunication.create_server()
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
 
@@ -133,7 +134,11 @@ class SocketCommunication(commands.Cog):
         verified = data.get("verified")
         if verified:
             logger.debug(f"Member {member.id} is verified in database, adding roles..")
-            await self.add_verified_roles_to_member(member)
+            previous_roles = await self.bot.api_client.get(f"member/{member.id}/roles/")
+            await self.add_verified_roles_to_member(member, previous_roles["roles"])
+            log_channel = self.bot.get_channel(tortoise_log_channel_id)
+            await member.send("Welcome back.")
+            await log_channel.send(f"{member.mention} has returned.")
             logger.debug(f"Adding him as member=True in database")
             await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": True})
         else:
@@ -144,19 +149,38 @@ class SocketCommunication(commands.Cog):
         logger.debug(f"Member {member} left, setting member=False in db")
         await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": False})
 
-    async def add_verified_roles_to_member(self, member: Member):
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        """
+        We save all roles from member so he can get those roles back if he re-joins.
+        """
+        if before.roles == after.roles or self._database_role_update_lock:
+            return
+
+        roles_ids = [role.id for role in after.roles]
+        logger.debug(f"Roles from member {after} changed, changing db field to: {roles_ids}")
+        await self.bot.api_client.put(f"members/edit/{after.id}/", json={"roles": roles_ids})
+
+    async def add_verified_roles_to_member(self, member: Member, additional_roles: Iterable[int] = tuple()):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        log_channel = guild.get_channel(tortoise_log_channel_id)
+        self._database_role_update_lock = True
         try:
             await member.remove_roles(unverified_role)
         except HTTPException:
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
-        await member.add_roles(verified_role)
-        await member.send("Welcome back.")
-        await log_channel.send(f"{member.mention} has returned.")
+        # In case additional_roles are fetched from database, they can be no longer existing due to not removing roles
+        # that got deleted, so just catch Exception and ignore.
+        roles = [guild.get_role(role_id) for role_id in additional_roles]
+        roles.append(verified_role)
+        for role in roles:
+            try:
+                await member.add_roles(role)
+            except Exception:
+                continue
+        self._database_role_update_lock = False
 
     @staticmethod
     def create_server():
@@ -337,12 +361,7 @@ class SocketCommunication(commands.Cog):
         if member is None:
             raise DiscordIDNotFound()
 
-        try:
-            await member.remove_roles(unverified_role)
-        except HTTPException:
-            raise EndpointError(500, "Bot could't remove unverified role")
-
-        await member.add_roles(verified_role)
+        await self.add_verified_roles_to_member(member)
         await member.send("You are now verified.")
         await log_channel.send(f"{member.mention} is now verified.")
 
