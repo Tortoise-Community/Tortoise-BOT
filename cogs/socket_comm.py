@@ -123,7 +123,7 @@ class SocketCommunication(commands.Cog):
                     "guild_id": member.guild.id,
                     "join_date": datetime.today().strftime("%Y-%m-%d"),
                     "name": member.display_name,
-                    "tag": member.discriminator,
+                    "tag": int(member.discriminator),
                     "member": True}
             logger.debug(f"Doesn't exist, updating database {data}")
             await self.bot.api_client.post("members/", json=data)
