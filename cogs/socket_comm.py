@@ -105,6 +105,11 @@ class SocketCommunication(commands.Cog):
         await ctx.send(data)
 
     @commands.command()
+    async def show_data(self, ctx, member: Member):
+        data = await self.bot.api_client.get(f"members/edit/{member.id}/")
+        await ctx.send(f"{data}")
+
+    @commands.command()
     async def show_endpoints(self, ctx):
         await ctx.send(" ,".join(_endpoints_mapping))
 
@@ -140,14 +145,17 @@ class SocketCommunication(commands.Cog):
             await member.send("Welcome back.")
             await log_channel.send(f"{member.mention} has returned.")
             logger.debug(f"Adding him as member=True in database")
-            await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": True})
+            data = {"user_id": member.id, "guild_id": member.guild.id, "member": True}
+            await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
         else:
             logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member):
         logger.debug(f"Member {member} left, setting member=False in db")
-        await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": False})
+        await self.bot.api_client.put(f"members/edit/{member.id}/", json={"user_id": member.id,
+                                                                          "guild_id": member.guild.id,
+                                                                          "member": False})
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
@@ -159,7 +167,9 @@ class SocketCommunication(commands.Cog):
 
         roles_ids = [role.id for role in after.roles]
         logger.debug(f"Roles from member {after} changed, changing db field to: {roles_ids}")
-        await self.bot.api_client.put(f"members/edit/{after.id}/", json={"roles": roles_ids})
+        await self.bot.api_client.put(f"members/edit/{after.id}/", json={"user_id": after.id,
+                                                                         "guild_id": after.guild.id,
+                                                                         "roles": roles_ids})
 
     async def add_verified_roles_to_member(self, member: Member, additional_roles: Iterable[int] = tuple()):
         guild = self.bot.get_guild(tortoise_guild_id)
