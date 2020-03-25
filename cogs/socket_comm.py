@@ -3,6 +3,7 @@ import json
 import socket
 import logging
 import asyncio
+from datetime import datetime
 from typing import List, Dict
 from discord.ext import commands
 from discord import HTTPException, ActivityType, Member
@@ -107,7 +108,7 @@ class SocketCommunication(commands.Cog):
         await ctx.send(" ,".join(_endpoints_mapping))
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
+    async def on_member_join(self, member: Member):
         if member.guild.id != tortoise_guild_id:
             return
 
@@ -118,7 +119,12 @@ class SocketCommunication(commands.Cog):
             data = await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
         except ResponseCodeError:
             # User doesn't exist in database, add him
-            data = {"user_id": member.id, "guild_id": member.guild.id}
+            data = {"user_id": member.id,
+                    "guild_id": member.guild.id,
+                    "join_date": datetime.today().strftime("%Y-%m-%d"),
+                    "name": member.display_name,
+                    "tag": member.discriminator,
+                    "member": True}
             logger.debug(f"Doesn't exist, updating database {data}")
             await self.bot.api_client.post("members/", json=data)
             logger.debug("Database update done.")
@@ -149,7 +155,7 @@ class SocketCommunication(commands.Cog):
     def create_server():
         logger.debug("Starting socket comm server...")
         server = socket.socket()
-        server.bind(("localhost", 15555))
+        server.bind(("0.0.0.0", 15555))
         server.listen(3)
         server.setblocking(False)
         logger.debug("Socket comm server started.")
