@@ -175,12 +175,12 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        self._database_role_update_lock = True
         try:
             await member.remove_roles(unverified_role)
         except HTTPException:
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
+        self._database_role_update_lock = True
         # In case additional_roles are fetched from database, they can be no longer existing due to not removing roles
         # that got deleted, so just catch Exception and ignore.
         roles = [guild.get_role(role_id) for role_id in additional_roles]
