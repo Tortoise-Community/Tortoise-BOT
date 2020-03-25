@@ -134,7 +134,7 @@ class SocketCommunication(commands.Cog):
         verified = data.get("verified")
         if verified:
             logger.debug(f"Member {member.id} is verified in database, adding roles..")
-            previous_roles = await self.bot.api_client.get(f"member/{member.id}/roles/")
+            previous_roles = await self.bot.api_client.get(f"members/{member.id}/roles/")
             await self.add_verified_roles_to_member(member, previous_roles["roles"])
             log_channel = self.bot.get_channel(tortoise_log_channel_id)
             await member.send("Welcome back.")
