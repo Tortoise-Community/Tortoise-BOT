@@ -9,23 +9,23 @@ class EndpointSuccess(EndpointResponse):
 
 
 class EndpointError(EndpointResponse):
-    def __init__(self, code: int, message: str):
-        super().__init__(code, message)
+    def __init__(self, code: int, message: str, endpoint_key=""):
+        super().__init__(code, f"{message}, endpoint:{endpoint_key}")
 
 
 class EndpointNotFound(EndpointError):
-    def __init__(self, endpoint_key: str):
-        super().__init__(400, f"Endpoint {endpoint_key} not found.")
+    def __init__(self):
+        super().__init__(400, f"Endpoint not found.")
 
 
 class EndpointBadArguments(EndpointError):
-    def __init__(self, endpoint_key: str):
-        super().__init__(400, f"Endpoint {endpoint_key} bad arguments.")
+    def __init__(self):
+        super().__init__(400, f"Endpoint bad arguments.")
 
 
 class DiscordIDNotFound(EndpointError):
-    def __init__(self, id_not_found: int):
-        super().__init__(400, f"Discord ID {id_not_found} not found.")
+    def __init__(self):
+        super().__init__(404, f"Discord ID not found.")
 
 
 class InternalServerError(EndpointError):

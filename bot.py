@@ -14,6 +14,7 @@ class Bot(commands.Bot):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client = APIClient(self.loop)
         self.add_command(self.load)
+        self.add_command(self.unload)
 
     async def on_ready(self):
         logger.info("Successfully logged in and booted...!")
