@@ -3,7 +3,7 @@ import json
 import socket
 import logging
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict
 from discord.ext import commands
 from discord import HTTPException, ActivityType, Member
@@ -121,7 +121,7 @@ class SocketCommunication(commands.Cog):
             # User doesn't exist in database, add him
             data = {"user_id": member.id,
                     "guild_id": member.guild.id,
-                    "join_date": datetime.today().strftime("%Y-%m-%d"),
+                    "join_date": datetime.now(timezone.utc).isoformat(),  # UTC time
                     "name": member.display_name,
                     "tag": int(member.discriminator),
                     "member": True}
@@ -134,8 +134,15 @@ class SocketCommunication(commands.Cog):
         if verified:
             logger.debug(f"Member {member.id} is verified in database, adding roles..")
             await self.add_verified_roles_to_member(member)
+            logger.debug(f"Adding him as member=True in database")
+            await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": True})
         else:
-            logger.debug(f"Member {member.id} is not verified in database. Waiting for socket")
+            logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: Member):
+        logger.debug(f"Member {member} left, setting member=False in db")
+        await self.bot.api_client.put(f"members/edit/{member.id}/", json={"member": False})
 
     async def add_verified_roles_to_member(self, member: Member):
         guild = self.bot.get_guild(tortoise_guild_id)
