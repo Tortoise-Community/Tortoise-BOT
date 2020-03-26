@@ -46,7 +46,7 @@ class TortoiseServer(commands.Cog):
             role = self.get_assignable_role(payload, guild)
             if role is not None:
                 await member.add_roles(role)
-                embed = success(f"`**{role.name}**` has been assigned to you in the Tortoise community.")
+                embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
                 await member.send(embed=embed)
 
     @commands.Cog.listener()
