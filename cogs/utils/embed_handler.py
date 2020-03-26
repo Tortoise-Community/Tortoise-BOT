@@ -40,7 +40,7 @@ def welcome(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed("Welcome!", message, color=Color.dark_green())
+    return simple_embed(message, "Welcome!", color=Color.dark_green())
 
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
