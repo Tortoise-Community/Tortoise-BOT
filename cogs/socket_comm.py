@@ -158,12 +158,14 @@ class SocketCommunication(commands.Cog):
             # Functionality only available in Tortoise guild
             return
 
+        log_channel = self.bot.get_channel(tortoise_log_channel_id)
         logger.debug(f"Checking new member {member.name}")
 
         try:
             # TODO move this functionality to api client class
             data = await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
         except ResponseCodeError:
+            await log_channel.send(embed=welcome(f"{member.mention} has joined the Tortoise Community."))
             # User doesn't exist in database, add him
             data = {"user_id": member.id,
                     "guild_id": member.guild.id,
@@ -182,7 +184,6 @@ class SocketCommunication(commands.Cog):
             return
 
         verified = data.get("verified")
-        log_channel = self.bot.get_channel(tortoise_log_channel_id)
         if verified:
             logger.debug(f"Member {member.id} is verified in database, adding roles..")
             previous_roles = await self.bot.api_client.get(f"members/{member.id}/roles/")
