@@ -191,7 +191,7 @@ class SocketCommunication(commands.Cog):
             await log_channel.send(embed=welcome(f"{member.mention} has returned to Tortoise Community."))
 
             logger.debug(f"Adding him as member=True in database")
-            data = {"user_id": member.id, "guild_id": member.guild.id, "member": True}
+            data = {"user_id": member.id, "guild_id": member.guild.id, "member": True, "leave_date": None}
             await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
 
             msg = ("Welcome back to Tortoise Community!\n\n"
@@ -200,6 +200,10 @@ class SocketCommunication(commands.Cog):
         else:
             await log_channel.send(embed=welcome(f"{member.mention} has joined the Tortoise Community."))
             logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
+
+            data = {"user_id": member.id, "guild_id": member.guild.id, "member": True, "leave_date": None}
+            await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
+
             msg = ("Hi, welcome to Tortoise Community!\n"
                    "Seems like this is not your first time joining.\n\n"
                    f"Last time you didn't verify so please head over to {verification_url}")
