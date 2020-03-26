@@ -7,10 +7,31 @@ from discord import Embed, Color, Member, User
 # Using a combination of zero width space + regular space solves stripping problem.
 embed_space = "\u200b "
 
+website_url = "https://www.tortoisecommunity.ml/"
+privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
+rules_url = "https://www.tortoisecommunity.ml/pages/rules"
+line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
+
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
     return embed
+
+
+def welcome_dm(message: str) -> Embed:
+    """
+    Constructs welcome embed to be sent when user joins,
+    with fixed  green color and fixed footer showing privacy url and rules url.
+    :param message: embed description
+    :return: Embed object
+    """
+    content_footer = (f"Links: [Website]({website_url}) | "
+                      f"[Privacy statement]({privacy_url}) | "
+                      f"[Rules]({rules_url})")
+    message = f"{message}\n\n{content_footer}"
+    welcome_dm_embed = simple_embed(message, "Welcome", color=Color.dark_green())
+    welcome_dm_embed.set_image(url=line_img_url)
+    return welcome_dm_embed
 
 
 def welcome(message: str) -> Embed:

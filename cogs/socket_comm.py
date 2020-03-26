@@ -11,7 +11,7 @@ from api_client import ResponseCodeError
 from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
                                InternalServerError, DiscordIDNotFound)
 from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.embed_handler import authored, welcome
+from .utils.embed_handler import welcome, welcome_dm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -21,7 +21,6 @@ tortoise_log_channel_id = 593883395436838942
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
 verification_url = "https://www.tortoisecommunity.ml/verification/"
-line_animated_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
 
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
@@ -176,12 +175,10 @@ class SocketCommunication(commands.Cog):
             await self.bot.api_client.post("members/", json=data)
             logger.debug("Database update done.")
 
-            msg = ("Welcome to our guild!\n"
+            msg = ("Welcome to Tortoise Community!\n"
                    "In order to proceed and join the community you will need to verify.\n\n"
                    f"Please head over to {verification_url}")
-            embed = authored(member.guild.me, msg)
-            embed.set_image(url=line_animated_url)
-            await member.send(embed=embed)
+            await member.send(embed=welcome_dm(msg))
             return
 
         verified = data.get("verified")
@@ -197,18 +194,16 @@ class SocketCommunication(commands.Cog):
             data = {"user_id": member.id, "guild_id": member.guild.id, "member": True}
             await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
 
-            msg = ("Welcome back!\n\n"
+            msg = ("Welcome back to Tortoise Community!\n\n"
                    "The roles you had last time will be restored and added back to you.\n")
-            await member.send(embed=authored(member.guild.me, msg))
+            await member.send(embed=welcome_dm(msg))
         else:
             await log_channel.send(embed=welcome(f"{member.mention} has joined the Tortoise Community."))
             logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
-            msg = ("Hi, welcome to our guild!\n"
+            msg = ("Hi, welcome to Tortoise Community!\n"
                    "Seems like this is not your first time joining.\n\n"
                    f"Last time you didn't verify so please head over to {verification_url}")
-            embed = authored(member.guild.me, msg)
-            embed.set_image(url=line_animated_url)
-            await member.send(embed=embed)
+            await member.send(embed=welcome_dm(msg))
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member):
