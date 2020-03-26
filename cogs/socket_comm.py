@@ -116,7 +116,7 @@ class SocketCommunication(commands.Cog):
         data = await self.bot.api_client.get(f"members/edit/{member.id}/")
         await ctx.send(f"{data}")
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.is_owner()
     @commands.cooldown(1, 600, commands.BucketType.guild)
     @commands.check(check_if_it_is_tortoise_guild)
@@ -167,7 +167,7 @@ class SocketCommunication(commands.Cog):
             # User doesn't exist in database, add him
             data = {"user_id": member.id,
                     "guild_id": member.guild.id,
-                    "join_date": datetime.now(timezone.utc).isoformat(),  # UTC time
+                    "join_date": datetime.now(timezone.utc).isoformat(),
                     "name": member.display_name,
                     "tag": int(member.discriminator),
                     "member": True}
@@ -212,9 +212,11 @@ class SocketCommunication(commands.Cog):
             return
 
         logger.debug(f"Member {member} left, setting member=False in db")
-        await self.bot.api_client.put(f"members/edit/{member.id}/", json={"user_id": member.id,
-                                                                          "guild_id": member.guild.id,
-                                                                          "member": False})
+        data = {"user_id": member.id,
+                "guild_id": member.guild.id,
+                "leave_date": datetime.now(timezone.utc).isoformat(),
+                "member": False}
+        await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
