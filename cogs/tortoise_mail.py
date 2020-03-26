@@ -4,6 +4,7 @@ from typing import Union
 import discord
 from discord.ext import commands
 from .utils.embed_handler import authored, failure, success, info, embed_space
+from .utils.checks import check_if_it_is_tortoise_guild
 
 logger = logging.getLogger(__name__)
 
@@ -245,6 +246,7 @@ class ModMail(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def attend(self, ctx, user_id: int):
         # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
         first_timeout = 10_800

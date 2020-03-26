@@ -1,3 +1,4 @@
+import asyncio
 import psutil
 import time
 import os
@@ -101,6 +102,22 @@ class Other(commands.Cog):
                f"IO (r/w): {io_read_bytes} / {io_write_bytes}")
 
         await ctx.send(f"```{msg}```")
+
+    @commands.command()
+    async def countdown(self, ctx, start: int):
+        try:
+            await ctx.message.delete()
+        except discord.Forbidden:
+            pass
+
+        message = await ctx.send(start)
+        while start:
+            minutes, secs = divmod(start, 60)
+            content = "{:02d}:{:02d}".format(minutes, secs)
+            await message.edit(content=content)
+            start -= 1
+            await asyncio.sleep(1)
+        await message.delete()
 
 
 def setup(bot):

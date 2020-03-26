@@ -15,10 +15,13 @@ class Bot(commands.Bot):
         self.api_client = APIClient(self.loop)
         self.add_command(self.load)
         self.add_command(self.unload)
+        self._was_ready_once = False
 
     async def on_ready(self):
         logger.info("Successfully logged in and booted...!")
         logger.info(f"Logged in as {self.user.name} with ID {self.user.id} \t d.py version: {discord.__version__}")
+        if not self._was_ready_once:
+            self._was_ready_once = True
 
     async def on_error(self, event: str, *args, **kwargs):
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
@@ -29,9 +32,15 @@ class Bot(commands.Bot):
         if not self.is_ready() or self.is_closed():
             return
 
-        message = message[:1980] + "...too long" if len(message) > 1980 else message
         error_log_channel = self.get_channel(Bot.error_log_channel_id)
-        await error_log_channel.send(f"```{message}```")
+        split_messages = list(Bot.split_string_into_chunks(message, 1980))
+        for count, message in enumerate(split_messages):
+            await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+
+    @staticmethod
+    def split_string_into_chunks(string: str, chunk_size: int):
+        for i in range(0, len(string), chunk_size):
+            yield string[i:i + chunk_size]
 
     @commands.command(hidden=True)
     @commands.has_any_role("Admin")

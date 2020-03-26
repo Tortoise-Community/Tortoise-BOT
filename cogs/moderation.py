@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.errors import Forbidden
 from .utils.embed_handler import success
+from .utils.checks import check_if_it_is_tortoise_guild
 
 deterrence_log_channel_id = 597119801701433357
 moderation_channel_id = 581139962611892229
@@ -17,6 +18,7 @@ class Admins(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
     @commands.has_permissions(kick_members=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def kick(self, ctx, member: discord.Member, *, reason="No specific reason"):
         """
         Kicks  member from the guild.
@@ -53,6 +55,7 @@ class Admins(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def ban(self, ctx, member: discord.Member, *, reason="Reason not stated."):
         """
         Bans  member from the guild.
@@ -86,7 +89,8 @@ class Admins(commands.Cog):
         await member.ban(reason=reason)
 
     @commands.command()
-    @commands.has_any_role("Admin", "Moderator", "Helpers")
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def warn(self, ctx, member: discord.Member, *, reason):
         """
         Warns a member.
@@ -104,7 +108,8 @@ class Admins(commands.Cog):
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_any_role("Admin", "Moderator", "Helpers")
+    @commands.has_permissions(manage_roles=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def role(self, ctx, role: discord.Role, member: discord.Member):
         """
         Adds role to a member.
@@ -128,7 +133,7 @@ class Admins(commands.Cog):
 
     @commands.command()
     @commands.bot_has_permissions(manage_messages=True)
-    @commands.has_any_role("Admin", "Moderator", "Helpers")
+    @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, amount: int):
         """
         Clears last X amount of messages.
@@ -141,13 +146,15 @@ class Admins(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
     @commands.has_permissions(manage_messages=True, manage_roles=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
         muted_role = ctx.guild.get_role(muted_role_id)
         await member.add_roles(muted_role, reason=reason)
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def dm_unverified(self, ctx):
         verification_channel = self.bot.get_channel(verification_channel_id)
         unverified_role = ctx.guild.get_role(unverified_role_id)

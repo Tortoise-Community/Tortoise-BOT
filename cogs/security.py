@@ -3,6 +3,8 @@ import aiohttp
 from discord.ext import commands
 from config_handler import ConfigHandler
 
+tortoise_guild_id = 577192344529404154
+
 
 class Security(commands.Cog):
     def __init__(self, bot):
@@ -12,9 +14,11 @@ class Security(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-
         ctx = message.channel
         if message.guild is None or message.author == message.guild.me:
+            return
+        elif message.guild.id != tortoise_guild_id:
+            # Functionality only available in Tortoise guild
             return
 
         # Check for invites

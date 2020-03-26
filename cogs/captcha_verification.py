@@ -1,6 +1,7 @@
 import random
 import discord
 from discord.ext import commands
+from .utils.checks import check_if_it_is_tortoise_guild
 
 captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png"),
             ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
@@ -8,6 +9,7 @@ unverified_role_id = 605808609195982864
 verified_role_id = 599647985198039050
 verification_channel_id = 602156675863937024
 system_log_channel_id = 593883395436838942
+tortoise_guild_id = 577192344529404154
 
 
 class Security(commands.Cog):
@@ -17,10 +19,15 @@ class Security(commands.Cog):
         
     @commands.Cog.listener()
     async def on_member_join(self, member):
+        if member.guild.id != tortoise_guild_id:
+            # Functionality only available in Tortoise guild
+            return
+
         unverified_role = member.guild.get_role(unverified_role_id)
         await member.add_roles(unverified_role)
         
     @commands.command()
+    @commands.check(check_if_it_is_tortoise_guild)
     async def accept(self, ctx):
         if not ctx.channel.id == verification_channel_id:
             await ctx.send("This is not verification channel.")
