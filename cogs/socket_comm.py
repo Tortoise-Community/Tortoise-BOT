@@ -11,14 +11,16 @@ from api_client import ResponseCodeError
 from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
                                InternalServerError, DiscordIDNotFound)
 from .utils.checks import check_if_it_is_tortoise_guild
+from .utils.embed_handler import welcome, welcome_dm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
 tortoise_guild_id = 577192344529404154
-tortoise_log_channel_id = 581139962611892229
+tortoise_bot_dev_channel_id = 581139962611892229
+tortoise_log_channel_id = 593883395436838942
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
+verification_url = "https://www.tortoisecommunity.ml/verification/"
 
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
@@ -114,7 +116,7 @@ class SocketCommunication(commands.Cog):
         data = await self.bot.api_client.get(f"members/edit/{member.id}/")
         await ctx.send(f"{data}")
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.is_owner()
     @commands.cooldown(1, 600, commands.BucketType.guild)
     @commands.check(check_if_it_is_tortoise_guild)
@@ -165,28 +167,43 @@ class SocketCommunication(commands.Cog):
             # User doesn't exist in database, add him
             data = {"user_id": member.id,
                     "guild_id": member.guild.id,
-                    "join_date": datetime.now(timezone.utc).isoformat(),  # UTC time
+                    "join_date": datetime.now(timezone.utc).isoformat(),
                     "name": member.display_name,
                     "tag": int(member.discriminator),
                     "member": True}
             logger.debug(f"Doesn't exist, updating database {data}")
             await self.bot.api_client.post("members/", json=data)
             logger.debug("Database update done.")
+
+            msg = ("Welcome to Tortoise Community!\n"
+                   "In order to proceed and join the community you will need to verify.\n\n"
+                   f"Please head over to {verification_url}")
+            await member.send(embed=welcome_dm(msg))
             return
 
         verified = data.get("verified")
+        log_channel = self.bot.get_channel(tortoise_log_channel_id)
         if verified:
             logger.debug(f"Member {member.id} is verified in database, adding roles..")
             previous_roles = await self.bot.api_client.get(f"members/{member.id}/roles/")
             await self.add_verified_roles_to_member(member, previous_roles["roles"])
-            log_channel = self.bot.get_channel(tortoise_log_channel_id)
-            await member.send("Welcome back.")
-            await log_channel.send(f"{member.mention} has returned.")
+
+            await log_channel.send(embed=welcome(f"{member.mention} has returned to Tortoise Community."))
+
             logger.debug(f"Adding him as member=True in database")
             data = {"user_id": member.id, "guild_id": member.guild.id, "member": True}
             await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
+
+            msg = ("Welcome back to Tortoise Community!\n\n"
+                   "The roles you had last time will be restored and added back to you.\n")
+            await member.send(embed=welcome_dm(msg))
         else:
+            await log_channel.send(embed=welcome(f"{member.mention} has joined the Tortoise Community."))
             logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
+            msg = ("Hi, welcome to Tortoise Community!\n"
+                   "Seems like this is not your first time joining.\n\n"
+                   f"Last time you didn't verify so please head over to {verification_url}")
+            await member.send(embed=welcome_dm(msg))
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member):
@@ -195,9 +212,11 @@ class SocketCommunication(commands.Cog):
             return
 
         logger.debug(f"Member {member} left, setting member=False in db")
-        await self.bot.api_client.put(f"members/edit/{member.id}/", json={"user_id": member.id,
-                                                                          "guild_id": member.guild.id,
-                                                                          "member": False})
+        data = {"user_id": member.id,
+                "guild_id": member.guild.id,
+                "leave_date": datetime.now(timezone.utc).isoformat(),
+                "member": False}
+        await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
@@ -368,8 +387,8 @@ class SocketCommunication(commands.Cog):
     @endpoint_register(endpoint_key="send")
     async def send_to_channel(self, message):
         logger.debug(f"Sending {message} to channel.")
-        test_channel = self.bot.get_channel(tortoise_log_channel_id)
-        await test_channel.send(message)
+        bot_dev_channel = self.bot.get_channel(tortoise_bot_dev_channel_id)
+        await bot_dev_channel.send(message)
         logger.debug(f"Sent {message} to channel!")
 
     @endpoint_register(endpoint_key="members")
@@ -407,8 +426,8 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        log_channel = guild.get_channel(tortoise_log_channel_id)
-        for check_none in (guild, verified_role, unverified_role, log_channel):
+        bot_dev_channel = guild.get_channel(tortoise_bot_dev_channel_id)
+        for check_none in (guild, verified_role, unverified_role, bot_dev_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -418,7 +437,7 @@ class SocketCommunication(commands.Cog):
 
         await self.add_verified_roles_to_member(member)
         await member.send("You are now verified.")
-        await log_channel.send(f"{member.mention} is now verified.")
+        await bot_dev_channel.send(f"{member.mention} is now verified.")
 
 
 def setup(bot):
