@@ -45,12 +45,8 @@ class ModMail(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         # Only allow in DMs
-        try:
-            _ = payload.guild_id
-            # If no error this means guild exists and this is not a DM
+        if payload.guild_id is not None:
             return
-        except AttributeError:
-            pass
 
         user_id = payload.user_id
         if user_id == self.bot.user.id:
