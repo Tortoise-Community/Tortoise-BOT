@@ -1,3 +1,10 @@
+from discord.ext.commands import CommandError
+
+
+class TortoiseGuildCheckFailure(CommandError):
+    pass
+
+
 class EndpointResponse(Exception):
     def __init__(self, code: int, message: str):
         self.response = {"status": {"code": code, "message": message}}

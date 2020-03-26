@@ -3,6 +3,7 @@ import logging
 import math
 import discord
 from discord.ext import commands
+from .utils.exceptions import TortoiseGuildCheckFailure
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +65,10 @@ class CommandErrorHandler(commands.Cog):
 
         if isinstance(error, commands.CheckFailure):
             await ctx.send("You do not have permission to use this command.")
+            return
+
+        if isinstance(error, TortoiseGuildCheckFailure):
+            await ctx.send("Can only be used in Tortoise guild.")
             return
 
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"

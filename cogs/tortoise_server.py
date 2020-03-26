@@ -1,7 +1,7 @@
 import logging
-import asyncio
 import discord
 from discord.ext import commands
+from .utils.checks import check_if_it_is_tortoise_guild
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,7 @@ class TortoiseServer(commands.Cog):
             logger.critical(f"No mapping for emoji {payload.emoji.id} in self_assignable_roles!")
 
     @commands.command()
-    @commands.guild_only()
+    @commands.check(check_if_it_is_tortoise_guild)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
         await ctx.author.send("Submitting process has begun.\n\n"
@@ -94,23 +94,8 @@ class TortoiseServer(commands.Cog):
         await event_submission_channel.send(embed=embed)
 
     @commands.command()
-    async def countdown(self, ctx, start: int):
-        try:
-            await ctx.message.delete()
-        except discord.Forbidden:
-            pass
-
-        message = await ctx.send(start)
-        while start:
-            minutes, secs = divmod(start, 60)
-            content = "{:02d}:{:02d}".format(minutes, secs)
-            await message.edit(content=content)
-            start -= 1
-            await asyncio.sleep(1)
-        await message.delete()
-
-    @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def announce(self, ctx, *, arg):
         announcements_channel = self.bot.get_channel(announcements_channel_id)
         await announcements_channel.send(arg)
@@ -118,6 +103,7 @@ class TortoiseServer(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def welcome(self, ctx, *, arg):
         channel = self.bot.get_channel(welcome_channel_id)
         await channel.send(arg)

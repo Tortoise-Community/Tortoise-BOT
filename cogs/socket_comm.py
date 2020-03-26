@@ -8,8 +8,9 @@ from typing import List, Dict, Iterable
 from discord.ext import commands
 from discord import HTTPException, ActivityType, Member
 from api_client import ResponseCodeError
-from .utils.socket_errors import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
-                                  InternalServerError, DiscordIDNotFound)
+from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
+                               InternalServerError, DiscordIDNotFound)
+from .utils.checks import check_if_it_is_tortoise_guild
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -96,7 +97,9 @@ class SocketCommunication(commands.Cog):
             pass
 
     @commands.command()
-    async def test_verified(self, ctx, member_id: int):
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def test_is_verified(self, ctx, member_id: int):
         try:
             data = await self.bot.api_client.get(f"verify-confirmation/{member_id}/")
         except ResponseCodeError:
@@ -105,17 +108,52 @@ class SocketCommunication(commands.Cog):
         await ctx.send(data)
 
     @commands.command()
+    @commands.is_owner()
+    @commands.check(check_if_it_is_tortoise_guild)
     async def show_data(self, ctx, member: Member):
         data = await self.bot.api_client.get(f"members/edit/{member.id}/")
         await ctx.send(f"{data}")
 
     @commands.command()
+    @commands.is_owner()
+    @commands.cooldown(1, 600, commands.BucketType.guild)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def mass_member_database_add(self, ctx):
+        if ctx.guild.id != tortoise_guild_id:
+            await ctx.send("Has to be used in Tortoise guild.")
+
+        logger.debug(f"Starting database mass update.")
+        for member in ctx.guild.members:
+            try:
+                await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
+            except ResponseCodeError:
+                joined_date = member.joined_at
+                if joined_date is None:
+                    joined_date = datetime.now(timezone.utc).isoformat(),  # UTC time
+                else:
+                    joined_date = joined_date.replace(tzinfo=timezone.utc).isoformat()
+                
+                # User doesn't exist in database, add him
+                data = {"user_id": member.id,
+                        "guild_id": member.guild.id,
+                        "join_date": joined_date,
+                        "name": member.display_name,
+                        "tag": int(member.discriminator),
+                        "member": True}
+                await self.bot.api_client.post("members/", json=data)
+
+        logger.debug(f"Database mass update done.")
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def show_endpoints(self, ctx):
         await ctx.send(" ,".join(_endpoints_mapping))
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
         if member.guild.id != tortoise_guild_id:
+            # Functionality only available in Tortoise guild
             return
 
         logger.debug(f"Checking new member {member.name}")
@@ -152,6 +190,10 @@ class SocketCommunication(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member: Member):
+        if member.guild.id != tortoise_guild_id:
+            # Functionality only available in Tortoise guild
+            return
+
         logger.debug(f"Member {member} left, setting member=False in db")
         await self.bot.api_client.put(f"members/edit/{member.id}/", json={"user_id": member.id,
                                                                           "guild_id": member.guild.id,
@@ -162,7 +204,10 @@ class SocketCommunication(commands.Cog):
         """
         We save all roles from member so he can get those roles back if he re-joins.
         """
-        if before.roles == after.roles or self._database_role_update_lock:
+        if after.guild.id != tortoise_guild_id:
+            # Functionality only available in Tortoise guild
+            return
+        elif before.roles == after.roles or self._database_role_update_lock:
             return
 
         roles_ids = [role.id for role in after.roles]
