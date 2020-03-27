@@ -4,6 +4,7 @@ from discord.ext import commands
 from config_handler import ConfigHandler
 
 tortoise_guild_id = 577192344529404154
+bot_log_channel_id = 693090079329091615
 
 
 class Security(commands.Cog):
@@ -19,6 +20,9 @@ class Security(commands.Cog):
             return
         elif message.guild.id != tortoise_guild_id:
             # Functionality only available in Tortoise guild
+            return
+        elif message.author.guild_permissions.administrator:
+            # Ignore admins
             return
 
         # Check for invites
@@ -37,12 +41,12 @@ class Security(commands.Cog):
                         await message.delete()
                         # TODO give him warning points etc / send to deterrence channel
 
-        # Check for baned words
-        for word in message.content.lower().split():
-            for key in self.banned_words.loaded:
-                if word in self.banned_words.get_key(key):
-                    await ctx.send(f"Curse word detected from category {key}!")
-                    await message.delete()
+        for category, banned_words in self.banned_words.loaded.items():
+            for banned_word in banned_words:
+                if banned_word in message.content.lower():
+                    bot_log_channel = self.bot.get_channel(bot_log_channel_id)
+                    msg = f"{message.author} - curse word {banned_word} detected from category {category}!"
+                    await bot_log_channel.send(msg)
                     # TODO: give him warning points or smth
 
     @staticmethod
