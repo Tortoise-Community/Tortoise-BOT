@@ -116,36 +116,6 @@ class SocketCommunication(commands.Cog):
         data = await self.bot.api_client.get(f"members/edit/{member.id}/")
         await ctx.send(f"{data}")
 
-    @commands.command(enabled=False)
-    @commands.is_owner()
-    @commands.cooldown(1, 600, commands.BucketType.guild)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def mass_member_database_add(self, ctx):
-        if ctx.guild.id != tortoise_guild_id:
-            await ctx.send("Has to be used in Tortoise guild.")
-
-        logger.debug(f"Starting database mass update.")
-        for member in ctx.guild.members:
-            try:
-                await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
-            except ResponseCodeError:
-                joined_date = member.joined_at
-                if joined_date is None:
-                    joined_date = datetime.now(timezone.utc).isoformat(),  # UTC time
-                else:
-                    joined_date = joined_date.replace(tzinfo=timezone.utc).isoformat()
-                
-                # User doesn't exist in database, add him
-                data = {"user_id": member.id,
-                        "guild_id": member.guild.id,
-                        "join_date": joined_date,
-                        "name": member.display_name,
-                        "tag": member.discriminator,
-                        "member": True}
-                await self.bot.api_client.post("members/", json=data)
-
-        logger.debug(f"Database mass update done.")
-
     @commands.command()
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
