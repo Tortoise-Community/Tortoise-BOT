@@ -140,7 +140,7 @@ class SocketCommunication(commands.Cog):
                         "guild_id": member.guild.id,
                         "join_date": joined_date,
                         "name": member.display_name,
-                        "tag": int(member.discriminator),
+                        "tag": member.discriminator,
                         "member": True}
                 await self.bot.api_client.post("members/", json=data)
 
@@ -171,7 +171,7 @@ class SocketCommunication(commands.Cog):
                     "guild_id": member.guild.id,
                     "join_date": datetime.now(timezone.utc).isoformat(),
                     "name": member.display_name,
-                    "tag": int(member.discriminator),
+                    "tag": member.discriminator,
                     "member": True}
             logger.debug(f"Doesn't exist, updating database {data}")
             await self.bot.api_client.post("members/", json=data)
