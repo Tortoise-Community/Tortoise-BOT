@@ -1,6 +1,7 @@
 import re
 import aiohttp
 from discord.ext import commands
+from discord import Member
 from config_handler import ConfigHandler
 
 tortoise_guild_id = 577192344529404154
@@ -20,6 +21,9 @@ class Security(commands.Cog):
             return
         elif message.guild.id != tortoise_guild_id:
             # Functionality only available in Tortoise guild
+            return
+        elif not isinstance(message.author, Member):
+            # Web-hooks messages will appear as from User even tho they are in Guild.
             return
         elif message.author.guild_permissions.administrator:
             # Ignore admins
