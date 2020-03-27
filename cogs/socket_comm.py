@@ -402,7 +402,7 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        tortoise_successful_verification_channel = guild.get_channel(tortoise_log_channel_id)
+        tortoise_successful_verification_channel = guild.get_channel(tortoise_successful_verification_channel_id)
         for check_none in (guild, verified_role, unverified_role, tortoise_successful_verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
