@@ -110,7 +110,7 @@ class SocketCommunication(commands.Cog):
             return
         await ctx.send(data)
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_data(self, ctx, member: Member):
