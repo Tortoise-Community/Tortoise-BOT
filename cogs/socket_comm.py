@@ -16,8 +16,9 @@ from .utils.embed_handler import welcome, welcome_dm
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 tortoise_guild_id = 577192344529404154
-tortoise_bot_dev_channel_id = 581139962611892229
+tortoise_bot_dev_channel_id = 692851221223964822
 tortoise_log_channel_id = 593883395436838942
+tortoise_successful_verification_channel_id = 581139962611892229
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
 verification_url = "https://www.tortoisecommunity.ml/verification/"
@@ -401,8 +402,8 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        bot_dev_channel = guild.get_channel(tortoise_bot_dev_channel_id)
-        for check_none in (guild, verified_role, unverified_role, bot_dev_channel):
+        tortoise_successful_verification_channel = guild.get_channel(tortoise_log_channel_id)
+        for check_none in (guild, verified_role, unverified_role, tortoise_successful_verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -412,7 +413,7 @@ class SocketCommunication(commands.Cog):
 
         await self.add_verified_roles_to_member(member)
         await member.send("You are now verified.")
-        await bot_dev_channel.send(f"{member} is now verified.")
+        await tortoise_successful_verification_channel.send(f"{member} is now verified.")
 
 
 def setup(bot):
