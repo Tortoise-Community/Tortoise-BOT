@@ -29,7 +29,7 @@ class ResponseCodeError(ValueError):
 
 class APIClient:
     def __init__(self, loop):
-        self.auth_header = {"Authorization": f"Token {os.getenv('API_REFRESH_TOKEN')}"}
+        self.auth_header = {"Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}"}
         self.session = aiohttp.ClientSession(loop=loop, headers=self.auth_header)
 
     @staticmethod
