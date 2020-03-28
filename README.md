@@ -69,3 +69,7 @@ Run the bot!
 python main.py
 <!-- Run the bot -->
 ```
+
+# License
+
+MIT - see [LICENSE](LICENSE) file for details.
