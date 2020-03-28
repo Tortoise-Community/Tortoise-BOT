@@ -27,8 +27,7 @@ class Admins(commands.Cog):
         """
         msg_title = "**Infraction information**"
         msg_description = ("**TYPE:** Kick\n"
-                           f"**REASON:** {reason}\n"
-                           "**DURATION:** 24 hours")
+                           f"**REASON:** {reason}")
 
         deterrence_embed = discord.Embed(title=msg_title,
                                          description=(f"**NAME:** {member.name}\n"
@@ -51,6 +50,7 @@ class Admins(commands.Cog):
             pass
 
         await member.kick(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully kicked."))
 
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
@@ -87,6 +87,7 @@ class Admins(commands.Cog):
             pass
 
         await member.ban(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully banned."))
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
