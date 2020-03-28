@@ -70,14 +70,6 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send("You do not have permission to use this command.")
             return
 
-        """if isinstance(error, TortoiseGuildCheckFailure):
-            await ctx.send("Can only be used in Tortoise guild.")
-            return
-
-        if isinstance(error, TortoiseBotDeveloperCheckFailure):
-            await ctx.send("Can only be used by Tortoise developers.")
-            return"""
-
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
         logger.warning(exception_msg)
         await self.bot.log_error(exception_msg)
