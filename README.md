@@ -4,7 +4,11 @@
 # Tortoise-BOT
 **Fully functional Bot for Discord coded in Discord.py**
 
-<img align="right" src="https://i.imgur.com/7LrGjdG.jpg" width=40%>
+<img alt="Tortoise logo" align="right" src="https://i.imgur.com/7LrGjdG.jpg" width=40%>
+
+This bot is intended to work only in Tortoise Community guild and it's
+mostly tied to one guild. Code here serves for education purposes and for
+transparency - also to make coding easier as everyone can improve it.
 
 ## Features and Commands :
 
@@ -64,6 +68,10 @@ For linux you can install it with `sudo apt install ffmpeg`
 ### Once everything is ready
 
 Run the bot!
+
+Depending on how you set up `.env` you might get some errors about some cogs not loading 
+(for example if you did not set up `PRAW_CLIENT_SECRET` the `cogs/reddit.py` cog will fail to load).
+You can safely ignore these errors as they will not stop the bot from functioning and loading other cogs.
 
 ```bash
 python main.py
