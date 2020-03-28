@@ -60,7 +60,7 @@ class Other(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        """Replies to a ping."""
+        """Shows bot ping."""
         start = time.perf_counter()
         message = await ctx.send(embed=info("Pong!", ctx.me))
         end = time.perf_counter()

@@ -2,6 +2,9 @@
 Copyright (c) 
     Original source code:   https://gist.github.com/EvieePy/ab667b74e9758433b3eb806c53a19f34
                     author: https://github.com/EvieePy
+
+The code has been changed a bit to go along Tortoise needs.
+You can check the commits to see change history.
 """
 
 import itertools
