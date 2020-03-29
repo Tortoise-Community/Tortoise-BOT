@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 tortoise_guild_id = 577192344529404154
-mod_mail_report_channel_id = 581139962611892229
-code_submissions_channel_id = 581139962611892229
-bug_reports_channel_id = 581139962611892229
+mod_mail_report_channel_id = 693790120712601610
+code_submissions_channel_id = 610079185569841153
+bug_reports_channel_id = 693790120712601610
 mod_mail_emoji_id = 620502308815503380
 event_emoji_id = 611403448750964746
 bug_emoji_id = 690635117655359559
