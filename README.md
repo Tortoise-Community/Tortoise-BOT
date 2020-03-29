@@ -41,7 +41,6 @@ PRAW_CLIENT_SECRET=put_something_here
 BOT_TOKEN=put_something_here
 API_ACCESS_TOKEN =put_something_here
 SOCKET_AUTH_TOKEN=put_something_here
-DEBUG=False
 ```
 
 `PRAW_CLIENT_ID` and `PRAW_CLIENT_SECRET`

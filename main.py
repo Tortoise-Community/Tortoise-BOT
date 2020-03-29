@@ -13,20 +13,13 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 root_logger.addHandler(console)
 
-
-load_dotenv()
-if os.environ.get("DEBUG", "false").lower() == "true":
-    banned_extensions = ("security", "tortoise_server", "captcha_verification", "socket_comm")
-    default_prefix = "."
-    root_logger.info(f"Running as debug bot. Banned extensions: {banned_extensions}")
-else:
-    banned_extensions = ("captcha_verification",)
-    default_prefix = "t."
-    root_logger.info(f"Running as main bot. Banned extension: {banned_extensions}")
+banned_extensions = ("captcha_verification",)
+root_logger.info(f"Running as main bot. Banned extension: {banned_extensions}")
 
 
 if __name__ == "__main__":
-    bot = Bot(prefix=default_prefix)
+    load_dotenv()
+    bot = Bot(prefix="t.")
     for extension_path in Path("./cogs").glob("*.py"):
         extension_name = extension_path.stem
         if extension_name in banned_extensions:
@@ -41,4 +34,3 @@ if __name__ == "__main__":
             root_logger.info(f"Failed to load cog {dotted_path} - traceback:{traceback_msg}")
 
     bot.run(os.getenv("BOT_TOKEN"))
-
