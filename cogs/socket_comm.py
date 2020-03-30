@@ -18,6 +18,7 @@ tortoise_log_channel_id = 593883395436838942
 tortoise_successful_verification_channel_id = 581139962611892229
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
+website_log_channel_id = 649868379372388352
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 
 # Keys are endpoint names, values are their functions to be called.
@@ -286,6 +287,17 @@ class SocketCommunication(commands.Cog):
 
         await member.send("You are now verified.")
         await tortoise_successful_verification_channel.send(f"{member} is now verified.")
+
+    @endpoint_register()
+    async def contact(self, data: dict):
+        guild = self.bot.get_guild(tortoise_guild_id)
+        website_log_channel = guild.get_channel(website_log_channel_id)
+
+        for check_none in (guild, website_log_channel):
+            if check_none is None:
+                raise DiscordIDNotFound()
+
+        await website_log_channel.send(f"{data}")
 
 
 def setup(bot):
