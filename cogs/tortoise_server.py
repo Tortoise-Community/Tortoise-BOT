@@ -2,6 +2,7 @@ import logging
 import discord
 from discord.ext import commands
 from .utils.checks import check_if_it_is_tortoise_guild
+from .utils.embed_handler import success, failure, authored
 
 logger = logging.getLogger(__name__)
 
@@ -10,6 +11,8 @@ announcements_channel_id = 578197131526144024
 welcome_channel_id = 657704940080201739
 event_submission_channel_id = 610079185569841153
 react_for_roles_channel_id = 603651772950773761
+# Keys are IDs of reaction emojis, values are role IDs which will get
+# added if that reaction gets added/removed
 self_assignable_roles = {
     582547250635603988: 589128905290547217,     # python
     603276308084031511: 589129070609039454,     # java
@@ -43,7 +46,8 @@ class TortoiseServer(commands.Cog):
             role = self.get_assignable_role(payload, guild)
             if role is not None:
                 await member.add_roles(role)
-                await member.send(f"`{role.name}` ** has been assigned to you in the tortoise community.**")
+                embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
+                await member.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -70,11 +74,12 @@ class TortoiseServer(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
-        await ctx.author.send("Submitting process has begun.\n\n"
-                              "Please reply with 1 message below that either contains your full code "
-                              "or , if it's too long, contains a link to code (pastebin/hastebin..)\n"
-                              "If using those services make sure to set code to private and "
-                              "expiration date to at least 30 days")
+        dm_msg = ("Submitting process has begun.\n\n"
+                  "Please reply with 1 message below that either contains your full code or, "
+                  "if it's too long, contains a link to code (pastebin/hastebin..)\n"
+                  "If using those services make sure to set code to private and "
+                  "expiration date to at least 30 days.")
+        await ctx.author.send(embed=authored(ctx.guild.me, dm_msg))
 
         def check(msg):
             return msg.author == ctx.author and msg.guild is None
@@ -82,7 +87,7 @@ class TortoiseServer(commands.Cog):
         try:
             code_msg = await self.bot.wait_for("message", check=check, timeout=300)
         except TimeoutError:
-            await ctx.send("You took too long to reply.")
+            await ctx.send(embed=failure("You took too long to reply."))
             return
 
         event_submission_channel = self.bot.get_channel(event_submission_channel_id)
@@ -99,7 +104,7 @@ class TortoiseServer(commands.Cog):
     async def announce(self, ctx, *, arg):
         announcements_channel = self.bot.get_channel(announcements_channel_id)
         await announcements_channel.send(arg)
-        await ctx.send("Announced ✅")  
+        await ctx.send(success("Announced ✅"))
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -107,7 +112,7 @@ class TortoiseServer(commands.Cog):
     async def welcome(self, ctx, *, arg):
         channel = self.bot.get_channel(welcome_channel_id)
         await channel.send(arg)
-        await ctx.send("Added in Welcome ✅")
+        await ctx.send(success("Added in Welcome ✅"))
 
 
 def setup(bot):

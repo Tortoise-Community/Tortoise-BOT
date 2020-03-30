@@ -5,7 +5,6 @@ from .utils.embed_handler import success
 from .utils.checks import check_if_it_is_tortoise_guild
 
 deterrence_log_channel_id = 597119801701433357
-moderation_channel_id = 581139962611892229
 unverified_role_id = 605808609195982864
 verification_channel_id = 602156675863937024
 muted_role_id = 610126555867512870
@@ -27,8 +26,7 @@ class Admins(commands.Cog):
         """
         msg_title = "**Infraction information**"
         msg_description = ("**TYPE:** Kick\n"
-                           f"**REASON:** {reason}\n"
-                           "**DURATION:** 24 hours")
+                           f"**REASON:** {reason}")
 
         deterrence_embed = discord.Embed(title=msg_title,
                                          description=(f"**NAME:** {member.name}\n"
@@ -51,6 +49,7 @@ class Admins(commands.Cog):
             pass
 
         await member.kick(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully kicked."))
 
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
@@ -87,6 +86,7 @@ class Admins(commands.Cog):
             pass
 
         await member.ban(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully banned."))
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)

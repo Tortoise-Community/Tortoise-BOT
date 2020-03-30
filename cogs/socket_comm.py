@@ -3,23 +3,21 @@ import json
 import socket
 import logging
 import asyncio
-from datetime import datetime, timezone
-from typing import List, Dict, Iterable
+from typing import List, Dict
 from discord.ext import commands
-from discord import HTTPException, ActivityType, Member
-from api_client import ResponseCodeError
+from discord import HTTPException, ActivityType
 from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
                                InternalServerError, DiscordIDNotFound)
 from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.embed_handler import welcome, welcome_dm
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 tortoise_guild_id = 577192344529404154
-tortoise_bot_dev_channel_id = 581139962611892229
-tortoise_log_channel_id = 593883395436838942
+tortoise_bot_dev_channel_id = 692851221223964822
+tortoise_successful_verification_channel_id = 581139962611892229
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
+website_log_channel_id = 649868379372388352
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 
 # Keys are endpoint names, values are their functions to be called.
@@ -74,187 +72,31 @@ class SocketCommunication(commands.Cog):
         self.bot = bot
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
-        self._database_role_update_lock = False
         self._socket_server = SocketCommunication.create_server()
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
 
     def cog_unload(self):
         logger.debug("Unloading socket comm, closing connections.")
-        logger.debug(f"Canceling server task..")
         self.task.cancel()
         for client in self.verified_clients:
             try:
-                logger.debug(f"Closing client {client}")
                 client.close()
             except OSError:
                 # Not supported on Windows
                 pass
         try:
-            logger.debug("Server shutdown..")
             self._socket_server.shutdown(socket.SHUT_RDWR)
-            logger.debug("Server closing..")
             self._socket_server.close()
         except OSError:
             # Not supported on Windows
             pass
-
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def test_is_verified(self, ctx, member_id: int):
-        try:
-            data = await self.bot.api_client.get(f"verify-confirmation/{member_id}/")
-        except ResponseCodeError:
-            await ctx.send("Does not exist")
-            return
-        await ctx.send(data)
-
-    @commands.command()
-    @commands.is_owner()
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def show_data(self, ctx, member: Member):
-        data = await self.bot.api_client.get(f"members/edit/{member.id}/")
-        await ctx.send(f"{data}")
-
-    @commands.command(enabled=False)
-    @commands.is_owner()
-    @commands.cooldown(1, 600, commands.BucketType.guild)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def mass_member_database_add(self, ctx):
-        if ctx.guild.id != tortoise_guild_id:
-            await ctx.send("Has to be used in Tortoise guild.")
-
-        logger.debug(f"Starting database mass update.")
-        for member in ctx.guild.members:
-            try:
-                await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
-            except ResponseCodeError:
-                joined_date = member.joined_at
-                if joined_date is None:
-                    joined_date = datetime.now(timezone.utc).isoformat(),  # UTC time
-                else:
-                    joined_date = joined_date.replace(tzinfo=timezone.utc).isoformat()
-                
-                # User doesn't exist in database, add him
-                data = {"user_id": member.id,
-                        "guild_id": member.guild.id,
-                        "join_date": joined_date,
-                        "name": member.display_name,
-                        "tag": int(member.discriminator),
-                        "member": True}
-                await self.bot.api_client.post("members/", json=data)
-
-        logger.debug(f"Database mass update done.")
+        logger.debug("Socket com unloaded.")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_endpoints(self, ctx):
         await ctx.send(" ,".join(_endpoints_mapping))
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member: Member):
-        if member.guild.id != tortoise_guild_id:
-            # Functionality only available in Tortoise guild
-            return
-
-        logger.debug(f"Checking new member {member.name}")
-
-        try:
-            # TODO move this functionality to api client class
-            data = await self.bot.api_client.get(f"verify-confirmation/{member.id}/")
-        except ResponseCodeError:
-            # User doesn't exist in database, add him
-            data = {"user_id": member.id,
-                    "guild_id": member.guild.id,
-                    "join_date": datetime.now(timezone.utc).isoformat(),
-                    "name": member.display_name,
-                    "tag": int(member.discriminator),
-                    "member": True}
-            logger.debug(f"Doesn't exist, updating database {data}")
-            await self.bot.api_client.post("members/", json=data)
-            logger.debug("Database update done.")
-
-            msg = ("Welcome to Tortoise Community!\n"
-                   "In order to proceed and join the community you will need to verify.\n\n"
-                   f"Please head over to {verification_url}")
-            await member.send(embed=welcome_dm(msg))
-            return
-
-        verified = data.get("verified")
-        log_channel = self.bot.get_channel(tortoise_log_channel_id)
-        if verified:
-            logger.debug(f"Member {member.id} is verified in database, adding roles..")
-            previous_roles = await self.bot.api_client.get(f"members/{member.id}/roles/")
-            await self.add_verified_roles_to_member(member, previous_roles["roles"])
-
-            await log_channel.send(embed=welcome(f"{member.mention} has returned to Tortoise Community."))
-
-            logger.debug(f"Adding him as member=True in database")
-            data = {"user_id": member.id, "guild_id": member.guild.id, "member": True}
-            await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
-
-            msg = ("Welcome back to Tortoise Community!\n\n"
-                   "The roles you had last time will be restored and added back to you.\n")
-            await member.send(embed=welcome_dm(msg))
-        else:
-            await log_channel.send(embed=welcome(f"{member.mention} has joined the Tortoise Community."))
-            logger.debug(f"Member {member.id} is not verified in database. Waiting for him to verify.")
-            msg = ("Hi, welcome to Tortoise Community!\n"
-                   "Seems like this is not your first time joining.\n\n"
-                   f"Last time you didn't verify so please head over to {verification_url}")
-            await member.send(embed=welcome_dm(msg))
-
-    @commands.Cog.listener()
-    async def on_member_remove(self, member: Member):
-        if member.guild.id != tortoise_guild_id:
-            # Functionality only available in Tortoise guild
-            return
-
-        logger.debug(f"Member {member} left, setting member=False in db")
-        data = {"user_id": member.id,
-                "guild_id": member.guild.id,
-                "leave_date": datetime.now(timezone.utc).isoformat(),
-                "member": False}
-        await self.bot.api_client.put(f"members/edit/{member.id}/", json=data)
-
-    @commands.Cog.listener()
-    async def on_member_update(self, before, after):
-        """
-        We save all roles from member so he can get those roles back if he re-joins.
-        """
-        if after.guild.id != tortoise_guild_id:
-            # Functionality only available in Tortoise guild
-            return
-        elif before.roles == after.roles or self._database_role_update_lock:
-            return
-
-        roles_ids = [role.id for role in after.roles]
-        logger.debug(f"Roles from member {after} changed, changing db field to: {roles_ids}")
-        await self.bot.api_client.put(f"members/edit/{after.id}/", json={"user_id": after.id,
-                                                                         "guild_id": after.guild.id,
-                                                                         "roles": roles_ids})
-
-    async def add_verified_roles_to_member(self, member: Member, additional_roles: Iterable[int] = tuple()):
-        guild = self.bot.get_guild(tortoise_guild_id)
-        verified_role = guild.get_role(verified_role_id)
-        unverified_role = guild.get_role(unverified_role_id)
-        try:
-            await member.remove_roles(unverified_role)
-        except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {unverified_role}")
-
-        self._database_role_update_lock = True
-        # In case additional_roles are fetched from database, they can be no longer existing due to not removing roles
-        # that got deleted, so just catch Exception and ignore.
-        roles = [guild.get_role(role_id) for role_id in additional_roles]
-        roles.append(verified_role)
-        for role in roles:
-            try:
-                await member.add_roles(role)
-            except Exception:
-                continue
-        self._database_role_update_lock = False
 
     @staticmethod
     def create_server():
@@ -272,61 +114,6 @@ class SocketCommunication(commands.Cog):
             client_name = client.getpeername()
             logger.info(f"{client_name} connected.")
             self.bot.loop.create_task(self.handle_client(client, client_name))
-
-    async def process_request(self, request: dict) -> dict:
-        """
-        This should be called for each client request.
-
-        Parses requests and deals with any errors and responses to client.
-        :param request: dict which has to be formatted as follows:
-            {
-              "endpoint": "string which endpoint to use",
-              "data": [optional] data to be used on endpoint function (list of member IDs etc)
-            }
-            Endpoint is available if it was decorated with @endpoint_register
-        """
-        if not isinstance(request, dict):
-            logger.critical("Error processing socket comm, request is not a dict.")
-            return InternalServerError().response
-
-        endpoint_key = request.get("endpoint")
-        if not endpoint_key:
-            return EndpointError(400, "No endpoint specified.").response
-        elif not isinstance(endpoint_key, str):
-            return EndpointError(400, "Endpoint name has to be a string.").response
-
-        function = _endpoints_mapping.get(endpoint_key)
-
-        if function is None:
-            return EndpointNotFound().response
-
-        endpoint_data = request.get("data")
-
-        try:
-            # Key data is optional
-            if not endpoint_data:
-                endpoint_returned_data = await function(self)
-            else:
-                endpoint_returned_data = await function(self, endpoint_data)
-        except TypeError as e:
-            logger.critical(f"Bad arguments for endpoint {endpoint_key} {endpoint_data} {e}")
-            return EndpointBadArguments().response
-        except EndpointError as e:
-            # If endpoint function raises then return it's response
-            return e.response
-        except Exception as e:
-            logger.critical(f"Error processing socket endpoint: {endpoint_key} , data:{endpoint_data} {e}")
-            return InternalServerError().response
-
-        # If we've come all the way here then no errors occurred and endpoint function executed correctly.
-        server_response = EndpointSuccess().response
-
-        # Endpoint return data is optional
-        if endpoint_returned_data is None:
-            return server_response
-        else:
-            server_response.update({"data": endpoint_returned_data})
-            return endpoint_returned_data
 
     async def handle_client(self, client, client_name: str):
         request = None
@@ -384,6 +171,61 @@ class SocketCommunication(commands.Cog):
             # get this, so just ignore
             pass
 
+    async def process_request(self, request: dict) -> dict:
+        """
+        This should be called for each client request.
+
+        Parses requests and deals with any errors and responses to client.
+        :param request: dict which has to be formatted as follows:
+            {
+              "endpoint": "string which endpoint to use",
+              "data": [optional] data to be used on endpoint function (list of member IDs etc)
+            }
+            Endpoint is available if it was decorated with @endpoint_register
+        """
+        if not isinstance(request, dict):
+            logger.critical("Error processing socket comm, request is not a dict.")
+            return InternalServerError().response
+
+        endpoint_key = request.get("endpoint")
+        if not endpoint_key:
+            return EndpointError(400, "No endpoint specified.").response
+        elif not isinstance(endpoint_key, str):
+            return EndpointError(400, "Endpoint name has to be a string.").response
+
+        function = _endpoints_mapping.get(endpoint_key)
+
+        if function is None:
+            return EndpointNotFound().response
+
+        endpoint_data = request.get("data")
+
+        try:
+            # Key data is optional
+            if not endpoint_data:
+                endpoint_returned_data = await function(self)
+            else:
+                endpoint_returned_data = await function(self, endpoint_data)
+        except TypeError as e:
+            logger.critical(f"Bad arguments for endpoint {endpoint_key} {endpoint_data} {e}")
+            return EndpointBadArguments().response
+        except EndpointError as e:
+            # If endpoint function raises then return it's response
+            return e.response
+        except Exception as e:
+            logger.critical(f"Error processing socket endpoint: {endpoint_key} , data:{endpoint_data} {e}")
+            return InternalServerError().response
+
+        # If we've come all the way here then no errors occurred and endpoint function executed correctly.
+        server_response = EndpointSuccess().response
+
+        # Endpoint return data is optional
+        if endpoint_returned_data is None:
+            return server_response
+        else:
+            server_response.update({"data": endpoint_returned_data})
+            return endpoint_returned_data
+
     @endpoint_register(endpoint_key="send")
     async def send_to_channel(self, message):
         logger.debug(f"Sending {message} to channel.")
@@ -426,8 +268,8 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(tortoise_guild_id)
         verified_role = guild.get_role(verified_role_id)
         unverified_role = guild.get_role(unverified_role_id)
-        bot_dev_channel = guild.get_channel(tortoise_bot_dev_channel_id)
-        for check_none in (guild, verified_role, unverified_role, bot_dev_channel):
+        tortoise_successful_verification_channel = guild.get_channel(tortoise_successful_verification_channel_id)
+        for check_none in (guild, verified_role, unverified_role, tortoise_successful_verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -435,9 +277,25 @@ class SocketCommunication(commands.Cog):
         if member is None:
             raise DiscordIDNotFound()
 
-        await self.add_verified_roles_to_member(member)
+        try:
+            await member.remove_roles(unverified_role)
+        except HTTPException:
+            logger.debug(f"Bot could't remove unverified role {unverified_role}")
+
+        await member.add_roles(verified_role)
+        await tortoise_successful_verification_channel.send(f"{member} is now verified.")
         await member.send("You are now verified.")
-        await bot_dev_channel.send(f"{member.mention} is now verified.")
+
+    @endpoint_register()
+    async def contact(self, data: dict):
+        guild = self.bot.get_guild(tortoise_guild_id)
+        website_log_channel = guild.get_channel(website_log_channel_id)
+
+        for check_none in (guild, website_log_channel):
+            if check_none is None:
+                raise DiscordIDNotFound()
+
+        await website_log_channel.send(f"{data}")
 
 
 def setup(bot):

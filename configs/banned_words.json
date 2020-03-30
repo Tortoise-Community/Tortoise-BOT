@@ -1,5 +1,10 @@
 {
-  "swear": ["fuck", "shit", "asshole", "dickhead", "slut", "belland", "cunt", "bitch", "dick"],
-  "homophobic slur": ["fag", "dyke"],
-  "racial slur": ["nigga", "nigger", "neggro", "negro", "nigro", "black slave"]
+  "swear": ["fuck you", "fuck him", "fuck her", "fuck them", "fucker",
+            "motherfucker", "motherfuckers", "bastard", "bastards", "son of a bitch",
+            "bitch", "bitches", "slut", "sluts", "whore", "whores", "hoe", "hoes",
+            "pussy", "pussies", "twat", "twats", "cunt", "cunts",
+            "cock", "cocks", "cocksucker", "cocksuckers", "dick", "dicks", "dickhead", "dickheads", "belland",
+            "asshole", "assholes", "arsehole", "arseholes"],
+  "homophobic slur": ["fag", "faggot", "dyke"],
+  "racial slur": ["nigga", "niggah", "nigger", "neggro", "negro", "nigro", "black slave"]
 }

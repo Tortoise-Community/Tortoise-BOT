@@ -7,7 +7,7 @@ captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/
             ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
 unverified_role_id = 605808609195982864
 verified_role_id = 599647985198039050
-verification_channel_id = 602156675863937024
+verification_channel_id = 581139962611892229
 system_log_channel_id = 593883395436838942
 tortoise_guild_id = 577192344529404154
 

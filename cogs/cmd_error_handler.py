@@ -3,7 +3,6 @@ import logging
 import math
 import discord
 from discord.ext import commands
-from .utils.exceptions import TortoiseGuildCheckFailure
 
 logger = logging.getLogger(__name__)
 
@@ -13,13 +12,13 @@ class CommandErrorHandler(commands.Cog):
         self.bot = bot
     
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx, error_):
         # If command has local error handler, return
         if hasattr(ctx.command, "on_error"):
             return
 
         # Get the original exception
-        error = getattr(error, "original", error)
+        error = getattr(error_, "original", error_)
 
         if isinstance(error, commands.CommandNotFound):
             return
@@ -64,11 +63,11 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, commands.CheckFailure):
-            await ctx.send("You do not have permission to use this command.")
-            return
-
-        if isinstance(error, TortoiseGuildCheckFailure):
-            await ctx.send("Can only be used in Tortoise guild.")
+            """-.- All arguments including error message are eaten and pushed to .args"""
+            if error.args:
+                await ctx.send(". ".join(error.args))
+            else:
+                await ctx.send("You do not have permission to use this command.")
             return
 
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"

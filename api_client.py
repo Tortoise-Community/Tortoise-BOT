@@ -1,11 +1,13 @@
 import os
 import aiohttp
+import logging
+from datetime import datetime, timezone
 from dotenv import load_dotenv
-from typing import Optional
+from discord import Member
+from typing import Optional, List
 
-# Don't put / at end
-API_URL = "https://api.tortoisecommunity.ml"
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class ResponseCodeError(ValueError):
@@ -29,12 +31,12 @@ class ResponseCodeError(ValueError):
 
 class APIClient:
     def __init__(self, loop):
-        self.auth_header = {"Authorization": f"Token {os.getenv('API_REFRESH_TOKEN')}"}
+        self.auth_header = {"Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}"}
         self.session = aiohttp.ClientSession(loop=loop, headers=self.auth_header)
 
     @staticmethod
     def _url_for(endpoint: str) -> str:
-        return f"{API_URL}/{endpoint}"
+        return f"https://api.tortoisecommunity.ml/{endpoint}"
     
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:
@@ -74,3 +76,64 @@ class APIClient:
 
             await self.raise_for_status(resp)
             return await resp.json()
+
+
+class TortoiseAPI(APIClient):
+    def __init__(self, loop):
+        super().__init__(loop)
+
+    async def does_member_exist(self, member_id: int) -> bool:
+        try:
+            await self.is_verified(member_id, re_raise=True)
+            return True
+        except ResponseCodeError:
+            return False
+
+    async def is_verified(self, member_id: int, *, re_raise=False) -> bool:
+        """
+        "verify-confirmation/{member_id}/" endpoint return format {'verified': True} or 404 status
+        :param member_id: int member id
+        :param re_raise: bool whether to re-raise ResponseCodeError if member_id is not found.
+        :return: bool
+        """
+        # Endpoint return format {'verified': True} or 404 status
+        try:
+            data = await self.get(f"verify-confirmation/{member_id}/")
+        except ResponseCodeError as e:
+            if re_raise:
+                raise e
+            else:
+                return False
+
+        return data["verified"]
+
+    async def insert_new_member(self, member: Member):
+        """For inserting new members in the database."""
+        data = {"user_id": member.id,
+                "guild_id": member.guild.id,
+                "join_date": datetime.now(timezone.utc).isoformat(),
+                "name": member.display_name,
+                "tag": member.discriminator,
+                "member": True}
+        await self.post("members/", json=data)
+
+    async def member_rejoined(self, member: Member):
+        data = {"user_id": member.id, "guild_id": member.guild.id, "member": True, "leave_date": None}
+        await self.put(f"members/edit/{member.id}/", json=data)
+
+    async def member_left(self, member: Member):
+        data = {"user_id": member.id,
+                "guild_id": member.guild.id,
+                "leave_date": datetime.now(timezone.utc).isoformat(),
+                "member": False}
+        await self.put(f"members/edit/{member.id}/", json=data)
+
+    async def get_member_roles(self, member_id: int) -> List[int]:
+        # Endpoint return format {'roles': [int...]} or 404 status
+        data = await self.get(f"members/{member_id}/roles/")
+        return data["roles"]
+
+    async def edit_member_roles(self, member: Member, roles_ids: List[int]):
+        await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
+                                                           "guild_id": member.guild.id,
+                                                           "roles": roles_ids})
