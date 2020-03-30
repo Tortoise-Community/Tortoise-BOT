@@ -1,8 +1,9 @@
 import logging
 import traceback
+from typing import Generator
 import discord
 from discord.ext import commands
-from api_client import APIClient
+from api_client import TortoiseAPI
 
 logger = logging.getLogger(__name__)
 
@@ -12,16 +13,13 @@ class Bot(commands.Bot):
 
     def __init__(self, *args, prefix, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
-        self.api_client = APIClient(self.loop)
+        self.api_client = TortoiseAPI(self.loop)
         self.add_command(self.load)
         self.add_command(self.unload)
-        self._was_ready_once = False
 
     async def on_ready(self):
-        logger.info("Successfully logged in and booted...!")
-        logger.info(f"Logged in as {self.user.name} with ID {self.user.id} \t d.py version: {discord.__version__}")
-        if not self._was_ready_once:
-            self._was_ready_once = True
+        logger.info(f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
+                    f"d.py version: {discord.__version__}")
 
     async def on_error(self, event: str, *args, **kwargs):
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
@@ -38,7 +36,7 @@ class Bot(commands.Bot):
             await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
 
     @staticmethod
-    def split_string_into_chunks(string: str, chunk_size: int):
+    def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str]:
         for i in range(0, len(string), chunk_size):
             yield string[i:i + chunk_size]
 
