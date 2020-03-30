@@ -1,10 +1,12 @@
 import logging
-from asyncio import TimeoutError
+from io import StringIO
 from typing import Union
+from asyncio import TimeoutError
 import discord
 from discord.ext import commands
 from .utils.embed_handler import authored, failure, success, info, embed_space
 from .utils.checks import check_if_it_is_tortoise_guild
+from .utils.message_logger import MessageLogger
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +31,7 @@ class UnsupportedFileEncoding(ValueError):
 class ModMail(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # Key is user id value is mod/admin id
-        self.active_mod_mails = {}
+        self.active_mod_mails = {}  # Key is user id value is mod/admin id
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
         self.active_bug_reports = set()
@@ -253,6 +254,9 @@ class ModMail(commands.Cog):
 
         user = self.bot.get_user(user_id)
         mod = ctx.author
+        # Keep a log of all messages in mod-mail
+        log = MessageLogger(mod.id, user.id)
+        mod_mail_report_channel = self.bot.get_channel(mod_mail_report_channel_id)
 
         if user is None:
             await ctx.send(embed=failure("That user cannot be found or you entered incorrect ID."))
@@ -285,10 +289,13 @@ class ModMail(commands.Cog):
         while True:
             try:
                 mail_msg = await self.bot.wait_for("message", check=mod_mail_check, timeout=_timeout)
+                log.add_message(mail_msg)
             except TimeoutError:
                 timeout_embed = failure("Mod mail closed due to inactivity.")
+                log.add_embed(timeout_embed)
                 await mod.send(embed=timeout_embed)
                 await user.send(embed=timeout_embed)
+                await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
             # Deal with dynamic timeout.
@@ -299,9 +306,11 @@ class ModMail(commands.Cog):
             # Deal with canceling mod mail
             if mail_msg.content.lower() == "close":
                 close_embed = success(f"Mod mail successfully closed by {mail_msg.author}.")
+                log.add_embed(close_embed)
                 await mod.send(embed=close_embed)
                 await user.send(embed=close_embed)
                 del self.active_mod_mails[user_id]
+                await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
             # Deal with user-mod communication
