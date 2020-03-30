@@ -5,7 +5,6 @@ from .utils.embed_handler import success
 from .utils.checks import check_if_it_is_tortoise_guild
 
 deterrence_log_channel_id = 597119801701433357
-moderation_channel_id = 581139962611892229
 unverified_role_id = 605808609195982864
 verification_channel_id = 602156675863937024
 muted_role_id = 610126555867512870

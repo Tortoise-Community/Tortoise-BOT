@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 tortoise_guild_id = 577192344529404154
 tortoise_bot_dev_channel_id = 692851221223964822
-tortoise_log_channel_id = 593883395436838942
 tortoise_successful_verification_channel_id = 581139962611892229
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
@@ -284,9 +283,8 @@ class SocketCommunication(commands.Cog):
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
         await member.add_roles(verified_role)
-
-        await member.send("You are now verified.")
         await tortoise_successful_verification_channel.send(f"{member} is now verified.")
+        await member.send("You are now verified.")
 
     @endpoint_register()
     async def contact(self, data: dict):

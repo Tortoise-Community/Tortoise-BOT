@@ -134,7 +134,6 @@ class TortoiseAPI(APIClient):
         return data["roles"]
 
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
-        # logger.debug(f"Roles from member {after} changed, changing db field to: {roles_ids}")
         await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
                                                            "guild_id": member.guild.id,
                                                            "roles": roles_ids})
