@@ -16,10 +16,15 @@ class Bot(commands.Bot):
         self.api_client = TortoiseAPI(self.loop)
         self.add_command(self.load)
         self.add_command(self.unload)
+        self._was_ready_once = False
 
     async def on_ready(self):
         logger.info(f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
                     f"d.py version: {discord.__version__}")
+
+        if not self._was_ready_once:
+            await self.change_presence(activity=discord.Game(name="DM me!"))
+            self._was_ready_once = True
 
     async def on_error(self, event: str, *args, **kwargs):
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
