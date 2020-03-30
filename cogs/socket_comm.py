@@ -23,6 +23,9 @@ verification_url = "https://www.tortoisecommunity.ml/verification/"
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
 
+buffer_size = 255
+maximum_buffer = 10240
+
 
 def endpoint_register(*, endpoint_key: str = None):
     """
@@ -116,14 +119,25 @@ class SocketCommunication(commands.Cog):
             self.bot.loop.create_task(self.handle_client(client, client_name))
 
     async def handle_client(self, client, client_name: str):
-        request = None
-        while request != "quit":
-            try:
-                request = (await self.bot.loop.sock_recv(client, 255)).decode("utf8")
-            except ConnectionResetError:
-                # If the client disconnects without sending quit.
-                logger.debug(f"{client_name} disconnected.")
-                break
+        while True:  # keep receiving client requests until he closes/disconnects
+            request = ""
+
+            while True:  # buffer client request in case of long message
+                try:
+                    buffer = (await self.bot.loop.sock_recv(client, buffer_size)).decode("utf8")
+                    request += buffer
+                except ConnectionResetError:
+                    # If the client disconnects without sending quit.
+                    logger.debug(f"{client_name} disconnected.")
+                    return
+
+                if len(buffer) < buffer_size:
+                    break
+                elif len(request) > maximum_buffer:
+                    response = EndpointError(400, "Buffer size exceeded.").response
+                    await self.send_to_client(client, json.dumps(response))
+                    client.close()
+                    return
 
             if not request:
                 logger.debug("Empty, closing.")
