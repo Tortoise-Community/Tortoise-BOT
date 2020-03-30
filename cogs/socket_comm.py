@@ -311,6 +311,11 @@ class SocketCommunication(commands.Cog):
 
         await website_log_channel.send(f"{data}")
 
+    @endpoint_register()
+    async def ping(self):
+        if self.bot.is_closed():
+            raise EndpointError(503, "VPS online but Discord websocket closed.")
+
 
 def setup(bot):
     bot.add_cog(SocketCommunication(bot))
