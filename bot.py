@@ -41,7 +41,7 @@ class Bot(commands.Bot):
             await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
 
     @staticmethod
-    def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str]:
+    def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str, None, None]:
         for i in range(0, len(string), chunk_size):
             yield string[i:i + chunk_size]
 
