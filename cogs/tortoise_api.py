@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Union
 from discord import Member, HTTPException
 from discord.ext import commands
 from .utils.checks import check_if_it_is_tortoise_guild
@@ -25,8 +25,15 @@ class TortoiseAPI(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def is_verified(self, ctx, member: Member):
+    async def is_verified(self, ctx, member: Union[int, Member]):
         response = await self.bot.api_client.is_verified(member.id)
+        await ctx.send(response)
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def does_member_exist(self, ctx, member: Union[int, Member]):
+        response = await self.bot.api_client.does_member_exist(member.id)
         await ctx.send(response)
 
     @commands.Cog.listener()
