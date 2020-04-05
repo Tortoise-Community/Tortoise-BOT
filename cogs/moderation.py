@@ -8,6 +8,7 @@ deterrence_log_channel_id = 597119801701433357
 unverified_role_id = 605808609195982864
 verification_channel_id = 602156675863937024
 muted_role_id = 610126555867512870
+verification_url = "https://www.tortoisecommunity.ml/verification/"
 
 
 class Admins(commands.Cog):
@@ -156,7 +157,6 @@ class Admins(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def dm_unverified(self, ctx):
-        verification_channel = self.bot.get_channel(verification_channel_id)
         unverified_role = ctx.guild.get_role(unverified_role_id)
         unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
         count = 0
@@ -164,9 +164,9 @@ class Admins(commands.Cog):
         for member in unverified_members:
             try:
                 msg = (f"Hey {member.mention}!\n"
-                       f"You've been in our guild **{ctx.guild.name}** for quite a long time.."
+                       f"You've been in our guild **{ctx.guild.name}** for some time..\n"
                        f"We noticed you still didn't verify so please go to our channel "
-                       f"{verification_channel.mention} and verify.")
+                       f"{verification_url} and verify.")
                 await member.send(msg)
                 count += 1
             except Forbidden:
