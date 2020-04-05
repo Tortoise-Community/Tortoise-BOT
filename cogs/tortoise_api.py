@@ -48,10 +48,10 @@ class TortoiseAPI(commands.Cog):
         if not await self.bot.api_client.does_member_exist(member.id):
             logger.debug(f"New member {member} does not exist in database, adding now.")
 
+            await self.bot.api_client.insert_new_member(member)
+
             unverified_role = member.guild.get_role(unverified_role_id)
             await member.add_roles(unverified_role)
-
-            await self.bot.api_client.insert_new_member(member)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             msg = ("Welcome to Tortoise Community!\n"
@@ -77,10 +77,10 @@ class TortoiseAPI(commands.Cog):
         else:
             logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
 
+            await self.bot.api_client.member_rejoined(member)
+
             unverified_role = member.guild.get_role(unverified_role_id)
             await member.add_roles(unverified_role)
-
-            await self.bot.api_client.member_rejoined(member)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             msg = ("Hi, welcome to Tortoise Community!\n"
