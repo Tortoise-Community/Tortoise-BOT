@@ -178,8 +178,7 @@ class Admins(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def dm_members(self, ctx, role: discord.Role, message: str):
+    async def dm_members(self, ctx, role: discord.Role, *, message: str):
         members = (member for member in role.members
                    if not member.bot)
         count = 0
