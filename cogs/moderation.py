@@ -158,7 +158,8 @@ class Admins(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def dm_unverified(self, ctx):
         unverified_role = ctx.guild.get_role(unverified_role_id)
-        unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
+        unverified_members = (member for member in unverified_role.members
+                              if member.status == discord.Status.online)
         count = 0
 
         for member in unverified_members:
@@ -168,6 +169,27 @@ class Admins(commands.Cog):
                        f"We noticed you still didn't verify so please go to our channel "
                        f"{verification_url} and verify.")
                 await member.send(msg)
+                count += 1
+            except Forbidden:
+                pass
+
+        await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
+
+    @commands.command()
+    @commands.cooldown(1, 300, commands.BucketType.guild)
+    @commands.has_permissions(administrator=True)
+    async def dm_members(self, ctx, role: discord.Role, *, message: str):
+        members = (member for member in role.members
+                   if not member.bot)
+        count = 0
+
+        for member in members:
+            try:
+                dm_embed = discord.Embed(title=f"Message for role {role}",
+                                         description=message,
+                                         color=role.color)
+                dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+                await member.send(embed=dm_embed)
                 count += 1
             except Forbidden:
                 pass
