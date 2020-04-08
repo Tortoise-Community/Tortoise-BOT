@@ -158,7 +158,8 @@ class Admins(commands.Cog):
     async def dm_unverified(self, ctx):
         verification_channel = self.bot.get_channel(verification_channel_id)
         unverified_role = ctx.guild.get_role(unverified_role_id)
-        unverified_members = [member for member in ctx.guild.members if unverified_role in member.roles]
+        unverified_members = (member for member in unverified_role.members
+                              if member.status == discord.Status.online)
         count = 0
 
         for member in unverified_members:
