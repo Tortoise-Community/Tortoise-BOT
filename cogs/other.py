@@ -5,8 +5,7 @@ import os
 import discord
 from discord.ext import commands
 from .utils.embed_handler import info
-
-github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
+from constants import github_repo_link
 
 
 class Other(commands.Cog):
@@ -112,8 +111,8 @@ class Other(commands.Cog):
 
         message = await ctx.send(start)
         while start:
-            minutes, secs = divmod(start, 60)
-            content = "{:02d}:{:02d}".format(minutes, secs)
+            minutes, seconds = divmod(start, 60)
+            content = f"{minutes:02d}:{seconds:02d}"
             await message.edit(content=content)
             start -= 1
             await asyncio.sleep(1)

@@ -9,16 +9,10 @@ from discord import HTTPException, ActivityType
 from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
                                InternalServerError, DiscordIDNotFound)
 from .utils.checks import check_if_it_is_tortoise_guild
+import constants
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-tortoise_guild_id = 577192344529404154
-tortoise_bot_dev_channel_id = 692851221223964822
-tortoise_successful_verification_channel_id = 581139962611892229
-verified_role_id = 599647985198039050
-unverified_role_id = 605808609195982864
-website_log_channel_id = 649868379372388352
-verification_url = "https://www.tortoisecommunity.ml/verification/"
 
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
@@ -243,14 +237,14 @@ class SocketCommunication(commands.Cog):
     @endpoint_register(endpoint_key="send")
     async def send_to_channel(self, message):
         logger.debug(f"Sending {message} to channel.")
-        bot_dev_channel = self.bot.get_channel(tortoise_bot_dev_channel_id)
+        bot_dev_channel = self.bot.get_channel(constants.bot_dev_channel_id)
         await bot_dev_channel.send(message)
         logger.debug(f"Sent {message} to channel!")
 
     @endpoint_register(endpoint_key="members")
     async def get_member_activities(self, members: List[int]) -> Dict[int, str]:
         response_activities = {}
-        tortoise_guild = self.bot.get_guild(tortoise_guild_id)
+        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         logger.debug(f"Processing members: {members}")
         for member_id in members:
             logger.debug(f"Processing member: {member_id}")
@@ -279,11 +273,11 @@ class SocketCommunication(commands.Cog):
         except ValueError:
             raise EndpointBadArguments()
 
-        guild = self.bot.get_guild(tortoise_guild_id)
-        verified_role = guild.get_role(verified_role_id)
-        unverified_role = guild.get_role(unverified_role_id)
-        tortoise_successful_verification_channel = guild.get_channel(tortoise_successful_verification_channel_id)
-        for check_none in (guild, verified_role, unverified_role, tortoise_successful_verification_channel):
+        guild = self.bot.get_guild(constants.tortoise_guild_id)
+        verified_role = guild.get_role(constants.verified_role_id)
+        unverified_role = guild.get_role(constants.unverified_role_id)
+        verification_channel = guild.get_channel(constants.verification_channel_id)
+        for check_none in (guild, verified_role, unverified_role, verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -297,13 +291,13 @@ class SocketCommunication(commands.Cog):
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
         await member.add_roles(verified_role)
-        await tortoise_successful_verification_channel.send(f"{member} is now verified.")
+        await verification_channel.send(f"{member} is now verified.")
         await member.send("You are now verified.")
 
     @endpoint_register()
     async def contact(self, data: dict):
-        guild = self.bot.get_guild(tortoise_guild_id)
-        website_log_channel = guild.get_channel(website_log_channel_id)
+        guild = self.bot.get_guild(constants.tortoise_guild_id)
+        website_log_channel = guild.get_channel(constants.website_log_channel_id)
 
         for check_none in (guild, website_log_channel):
             if check_none is None:
