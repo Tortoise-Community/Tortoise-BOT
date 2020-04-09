@@ -26,10 +26,10 @@ class CommandErrorHandler(commands.Cog):
         if isinstance(error, commands.BotMissingPermissions):
             missing = [perm.replace("_", " ").replace("guild", "server").title() for perm in error.missing_perms]
             if len(missing) > 2:
-                fmt = "{}, and {}".format("**, **".join(missing[:-1]), missing[-1])
+                fmt = f"{'**, **'.join(missing[:-1])}, and {missing[-1]}"
             else:
                 fmt = " and ".join(missing)
-            _message = "I need the **{}** permission(s) to run this command.".format(fmt)
+            _message = f"I need the **{fmt}** permission(s) to run this command."
             await ctx.send(_message)
             return
 
@@ -38,16 +38,16 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send("This command is on cooldown, please retry in {}s.".format(math.ceil(error.retry_after)))
+            await ctx.send(f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s.")
             return
 
         if isinstance(error, commands.MissingPermissions):
             missing = [perm.replace("_", " ").replace("guild", "server").title() for perm in error.missing_perms]
             if len(missing) > 2:
-                fmt = "{}, and {}".format("**, **".join(missing[:-1]), missing[-1])
+                fmt = f"{'**, **'.join(missing[:-1])}, and {missing[-1]}"
             else:
                 fmt = " and ".join(missing)
-            _message = "You need the **{}** permission(s) to use this command.".format(fmt)
+            _message = f"You need the **{fmt}** permission(s) to use this command."
             await ctx.send(_message)
             return
 
@@ -69,6 +69,11 @@ class CommandErrorHandler(commands.Cog):
             else:
                 await ctx.send("You do not have permission to use this command.")
             return
+
+        if isinstance(error, discord.errors.Forbidden):
+            # Conditional to check if it is a closed DM that raised Forbidden
+            if error.code == 50007:
+                return
 
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
         logger.warning(exception_msg)

@@ -3,9 +3,7 @@ import aiohttp
 from discord.ext import commands
 from discord import Member
 from config_handler import ConfigHandler
-
-tortoise_guild_id = 577192344529404154
-bot_log_channel_id = 693090079329091615
+import constants
 
 
 class Security(commands.Cog):
@@ -19,7 +17,7 @@ class Security(commands.Cog):
         ctx = message.channel
         if message.guild is None or message.author == message.guild.me:
             return
-        elif message.guild.id != tortoise_guild_id:
+        elif message.guild.id != constants.tortoise_guild_id:
             # Functionality only available in Tortoise guild
             return
         elif not isinstance(message.author, Member):
@@ -33,7 +31,8 @@ class Security(commands.Cog):
         # For this to work bot needs to have manage_guild permission (so he can get guild invites)
         if "https:" in message.content or "http:" in message.content:
             # Find any url
-            base_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", message.content)
+            base_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                                  message.content)
             for invite in base_url:
                 # Get the endpoint of that url (for discord invite url shorteners)
                 async with self.session.get(invite) as response:
@@ -48,7 +47,7 @@ class Security(commands.Cog):
         for category, banned_words in self.banned_words.loaded.items():
             for banned_word in banned_words:
                 if banned_word in message.content.lower():
-                    bot_log_channel = self.bot.get_channel(bot_log_channel_id)
+                    bot_log_channel = self.bot.get_channel(constants.bot_log_channel_id)
                     msg = f"{message.author} - curse word {banned_word} detected from category {category}!"
                     await bot_log_channel.send(msg)
                     # TODO: give him warning points or smth
