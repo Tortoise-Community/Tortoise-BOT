@@ -71,7 +71,8 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, discord.errors.Forbidden):
-            if next((True for arg in error.args if 'error code: 50007' in arg), False):
+            # Conditional to check if it is a closed DM that raised Forbidden
+            if error.code == 50007:
                 return
 
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
