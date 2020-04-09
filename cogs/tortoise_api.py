@@ -1,8 +1,8 @@
 import logging
-from typing import Union
 from discord import Member
 from discord.ext import commands
 from .utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from .utils.converters import DatabaseMember
 from bot import Bot
 
 
@@ -18,25 +18,22 @@ class TortoiseAPI(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def is_verified(self, ctx, member: Union[int, Member]):
-        member_id = member if isinstance(member, int) else member.id
-        response = await self.bot.api_client.is_verified(member_id)
+    async def is_verified(self, ctx, member: DatabaseMember):
+        response = await self.bot.api_client.is_verified(member)
         await ctx.send(response)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def does_member_exist(self, ctx, member: Union[int, Member]):
-        member_id = member if isinstance(member, int) else member.id
-        response = await self.bot.api_client.does_member_exist(member_id)
+    async def does_member_exist(self, ctx, member: DatabaseMember):
+        response = await self.bot.api_client.does_member_exist(member)
         await ctx.send(response)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
     @commands.check(tortoise_bot_developer_only)
-    async def show_data(self, ctx, member: Union[int, Member]):
-        member_id = member if isinstance(member, int) else member.id
-        data = await self.bot.api_client.get_member_data(member_id)
+    async def show_data(self, ctx, member: DatabaseMember):
+        data = await self.bot.api_client.get_member_data(member)
         await ctx.send(f"{data}")
 
     @commands.Cog.listener()
