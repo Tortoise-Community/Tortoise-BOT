@@ -2,14 +2,7 @@ import random
 import discord
 from discord.ext import commands
 from .utils.checks import check_if_it_is_tortoise_guild
-
-captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png"),
-            ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
-unverified_role_id = 605808609195982864
-verified_role_id = 599647985198039050
-verification_channel_id = 581139962611892229
-system_log_channel_id = 593883395436838942
-tortoise_guild_id = 577192344529404154
+import constants
 
 
 class Security(commands.Cog):
@@ -18,25 +11,22 @@ class Security(commands.Cog):
         self.bot = bot
         
     @commands.Cog.listener()
+    @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member):
-        if member.guild.id != tortoise_guild_id:
-            # Functionality only available in Tortoise guild
-            return
-
-        unverified_role = member.guild.get_role(unverified_role_id)
+        unverified_role = member.guild.get_role(constants.unverified_role_id)
         await member.add_roles(unverified_role)
         
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def accept(self, ctx):
-        if not ctx.channel.id == verification_channel_id:
+        if not ctx.channel.id == constants.verification_channel_id:
             await ctx.send("This is not verification channel.")
             return
 
-        verified_role = ctx.guild.get_role(verified_role_id)
-        unverified_role = ctx.guild.get_role(unverified_role_id)
+        verified_role = ctx.guild.get_role(constants.verified_role_id)
+        unverified_role = ctx.guild.get_role(constants.unverified_role_id)
         if unverified_role in ctx.author.roles:
-            captcha_code, captcha_url = random.choice(captchas)
+            captcha_code, captcha_url = random.choice(constants.captchas)
 
             msg = await ctx.send("Verification has been sent in DM!")
             await msg.add_reaction("✅")
@@ -59,7 +49,7 @@ class Security(commands.Cog):
             await ctx.author.remove_roles(unverified_role)
             await ctx.author.add_roles(verified_role)
 
-            system_log_channel = self.bot.get_channel(system_log_channel_id)
+            system_log_channel = self.bot.get_channel(constants.system_log_channel_id)
             log_embed = discord.Embed(title="**Welcome!**",
                                       description=f"{ctx.message.author.name} has joined the Tortoise Community.",
                                       color=0x13D910)

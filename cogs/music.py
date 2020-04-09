@@ -16,28 +16,8 @@ import discord
 from discord.ext import commands
 from async_timeout import timeout
 from youtube_dl import YoutubeDL
+from constants import ytdl_format_options
 
-
-# For all options see:
-# https://github.com/ytdl-org/youtube-dl/blob/3e4cedf9e8cd3157df2457df7274d0c842421945/youtube_dl/YoutubeDL.py#L137-L312
-ytdl_format_options = {
-    "format": "bestaudio/best",
-    "outtmpl": "downloads/%(extractor)s-%(id)s-%(title)s.%(ext)s",
-    "restrictfilenames": True,
-    "noplaylist": True,
-    "nocheckcertificate": True,
-    "ignoreerrors": False,
-    "logtostderr": False,
-    "quiet": True,
-    "no_warnings": True,
-    "default_search": "auto",
-    "source_address": "0.0.0.0"  # ipv6 addresses cause issues sometimes
-}
-
-ffmpeg_options = {
-    "before_options": "-nostdin",
-    "options": "-vn"
-}
 
 ytdl = YoutubeDL(ytdl_format_options)
 
