@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord.errors import Forbidden
 from .utils.embed_handler import success
 from .utils.checks import check_if_it_is_tortoise_guild
 
@@ -43,12 +42,8 @@ class Admins(commands.Cog):
                                               "\nYou can rejoin the server after the cooldown from here"),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
-        try:
-            await member.send(embed=dm_embed)
-        except Forbidden:
-            # Ignore exception in case user had blocked DMs
-            pass
 
+        await member.send(embed=dm_embed)
         await member.kick(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully kicked."))
 
@@ -80,12 +75,8 @@ class Admins(commands.Cog):
                                               f"\nIf this happened by a mistake contact moderators."),
                                  color=0xFF0000)
         dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
-        try:
-            await member.send(embed=dm_embed)
-        except Forbidden:
-            # Ignore exception in case user had blocked DMs
-            pass
 
+        await member.send(embed=dm_embed)
         await member.ban(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully banned."))
 
@@ -163,15 +154,12 @@ class Admins(commands.Cog):
         count = 0
 
         for member in unverified_members:
-            try:
-                msg = (f"Hey {member.mention}!\n"
-                       f"You've been in our guild **{ctx.guild.name}** for some time..\n"
-                       f"We noticed you still didn't verify so please go to our channel "
-                       f"{verification_url} and verify.")
-                await member.send(msg)
-                count += 1
-            except Forbidden:
-                pass
+            msg = (f"Hey {member.mention}!\n"
+                   f"You've been in our guild **{ctx.guild.name}** for some time..\n"
+                   f"We noticed you still didn't verify so please go to our channel "
+                   f"{verification_url} and verify.")
+            await member.send(msg)
+            count += 1
 
         await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
 
@@ -184,15 +172,12 @@ class Admins(commands.Cog):
         count = 0
 
         for member in members:
-            try:
-                dm_embed = discord.Embed(title=f"Message for role {role}",
-                                         description=message,
-                                         color=role.color)
-                dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-                await member.send(embed=dm_embed)
-                count += 1
-            except Forbidden:
-                pass
+            dm_embed = discord.Embed(title=f"Message for role {role}",
+                                     description=message,
+                                     color=role.color)
+            dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+            await member.send(embed=dm_embed)
+            count += 1
 
         await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
 
