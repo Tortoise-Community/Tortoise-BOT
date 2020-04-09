@@ -26,14 +26,16 @@ class TortoiseAPI(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def is_verified(self, ctx, member: Union[int, Member]):
-        response = await self.bot.api_client.is_verified(member.id)
+        member_id = member if isinstance(member, int) else member.id
+        response = await self.bot.api_client.is_verified(member_id)
         await ctx.send(response)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def does_member_exist(self, ctx, member: Union[int, Member]):
-        response = await self.bot.api_client.does_member_exist(member.id)
+        member_id = member if isinstance(member, int) else member.id
+        response = await self.bot.api_client.does_member_exist(member_id)
         await ctx.send(response)
 
     @commands.Cog.listener()
