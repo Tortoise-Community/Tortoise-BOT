@@ -7,17 +7,9 @@ from discord.ext import commands
 from .utils.embed_handler import authored, failure, success, info, embed_space
 from .utils.checks import check_if_it_is_tortoise_guild
 from .utils.message_logger import MessageLogger
+import constants
 
 logger = logging.getLogger(__name__)
-
-
-tortoise_guild_id = 577192344529404154
-mod_mail_report_channel_id = 693790120712601610
-code_submissions_channel_id = 610079185569841153
-bug_reports_channel_id = 693790120712601610
-mod_mail_emoji_id = 620502308815503380
-event_emoji_id = 611403448750964746
-bug_emoji_id = 690635117655359559
 
 
 class UnsupportedFileExtension(Exception):
@@ -37,9 +29,12 @@ class ModMail(commands.Cog):
         self.active_bug_reports = set()
         # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM and callable
         # is the method to call when that option is selected.
-        self._options = {mod_mail_emoji_id: {"message": "Mod mail", "callable": self.create_mod_mail},
-                         event_emoji_id: {"message": "Event submission", "callable": self.create_event_submission},
-                         bug_emoji_id: {"message": "Bug report", "callable": self.create_bug_report}}
+        self._options = {constants.mod_mail_emoji_id: {"message": "Mod mail",
+                                                       "callable": self.create_mod_mail},
+                         constants.event_emoji_id: {"message": "Event submission",
+                                                    "callable": self.create_event_submission},
+                         constants.bug_emoji_id: {"message": "Bug report",
+                                                  "callable": self.create_bug_report}}
         # User IDs for which the trigger_typing() is active, so we don't spam the method.
         self._typing_active = set()
 
@@ -77,7 +72,7 @@ class ModMail(commands.Cog):
             await self.send_dm_options(output=message.author)
 
     @commands.Cog.listener()
-    async def on_typing(self, channel, user, when):
+    async def on_typing(self, channel, user, _when):  # when parameter is not used, potentially removable
         if not isinstance(channel, discord.DMChannel):
             return
         elif not self.is_any_session_active(user.id):
@@ -106,7 +101,7 @@ class ModMail(commands.Cog):
                 return key
 
     async def send_dm_options(self, *, output):
-        tortoise_guild = self.bot.get_guild(tortoise_guild_id)
+        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
         msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
 
@@ -134,7 +129,7 @@ class ModMail(commands.Cog):
             await user.send(embed=failure("You already have a pending mod mail, please be patient."))
             return
 
-        mod_mail_report_channel = self.bot.get_channel(mod_mail_report_channel_id)
+        mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
         submission_embed = authored(user, f"`{user.id}` submitted for mod mail.")
         await mod_mail_report_channel.send(embed=submission_embed)
         self.pending_mod_mails.add(user.id)
@@ -158,7 +153,7 @@ class ModMail(commands.Cog):
             self.active_event_submissions.remove(user.id)
             return
 
-        code_submissions_channel = self.bot.get_channel(code_submissions_channel_id)
+        code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
         await code_submissions_channel.send(f"User `{user}` ID:{user.id} submitted code submission: "
                                             f"{event_submission}")
         await user.send(embed=success("Event submission successfully submitted."))
@@ -182,7 +177,7 @@ class ModMail(commands.Cog):
             self.active_bug_reports.remove(user.id)
             return
 
-        bug_report_channel = self.bot.get_channel(bug_reports_channel_id)
+        bug_report_channel = self.bot.get_channel(constants.bug_reports_channel_id)
         await bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {bug_report}")
         await user.send(embed=success("Bug report successfully submitted, thank you."))
         self.active_bug_reports.remove(user.id)
@@ -256,7 +251,7 @@ class ModMail(commands.Cog):
         mod = ctx.author
         # Keep a log of all messages in mod-mail
         log = MessageLogger(mod.id, user.id)
-        mod_mail_report_channel = self.bot.get_channel(mod_mail_report_channel_id)
+        mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
 
         if user is None:
             await ctx.send(embed=failure("That user cannot be found or you entered incorrect ID."))
