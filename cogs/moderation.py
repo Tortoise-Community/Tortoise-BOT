@@ -161,7 +161,7 @@ class Admins(commands.Cog):
             await member.send(msg)
             count += 1
 
-        await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
+        await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)
@@ -179,7 +179,7 @@ class Admins(commands.Cog):
             await member.send(embed=dm_embed)
             count += 1
 
-        await ctx.send(embed=success(F"Successfully notified {count} users.", ctx.me))
+        await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
 
 
 def setup(bot):

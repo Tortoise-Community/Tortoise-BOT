@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 class PrettyHelpCommand(commands.MinimalHelpCommand):
     def get_ending_note(self):
-        command_name_ = self.invoked_with
-        return ("Type {0}{1} <command> for more info on a command.\n"
-                "You can also type {0}{1} <category> for more info on a category.").format(self.clean_prefix, command_name_)
+        command_ = f"{self.clean_prefix}{self.invoked_with}"
+        return (f"Type {command_} <command> for more info on a command.\n"
+                f"You can also type {command_} <category> for more info on a category.")
 
     def add_bot_commands_formatting(self, commands_, heading):
         if commands_:
