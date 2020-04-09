@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Union
 from discord import Member, HTTPException
 from discord.ext import commands
 from .utils.checks import check_if_it_is_tortoise_guild
@@ -25,8 +25,15 @@ class TortoiseAPI(commands.Cog):
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def is_verified(self, ctx, member: Member):
+    async def is_verified(self, ctx, member: Union[int, Member]):
         response = await self.bot.api_client.is_verified(member.id)
+        await ctx.send(response)
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def does_member_exist(self, ctx, member: Union[int, Member]):
+        response = await self.bot.api_client.does_member_exist(member.id)
         await ctx.send(response)
 
     @commands.Cog.listener()
@@ -40,7 +47,11 @@ class TortoiseAPI(commands.Cog):
 
         if not await self.bot.api_client.does_member_exist(member.id):
             logger.debug(f"New member {member} does not exist in database, adding now.")
+
             await self.bot.api_client.insert_new_member(member)
+
+            unverified_role = member.guild.get_role(unverified_role_id)
+            await member.add_roles(unverified_role)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             msg = ("Welcome to Tortoise Community!\n"
@@ -67,6 +78,9 @@ class TortoiseAPI(commands.Cog):
             logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
 
             await self.bot.api_client.member_rejoined(member)
+
+            unverified_role = member.guild.get_role(unverified_role_id)
+            await member.add_roles(unverified_role)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             msg = ("Hi, welcome to Tortoise Community!\n"

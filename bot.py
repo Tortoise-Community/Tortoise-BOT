@@ -11,11 +11,9 @@ logger = logging.getLogger(__name__)
 class Bot(commands.Bot):
     error_log_channel_id = 690650346665803777
 
-    def __init__(self, *args, prefix, **kwargs):
+    def __init__(self, prefix, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client = TortoiseAPI(self.loop)
-        self.add_command(self.load)
-        self.add_command(self.unload)
         self._was_ready_once = False
 
     async def on_ready(self):
@@ -44,25 +42,3 @@ class Bot(commands.Bot):
     def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str, None, None]:
         for i in range(0, len(string), chunk_size):
             yield string[i:i + chunk_size]
-
-    @commands.command(hidden=True)
-    @commands.has_any_role("Admin")
-    async def load(self, ctx, extension_name):
-        """
-        Loads an extension.
-        :param extension_name: extension name, example 'moderation'
-        """
-        extension_path = f"cogs.{extension_name}"
-        self.load_extension(extension_path)
-        await ctx.send(f"{extension_path} loaded.")
-
-    @commands.command(hidden=True)
-    @commands.has_any_role("Admin")
-    async def unload(self, ctx, extension_name):
-        """
-        Unloads an extension.
-        :param extension_name: extension name, example 'moderation'
-        """
-        extension_path = f"cogs.{extension_name}"
-        self.unload_extension(extension_path)
-        await ctx.send(f"{extension_path} unloaded.")
