@@ -52,9 +52,13 @@ class DatabaseMember(MemberConverter):
     If we used regular MemberConverter/UserConverter we would be limited to existing users.
     This converter allows passing any discord ID or, for existing members, member name/mention.
     """
-    async def convert(self, ctx, id_or_member: Union[int, str]) -> int:
-        if isinstance(id_or_member, int):
-            return id_or_member
-        else:
+    async def convert(self, ctx, id_or_member: str) -> int:
+        """
+        :param id_or_member: str argument coming from discord. Can be id, name, nick, mention etc lookup MemberConverter
+        for more info. Note that ID will be string as it's coming from discord message.
+        """
+        try:
+            return int(id_or_member)
+        except ValueError:
             member = await super().convert(ctx, id_or_member)
             return member.id
