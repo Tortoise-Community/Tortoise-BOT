@@ -1,8 +1,10 @@
 import random
+
 import discord
 from discord.ext import commands
-from .utils.checks import check_if_it_is_tortoise_guild
+
 import constants
+from .utils.checks import check_if_it_is_tortoise_guild
 
 
 class Security(commands.Cog):

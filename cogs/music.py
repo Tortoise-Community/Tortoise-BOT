@@ -7,15 +7,17 @@ The code has been changed a bit to go along Tortoise needs.
 You can check the commits to see change history.
 """
 
+import sys
+import asyncio
 import itertools
 import traceback
-import asyncio
-import sys
 from functools import partial
+
 import discord
 from discord.ext import commands
-from async_timeout import timeout
 from youtube_dl import YoutubeDL
+from async_timeout import timeout
+
 from constants import ytdl_format_options
 
 

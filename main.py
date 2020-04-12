@@ -1,10 +1,12 @@
 import os
 import logging
 import traceback
-from pathlib import Path
 from sys import stdout
+from pathlib import Path
 from dotenv import load_dotenv
+
 from bot import Bot
+
 
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
@@ -13,7 +15,7 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 root_logger.addHandler(console)
 
-banned_extensions = ("captcha_verification",)
+banned_extensions = ("captcha_verification", "test")
 root_logger.info(f"Running as main bot. Banned extension: {banned_extensions}")
 
 

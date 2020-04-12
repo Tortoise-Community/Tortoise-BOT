@@ -1,7 +1,8 @@
 import re
-from typing import Union
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
+
 from discord.ext.commands import BadArgument, Context, Converter, MemberConverter
 
 

@@ -1,10 +1,12 @@
 import os
-import aiohttp
 import logging
-from datetime import datetime, timezone
-from dotenv import load_dotenv
-from discord import Member
 from typing import Optional, List
+from dotenv import load_dotenv
+from datetime import datetime, timezone
+
+import aiohttp
+from discord import Member
+
 
 load_dotenv()
 logger = logging.getLogger(__name__)

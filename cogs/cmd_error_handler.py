@@ -1,8 +1,10 @@
-import traceback
-import logging
 import math
+import logging
+import traceback
+
 import discord
 from discord.ext import commands
+
 
 logger = logging.getLogger(__name__)
 

@@ -4,12 +4,14 @@ import socket
 import logging
 import asyncio
 from typing import List, Dict
+
 from discord.ext import commands
 from discord import HTTPException, ActivityType
+
+import constants
 from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
                                InternalServerError, DiscordIDNotFound)
 from .utils.checks import check_if_it_is_tortoise_guild
-import constants
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)

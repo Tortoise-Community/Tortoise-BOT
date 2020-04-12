@@ -1,11 +1,13 @@
 import logging
+
 from discord import Member
 from discord.ext import commands
+
+from bot import Bot
 from api_client import ResponseCodeError
-from .utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from .utils.converters import DatabaseMember
 from .utils.embed_handler import failure, warning, success
-from bot import Bot
+from .utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
 logger = logging.getLogger(__name__)
