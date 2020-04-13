@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class Bot(commands.Bot):
     def __init__(self, prefix, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
-        self.api_client = TortoiseAPI(self.loop)
+        self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
         self._was_ready_once = False
 
     async def on_ready(self):

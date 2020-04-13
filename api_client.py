@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Optional, List
+from typing import Optional, List, Union
 from dotenv import load_dotenv
 from datetime import datetime, timezone
 
@@ -51,7 +51,7 @@ class APIClient:
                 response_text = await response.text()
                 raise ResponseCodeError(response=response, response_text=response_text)
 
-    async def get(self, endpoint: str, **kwargs) -> dict:
+    async def get(self, endpoint: str, **kwargs) -> Union[dict, List[dict]]:
         async with self.session.get(self._url_for(endpoint), **kwargs) as resp:
             await self.raise_for_status(resp)
             return await resp.json()
@@ -142,3 +142,16 @@ class TortoiseAPI(APIClient):
         await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
                                                            "guild_id": member.guild.id,
                                                            "roles": roles_ids})
+
+    async def get_all_rules(self) -> List[dict]:
+        """
+        Return format:
+        [
+          {"number": 1,
+          "alias": ["tos", "guidelines", "terms"],
+          "statement": "Follow the Discord Community Guidelines and Terms Of Service."
+          },
+          ...
+        ]
+        """
+        return await self.get("rules/")
