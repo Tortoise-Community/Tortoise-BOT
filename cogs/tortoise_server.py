@@ -62,6 +62,21 @@ class TortoiseServer(commands.Cog):
             if alias.lower() in rule_dict["alias"]:
                 return rule_dict
 
+    @commands.command()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def rules(self, ctx):
+        """
+        Shows all rules info.
+        """
+        embed_body = []
+        for rule_dict in self._rules:
+            rule_entry = (f"{rule_dict['number']}. Aliases: {', '.join(rule_dict['alias'])}\n"
+                          f"{rule_dict['statement']}")
+            embed_body.append(rule_entry)
+
+        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
+        await ctx.send(embed=rules_embed)
+
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member: discord.Member):
