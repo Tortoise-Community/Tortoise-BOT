@@ -31,6 +31,7 @@ def endpoint_register(*, endpoint_key: str = None):
 
     Endpoint function return is optional, if there is a return then that return is passed back as
     key `data` to client, this is dealt in process_request function.
+    Default return is EndpointSuccess().response , see process_request.
 
     In case of error, decorated function should raise one of the EndpointError sub-types.
     If it doesn't explicitly raise but error does happen it is handled in process_request and appropriate response
@@ -149,7 +150,11 @@ class SocketCommunication(commands.Cog):
 
             logger.debug(f"Server got:{request}")
 
-            if client not in self.verified_clients:
+            # TODO
+            # temporal hardcoded fix to make ping endpoint public
+            endpoint_key = request.get("endpoint")
+
+            if client not in self.verified_clients and endpoint_key != "ping":
                 token = request.get("auth")
                 if token is not None and token == self.auth_token:
                     self.verified_clients.add(client)
