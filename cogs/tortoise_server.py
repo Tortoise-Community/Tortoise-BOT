@@ -24,7 +24,11 @@ class TortoiseServer(commands.Cog):
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_message(self, message):
-        if message.guild.id != constants.tortoise_guild_id:
+        if message.guild is None:
+            return
+        elif message.guild.id != constants.tortoise_guild_id:
+            return
+        elif message.author.bot:
             return
 
         if len(message.content) > constants.max_message_length:
