@@ -1,19 +1,21 @@
 import logging
 import traceback
 from typing import Generator
+
 import discord
 from discord.ext import commands
+
 from api_client import TortoiseAPI
+from constants import error_log_channel_id
+
 
 logger = logging.getLogger(__name__)
 
 
 class Bot(commands.Bot):
-    error_log_channel_id = 690650346665803777
-
     def __init__(self, prefix, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
-        self.api_client = TortoiseAPI(self.loop)
+        self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
         self._was_ready_once = False
 
     async def on_ready(self):
@@ -33,7 +35,7 @@ class Bot(commands.Bot):
         if not self.is_ready() or self.is_closed():
             return
 
-        error_log_channel = self.get_channel(Bot.error_log_channel_id)
+        error_log_channel = self.get_channel(error_log_channel_id)
         split_messages = list(Bot.split_string_into_chunks(message, 1980))
         for count, message in enumerate(split_messages):
             await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")

@@ -1,11 +1,14 @@
 import logging
+from typing import Iterable, Union
+
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.errors import HTTPException
-from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.embed_handler import success, failure, authored, welcome, welcome_dm
-from typing import Iterable
+
 import constants
+from .utils.checks import check_if_it_is_tortoise_guild
+from .utils.embed_handler import success, warning, failure, authored, welcome, welcome_dm, info
+
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +18,76 @@ class TortoiseServer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self._database_role_update_lock = False
+        self._rules = None
+        self.update_rules.start()
+
+    @commands.Cog.listener()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def on_message(self, message):
+        if message.guild.id != constants.tortoise_guild_id:
+            return
+
+        if len(message.content) > constants.max_message_length:
+            await message.delete()
+            msg = ("Your message is quite long.\n"
+                   f"You should consider using our paste service {constants.tortoise_paste_service_link}")
+            await message.channel.send(embed=warning(msg))
+
+    @tasks.loop(hours=24)
+    async def update_rules(self):
+        try:
+            self._rules = await self.bot.api_client.get_all_rules()
+        except Exception as e:
+            msg = f"Failed to fetch rules from API:{e}"
+            logger.critical(msg)
+            await self.bot.log_error(msg)
+
+    @update_rules.before_loop
+    async def before_update_rules(self):
+        logger.info("Starting rule update loop..")
+        await self.bot.wait_until_ready()
+        logger.info("Rule update loop started!")
+
+    @commands.command()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def rule(self, ctx, alias: Union[int, str]):
+        """
+        Shows rule based on number order or alias.
+        """
+        if isinstance(alias, int):
+            rule_dict = self._get_rule_by_value(alias)
+        else:
+            rule_dict = self._get_rule_by_alias(alias)
+
+        if rule_dict is None:
+            await ctx.send(embed=failure("No such rule."), delete_after=5)
+        else:
+            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, "Rule info"))
+
+    def _get_rule_by_value(self, number: int) -> Union[dict, None]:
+        for rule_dict in self._rules:
+            if rule_dict["number"] == number:
+                return rule_dict
+
+    def _get_rule_by_alias(self, alias: str) -> Union[dict, None]:
+        for rule_dict in self._rules:
+            if alias.lower() in rule_dict["alias"]:
+                return rule_dict
+
+    @commands.command()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def rules(self, ctx):
+        """
+        Shows all rules info.
+        """
+        embed_body = []
+        for rule_dict in self._rules:
+            rule_entry = (f"{rule_dict['number']}. Aliases: {', '.join(rule_dict['alias'])}\n"
+                          f"{rule_dict['statement']}")
+            embed_body.append(rule_entry)
+
+        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
+        await ctx.send(embed=rules_embed)
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)

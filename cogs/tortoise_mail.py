@@ -2,12 +2,15 @@ import logging
 from io import StringIO
 from typing import Union
 from asyncio import TimeoutError
+
 import discord
 from discord.ext import commands
-from .utils.embed_handler import authored, failure, success, info, embed_space
+
+import constants
+from .utils.embed_handler import authored, failure, success, info
 from .utils.checks import check_if_it_is_tortoise_guild
 from .utils.message_logger import MessageLogger
-import constants
+
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +109,7 @@ class ModMail(commands.Cog):
         msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
 
         embed = discord.Embed(description=msg_options)
-        embed.set_footer(text=f"Tortoise Community{embed_space * 100}")
+        embed.set_footer(text=f"Tortoise Community{constants.embed_space * 100}")
         embed.set_thumbnail(url=str(tortoise_guild.icon_url))
         msg = await output.send(embed=embed)
 

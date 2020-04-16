@@ -1,15 +1,16 @@
-"""
-Source: https://github.com/python-discord/bot/blob/master/bot/converters.py
-"""
-
 import re
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
-from discord.ext.commands import BadArgument, Context, Converter
+
+from discord.ext.commands import BadArgument, Context, Converter, MemberConverter
 
 
 class Duration(Converter):
-    """Convert duration strings into UTC datetime.datetime objects."""
+    """
+    Convert duration strings into UTC datetime.datetime objects.
+    Source: https://github.com/python-discord/bot/blob/master/bot/converters.py
+    """
 
     duration_parser = re.compile(
         r"((?P<years>\d+?) ?(years|year|Y|y) ?)?"
@@ -43,3 +44,22 @@ class Duration(Converter):
         now = datetime.utcnow()
 
         return now + delta
+
+
+class DatabaseMember(MemberConverter):
+    """
+    Database deals with IDs only.
+    However, for convenience, we want the commands to be able to work with member names/mentions.
+    If we used regular MemberConverter/UserConverter we would be limited to existing users.
+    This converter allows passing any discord ID or, for existing members, member name/mention.
+    """
+    async def convert(self, ctx, id_or_member: str) -> int:
+        """
+        :param id_or_member: str argument coming from discord. Can be id, name, nick, mention etc lookup MemberConverter
+        for more info. Note that ID will be string as it's coming from discord message.
+        """
+        try:
+            return int(id_or_member)
+        except ValueError:
+            member = await super().convert(ctx, id_or_member)
+            return member.id

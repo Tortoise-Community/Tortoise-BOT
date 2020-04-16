@@ -1,16 +1,8 @@
 from typing import Union
+
 from discord import Embed, Color, Member, User
 
-
-# Embeds are not monospaced so we need to use spaces to make different lines "align"
-# But discord doesn't like spaces and strips them down.
-# Using a combination of zero width space + regular space solves stripping problem.
-embed_space = "\u200b "
-
-website_url = "https://www.tortoisecommunity.ml/"
-privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
-rules_url = "https://www.tortoisecommunity.ml/pages/rules"
-line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
+import constants
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -25,12 +17,12 @@ def welcome_dm(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    content_footer = (f"Links: [Website]({website_url}) | "
-                      f"[Privacy statement]({privacy_url}) | "
-                      f"[Rules]({rules_url})")
+    content_footer = (f"Links: [Website]({constants.website_url}) | "
+                      f"[Privacy statement]({constants.privacy_url}) | "
+                      f"[Rules]({constants.rules_url})")
     message = f"{message}\n\n{content_footer}"
     welcome_dm_embed = simple_embed(message, "Welcome", color=Color.dark_green())
-    welcome_dm_embed.set_image(url=line_img_url)
+    welcome_dm_embed.set_image(url=constants.line_img_url)
     return welcome_dm_embed
 
 
@@ -41,6 +33,15 @@ def welcome(message: str) -> Embed:
     :return: Embed object
     """
     return simple_embed(message, "Welcome!", color=Color.dark_green())
+
+
+def goodbye(message: str) -> Embed:
+    """
+    Constructs goodbye embed with fixed title 'Goodbye' and red color.
+    :param message: embed description
+    :return: Embed object
+    """
+    return simple_embed(message, "Goodbye", color=Color.dark_red())
 
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
