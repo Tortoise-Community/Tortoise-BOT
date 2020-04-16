@@ -38,7 +38,11 @@ class Bot(commands.Bot):
         error_log_channel = self.get_channel(error_log_channel_id)
         split_messages = list(Bot.split_string_into_chunks(message, 1980))
         for count, message in enumerate(split_messages):
-            await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+            if count < 5:
+                await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+            else:
+                await error_log_channel.send(f"```Stopping spam, too many pages. See log for more info.```")
+                break
 
     @staticmethod
     def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str, None, None]:
