@@ -173,6 +173,7 @@ class SocketCommunication(commands.Cog):
             await self.send_to_client(client, json.dumps(response))
 
         logger.info(f"Closing {client_name}")
+        self.verified_clients.discard(client)
         client.close()
 
     async def send_to_client(self, client, msg: str):
