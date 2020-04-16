@@ -3,7 +3,7 @@ import json
 import socket
 import logging
 import asyncio
-from typing import List, Dict
+from typing import List
 
 from discord.ext import commands
 from discord import HTTPException, ActivityType
@@ -243,39 +243,65 @@ class SocketCommunication(commands.Cog):
             return endpoint_returned_data
 
     @endpoint_register(endpoint_key="send")
-    async def send_to_channel(self, message):
+    async def send_to_channel(self, message: str):
+        """
+        Makes the bot send request message to bot dev channel.
+        :param message: str message to send
+        """
         logger.debug(f"Sending {message} to channel.")
         bot_dev_channel = self.bot.get_channel(constants.bot_dev_channel_id)
         await bot_dev_channel.send(message)
         logger.debug(f"Sent {message} to channel!")
 
-    @endpoint_register(endpoint_key="members")
-    async def get_member_activities(self, members: List[int]) -> Dict[int, str]:
-        response_activities = {}
+    @endpoint_register(endpoint_key="member_activities")
+    async def get_member_data(self, members: List[int]) -> dict:
+        """
+        Gets activities and top role from all members passed in param members.
+        :param members: list of member ids to get activity and top role from
+        :return: dict in form:
+        {
+          'status': 200,
+          'data': {
+            'member_id':  {"activity": "bla_bla", "top_role": "role name"},
+            ...
+          }
+        }
+        """
+        response_data = {}
         tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         logger.debug(f"Processing members: {members}")
         for member_id in members:
             logger.debug(f"Processing member: {member_id}")
             member = tortoise_guild.get_member(int(member_id))
+            member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
             if member is None:
                 logger.debug(f"Member {member_id} not found.")
-                response_activities[member_id] = "None"
+                response_data[member_id] = member_data
                 continue
 
             if member.activity is None:
-                response_activities[member_id] = "None"
+                member_data["activity"] = "None"
             elif member.activity.type != ActivityType.custom:
                 activity = f"{member.activity.type.name} {member.activity.name}"
-                response_activities[member_id] = activity
+                member_data["activity"] = activity
             else:
-                response_activities[member_id] = member.activity.name
+                member_data["activity"] = member.activity.name
 
-        logger.debug(f"Processing members done, returning: {response_activities}")
-        return response_activities
+            member_data["top_role"] = member.top_role.name
+            response_data[member_id] = member_data
+
+        return_data = {"data": response_data}
+        logger.debug(f"Processing members done, returning: {return_data}")
+        return return_data
 
     @endpoint_register(endpoint_key="verify")
     async def verify_member(self, member_id: str):
+        """
+        Verifies the member, adds him the role and marks him as verified in the database,
+        also sends success messages.
+        :param member_id: str member id to verify
+        """
         try:
             member_id = int(member_id)
         except ValueError:
@@ -304,6 +330,10 @@ class SocketCommunication(commands.Cog):
 
     @endpoint_register()
     async def contact(self, data: dict):
+        """
+        Sends request data to website log channel.
+        :param data: dict data from the request
+        """
         guild = self.bot.get_guild(constants.tortoise_guild_id)
         website_log_channel = guild.get_channel(constants.website_log_channel_id)
 
