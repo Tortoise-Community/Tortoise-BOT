@@ -3,10 +3,11 @@ import logging
 from discord import Member
 from discord.ext import commands
 
+import constants
 from bot import Bot
 from api_client import ResponseCodeError
 from .utils.converters import DatabaseMember
-from .utils.embed_handler import failure, warning, success
+from .utils.embed_handler import failure, warning, success, goodbye
 from .utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
@@ -63,6 +64,9 @@ class TortoiseAPI(commands.Cog):
     async def on_member_remove(self, member: Member):
         logger.debug(f"Member {member} left, updating database accordingly.")
         await self.bot.api_client.member_left(member)
+
+        system_log_channel = self.bot.get_channel(constants.system_log_channel_id)
+        await system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
 
 
 def setup(bot):

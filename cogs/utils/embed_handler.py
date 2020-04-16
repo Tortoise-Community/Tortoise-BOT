@@ -35,6 +35,15 @@ def welcome(message: str) -> Embed:
     return simple_embed(message, "Welcome!", color=Color.dark_green())
 
 
+def goodbye(message: str) -> Embed:
+    """
+    Constructs goodbye embed with fixed title 'Goodbye' and red color.
+    :param message: embed description
+    :return: Embed object
+    """
+    return simple_embed(message, "Goodbye", color=Color.dark_red())
+
+
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
     """
     Constructs success embed with custom title and description.
