@@ -7,7 +7,7 @@ from discord.errors import HTTPException
 
 import constants
 from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.embed_handler import success, failure, authored, welcome, welcome_dm, info
+from .utils.embed_handler import success, warning, failure, authored, welcome, welcome_dm, info
 
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,18 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_rules.start()
+
+    @commands.Cog.listener()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def on_message(self, message):
+        if message.guild.id != constants.tortoise_guild_id:
+            return
+
+        if len(message.content) > constants.max_message_length:
+            await message.delete()
+            msg = ("Your message is quite long.\n"
+                   f"You should consider using our paste service {constants.tortoise_paste_service_link}")
+            await message.channel.send(embed=warning(msg))
 
     @tasks.loop(hours=24)
     async def update_rules(self):

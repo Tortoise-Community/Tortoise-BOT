@@ -4,6 +4,7 @@ privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
 rules_url = "https://www.tortoisecommunity.ml/pages/rules"
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
 line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
 
 
@@ -88,3 +89,6 @@ tortoise_developers = (197918569894379520, 612349409736392928)
 # But discord doesn't like spaces and strips them down.
 # Using a combination of zero width space + regular space solves stripping problem.
 embed_space = "\u200b "
+
+# After this is exceeded the link to tortoise paste service should be sent
+max_message_length = 500
