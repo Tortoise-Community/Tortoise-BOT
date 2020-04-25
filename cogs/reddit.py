@@ -1,8 +1,9 @@
 import os
 import random
+
+import praw
 import discord
 from discord.ext import commands
-import praw
 
 
 class Reddit(commands.Cog):

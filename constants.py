@@ -1,6 +1,11 @@
 tortoise_guild_id = 577192344529404154
+website_url = "https://www.tortoisecommunity.ml/"
+privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
+rules_url = "https://www.tortoisecommunity.ml/pages/rules"
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
+line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
 
 
 # Channel IDs
@@ -17,7 +22,9 @@ system_log_channel_id = 593883395436838942
 deterrence_log_channel_id = 597119801701433357
 bot_log_channel_id = 693090079329091615
 verification_channel_id = 581139962611892229
-
+website_log_channel_id = 649868379372388352
+bot_dev_channel_id = 692851221223964822
+error_log_channel_id = 690650346665803777
 
 # Roles
 muted_role_id = 610126555867512870
@@ -75,5 +82,13 @@ ytdl_format_options = {
     "source_address": "0.0.0.0"  # ipv6 addresses cause issues sometimes
 }
 
-bot_dev_channel_id = 692851221223964822
-website_log_channel_id = 649868379372388352
+# Special
+tortoise_developers = (197918569894379520, 612349409736392928)
+
+# Embeds are not monospaced so we need to use spaces to make different lines "align"
+# But discord doesn't like spaces and strips them down.
+# Using a combination of zero width space + regular space solves stripping problem.
+embed_space = "\u200b "
+
+# After this is exceeded the link to tortoise paste service should be sent
+max_message_length = 500

@@ -1,10 +1,12 @@
 import os
-import aiohttp
 import logging
-from datetime import datetime, timezone
+from typing import Optional, List, Union
 from dotenv import load_dotenv
+from datetime import datetime, timezone
+
+import aiohttp
 from discord import Member
-from typing import Optional, List
+
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -36,7 +38,7 @@ class APIClient:
 
     @staticmethod
     def _url_for(endpoint: str) -> str:
-        return f"https://api.tortoisecommunity.ml/{endpoint}"
+        return f"https://api.tortoisecommunity.ml/private/{endpoint}"
     
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:
@@ -49,7 +51,7 @@ class APIClient:
                 response_text = await response.text()
                 raise ResponseCodeError(response=response, response_text=response_text)
 
-    async def get(self, endpoint: str, **kwargs) -> dict:
+    async def get(self, endpoint: str, **kwargs) -> Union[dict, List[dict]]:
         async with self.session.get(self._url_for(endpoint), **kwargs) as resp:
             await self.raise_for_status(resp)
             return await resp.json()
@@ -133,7 +135,23 @@ class TortoiseAPI(APIClient):
         data = await self.get(f"members/{member_id}/roles/")
         return data["roles"]
 
+    async def get_member_data(self, member_id: int) -> dict:
+        return await self.get(f"members/edit/{member_id}/")
+
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
         await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
                                                            "guild_id": member.guild.id,
                                                            "roles": roles_ids})
+
+    async def get_all_rules(self) -> List[dict]:
+        """
+        Return format:
+        [
+          {"number": 1,
+          "alias": ["tos", "guidelines", "terms"],
+          "statement": "Follow the Discord Community Guidelines and Terms Of Service."
+          },
+          ...
+        ]
+        """
+        return await self.get("rules/")

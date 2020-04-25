@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
+
+import constants
 from .utils.embed_handler import success
 from .utils.checks import check_if_it_is_tortoise_guild
-import constants
 
 
 class Admins(commands.Cog):

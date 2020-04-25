@@ -1,9 +1,11 @@
 import re
+
 import aiohttp
-from discord.ext import commands
 from discord import Member
-from config_handler import ConfigHandler
+from discord.ext import commands
+
 import constants
+from config_handler import ConfigHandler
 
 
 class Security(commands.Cog):
