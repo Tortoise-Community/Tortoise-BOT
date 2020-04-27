@@ -82,6 +82,11 @@ ytdl_format_options = {
     "source_address": "0.0.0.0"  # ipv6 addresses cause issues sometimes
 }
 
+ffmpeg_options = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': '-vn',
+}
+
 # Special
 tortoise_developers = (197918569894379520, 612349409736392928)
 
