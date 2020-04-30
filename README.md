@@ -14,6 +14,16 @@ transparency - also to make coding easier as everyone can improve it.
 
 To do, check out cogs source code directory to see for yourself.
 
+## Contributing
+
+All updates welcome.
+
+If they break PEP standards and are not clean (code smells, breaking basic principles such as DRY, S.O.L.I.D. etc)
+they will get reviewed and commented by one of the maintainers and will get merged only after all problems
+are fixed.
+
+Please only push to `dev`.
+
 ## Installation Instructions
 
 ```bash
