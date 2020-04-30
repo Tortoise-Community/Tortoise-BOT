@@ -18,7 +18,7 @@ from discord.ext import commands
 from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
-from constants import ytdl_format_options
+from constants import ytdl_format_options, ffmpeg_options
 
 
 ytdl = YoutubeDL(ytdl_format_options)
@@ -68,7 +68,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         else:
             return {"webpage_url": data["webpage_url"], "requester": ctx.author, "title": data["title"]}
 
-        return cls(discord.FFmpegPCMAudio(source), data=data, requester=ctx.author)
+        return cls(discord.FFmpegPCMAudio(source, **ffmpeg_options), data=data, requester=ctx.author)
 
     @classmethod
     async def regather_stream(cls, data, *, loop):
@@ -80,7 +80,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         to_run = partial(ytdl.extract_info, url=data["webpage_url"], download=False)
         data = await loop.run_in_executor(None, to_run)
 
-        return cls(discord.FFmpegPCMAudio(data["url"]), data=data, requester=requester)
+        return cls(discord.FFmpegPCMAudio(data["url"], **ffmpeg_options), data=data, requester=requester)
 
 
 class MusicPlayer:
