@@ -105,6 +105,12 @@ max_message_length = 500
 
 
 class Infraction(Enum):
-    warning: Color.gold()
-    kick: Color.gold()
-    ban: Color.red()
+    warning = Color.gold()
+    kick = Color.gold()
+    ban = Color.red()
+
+
+class SuggestionStatus(Enum):
+    under_review = "Under review"
+    denied = "Denied"
+    approved = "Approved"

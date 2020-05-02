@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 import aiohttp
 from discord import Member, Message
 
+from constants import SuggestionStatus
+
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -174,8 +176,8 @@ class TortoiseAPI(APIClient):
         }
         await self.post("suggestions/", json=data)
 
-    async def put_suggestion(self, suggestion_id: int, status: str, reason: str):
-        data = {"status": status, "reason": reason}
+    async def put_suggestion(self, suggestion_id: int, status: SuggestionStatus, reason: str):
+        data = {"status": status.value, "reason": reason}
         await self.put(f"suggestions/{suggestion_id}/", json=data)
 
     async def delete_suggestion(self, suggestion_id: int):
