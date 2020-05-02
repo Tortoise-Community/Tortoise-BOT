@@ -69,10 +69,15 @@ class Admins(commands.Cog):
 
         """
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-        embed = discord.Embed(title=f"**{member.name} You have been warned for {reason}**",
-                              description=("If you are planning to repeat this again, "
-                                           "the mods may administer punishment for the action."),
-                              color=0xF4D03F)
+        embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
+        embed.add_field(
+            name="**NOTE**",
+            value=(
+                "If you are planning to repeat this again, "
+                "the mods may administer punishment for the action."
+            )
+        )
+
         await ctx.message.delete()
         await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
         await deterrence_log_channel.send(embed=embed)
