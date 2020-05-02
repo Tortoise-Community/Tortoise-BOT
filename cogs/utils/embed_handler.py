@@ -1,8 +1,9 @@
 from typing import Union
 
-from discord import Embed, Color, Member, User
+from discord import Embed, Color, Member, User, Status
 
 import constants
+from .members import get_member_status, get_member_roles_as_mentions, get_member_activity
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -98,6 +99,37 @@ def authored(author: Union[Member, User], message: str) -> Embed:
     """
     embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
     embed.set_author(name=author.name, icon_url=author.avatar_url)
+    return embed
+
+
+def status_embed(member, *, description="") -> Embed:
+    """
+    Construct status embed for certain member.
+    Status will have info such as member device, online status, activity, roles etc.
+    :param member: member to get data from
+    :param description: optional, description to use as embed description
+    :return: discord.Embed
+    """
+    embed = Embed(
+        title=member.display_name,
+        description=description,
+        color=get_top_role_color(member, fallback_color=Color.green())
+    )
+
+    if member.status == Status.offline:
+        embed.add_field(name="DEVICE", value=":no_entry:")
+    elif member.is_on_mobile():
+        embed.add_field(name="**DEVICE**", value="Phone: :iphone:")
+    else:
+        embed.add_field(name="**DEVICE**", value="PC: :desktop:")
+
+    embed.add_field(name="|", value="_ _ ")
+    embed.add_field(name='**STATUS**', value=get_member_status(member=member))
+    embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
+    embed.add_field(name="|", value="_ _ ")
+    embed.add_field(name="**ROLES**", value=get_member_roles_as_mentions(member.roles))
+    embed.add_field(name="**ACTIVITY**", value=get_member_activity(member=member))
+    embed.set_thumbnail(url=member.avatar_url)
     return embed
 
 

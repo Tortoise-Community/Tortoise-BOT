@@ -6,7 +6,7 @@ import psutil
 import discord
 from discord.ext import commands
 
-from .utils.embed_handler import info
+from .utils.embed_handler import info, status_embed
 from constants import github_repo_link
 
 
@@ -29,123 +29,17 @@ class Other(commands.Cog):
     @commands.command()
     async def status(self, ctx, member: discord.Member = None):
         """Returns the status of a member."""
-       def get_roles(rolelist):
-            stuff = ""
-            for i in rolelist:
-                stuff += i.mention
-            return stuff
-
-        def get_activity(member):
-
-            if member.activity == None:
-                return None
-            elif member.activity.type  != discord.ActivityType.custom:
-                text = f"{member.activity.type.name} {member.activity.name}"
-                return text
-
-            else:
-                return member.activity.name
-
-
-        def get_status(member):
-            if member.status == discord.Status.dnd:
-                return "DND 🔴"
-
-            elif  member.status == discord.Status.online:
-                return "ONLINE 🟢 "
-
-            elif member.status == discord.Status.idle:
-                return "IDLE 🌙 "
-
-            elif member.status == discord.Status.offline:
-                return "OFFLINE 💀 "
-
-
-        async def custom_status(desc):
-            if member.is_on_mobile() and member.status != discord.Status.offline:
-                embed = discord.Embed(title=member.display_name,
-                                      description=desc, color=member.top_role.color)
-                embed.add_field(name="**DEVICE **", value="Phone: :iphone:  ")
-                embed.add_field(name="|", value="_ _ ")
-                # embed.set_author(member.display_name)
-                embed.add_field(name='**STATUS**', value=get_status(member=member))
-                embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-                embed.add_field(name="|", value="_ _ ")
-                embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-                embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-
-                embed.set_thumbnail(url=member.avatar_url)
-
-                await ctx.send(embed=embed)
-
-            elif member.status != discord.Status.offline:
-                embed = discord.Embed(title=member.display_name,
-                                      description=desc, color=member.top_role.color)
-                embed.add_field(name='**DEVICE **', value="PC:  :desktop:  ")
-                embed.add_field(name="|", value="_ _  ")
-                embed.add_field(name='**STATUS**', value=get_status(member=member))
-                embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-                embed.add_field(name="|", value="_ _ ")
-                embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-                embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-                embed.set_thumbnail(url=member.avatar_url)
-                await ctx.send(embed=embed)
-
-            elif member.status == discord.Status.offline:
-                embed = discord.Embed(title=member.display_name,
-                                      description=desc, color=member.top_role.color)
-                embed.add_field(name="**DEVICE**", value=":no_entry:  ")
-                embed.add_field(name="|", value="_ _ ")
-                embed.add_field(name='**STATUS**', value=get_status(member=member))
-                embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-                embed.add_field(name="|", value="_ _ ")
-                embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-                embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-                embed.set_thumbnail(url=member.avatar_url)
-                await ctx.send(embed=embed)
+        if member is None:
+            member = ctx.author
 
         if member.id == 577140178791956500:
-            await custom_status(desc="waifu")
-
+            embed = status_embed(member, description="waifu")
         elif member.id == 247292930346319872:  
-            await custom_status(desc="not telling")
+            embed = status_embed(member, description="Not telling")
+        else:
+            embed = status_embed(member)
 
-        elif member.is_on_mobile() and member.status != discord.Status.offline:
-            embed = discord.Embed(title=member.display_name, color=member.top_role.color)
-            embed.add_field(name="**DEVICE **", value="Phone: :iphone:  ")
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name='**STATUS**', value=get_status(member=member))
-            embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-            embed.set_thumbnail(url=member.avatar_url)
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-            embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-            await ctx.send(embed=embed)
-
-
-        elif member.status != discord.Status.offline:
-            embed = discord.Embed(title=member.display_name, color=member.top_role.color)
-            embed.add_field(name="**DEVICE **", value="PC:  :desktop:  ")
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name='**STATUS**', value=get_status(member=member))
-            embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-            embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-            embed.set_thumbnail(url=member.avatar_url)
-            await ctx.send(embed=embed)
-
-        elif member.status == discord.Status.offline:
-            embed = discord.Embed(title=member.display_name, color=member.top_role.color)
-            embed.add_field(name="DEVICE", value=":no_entry:  ")
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name='**STATUS**', value=get_status(member=member))
-            embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
-            embed.add_field(name="|", value="_ _ ")
-            embed.add_field(name="**ROLES**", value=get_roles(member.roles))
-            embed.add_field(name="**ACTIVITY**", value=get_activity(member=member))
-            embed.set_thumbnail(url=member.avatar_url)
-            await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def pfp(self, ctx, member: discord.Member = None):
