@@ -326,6 +326,7 @@ class ModMail(commands.Cog):
                 log.add_embed(timeout_embed)
                 await mod.send(embed=timeout_embed)
                 await user.send(embed=timeout_embed)
+                del self.active_mod_mails[user_id]
                 await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
