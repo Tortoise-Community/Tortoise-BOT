@@ -213,12 +213,16 @@ class Music(commands.Cog):
             The channel to connect to. If a channel is not specified, an attempt to join the voice channel you are in
             will be made.
         This command also handles moving the bot to different channels.
+        Note - The channel has to have 'music' in it's name. This is to avoid spamming music in general voice chats.
         """
         if not channel:
             try:
                 channel = ctx.author.voice.channel
             except AttributeError:
                 raise InvalidVoiceChannel("No channel to join. Please either specify a valid channel or join one.")
+
+        if "music" not in channel.name.lower():
+            raise InvalidVoiceChannel("Can't join channel - channel has to have 'music' in it's name.")
 
         vc = ctx.voice_client
 
