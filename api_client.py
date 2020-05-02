@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone
 
 import aiohttp
-from discord import Member
+from discord import Member, Message
 
 
 load_dotenv()
@@ -155,3 +155,28 @@ class TortoiseAPI(APIClient):
         ]
         """
         return await self.get("rules/")
+
+    async def get_all_suggestions(self) -> List[dict]:
+        return await self.get("suggestions/")
+
+    async def get_suggestion(self, suggestion_id: int) -> dict:
+        return await self.get(f"suggestions/{suggestion_id}/")
+
+    async def post_suggestion(self, author: Member, message: Message, suggestion: str):
+        data = {
+            "message_id": message.id,
+            "author_id": author.id,
+            "author_name": author.display_name,
+            "brief": suggestion,
+            "avatar": str(author.avatar_url),
+            "link": message.jump_url,
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+        await self.post("suggestions/", json=data)
+
+    async def put_suggestion(self, suggestion_id: int, status: str, reason: str):
+        data = {"status": status, "reason": reason}
+        await self.put(f"suggestions/{suggestion_id}/", json=data)
+
+    async def delete_suggestion(self, suggestion_id: int):
+        await self.delete(f"suggestions/{suggestion_id}/")
