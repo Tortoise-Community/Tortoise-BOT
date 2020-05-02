@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 import constants
-from .utils.embed_handler import success
+from .utils.embed_handler import success, infraction_embed
 from .utils.checks import check_if_it_is_tortoise_guild
 
 
@@ -20,28 +20,20 @@ class Admins(commands.Cog):
         You will require kick_members permissions to use this command.
 
         """
-        msg_title = "**Infraction information**"
-        msg_description = ("**TYPE:** Kick\n"
-                           f"**REASON:** {reason}")
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
 
-        deterrence_embed = discord.Embed(title=msg_title,
-                                         description=(f"**NAME:** {member.name}\n"
-                                                      f"{msg_description}"),
-                                         color=0xFF0000)
-        deterrence_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = discord.Embed(title=msg_title,
-                                 description=(f"{msg_description}"
-                                              f"\nIf this happened by a mistake contact moderators."
-                                              "\nYou can rejoin the server after the cooldown from here"),
-                                 color=0xFF0000)
-        dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+        dm_embed = deterrence_embed
+        dm_embed.add_field(
+            name="Repeal",
+            value="If this happened by a mistake contact moderators."
+        )
 
-        await member.send(embed=dm_embed)
         await member.kick(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully kicked."))
+        await member.send(embed=dm_embed)
 
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
@@ -53,28 +45,19 @@ class Admins(commands.Cog):
         You will require ban_members permissions to use this command.
 
         """
-        msg_title = "**Infraction information**"
-        msg_description = ("**TYPE:** Ban\n"
-                           f"**REASON:** {reason}\n"
-                           "**DURATION:** Permanent")
-
-        deterrence_embed = discord.Embed(title=msg_title,
-                                         description=(f"**NAME:** {member.name}\n"
-                                                      f"{msg_description}"),
-                                         color=0xFF0000)
-        deterrence_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = discord.Embed(title=msg_title,
-                                 description=(f"{msg_description}"
-                                              f"\nIf this happened by a mistake contact moderators."),
-                                 color=0xFF0000)
-        dm_embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+        dm_embed = deterrence_embed
+        dm_embed.add_field(
+            name="Repeal",
+            value="If this happened by a mistake contact moderators."
+        )
 
-        await member.send(embed=dm_embed)
         await member.ban(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully banned."))
+        await member.send(embed=dm_embed)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)

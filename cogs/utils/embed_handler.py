@@ -133,6 +133,30 @@ def status_embed(member, *, description="") -> Embed:
     return embed
 
 
+def infraction_embed(
+        ctx,
+        infracted_member,
+        infraction_type: constants.Infraction,
+        reason: str
+) -> Embed:
+    """
+    :param ctx: context to get mod member from (the one who issued this infraction) and
+                bot so we can get it's image.
+    :param infracted_member: member who got the infraction
+    :param infraction_type: str infraction type
+    :param reason: str reason for infraction
+    :return: discord Embed
+    """
+
+    embed = Embed(title="**Infraction information**", color=infraction_type.value)
+    embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+
+    embed.add_field(name="**MEMBER:**", value=f"{infracted_member}")
+    embed.add_field(name="**TYPE:**", value=infraction_type.name)
+    embed.add_field(name="**REASON:**", value=reason)
+    return embed
+
+
 def get_top_role_color(member: Union[Member, User], *, fallback_color) -> Color:
     """
     Tries to get member top role color and if fails returns fallback_color - This makes it work in DMs.

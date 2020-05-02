@@ -1,3 +1,8 @@
+from enum import Enum
+
+from discord import Color
+
+
 tortoise_guild_id = 577192344529404154
 website_url = "https://www.tortoisecommunity.ml/"
 privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
@@ -97,3 +102,9 @@ embed_space = "\u200b "
 
 # After this is exceeded the link to tortoise paste service should be sent
 max_message_length = 500
+
+
+class Infraction(Enum):
+    warning: Color.gold()
+    kick: Color.gold()
+    ban: Color.red()
