@@ -6,12 +6,15 @@ import asyncio
 from typing import List
 
 from discord.ext import commands
-from discord import HTTPException, ActivityType
+from discord import HTTPException
 
 import constants
-from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
-                               InternalServerError, DiscordIDNotFound)
+from .utils.exceptions import (
+    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
+    InternalServerError, DiscordIDNotFound
+)
 from .utils.checks import check_if_it_is_tortoise_guild
+from .utils.members import get_member_activity, get_member_status
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -270,9 +273,10 @@ class SocketCommunication(commands.Cog):
         response_data = {}
         tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         logger.debug(f"Processing members: {members}")
+
         for member_id in members:
             logger.debug(f"Processing member: {member_id}")
-            member = tortoise_guild.get_member(int(member_id))
+            member = tortoise_guild.get_member(member_id)
             member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
             if member is None:
@@ -280,13 +284,11 @@ class SocketCommunication(commands.Cog):
                 response_data[member_id] = member_data
                 continue
 
-            if member.activity is None:
-                member_data["activity"] = "None"
-            elif member.activity.type != ActivityType.custom:
-                activity = f"{member.activity.type.name} {member.activity.name}"
-                member_data["activity"] = activity
-            else:
-                member_data["activity"] = member.activity.name
+            activity = get_member_activity(member)
+            if activity is None:
+                activity = get_member_status(member)
+
+            member_data["activity"] = activity
 
             member_data["top_role"] = member.top_role.name
             response_data[member_id] = member_data
