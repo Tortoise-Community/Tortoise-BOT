@@ -97,6 +97,7 @@ class TortoiseServer(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member: discord.Member):
         log_channel = self.bot.get_channel(constants.system_log_channel_id)
+        verification_channel = self.bot.get_channel(constants.verification_channel_id)
         logger.debug(f"New member joined {member}")
 
         if not await self.bot.api_client.does_member_exist(member.id):
@@ -106,6 +107,9 @@ class TortoiseServer(commands.Cog):
 
             unverified_role = member.guild.get_role(constants.unverified_role_id)
             await member.add_roles(unverified_role)
+
+            # Ghost ping the member so he takes note of verification channel where all info is
+            await verification_channel.send(member.mention, delete_after=1)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             msg = ("Welcome to Tortoise Community!\n"
@@ -137,6 +141,10 @@ class TortoiseServer(commands.Cog):
             await member.add_roles(unverified_role)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
+
+            # Ghost ping the member so he takes note of verification channel where all info is
+            await verification_channel.send(member.mention, delete_after=1)
+
             msg = ("Hi, welcome to Tortoise Community!\n"
                    "Seems like this is not your first time joining.\n\n"
                    f"Last time you didn't verify so please head over to {constants.verification_url}")
