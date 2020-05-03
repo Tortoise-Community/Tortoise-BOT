@@ -8,12 +8,12 @@ flake8 = "*"
 pre-commit = "*"
 
 [packages]
-discord-py = "*"
 python-dotenv = "*"
 praw = "*"
 psutil = "*"
 youtube-dl = "*"
 python-dateutil = "*"
+discord-py = {extras = ["voice"],version = "*"}
 
 [requires]
 python_version = "3.7"
