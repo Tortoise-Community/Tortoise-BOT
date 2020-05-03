@@ -219,6 +219,10 @@ class Admins(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
+    @commands.command()
+    async def paste(self, ctx):
+        await ctx.send(f"{constants.tortoise_paste_service_link}")
+
 
 def setup(bot):
     bot.add_cog(Admins(bot))
