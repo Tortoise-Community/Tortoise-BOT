@@ -92,23 +92,6 @@ class Admins(commands.Cog):
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_permissions(manage_roles=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def role(self, ctx, role: discord.Role, member: discord.Member):
-        """
-        Adds role to a member.
-
-        """
-        if role >= ctx.author.top_role:
-            await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
-            return
-
-        await member.add_roles(role)
-
-        await ctx.send(embed=success(f"{member.mention} now has the role {role.mention}", ctx.me), delete_after=5)
-
-    @commands.command()
-    @commands.bot_has_permissions(manage_roles=True)
     @commands.has_permissions(manage_roles=True, manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def promote(self, ctx, member: discord.Member, role: discord.Role):
