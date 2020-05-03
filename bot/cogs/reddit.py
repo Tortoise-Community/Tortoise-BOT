@@ -34,7 +34,10 @@ class Reddit(commands.Cog):
         new_posts = list(sub.new(limit=10))
         rand_post = random.choice(new_posts)
         embed = discord.Embed(title=rand_post.title,
-                              description=f":thumbsup: {rand_post.score}\n\n:speech_balloon: {len(rand_post.comments)}",
+                              description=(
+                                  f":thumbsup: {rand_post.score}\n\n"
+                                  f":speech_balloon: {len(rand_post.comments)}"
+                              ),
                               url=rand_post.url,
                               colour=0x3498d)
         embed.set_image(url=rand_post.url)
@@ -47,7 +50,10 @@ class Reddit(commands.Cog):
         host_posts = list(sub.hot(limit=10))
         rand_post = random.choice(host_posts)
         embed = discord.Embed(title=rand_post.title,
-                              description=f":thumbsup: {rand_post.score}\n\n:speech_balloon: {len(rand_post.comments)}",
+                              description=(
+                                  f":thumbsup: {rand_post.score}\n\n"
+                                  f":speech_balloon: {len(rand_post.comments)}"
+                              ),
                               url=rand_post.url,
                               colour=0x3498db)
         embed.set_image(url=rand_post.url)

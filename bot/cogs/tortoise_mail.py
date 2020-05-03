@@ -6,10 +6,10 @@ from asyncio import TimeoutError
 import discord
 from discord.ext import commands
 
-import constants
-from .utils.embed_handler import authored, failure, success, info
-from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.message_logger import MessageLogger
+from bot import constants
+from bot.cogs.utils.embed_handler import authored, failure, success, info
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.message_logger import MessageLogger
 
 
 logger = logging.getLogger(__name__)
@@ -55,19 +55,18 @@ class ModMail(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        # Only allow in DMs
         if payload.guild_id is not None:
-            return
+            return  # Only allow in DMs
 
         user_id = payload.user_id
         if user_id == self.bot.user.id:
-            # Ignore the bot
-            return
+            return  # Ignore the bot
         elif self.is_any_session_active(user_id):
             return
 
         for emoji_id, sub_dict in self._options.items():
             emoji = self.bot.get_emoji(emoji_id)
+
             if emoji == payload.emoji:
                 user = self.bot.get_user(user_id)
                 await sub_dict["callable"](user)
@@ -78,8 +77,7 @@ class ModMail(commands.Cog):
         if message.author == self.bot.user:
             return
         elif message.guild is not None:
-            # Functionality only active in DMs
-            return
+            return  # Functionality only active in DMs
 
         if self.is_any_session_active(message.author.id):
             return
@@ -100,6 +98,7 @@ class ModMail(commands.Cog):
             # If it's None there is no user with that ID that has opened mod mail request.
             # However we can still have the mod/admin that could be attending mod mail
             destination_id = self._get_dict_key_by_value(user.id)
+
             if destination_id is None:
                 # If it's again None then there is no such ID in either user nor mods/admins
                 return
@@ -180,6 +179,7 @@ class ModMail(commands.Cog):
 
     async def create_bug_report(self, user: discord.User):
         user_reply = await self._wait_for(self.active_bug_reports, user)
+
         if user_reply is None:
             return
 
@@ -191,6 +191,7 @@ class ModMail(commands.Cog):
             return
 
         bug_report = user_reply.content if possible_attachment is None else possible_attachment
+
         if len(bug_report) < 10:
             await user.send(embed=failure("Too short - seems invalid, canceling."))
             self.active_bug_reports.remove(user.id)

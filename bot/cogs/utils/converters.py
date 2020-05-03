@@ -55,8 +55,9 @@ class DatabaseMember(MemberConverter):
     """
     async def convert(self, ctx, id_or_member: str) -> int:
         """
-        :param id_or_member: str argument coming from discord. Can be id, name, nick, mention etc lookup MemberConverter
-        for more info. Note that ID will be string as it's coming from discord message.
+        :param id_or_member: str argument coming from discord.
+                             Can be id, name, nick, mention etc lookup MemberConverter for more info.
+                             Note that ID will be string as it's coming from discord message.
         """
         try:
             return int(id_or_member)

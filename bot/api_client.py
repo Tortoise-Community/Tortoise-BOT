@@ -7,10 +7,10 @@ from datetime import datetime, timezone
 import aiohttp
 from discord import Member, Message
 
-from constants import SuggestionStatus
+from bot.constants import SuggestionStatus
 
 
-load_dotenv()
+load_dotenv()  # TODO why here also? in main too
 logger = logging.getLogger(__name__)
 
 
@@ -41,7 +41,7 @@ class APIClient:
     @staticmethod
     def _url_for(endpoint: str) -> str:
         return f"https://api.tortoisecommunity.ml/private/{endpoint}"
-    
+
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:
         """Raise ResponseCodeError for non-OK response if an exception should be raised."""

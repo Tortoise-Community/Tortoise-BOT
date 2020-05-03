@@ -4,8 +4,8 @@ import aiohttp
 from discord import Member
 from discord.ext import commands
 
-import constants
-from config_handler import ConfigHandler
+from bot import constants
+from bot.config_handler import ConfigHandler
 
 
 class Security(commands.Cog):

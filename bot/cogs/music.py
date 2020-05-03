@@ -1,7 +1,7 @@
 """
-Copyright (c) 
+Copyright (c)
     Original source code:   https://gist.github.com/EvieePy/ab667b74e9758433b3eb806c53a19f34
-                    author: https://github.com/EvieePy
+                  author:   https://github.com/EvieePy
 
 The code has been changed a bit to go along Tortoise needs.
 You can check the commits to see change history.
@@ -18,7 +18,7 @@ from discord.ext import commands
 from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
-from constants import ytdl_format_options, ffmpeg_options
+from bot.constants import ytdl_format_options, ffmpeg_options
 
 
 ytdl = YoutubeDL(ytdl_format_options)

@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = false
+
+[dev-packages]
+flake8 = "*"
+
+[packages]
+discord-py = "*"
+python-dotenv = "*"
+praw = "*"
+psutil = "*"
+youtube-dl = "*"
+python-dateutil = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+start = 'python -m bot'
+lint = "python -m flake8"
+precommit = "pre-commit install"

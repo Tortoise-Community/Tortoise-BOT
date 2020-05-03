@@ -6,8 +6,8 @@ import psutil
 import discord
 from discord.ext import commands
 
-from .utils.embed_handler import info, status_embed
-from constants import github_repo_link
+from bot.cogs.utils.embed_handler import info, status_embed
+from bot.constants import github_repo_link
 
 
 class Other(commands.Cog):
@@ -34,7 +34,7 @@ class Other(commands.Cog):
 
         if member.id == 577140178791956500:
             embed = status_embed(member, description="waifu")
-        elif member.id == 247292930346319872:  
+        elif member.id == 247292930346319872:
             embed = status_embed(member, description="Not telling")
         else:
             embed = status_embed(member)

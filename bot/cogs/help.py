@@ -3,7 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from constants import embed_space
+from bot.constants import embed_space
 
 
 logger = logging.getLogger(__name__)

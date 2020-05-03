@@ -8,13 +8,13 @@ from typing import List
 from discord.ext import commands
 from discord import HTTPException
 
-import constants
-from .utils.exceptions import (
+from bot import constants
+from bot.cogs.utils.exceptions import (
     EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
     InternalServerError, DiscordIDNotFound
 )
-from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.members import get_member_activity, get_member_status
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.members import get_member_activity, get_member_status
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -45,6 +45,7 @@ def endpoint_register(*, endpoint_key: str = None):
 
     def decorator(function):
         nonlocal endpoint_key
+
         if not endpoint_key:
             endpoint_key = function.__name__
 
@@ -81,18 +82,21 @@ class SocketCommunication(commands.Cog):
     def cog_unload(self):
         logger.debug("Unloading socket comm, closing connections.")
         self.task.cancel()
+
         for client in self.verified_clients:
             try:
                 client.close()
             except OSError:
                 # Not supported on Windows
                 pass
+
         try:
             self._socket_server.shutdown(socket.SHUT_RDWR)
             self._socket_server.close()
         except OSError:
             # Not supported on Windows
             pass
+
         logger.debug("Socket com unloaded.")
 
     @commands.command()
@@ -207,6 +211,7 @@ class SocketCommunication(commands.Cog):
             return InternalServerError().response
 
         endpoint_key = request.get("endpoint")
+
         if not endpoint_key:
             return EndpointError(400, "No endpoint specified.").response
         elif not isinstance(endpoint_key, str):
@@ -313,11 +318,13 @@ class SocketCommunication(commands.Cog):
         verified_role = guild.get_role(constants.verified_role_id)
         unverified_role = guild.get_role(constants.unverified_role_id)
         verification_channel = guild.get_channel(constants.verification_channel_id)
+
         for check_none in (guild, verified_role, unverified_role, verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
         member = guild.get_member(member_id)
+
         if member is None:
             raise DiscordIDNotFound()
 

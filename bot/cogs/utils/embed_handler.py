@@ -2,8 +2,8 @@ from typing import Union
 
 from discord import Embed, Color, Member, User, Status
 
-import constants
-from .members import get_member_status, get_member_roles_as_mentions, get_member_activity
+from bot import constants
+from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:

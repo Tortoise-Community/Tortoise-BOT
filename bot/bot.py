@@ -5,8 +5,8 @@ from typing import Generator
 import discord
 from discord.ext import commands
 
-from api_client import TortoiseAPI
-from constants import error_log_channel_id
+from bot.api_client import TortoiseAPI
+from bot.constants import error_log_channel_id
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +19,10 @@ class Bot(commands.Bot):
         self._was_ready_once = False
 
     async def on_ready(self):
-        logger.info(f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
-                    f"d.py version: {discord.__version__}")
+        logger.info(
+            f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
+            f"d.py version: {discord.__version__}"
+        )
 
         if not self._was_ready_once:
             await self.change_presence(activity=discord.Game(name="DM me!"))
@@ -37,6 +39,7 @@ class Bot(commands.Bot):
 
         error_log_channel = self.get_channel(error_log_channel_id)
         split_messages = list(Bot.split_string_into_chunks(message, 1980))
+
         for count, message in enumerate(split_messages):
             if count < 5:
                 await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
