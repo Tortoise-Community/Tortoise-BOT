@@ -23,7 +23,6 @@ class Admins(commands.Cog):
     async def kick(self, ctx, member: discord.Member, *, reason="No specific reason"):
         """
         Kicks  member from the guild.
-        You will require kick_members permissions to use this command.
 
         """
         await member.kick(reason=reason)
@@ -48,7 +47,6 @@ class Admins(commands.Cog):
     async def ban(self, ctx, member: discord.Member, *, reason="Reason not stated."):
         """
         Bans  member from the guild.
-        You will require ban_members permissions to use this command.
 
         """
         await member.ban(reason=reason)
@@ -73,7 +71,6 @@ class Admins(commands.Cog):
     async def warn(self, ctx, member: discord.Member, *, reason):
         """
         Warns a member.
-        You will require appropriate role to use this command.
 
         """
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
@@ -100,7 +97,6 @@ class Admins(commands.Cog):
     async def role(self, ctx, role: discord.Role, member: discord.Member):
         """
         Adds role to a member.
-        You will require appropriate role to use this command.
 
         """
         if role >= ctx.author.top_role:
@@ -118,7 +114,6 @@ class Admins(commands.Cog):
     async def promote(self, ctx, member: discord.Member, role: discord.Role):
         """
         Promote member to role.
-        You will require appropriate role to use this command.
 
         """
         if role >= ctx.author.top_role:
@@ -149,13 +144,17 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     @commands.guild_only()
-    async def clear(self, ctx, amount: int):
+    async def clear(self, ctx, amount: int, member: discord.Member = None):
         """
         Clears last X amount of messages.
-        You will require appropriate role to use this command.
+        If member is passed it will clear last X messages from that member.
 
         """
-        await ctx.channel.purge(limit=amount + 1)
+
+        def check(msg):
+            return member is None or msg.author == member
+
+        await ctx.channel.purge(limit=amount + 1, check=check)
         await ctx.send(embed=success(f"{amount} messages cleared."), delete_after=3)
 
     @commands.command()
@@ -163,6 +162,10 @@ class Admins(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
+        """
+        Mutes the member by giving him the Mute role.
+
+        """
         muted_role = ctx.guild.get_role(constants.muted_role_id)
         await member.add_roles(muted_role, reason=reason)
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
