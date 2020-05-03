@@ -6,7 +6,7 @@ import asyncio
 from typing import List
 
 from discord.ext import commands
-from discord import HTTPException
+from discord import HTTPException, Forbidden
 
 from bot import constants
 from bot.cogs.utils.exceptions import (
@@ -251,15 +251,41 @@ class SocketCommunication(commands.Cog):
             return endpoint_returned_data
 
     @endpoint_register(endpoint_key="send")
-    async def send_to_channel(self, message: str):
+    async def send(self, data: dict):
         """
-        Makes the bot send request message to bot dev channel.
-        :param message: str message to send
+        Makes the bot send requested message channel or user or both.
+        :param data: dict in format
+        {
+        "channel_id": 123,
+        "user_id": 123,
+        "message": "Test"
+        }
+
+        Where both channel_id and user_id are optional but at least one has to be passed.
+        Message is the message to send.
         """
-        logger.debug(f"Sending {message} to channel.")
-        bot_dev_channel = self.bot.get_channel(constants.bot_dev_channel_id)
-        await bot_dev_channel.send(message)
-        logger.debug(f"Sent {message} to channel!")
+        message = data.get("message")
+        if message is None:
+            raise EndpointBadArguments()
+
+        channel_id = data.get("channel_id")
+        user_id = data.get("user_id")
+
+        if channel_id is None and user_id is None:
+            raise EndpointBadArguments()
+
+        channel = self.bot.get_channel(channel_id)
+        user = self.bot.get_user(user_id)
+
+        if channel is None and user is None:
+            raise DiscordIDNotFound()
+        elif channel is not None:
+            await channel.send(message)
+        elif user is not None:
+            try:
+                await user.send(message)
+            except Forbidden:
+                logger.info(f"Skipping send endpoint to {user} as he blocked DMs.")
 
     @endpoint_register(endpoint_key="member_activities")
     async def get_member_data(self, members: List[int]) -> dict:
