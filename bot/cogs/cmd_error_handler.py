@@ -72,7 +72,7 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send("You do not have permission to use this command.")
             return
 
-        if isinstance(error, discord.errors.Forbidden):
+        if isinstance(error, discord.Forbidden):
             # Conditional to check if it is a closed DM that raised Forbidden
             if error.code == 50007:
                 return

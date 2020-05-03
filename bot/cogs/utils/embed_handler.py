@@ -54,8 +54,7 @@ def info(message: str, member: Union[Member, User], title: str = "Info") -> Embe
     :param title: title of embed, defaults to "Info"
     :return: Embed object
     """
-    embed = Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
-    return embed
+    return Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
 
 
 def success(message: str, member: Union[Member, User] = None) -> Embed:
@@ -143,7 +142,7 @@ def infraction_embed(
     :param ctx: context to get mod member from (the one who issued this infraction) and
                 bot so we can get it's image.
     :param infracted_member: member who got the infraction
-    :param infraction_type: str infraction type
+    :param infraction_type: infraction type
     :param reason: str reason for infraction
     :return: discord Embed
     """
