@@ -5,6 +5,7 @@ verify_ssl = false
 
 [dev-packages]
 flake8 = "*"
+pre-commit = "*"
 
 [packages]
 discord-py = "*"
