@@ -1,9 +1,15 @@
+import logging
+import asyncio
+
 import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import success, infraction_embed
+from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+
+
+logger = logging.getLogger(__name__)
 
 
 class Admins(commands.Cog):
@@ -20,8 +26,10 @@ class Admins(commands.Cog):
         You will require kick_members permissions to use this command.
 
         """
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
+        await member.kick(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
 
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
@@ -31,8 +39,6 @@ class Admins(commands.Cog):
             value="If this happened by a mistake contact moderators."
         )
 
-        await member.kick(reason=reason)
-        await ctx.send(embed=success(f"{member.name} successfully kicked."))
         await member.send(embed=dm_embed)
 
     @commands.command()
@@ -45,6 +51,9 @@ class Admins(commands.Cog):
         You will require ban_members permissions to use this command.
 
         """
+        await member.ban(reason=reason)
+        await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
+
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
@@ -55,11 +64,10 @@ class Admins(commands.Cog):
             value="If this happened by a mistake contact moderators."
         )
 
-        await member.ban(reason=reason)
-        await ctx.send(embed=success(f"{member.name} successfully banned."))
         await member.send(embed=dm_embed)
 
     @commands.command()
+    @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def warn(self, ctx, member: discord.Member, *, reason):
@@ -69,6 +77,7 @@ class Admins(commands.Cog):
 
         """
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
+
         embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
         embed.add_field(
             name="**NOTE**",
@@ -78,9 +87,11 @@ class Admins(commands.Cog):
             )
         )
 
-        await ctx.message.delete()
         await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
         await deterrence_log_channel.send(embed=embed)
+
+        await asyncio.sleep(5)
+        await ctx.message.delete()
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
@@ -92,24 +103,52 @@ class Admins(commands.Cog):
         You will require appropriate role to use this command.
 
         """
-        await member.add_roles(role)
-        embed = discord.Embed(title=f"Role Added!",
-                              description=f"{member.mention} now has the role {role.mention}",
-                              color=0x1ADB43)
-        await ctx.send(embed=embed)
+        if role >= ctx.author.top_role:
+            await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
+            return
 
-        dm_embed = discord.Embed(
-            title=(f"**Congratulations!** \n\n"
-                   f"You are now promoted to role **{role.name}** in our community.\n"
-                   f"`'With great power comes great responsibility'`\n"
-                   f"Be active and keep the community safe."),
-            color=0xFFC300)
+        await member.add_roles(role)
+
+        await ctx.send(embed=success(f"{member.mention} now has the role {role.mention}", ctx.me), delete_after=5)
+
+    @commands.command()
+    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def promote(self, ctx, member: discord.Member, role: discord.Role):
+        """
+        Promote member to role.
+        You will require appropriate role to use this command.
+
+        """
+        if role >= ctx.author.top_role:
+            await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
+            return
+        elif role in member.roles:
+            await ctx.send(embed=failure(f"{member.mention} already has role {role.mention}!"))
+            return
+
+        await member.add_roles(role)
+
+        await ctx.send(embed=success(f"{member.mention} is promoted to {role.mention}", ctx.me), delete_after=5)
+
+        dm_embed = info(
+            (
+                f"You are now promoted to role **{role.name}** in our community.\n"
+                f"`'With great power comes great responsibility'`\n"
+                f"Be active and keep the community safe."
+            ),
+            ctx.me,
+            "Congratulations!"
+        )
+
         dm_embed.set_footer(text="Tortoise community")
         await member.send(embed=dm_embed)
 
     @commands.command()
     @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
+    @commands.guild_only()
     async def clear(self, ctx, amount: int):
         """
         Clears last X amount of messages.
@@ -117,42 +156,63 @@ class Admins(commands.Cog):
 
         """
         await ctx.channel.purge(limit=amount + 1)
-        await ctx.send(f"**MESSAGES CLEARED** {ctx.author.mention}", delete_after=3)
+        await ctx.send(embed=success(f"{amount} messages cleared."), delete_after=3)
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_permissions(manage_messages=True, manage_roles=True)
+    @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
         muted_role = ctx.guild.get_role(constants.muted_role_id)
         await member.add_roles(muted_role, reason=reason)
+        await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def dm_unverified(self, ctx):
+        """
+        Dms all unverified members reminder that they need to verify.
+        Failed members are printed to log.
+
+        """
         unverified_role = ctx.guild.get_role(constants.unverified_role_id)
-        unverified_members = (member for member in unverified_role.members
-                              if member.status == discord.Status.online)
+        unverified_members = (member for member in unverified_role.members if member.status == discord.Status.online)
+        failed = []
         count = 0
 
         for member in unverified_members:
-            msg = (f"Hey {member.mention}!\n"
-                   f"You've been in our guild **{ctx.guild.name}** for some time..\n"
-                   f"We noticed you still didn't verify so please go to our channel "
-                   f"{constants.verification_url} and verify.")
-            await member.send(msg)
-            count += 1
+            msg = (
+                f"Hey {member.mention}!\n"
+                f"You've been in our guild **{ctx.guild.name}** for some time..\n"
+                f"We noticed you still didn't verify so please go to our channel "
+                f"{constants.verification_url} and verify."
+            )
+
+            try:
+                await member.send(msg)
+            except discord.Forbidden:
+                failed.append(str(member))
+            else:
+                count += 1
 
         await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
+
+        if failed:
+            logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
-        members = (member for member in role.members
-                   if not member.bot)
+        """
+        DMs all member that have a certain role.
+        Failed members are printed to log.
+
+        """
+        members = (member for member in role.members if not member.bot)
+        failed = []
         count = 0
 
         for member in members:
@@ -160,10 +220,18 @@ class Admins(commands.Cog):
                                      description=message,
                                      color=role.color)
             dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
-            await member.send(embed=dm_embed)
-            count += 1
+
+            try:
+                await member.send(embed=dm_embed)
+            except discord.Forbidden:
+                failed.append(str(member))
+            else:
+                count += 1
 
         await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
+
+        if failed:
+            logger.info(f"dm_unverified called but failed to dm: {failed}")
 
 
 def setup(bot):
