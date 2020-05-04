@@ -1,3 +1,4 @@
+import sys
 import logging
 import traceback
 from typing import Generator
@@ -29,6 +30,11 @@ class Bot(commands.Bot):
             self._was_ready_once = True
 
     async def on_error(self, event: str, *args, **kwargs):
+        exception_type, exception_value, exception_traceback = sys.exc_info()
+        if isinstance(exception_type, discord.Forbidden):
+            if exception_value == 50007:
+                return  # Ignore annoying "Cannot send messages to this user" if user blocks DM
+
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
         logger.critical(msg)
         await self.log_error(msg)
