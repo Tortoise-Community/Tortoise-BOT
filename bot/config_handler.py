@@ -1,6 +1,6 @@
-import os
 import json
 import logging
+from pathlib import Path
 
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class ConfigHandler:
         """
         :param config_name: name of the config file (including the extension suffix).
         """
-        self.path = os.path.join(ConfigHandler.CONFIG_PATH, config_name)
+        self.path = Path("bot/configs") / config_name
         self.loaded = self._load_config()
 
     def _load_config(self) -> dict:
