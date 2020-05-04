@@ -1,10 +1,11 @@
 import os
 import logging
 from typing import Optional, List, Union
-from dotenv import load_dotenv
 from datetime import datetime, timezone
 
 import aiohttp
+from json import dumps
+from dotenv import load_dotenv
 from discord import Member, Message
 
 from bot.constants import SuggestionStatus
@@ -207,7 +208,7 @@ class TortoiseAPI(APIClient):
             "perks": 300
         }
         """
-        return await self.get(f"private/member/meta/{member_id}/")
+        return await self.get(f"member/meta/{member_id}/")
 
     async def get_member_warnings(self, member_id: int) -> List[dict]:
         member_meta = await self.get_member_meta(member_id)
@@ -224,8 +225,8 @@ class TortoiseAPI(APIClient):
         }
 
         current_warnings = await self.get_member_warnings(member_id)
-        current_warnings.append(new_warning)
+        current_warnings.append(dumps(new_warning))
 
         warnings_payload = {"warnings": current_warnings}
 
-        await self.put(f"private/member/meta/{member_id}/", json=warnings_payload)
+        await self.put(f"member/meta/{member_id}/", json=warnings_payload)
