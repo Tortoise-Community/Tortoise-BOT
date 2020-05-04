@@ -33,8 +33,7 @@ class Bot(commands.Bot):
         exception_type, exception_value, exception_traceback = sys.exc_info()
 
         if isinstance(exception_type, discord.Forbidden):
-            if exception_value == 50007:
-                return  # Ignore annoying "Cannot send messages to this user" if user blocks DM
+            return  # Ignore annoying messages (eg. if user disables DMs)
 
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
         logger.critical(msg)
