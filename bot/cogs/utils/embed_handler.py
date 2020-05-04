@@ -88,15 +88,16 @@ def failure(message: str) -> Embed:
     return simple_embed(message, "Failure", Color.red())
 
 
-def authored(author: Union[Member, User], message: str) -> Embed:
+def authored(message: str, *, author: Union[Member, User], title: str = None) -> Embed:
     """
     Construct embed and sets its author to passed param author.
     Embed color is based on passed author top role color.
     :param author: to whom the embed will be authored.
     :param message: message to display in embed.
+    :param title: str title of embed
     :return: discord.Embed
     """
-    embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
+    embed = Embed(title=title, description=message, color=get_top_role_color(author, fallback_color=Color.green()))
     embed.set_author(name=author.name, icon_url=author.avatar_url)
     return embed
 

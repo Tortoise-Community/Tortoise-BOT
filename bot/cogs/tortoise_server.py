@@ -244,7 +244,7 @@ class TortoiseServer(commands.Cog):
             "If using those services make sure to set code to private and "
             "expiration date to at least 30 days."
         )
-        await ctx.author.send(embed=authored(ctx.guild.me, dm_msg))
+        await ctx.author.send(embed=authored(dm_msg, author=ctx.guild.me))
 
         def check(msg):
             return msg.author == ctx.author and msg.guild is None

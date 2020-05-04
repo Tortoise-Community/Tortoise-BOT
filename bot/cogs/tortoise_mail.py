@@ -146,7 +146,7 @@ class ModMail(commands.Cog):
             return
 
         mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
-        submission_embed = authored(user, f"`{user.id}` submitted for mod mail.")
+        submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
         await mod_mail_report_channel.send(embed=submission_embed)
         self.pending_mod_mails.add(user.id)
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
@@ -293,13 +293,13 @@ class ModMail(commands.Cog):
 
         await user.send(
             embed=authored(
-                mod,
-                message=(
+                (
                     "has accepted your mod mail request.\n"
                     "Reply here in DMs to chat with them.\n"
                     "This mod mail will be logged, by continuing you agree to that.\n"
                     "Type `close` to close this mod mail."
-                )
+                ),
+                author=mod
             )
         )
 

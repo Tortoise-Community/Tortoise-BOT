@@ -213,6 +213,9 @@ class TortoiseAPI(APIClient):
         member_meta = await self.get_member_meta(member_id)
         return member_meta["warnings"]
 
+    async def get_member_warnings_count(self, member_id: int) -> int:
+        return len(await self.get_member_warnings(member_id))
+
     async def add_member_warning(self, mod_id: int, member_id: id, reason: str):
         new_warning = {
             "mod": mod_id,

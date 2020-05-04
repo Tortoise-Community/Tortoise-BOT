@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed
+from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, authored
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 
 
@@ -64,15 +64,20 @@ class Admins(commands.Cog):
 
         await member.send(embed=dm_embed)
 
-    @commands.command()
+    @commands.command(aliases=["warning"])
     @commands.bot_has_permissions(manage_messages=True)
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def warn(self, ctx, member: discord.Member, *, reason):
         """
         Warns a member.
+        Reason length is maximum of 200 characters.
 
         """
+        if len(reason) > 200:
+            await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
+            return
+
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
 
         embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
@@ -87,8 +92,39 @@ class Admins(commands.Cog):
         await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
         await deterrence_log_channel.send(embed=embed)
 
+        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
+
         await asyncio.sleep(5)
         await ctx.message.delete()
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def show_warnings(self, ctx, member: discord.Member):
+        """
+        Shows all warnings of member.
+
+        """
+        warnings = await self.bot.api_client.get_member_warnings(member.id)
+
+        warnings_msg = "\n".join(str(warning_dict) for warning_dict in warnings)
+        # TODO temporal quick fix for possible too long message
+        warnings_msg = warnings_msg[:1900]
+
+        warnings_embed = authored(warnings_msg, author=member, title="Listing warnings")
+        await ctx.send(embed=warnings_embed)
+
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def show_warnings_count(self, ctx, member: discord.Member):
+        """
+        Shows count of all warnings from member.
+
+        """
+        count = await self.bot.api_client.get_member_warnings_count(member.id)
+        warnings_embed = authored(f"Warnings: {count}", author=member, title="Warning count")
+        await ctx.send(embed=warnings_embed)
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
