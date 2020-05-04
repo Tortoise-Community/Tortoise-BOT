@@ -187,12 +187,45 @@ class Admins(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
         """
-        Mutes the member by giving him the Mute role.
+        Mutes the member.
 
         """
         muted_role = ctx.guild.get_role(constants.muted_role_id)
+        verified_role = ctx.guild.get_role(constants.verified_role_id)
+
+        if muted_role in member.roles:
+            await ctx.send(embed=failure("Cannot mute as member is already muted."))
+            return
+
+        reason = "Muting member. " + reason
+
         await member.add_roles(muted_role, reason=reason)
+        await member.remove_roles(verified_role, reason=reason)
+
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
+
+    @commands.command()
+    @commands.bot_has_permissions(manage_roles=True)
+    @commands.has_permissions(manage_messages=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def unmute(self, ctx, member: discord.Member):
+        """
+        Unmutes the member.
+
+        """
+        muted_role = ctx.guild.get_role(constants.muted_role_id)
+        verified_role = ctx.guild.get_role(constants.verified_role_id)
+
+        if muted_role not in member.roles:
+            await ctx.send(embed=failure("Cannot unmute as member is not muted."))
+            return
+
+        reason = f"Unmuted by {ctx.author.id}"
+
+        await member.remove_roles(muted_role, reason=reason)
+        await member.add_roles(verified_role, reason=reason)
+
+        await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
 
     @commands.command()
     @commands.cooldown(1, 300, commands.BucketType.guild)

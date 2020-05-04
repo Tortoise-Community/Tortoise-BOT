@@ -32,7 +32,7 @@ bot_dev_channel_id = 692851221223964822
 error_log_channel_id = 690650346665803777
 
 # Roles
-muted_role_id = 610126555867512870
+muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
 
