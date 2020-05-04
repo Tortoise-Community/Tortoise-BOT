@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, authored
+from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 
 
@@ -94,6 +94,8 @@ class Admins(commands.Cog):
 
         await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
+        await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
+
         await asyncio.sleep(5)
         await ctx.message.delete()
 
@@ -107,23 +109,26 @@ class Admins(commands.Cog):
         """
         warnings = await self.bot.api_client.get_member_warnings(member.id)
 
-        warnings_msg = "\n".join(str(warning_dict) for warning_dict in warnings)
-        # TODO temporal quick fix for possible too long message
-        warnings_msg = warnings_msg[:1900]
+        for sub_dict in warnings:
+            formatted_warnings = [f"{key}:{value}" for key, value in sub_dict.items()]
 
-        warnings_embed = authored(warnings_msg, author=member, title="Listing warnings")
-        await ctx.send(embed=warnings_embed)
+            warnings_msg = "\n".join(formatted_warnings)
+            # TODO temporal quick fix for possible too long message, to fix when embed navigation is done
+            warnings_msg = warnings_msg[:1900]
 
-    @commands.command()
+            warnings_embed = thumbnail(warnings_msg, member, "Listing warnings")
+            await ctx.send(embed=warnings_embed)
+
+    @commands.command(aliases=["warnings_count"])
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def show_warnings_count(self, ctx, member: discord.Member):
+    async def warning_count(self, ctx, member: discord.Member):
         """
         Shows count of all warnings from member.
 
         """
         count = await self.bot.api_client.get_member_warnings_count(member.id)
-        warnings_embed = authored(f"Warnings: {count}", author=member, title="Warning count")
+        warnings_embed = thumbnail(f"Warnings: {count}", member, "Warning count")
         await ctx.send(embed=warnings_embed)
 
     @commands.command()

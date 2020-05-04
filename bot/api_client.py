@@ -1,10 +1,10 @@
 import os
+import json
 import logging
 from typing import Optional, List, Union
 from datetime import datetime, timezone
 
 import aiohttp
-from json import dumps
 from dotenv import load_dotenv
 from discord import Member, Message
 
@@ -211,8 +211,19 @@ class TortoiseAPI(APIClient):
         return await self.get(f"member/meta/{member_id}/")
 
     async def get_member_warnings(self, member_id: int) -> List[dict]:
+        """
+        API returns a list of str (which are stringed dicts) so need to deserialize that.
+        Example return from API:
+        [
+            '{"date": "2020-05-04T21:36:43.045204+00:00",
+            "reason": "test",
+            "mod": 197918569894379520}'
+        ]
+        """
         member_meta = await self.get_member_meta(member_id)
-        return member_meta["warnings"]
+        warnings = member_meta["warnings"]
+        deserialized_warnings = [json.loads(item) for item in warnings]
+        return deserialized_warnings
 
     async def get_member_warnings_count(self, member_id: int) -> int:
         return len(await self.get_member_warnings(member_id))
@@ -225,7 +236,7 @@ class TortoiseAPI(APIClient):
         }
 
         current_warnings = await self.get_member_warnings(member_id)
-        current_warnings.append(dumps(new_warning))
+        current_warnings.append(json.dumps(new_warning))
 
         warnings_payload = {"warnings": current_warnings}
 

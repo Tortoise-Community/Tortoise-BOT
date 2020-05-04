@@ -88,17 +88,30 @@ def failure(message: str) -> Embed:
     return simple_embed(message, "Failure", Color.red())
 
 
-def authored(message: str, *, author: Union[Member, User], title: str = None) -> Embed:
+def authored(message: str, *, author: Union[Member, User]) -> Embed:
     """
     Construct embed and sets its author to passed param author.
     Embed color is based on passed author top role color.
     :param author: to whom the embed will be authored.
     :param message: message to display in embed.
+    :return: discord.Embed
+    """
+    embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
+    embed.set_author(name=author.name, icon_url=author.avatar_url)
+    return embed
+
+
+def thumbnail(message: str, member: Union[Member, User], title: str) -> Embed:
+    """
+    Construct embed and sets thumbnail based on passed param member avatar image..
+    Embed color is based on passed author top role color.
+    :param message: message to display in embed.
+    :param member: member from which to get thumbnail from
     :param title: str title of embed
     :return: discord.Embed
     """
-    embed = Embed(title=title, description=message, color=get_top_role_color(author, fallback_color=Color.green()))
-    embed.set_author(name=author.name, icon_url=author.avatar_url)
+    embed = Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
+    embed.set_thumbnail(url=str(member.avatar_url))
     return embed
 
 

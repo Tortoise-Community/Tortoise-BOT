@@ -31,6 +31,7 @@ class Bot(commands.Bot):
 
     async def on_error(self, event: str, *args, **kwargs):
         exception_type, exception_value, exception_traceback = sys.exc_info()
+
         if isinstance(exception_type, discord.Forbidden):
             if exception_value == 50007:
                 return  # Ignore annoying "Cannot send messages to this user" if user blocks DM
