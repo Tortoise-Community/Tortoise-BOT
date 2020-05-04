@@ -1,3 +1,4 @@
+import sys
 import logging
 import traceback
 from typing import Generator
@@ -5,8 +6,8 @@ from typing import Generator
 import discord
 from discord.ext import commands
 
-from api_client import TortoiseAPI
-from constants import error_log_channel_id
+from bot.api_client import TortoiseAPI
+from bot.constants import error_log_channel_id
 
 
 logger = logging.getLogger(__name__)
@@ -19,14 +20,21 @@ class Bot(commands.Bot):
         self._was_ready_once = False
 
     async def on_ready(self):
-        logger.info(f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
-                    f"d.py version: {discord.__version__}")
+        logger.info(
+            f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
+            f"d.py version: {discord.__version__}"
+        )
 
         if not self._was_ready_once:
             await self.change_presence(activity=discord.Game(name="DM me!"))
             self._was_ready_once = True
 
     async def on_error(self, event: str, *args, **kwargs):
+        exception_type, exception_value, exception_traceback = sys.exc_info()
+
+        if isinstance(exception_type, discord.Forbidden):
+            return  # Ignore annoying messages (eg. if user disables DMs)
+
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
         logger.critical(msg)
         await self.log_error(msg)
@@ -37,8 +45,13 @@ class Bot(commands.Bot):
 
         error_log_channel = self.get_channel(error_log_channel_id)
         split_messages = list(Bot.split_string_into_chunks(message, 1980))
+
         for count, message in enumerate(split_messages):
-            await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+            if count < 5:
+                await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+            else:
+                await error_log_channel.send(f"```Stopping spam, too many pages. See log for more info.```")
+                break
 
     @staticmethod
     def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str, None, None]:

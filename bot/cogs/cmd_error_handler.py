@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class CommandErrorHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error_):
         # If command has local error handler, return
@@ -72,7 +72,7 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send("You do not have permission to use this command.")
             return
 
-        if isinstance(error, discord.errors.Forbidden):
+        if isinstance(error, discord.Forbidden):
             # Conditional to check if it is a closed DM that raised Forbidden
             if error.code == 50007:
                 return
@@ -80,7 +80,7 @@ class CommandErrorHandler(commands.Cog):
         exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
         logger.warning(exception_msg)
         await self.bot.log_error(exception_msg)
-                
+
 
 def setup(bot):
     bot.add_cog(CommandErrorHandler(bot))

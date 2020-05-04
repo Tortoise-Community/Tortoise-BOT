@@ -2,8 +2,8 @@ import logging
 
 from discord.ext import commands
 
-from .utils.embed_handler import success
-from .utils.checks import tortoise_bot_developer_only
+from bot.cogs.utils.embed_handler import success
+from bot.cogs.utils.checks import tortoise_bot_developer_only
 
 
 logger = logging.getLogger(__name__)

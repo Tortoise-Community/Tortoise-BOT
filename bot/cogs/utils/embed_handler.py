@@ -1,8 +1,9 @@
 from typing import Union
 
-from discord import Embed, Color, Member, User
+from discord import Embed, Color, Member, User, Status
 
-import constants
+from bot import constants
+from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -53,8 +54,7 @@ def info(message: str, member: Union[Member, User], title: str = "Info") -> Embe
     :param title: title of embed, defaults to "Info"
     :return: Embed object
     """
-    embed = Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
-    return embed
+    return Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
 
 
 def success(message: str, member: Union[Member, User] = None) -> Embed:
@@ -88,7 +88,7 @@ def failure(message: str) -> Embed:
     return simple_embed(message, "Failure", Color.red())
 
 
-def authored(author: Union[Member, User], message: str) -> Embed:
+def authored(message: str, *, author: Union[Member, User]) -> Embed:
     """
     Construct embed and sets its author to passed param author.
     Embed color is based on passed author top role color.
@@ -98,6 +98,75 @@ def authored(author: Union[Member, User], message: str) -> Embed:
     """
     embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
     embed.set_author(name=author.name, icon_url=author.avatar_url)
+    return embed
+
+
+def thumbnail(message: str, member: Union[Member, User], title: str) -> Embed:
+    """
+    Construct embed and sets thumbnail based on passed param member avatar image..
+    Embed color is based on passed author top role color.
+    :param message: message to display in embed.
+    :param member: member from which to get thumbnail from
+    :param title: str title of embed
+    :return: discord.Embed
+    """
+    embed = Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
+    embed.set_thumbnail(url=str(member.avatar_url))
+    return embed
+
+
+def status_embed(member, *, description="") -> Embed:
+    """
+    Construct status embed for certain member.
+    Status will have info such as member device, online status, activity, roles etc.
+    :param member: member to get data from
+    :param description: optional, description to use as embed description
+    :return: discord.Embed
+    """
+    embed = Embed(
+        title=member.display_name,
+        description=description,
+        color=get_top_role_color(member, fallback_color=Color.green())
+    )
+
+    if member.status == Status.offline:
+        embed.add_field(name="DEVICE", value=":no_entry:")
+    elif member.is_on_mobile():
+        embed.add_field(name="**DEVICE**", value="Phone: :iphone:")
+    else:
+        embed.add_field(name="**DEVICE**", value="PC: :desktop:")
+
+    embed.add_field(name="|", value="_ _ ")
+    embed.add_field(name='**STATUS**', value=get_member_status(member=member))
+    embed.add_field(name="**JOINED SERVER AT**", value=member.joined_at)
+    embed.add_field(name="|", value="_ _ ")
+    embed.add_field(name="**ROLES**", value=get_member_roles_as_mentions(member.roles))
+    embed.add_field(name="**ACTIVITY**", value=get_member_activity(member=member))
+    embed.set_thumbnail(url=member.avatar_url)
+    return embed
+
+
+def infraction_embed(
+        ctx,
+        infracted_member,
+        infraction_type: constants.Infraction,
+        reason: str
+) -> Embed:
+    """
+    :param ctx: context to get mod member from (the one who issued this infraction) and
+                bot so we can get it's image.
+    :param infracted_member: member who got the infraction
+    :param infraction_type: infraction type
+    :param reason: str reason for infraction
+    :return: discord Embed
+    """
+
+    embed = Embed(title="**Infraction information**", color=infraction_type.value)
+    embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+
+    embed.add_field(name="**MEMBER:**", value=f"{infracted_member}")
+    embed.add_field(name="**TYPE:**", value=infraction_type.name)
+    embed.add_field(name="**REASON:**", value=reason)
     return embed
 
 

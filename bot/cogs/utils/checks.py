@@ -1,5 +1,5 @@
-from constants import tortoise_developers, tortoise_guild_id
-from .exceptions import TortoiseGuildCheckFailure, TortoiseBotDeveloperCheckFailure
+from bot.constants import tortoise_developers, tortoise_guild_id
+from bot.cogs.utils.exceptions import TortoiseGuildCheckFailure, TortoiseBotDeveloperCheckFailure
 
 
 def check_if_it_is_tortoise_guild(ctx):

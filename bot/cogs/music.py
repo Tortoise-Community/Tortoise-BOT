@@ -1,7 +1,7 @@
 """
-Copyright (c) 
+Copyright (c)
     Original source code:   https://gist.github.com/EvieePy/ab667b74e9758433b3eb806c53a19f34
-                    author: https://github.com/EvieePy
+                  author:   https://github.com/EvieePy
 
 The code has been changed a bit to go along Tortoise needs.
 You can check the commits to see change history.
@@ -18,7 +18,7 @@ from discord.ext import commands
 from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
-from constants import ytdl_format_options, ffmpeg_options
+from bot.constants import ytdl_format_options, ffmpeg_options
 
 
 ytdl = YoutubeDL(ytdl_format_options)
@@ -213,12 +213,16 @@ class Music(commands.Cog):
             The channel to connect to. If a channel is not specified, an attempt to join the voice channel you are in
             will be made.
         This command also handles moving the bot to different channels.
+        Note - The channel has to have 'music' in it's name. This is to avoid spamming music in general voice chats.
         """
         if not channel:
             try:
                 channel = ctx.author.voice.channel
             except AttributeError:
                 raise InvalidVoiceChannel("No channel to join. Please either specify a valid channel or join one.")
+
+        if "music" not in channel.name.lower():
+            raise InvalidVoiceChannel("Can't join channel - channel has to have 'music' in it's name.")
 
         vc = ctx.voice_client
 

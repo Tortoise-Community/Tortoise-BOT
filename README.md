@@ -1,5 +1,5 @@
-![Python-Versions](https://img.shields.io/badge/python-3.6%20%7C%203.7-blue?style=flat-square)
-![Discord.py-Version](https://img.shields.io/badge/discord.py-1.3.2-blue?style=flat-square)
+![Python-Versions](https://img.shields.io/badge/python-3.7-blue?style=flat-square)
+![Discord.py-Version](https://img.shields.io/badge/discord.py-1.3.3-blue?style=flat-square)
 
 # Tortoise-BOT
 **Fully functional Bot for Discord coded in Discord.py**
@@ -7,30 +7,58 @@
 <img alt="Tortoise logo" align="right" src="https://i.imgur.com/7LrGjdG.jpg" width=40%>
 
 This bot is intended to work only in Tortoise Community guild and it's
-mostly tied to one guild. Code here serves for education purposes and for
+mostly tied to one guild. 
+
+Code here serves for education purposes and for
 transparency - also to make coding easier as everyone can improve it.
 
-## Features and Commands :
+## Features and Commands
 
 To do, check out cogs source code directory to see for yourself.
 
+## Contributing
+
+All updates welcome but please only push to `dev`.
+
+See section below on Installation Instructions and follow it as developer as that
+way the setup of pre-commit hook will be correct. 
+
 ## Installation Instructions
 
+Python 3.7 required
+
 ```bash
+
+# Your global Python installation needs to have pipenv
+pip install pipenv
+
+# Clone the repo
 git clone https://github.com/Tortoise-Community/Tortoise-BOT.git
-<!-- Clone the repo -->  
 
+# Change directories into the project
 cd Tortoise-BOT
-<!-- Change directories into the project -->
 
-pip install -r requirements.txt
-<!-- Python 3.6 minimum required -->
+# [developer only] If you are developer you need to install dependencies for dev
+pipenv install --dev
 
+# If you're not a developer just install required dependencies like this
+pipenv install
+
+# Activate the Pipenv shell (aka tell your terminal/whatever to use dependencies from the env in this project)
+pipenv shell
+
+# [developer only] Install pre-commit hook
+pipenv run precommit
+
+# Before we run the bot we need to create .env file where all secret keys will be (tokens etc)
+# it needs to be in /bot/.env
+cd bot
+
+# Create it
 touch .env
-<!-- Create env file used to store tokens -->
 
+# Edit it and change the keys to your values (see section below for sample layout)
 nano .env
-<!-- Edit the .env files and add tokens -->
 ```
 
 #### Sample layout of `.env` file
@@ -60,8 +88,8 @@ and adds roles to members/send him message etc
 
 #### Additional dependencies
 
-For playing music see [discord.py dependencies](https://discordpy.readthedocs.io/en/latest/intro.html#installing)
-and you'll need ffmpeg either in the root directory or in your PATH.
+For music cog to work you need ffmpeg (either in the Tortoise-BOT/bot/ directory or in your PATH).
+
 For linux you can install it with `sudo apt install ffmpeg`
 
 ### Once everything is ready
@@ -73,8 +101,11 @@ Depending on how you set up `.env` you might get some errors about some cogs not
 You can safely ignore these errors as they will not stop the bot from functioning and loading other cogs.
 
 ```bash
-python main.py
-<!-- Run the bot -->
+# You need to be in the root of Tortoise-Bot directory
+# Once you are in Tortoise-Bot/
+
+# Run the bot
+pipenv run start
 ```
 
 # License

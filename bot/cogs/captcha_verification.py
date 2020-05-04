@@ -3,21 +3,21 @@ import random
 import discord
 from discord.ext import commands
 
-import constants
-from .utils.checks import check_if_it_is_tortoise_guild
+from bot import constants
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 
 
 class Security(commands.Cog):
     # Bot will have to have manage_roles permission in order for this to work
     def __init__(self, bot):
         self.bot = bot
-        
+
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member):
         unverified_role = member.guild.get_role(constants.unverified_role_id)
         await member.add_roles(unverified_role)
-        
+
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def accept(self, ctx):

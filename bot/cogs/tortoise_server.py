@@ -5,9 +5,9 @@ import discord
 from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
-import constants
-from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.embed_handler import success, warning, failure, authored, welcome, welcome_dm, info
+from bot import constants
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import success, warning, failure, authored, welcome, welcome_dm, info
 
 
 logger = logging.getLogger(__name__)
@@ -24,13 +24,19 @@ class TortoiseServer(commands.Cog):
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_message(self, message):
-        if message.guild.id != constants.tortoise_guild_id:
+        if message.guild is None:
+            return
+        elif message.guild.id != constants.tortoise_guild_id:
+            return
+        elif message.author.bot:
             return
 
         if len(message.content) > constants.max_message_length:
             await message.delete()
-            msg = ("Your message is quite long.\n"
-                   f"You should consider using our paste service {constants.tortoise_paste_service_link}")
+            msg = (
+                "Your message is quite long.\n"
+                f"You should consider using our paste service {constants.tortoise_paste_service_link}"
+            )
             await message.channel.send(embed=warning(msg))
 
     @tasks.loop(hours=24)
@@ -82,8 +88,10 @@ class TortoiseServer(commands.Cog):
         """
         embed_body = []
         for rule_dict in self._rules:
-            rule_entry = (f"{rule_dict['number']}. Aliases: {', '.join(rule_dict['alias'])}\n"
-                          f"{rule_dict['statement']}")
+            rule_entry = (
+                f"{rule_dict['number']}. Aliases: {', '.join(rule_dict['alias'])}\n"
+                f"{rule_dict['statement']}"
+            )
             embed_body.append(rule_entry)
 
         rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
@@ -93,6 +101,7 @@ class TortoiseServer(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member: discord.Member):
         log_channel = self.bot.get_channel(constants.system_log_channel_id)
+        verification_channel = self.bot.get_channel(constants.verification_channel_id)
         logger.debug(f"New member joined {member}")
 
         if not await self.bot.api_client.does_member_exist(member.id):
@@ -103,10 +112,15 @@ class TortoiseServer(commands.Cog):
             unverified_role = member.guild.get_role(constants.unverified_role_id)
             await member.add_roles(unverified_role)
 
+            # Ghost ping the member so he takes note of verification channel where all info is
+            await verification_channel.send(member.mention, delete_after=1)
+
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-            msg = ("Welcome to Tortoise Community!\n"
-                   "In order to proceed and join the community you will need to verify.\n\n"
-                   f"Please head over to {constants.verification_url}")
+            msg = (
+                "Welcome to Tortoise Community!\n"
+                "In order to proceed and join the community you will need to verify.\n\n"
+                f"Please head over to {constants.verification_url}"
+            )
             await member.send(embed=welcome_dm(msg))
             return
 
@@ -121,8 +135,10 @@ class TortoiseServer(commands.Cog):
             await self.bot.api_client.member_rejoined(member)
 
             await log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
-            msg = ("Welcome back to Tortoise Community!\n\n"
-                   "The roles you had last time will be restored and added back to you.\n")
+            msg = (
+                "Welcome back to Tortoise Community!\n\n"
+                "The roles you had last time will be restored and added back to you.\n"
+            )
             await member.send(embed=welcome_dm(msg))
         else:
             logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
@@ -133,9 +149,15 @@ class TortoiseServer(commands.Cog):
             await member.add_roles(unverified_role)
 
             await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-            msg = ("Hi, welcome to Tortoise Community!\n"
-                   "Seems like this is not your first time joining.\n\n"
-                   f"Last time you didn't verify so please head over to {constants.verification_url}")
+
+            # Ghost ping the member so he takes note of verification channel where all info is
+            await verification_channel.send(member.mention, delete_after=1)
+
+            msg = (
+                "Hi, welcome to Tortoise Community!\n"
+                "Seems like this is not your first time joining.\n\n"
+                f"Last time you didn't verify so please head over to {constants.verification_url}"
+            )
             await member.send(embed=welcome_dm(msg))
 
     @commands.Cog.listener()
@@ -155,6 +177,7 @@ class TortoiseServer(commands.Cog):
         guild = self.bot.get_guild(constants.tortoise_guild_id)
         verified_role = guild.get_role(constants.verified_role_id)
         unverified_role = guild.get_role(constants.unverified_role_id)
+
         try:
             await member.remove_roles(unverified_role)
         except HTTPException:
@@ -165,11 +188,13 @@ class TortoiseServer(commands.Cog):
         # that got deleted, so just catch Exception and ignore.
         roles = [guild.get_role(role_id) for role_id in additional_roles]
         roles.append(verified_role)
+
         for role in roles:
             try:
                 await member.add_roles(role)
             except HTTPException:
                 continue
+
         self._database_role_update_lock = False
 
     @commands.Cog.listener()
@@ -178,6 +203,7 @@ class TortoiseServer(commands.Cog):
             guild = self.bot.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
             role = self.get_assignable_role(payload, guild)
+
             if role is not None:
                 await member.add_roles(role)
                 embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
@@ -189,6 +215,7 @@ class TortoiseServer(commands.Cog):
             guild = self.bot.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
             role = self.get_assignable_role(payload, guild)
+
             if role is not None:
                 await member.remove_roles(role)
 
@@ -197,10 +224,12 @@ class TortoiseServer(commands.Cog):
         role_id = constants.self_assignable_roles.get(payload.emoji.id)
         if role_id is not None:
             role = guild.get_role(role_id)
+
             if role is not None:
                 return role
             else:
                 logger.critical(f"Emoji id found in dictionary but role id {role_id} not found in guild!")
+
         else:
             logger.critical(f"No mapping for emoji {payload.emoji.id} in self_assignable_roles!")
 
@@ -208,12 +237,14 @@ class TortoiseServer(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
-        dm_msg = ("Submitting process has begun.\n\n"
-                  "Please reply with 1 message below that either contains your full code or, "
-                  "if it's too long, contains a link to code (pastebin/hastebin..)\n"
-                  "If using those services make sure to set code to private and "
-                  "expiration date to at least 30 days.")
-        await ctx.author.send(embed=authored(ctx.guild.me, dm_msg))
+        dm_msg = (
+            "Submitting process has begun.\n\n"
+            "Please reply with 1 message below that either contains your full code or, "
+            "if it's too long, contains a link to code (pastebin/hastebin..)\n"
+            "If using those services make sure to set code to private and "
+            "expiration date to at least 30 days."
+        )
+        await ctx.author.send(embed=authored(dm_msg, author=ctx.guild.me))
 
         def check(msg):
             return msg.author == ctx.author and msg.guild is None

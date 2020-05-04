@@ -1,3 +1,8 @@
+from enum import Enum
+
+from discord import Color
+
+
 tortoise_guild_id = 577192344529404154
 website_url = "https://www.tortoisecommunity.ml/"
 privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
@@ -15,7 +20,7 @@ react_for_roles_channel_id = 603651772950773761
 
 mod_mail_report_channel_id = 693790120712601610
 bug_reports_channel_id = 693790120712601610
-code_submissions_channel_id = 61007918556984115
+code_submissions_channel_id = 610079185569841153
 
 # Log Channel IDs
 system_log_channel_id = 593883395436838942
@@ -27,7 +32,7 @@ bot_dev_channel_id = 692851221223964822
 error_log_channel_id = 690650346665803777
 
 # Roles
-muted_role_id = 610126555867512870
+muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
 
@@ -97,3 +102,15 @@ embed_space = "\u200b "
 
 # After this is exceeded the link to tortoise paste service should be sent
 max_message_length = 500
+
+
+class Infraction(Enum):
+    warning = Color.gold()
+    kick = Color.gold()
+    ban = Color.red()
+
+
+class SuggestionStatus(Enum):
+    under_review = "Under review"
+    denied = "Denied"
+    approved = "Approved"

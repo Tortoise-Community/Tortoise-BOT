@@ -3,15 +3,18 @@ import json
 import socket
 import logging
 import asyncio
-from typing import List, Dict
+from typing import List
 
 from discord.ext import commands
-from discord import HTTPException, ActivityType
+from discord import HTTPException, Forbidden
 
-import constants
-from .utils.exceptions import (EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
-                               InternalServerError, DiscordIDNotFound)
-from .utils.checks import check_if_it_is_tortoise_guild
+from bot import constants
+from bot.cogs.utils.exceptions import (
+    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
+    InternalServerError, DiscordIDNotFound
+)
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.members import get_member_activity, get_member_status
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -42,6 +45,7 @@ def endpoint_register(*, endpoint_key: str = None):
 
     def decorator(function):
         nonlocal endpoint_key
+
         if not endpoint_key:
             endpoint_key = function.__name__
 
@@ -78,18 +82,21 @@ class SocketCommunication(commands.Cog):
     def cog_unload(self):
         logger.debug("Unloading socket comm, closing connections.")
         self.task.cancel()
+
         for client in self.verified_clients:
             try:
                 client.close()
             except OSError:
                 # Not supported on Windows
                 pass
+
         try:
             self._socket_server.shutdown(socket.SHUT_RDWR)
             self._socket_server.close()
         except OSError:
             # Not supported on Windows
             pass
+
         logger.debug("Socket com unloaded.")
 
     @commands.command()
@@ -173,6 +180,7 @@ class SocketCommunication(commands.Cog):
             await self.send_to_client(client, json.dumps(response))
 
         logger.info(f"Closing {client_name}")
+        self.verified_clients.discard(client)
         client.close()
 
     async def send_to_client(self, client, msg: str):
@@ -203,6 +211,7 @@ class SocketCommunication(commands.Cog):
             return InternalServerError().response
 
         endpoint_key = request.get("endpoint")
+
         if not endpoint_key:
             return EndpointError(400, "No endpoint specified.").response
         elif not isinstance(endpoint_key, str):
@@ -242,39 +251,90 @@ class SocketCommunication(commands.Cog):
             return endpoint_returned_data
 
     @endpoint_register(endpoint_key="send")
-    async def send_to_channel(self, message):
-        logger.debug(f"Sending {message} to channel.")
-        bot_dev_channel = self.bot.get_channel(constants.bot_dev_channel_id)
-        await bot_dev_channel.send(message)
-        logger.debug(f"Sent {message} to channel!")
+    async def send(self, data: dict):
+        """
+        Makes the bot send requested message channel or user or both.
+        :param data: dict in format
+        {
+        "channel_id": 123,
+        "user_id": 123,
+        "message": "Test"
+        }
 
-    @endpoint_register(endpoint_key="members")
-    async def get_member_activities(self, members: List[int]) -> Dict[int, str]:
-        response_activities = {}
+        Where both channel_id and user_id are optional but at least one has to be passed.
+        Message is the message to send.
+        """
+        message = data.get("message")
+        if message is None:
+            raise EndpointBadArguments()
+
+        channel_id = data.get("channel_id")
+        user_id = data.get("user_id")
+
+        if channel_id is None and user_id is None:
+            raise EndpointBadArguments()
+
+        channel = self.bot.get_channel(channel_id)
+        user = self.bot.get_user(user_id)
+
+        if channel is None and user is None:
+            raise DiscordIDNotFound()
+        elif channel is not None:
+            await channel.send(message)
+        elif user is not None:
+            try:
+                await user.send(message)
+            except Forbidden:
+                logger.info(f"Skipping send endpoint to {user} as he blocked DMs.")
+
+    @endpoint_register(endpoint_key="member_activities")
+    async def get_member_data(self, members: List[int]) -> dict:
+        """
+        Gets activities and top role from all members passed in param members.
+        :param members: list of member ids to get activity and top role from
+        :return: dict in form:
+        {
+          'status': 200,
+          'data': {
+            'member_id':  {"activity": "bla_bla", "top_role": "role name"},
+            ...
+          }
+        }
+        """
+        response_data = {}
         tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         logger.debug(f"Processing members: {members}")
+
         for member_id in members:
             logger.debug(f"Processing member: {member_id}")
-            member = tortoise_guild.get_member(int(member_id))
+            member = tortoise_guild.get_member(member_id)
+            member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
             if member is None:
                 logger.debug(f"Member {member_id} not found.")
-                response_activities[member_id] = "None"
+                response_data[member_id] = member_data
                 continue
 
-            if member.activity is None:
-                response_activities[member_id] = "None"
-            elif member.activity.type != ActivityType.custom:
-                activity = f"{member.activity.type.name} {member.activity.name}"
-                response_activities[member_id] = activity
-            else:
-                response_activities[member_id] = member.activity.name
+            activity = get_member_activity(member)
+            if activity is None:
+                activity = get_member_status(member)
 
-        logger.debug(f"Processing members done, returning: {response_activities}")
-        return response_activities
+            member_data["activity"] = activity
+
+            member_data["top_role"] = member.top_role.name
+            response_data[member_id] = member_data
+
+        return_data = {"data": response_data}
+        logger.debug(f"Processing members done, returning: {return_data}")
+        return return_data
 
     @endpoint_register(endpoint_key="verify")
     async def verify_member(self, member_id: str):
+        """
+        Verifies the member, adds him the role and marks him as verified in the database,
+        also sends success messages.
+        :param member_id: str member id to verify
+        """
         try:
             member_id = int(member_id)
         except ValueError:
@@ -284,11 +344,13 @@ class SocketCommunication(commands.Cog):
         verified_role = guild.get_role(constants.verified_role_id)
         unverified_role = guild.get_role(constants.unverified_role_id)
         verification_channel = guild.get_channel(constants.verification_channel_id)
+
         for check_none in (guild, verified_role, unverified_role, verification_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
         member = guild.get_member(member_id)
+
         if member is None:
             raise DiscordIDNotFound()
 
@@ -303,6 +365,10 @@ class SocketCommunication(commands.Cog):
 
     @endpoint_register()
     async def contact(self, data: dict):
+        """
+        Sends request data to website log channel.
+        :param data: dict data from the request
+        """
         guild = self.bot.get_guild(constants.tortoise_guild_id)
         website_log_channel = guild.get_channel(constants.website_log_channel_id)
 

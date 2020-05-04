@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from .utils.embed_handler import info
+from bot.cogs.utils.embed_handler import info
 
 
 class Fun(commands.Cog):
@@ -13,11 +13,11 @@ class Fun(commands.Cog):
         """Slaps a member."""
         if ctx.author == member:
             embed = info(f"{member.mention} slapped him/her self LOL", ctx.me, "Slap!")
-            slap_url = "https://media.giphy.com/media/j1zuL4htGTFQY/giphy.gif"
+            img_url = "https://media.giphy.com/media/j1zuL4htGTFQY/giphy.gif"
         else:
             embed = info(f"{member.mention} got slapped in the face by: {ctx.author.mention}!", ctx.me, "Slap!")
-            slap_url = "https://66.media.tumblr.com/05212c10d8ccfc5ab190926912431344/tumblr_mt7zwazvyi1rqfhi2o1_400.gif"
-        embed.set_image(url=slap_url)
+            img_url = "https://66.media.tumblr.com/05212c10d8ccfc5ab190926912431344/tumblr_mt7zwazvyi1rqfhi2o1_400.gif"
+        embed.set_image(url=img_url)
         await ctx.send(embed=embed)
 
     @commands.command()

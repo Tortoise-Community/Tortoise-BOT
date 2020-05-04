@@ -6,10 +6,10 @@ from asyncio import TimeoutError
 import discord
 from discord.ext import commands
 
-import constants
-from .utils.embed_handler import authored, failure, success, info
-from .utils.checks import check_if_it_is_tortoise_guild
-from .utils.message_logger import MessageLogger
+from bot import constants
+from bot.cogs.utils.embed_handler import authored, failure, success, info
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.message_logger import MessageLogger
 
 
 logger = logging.getLogger(__name__)
@@ -26,36 +26,47 @@ class UnsupportedFileEncoding(ValueError):
 class ModMail(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.active_mod_mails = {}  # Key is user id value is mod/admin id
+
+        # Key is user id value is mod/admin id
+        self.active_mod_mails = {}
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
         self.active_bug_reports = set()
-        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM and callable
-        # is the method to call when that option is selected.
-        self._options = {constants.mod_mail_emoji_id: {"message": "Mod mail",
-                                                       "callable": self.create_mod_mail},
-                         constants.event_emoji_id: {"message": "Event submission",
-                                                    "callable": self.create_event_submission},
-                         constants.bug_emoji_id: {"message": "Bug report",
-                                                  "callable": self.create_bug_report}}
+
+        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM
+        # and callable is the method to call when that option is selected.
+        self._options = {
+            constants.mod_mail_emoji_id: {
+                "message": "Mod mail",
+                "callable": self.create_mod_mail
+            },
+            constants.event_emoji_id: {
+                "message": "Event submission",
+                "callable": self.create_event_submission
+            },
+            constants.bug_emoji_id: {
+                "message": "Bug report",
+                "callable": self.create_bug_report
+            }
+        }
+
         # User IDs for which the trigger_typing() is active, so we don't spam the method.
         self._typing_active = set()
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        # Only allow in DMs
         if payload.guild_id is not None:
-            return
+            return  # Only allow in DMs
 
         user_id = payload.user_id
         if user_id == self.bot.user.id:
-            # Ignore the bot
-            return
+            return  # Ignore the bot
         elif self.is_any_session_active(user_id):
             return
 
         for emoji_id, sub_dict in self._options.items():
             emoji = self.bot.get_emoji(emoji_id)
+
             if emoji == payload.emoji:
                 user = self.bot.get_user(user_id)
                 await sub_dict["callable"](user)
@@ -66,8 +77,7 @@ class ModMail(commands.Cog):
         if message.author == self.bot.user:
             return
         elif message.guild is not None:
-            # Functionality only active in DMs
-            return
+            return  # Functionality only active in DMs
 
         if self.is_any_session_active(message.author.id):
             return
@@ -75,7 +85,7 @@ class ModMail(commands.Cog):
             await self.send_dm_options(output=message.author)
 
     @commands.Cog.listener()
-    async def on_typing(self, channel, user, _when):  # when parameter is not used, potentially removable
+    async def on_typing(self, channel, user, _when):
         if not isinstance(channel, discord.DMChannel):
             return
         elif not self.is_any_session_active(user.id):
@@ -88,6 +98,7 @@ class ModMail(commands.Cog):
             # If it's None there is no user with that ID that has opened mod mail request.
             # However we can still have the mod/admin that could be attending mod mail
             destination_id = self._get_dict_key_by_value(user.id)
+
             if destination_id is None:
                 # If it's again None then there is no such ID in either user nor mods/admins
                 return
@@ -122,10 +133,12 @@ class ModMail(commands.Cog):
 
     def is_any_session_active(self, user_id: int) -> bool:
         # If the mod mail or anything else is active don't clutter the active session
-        return any(user_id in active for active in (self.active_mod_mails.keys(),
-                                                    self.active_mod_mails.values(),
-                                                    self.active_event_submissions,
-                                                    self.active_bug_reports))
+        return any(user_id in active for active in (
+            self.active_mod_mails.keys(),
+            self.active_mod_mails.values(),
+            self.active_event_submissions,
+            self.active_bug_reports)
+        )
 
     async def create_mod_mail(self, user: discord.User):
         if user.id in self.pending_mod_mails:
@@ -133,7 +146,7 @@ class ModMail(commands.Cog):
             return
 
         mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
-        submission_embed = authored(user, f"`{user.id}` submitted for mod mail.")
+        submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
         await mod_mail_report_channel.send(embed=submission_embed)
         self.pending_mod_mails.add(user.id)
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
@@ -157,13 +170,16 @@ class ModMail(commands.Cog):
             return
 
         code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
-        await code_submissions_channel.send(f"User `{user}` ID:{user.id} submitted code submission: "
-                                            f"{event_submission}")
+        await code_submissions_channel.send(
+            f"User `{user}` ID:{user.id} submitted code submission: "
+            f"{event_submission}"
+        )
         await user.send(embed=success("Event submission successfully submitted."))
         self.active_event_submissions.remove(user.id)
 
     async def create_bug_report(self, user: discord.User):
         user_reply = await self._wait_for(self.active_bug_reports, user)
+
         if user_reply is None:
             return
 
@@ -175,6 +191,7 @@ class ModMail(commands.Cog):
             return
 
         bug_report = user_reply.content if possible_attachment is None else possible_attachment
+
         if len(bug_report) < 10:
             await user.send(embed=failure("Too short - seems invalid, canceling."))
             self.active_bug_reports.remove(user.id)
@@ -198,8 +215,13 @@ class ModMail(commands.Cog):
             return msg.guild is None and msg.author == user
 
         container.add(user.id)
-        await user.send(embed=info("Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
-                                   "You have 5m, type `cancel` to cancel right away.", user))
+
+        await user.send(
+            embed=info(
+                "Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
+                "You have 5m, type `cancel` to cancel right away.", user
+            )
+        )
 
         try:
             user_reply = await self.bot.wait_for("message", check=check, timeout=300)
@@ -269,14 +291,26 @@ class ModMail(commands.Cog):
         self.pending_mod_mails.remove(user_id)
         self.active_mod_mails[user_id] = mod.id
 
-        await user.send(embed=authored(mod, f"has accepted your mod mail request.\n"
-                                            "Reply here in DMs to chat with them.\n"
-                                            "This mod mail will be logged, by continuing you agree to that.\n"
-                                            "Type `close` to close this mod mail."))
-        await mod.send(embed=success(f"You have accepted `{user}` mod mail request.\n"
-                                     "Reply here in DMs to chat with them.\n"
-                                     "This mod mail will be logged.\n"
-                                     "Type `close` to close this mod mail."))
+        await user.send(
+            embed=authored(
+                (
+                    "has accepted your mod mail request.\n"
+                    "Reply here in DMs to chat with them.\n"
+                    "This mod mail will be logged, by continuing you agree to that.\n"
+                    "Type `close` to close this mod mail."
+                ),
+                author=mod
+            )
+        )
+
+        await mod.send(
+            embed=success(
+                f"You have accepted `{user}` mod mail request.\n"
+                "Reply here in DMs to chat with them.\n"
+                "This mod mail will be logged.\n"
+                "Type `close` to close this mod mail."
+            )
+        )
         await ctx.send(embed=success("Mod mail initialized, check your DMs."), delete_after=10)
 
         def mod_mail_check(msg):
@@ -293,6 +327,7 @@ class ModMail(commands.Cog):
                 log.add_embed(timeout_embed)
                 await mod.send(embed=timeout_embed)
                 await user.send(embed=timeout_embed)
+                del self.active_mod_mails[user_id]
                 await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 

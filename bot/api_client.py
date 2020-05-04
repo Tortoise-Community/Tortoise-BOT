@@ -1,14 +1,17 @@
 import os
+import json
 import logging
 from typing import Optional, List, Union
-from dotenv import load_dotenv
 from datetime import datetime, timezone
 
 import aiohttp
-from discord import Member
+from dotenv import load_dotenv
+from discord import Member, Message
+
+from bot.constants import SuggestionStatus
 
 
-load_dotenv()
+load_dotenv()  # TODO why here also? in main too
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +42,7 @@ class APIClient:
     @staticmethod
     def _url_for(endpoint: str) -> str:
         return f"https://api.tortoisecommunity.ml/private/{endpoint}"
-    
+
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:
         """Raise ResponseCodeError for non-OK response if an exception should be raised."""
@@ -106,17 +109,18 @@ class TortoiseAPI(APIClient):
                 raise e
             else:
                 return False
-
         return data["verified"]
 
     async def insert_new_member(self, member: Member):
         """For inserting new members in the database."""
-        data = {"user_id": member.id,
-                "guild_id": member.guild.id,
-                "join_date": datetime.now(timezone.utc).isoformat(),
-                "name": member.display_name,
-                "tag": member.discriminator,
-                "member": True}
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "join_date": datetime.now(timezone.utc).isoformat(),
+            "name": member.display_name,
+            "tag": member.discriminator,
+            "member": True
+        }
         await self.post("members/", json=data)
 
     async def member_rejoined(self, member: Member):
@@ -124,10 +128,12 @@ class TortoiseAPI(APIClient):
         await self.put(f"members/edit/{member.id}/", json=data)
 
     async def member_left(self, member: Member):
-        data = {"user_id": member.id,
-                "guild_id": member.guild.id,
-                "leave_date": datetime.now(timezone.utc).isoformat(),
-                "member": False}
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "leave_date": datetime.now(timezone.utc).isoformat(),
+            "member": False
+        }
         await self.put(f"members/edit/{member.id}/", json=data)
 
     async def get_member_roles(self, member_id: int) -> List[int]:
@@ -139,9 +145,14 @@ class TortoiseAPI(APIClient):
         return await self.get(f"members/edit/{member_id}/")
 
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
-        await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
-                                                           "guild_id": member.guild.id,
-                                                           "roles": roles_ids})
+        await self.put(
+            f"members/edit/{member.id}/",
+            json={
+                "user_id": member.id,
+                "guild_id": member.guild.id,
+                "roles": roles_ids
+            }
+        )
 
     async def get_all_rules(self) -> List[dict]:
         """
@@ -155,3 +166,78 @@ class TortoiseAPI(APIClient):
         ]
         """
         return await self.get("rules/")
+
+    async def get_all_suggestions(self) -> List[dict]:
+        return await self.get("suggestions/")
+
+    async def get_suggestion(self, suggestion_id: int) -> dict:
+        return await self.get(f"suggestions/{suggestion_id}/")
+
+    async def post_suggestion(self, author: Member, message: Message, suggestion: str):
+        data = {
+            "message_id": message.id,
+            "author_id": author.id,
+            "author_name": author.display_name,
+            "brief": suggestion,
+            "avatar": str(author.avatar_url),
+            "link": message.jump_url,
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+        await self.post("suggestions/", json=data)
+
+    async def put_suggestion(self, suggestion_id: int, status: SuggestionStatus, reason: str):
+        data = {"status": status.value, "reason": reason}
+        await self.put(f"suggestions/{suggestion_id}/", json=data)
+
+    async def delete_suggestion(self, suggestion_id: int):
+        await self.delete(f"suggestions/{suggestion_id}/")
+
+    async def get_member_meta(self, member_id: int) -> dict:
+        """
+        Return type:
+        {
+            "warnings": [],
+            "muted_until": null,
+            "strikes": {
+                "AD": 0,
+                "Homo": 0,
+                "Common": 0,
+                "Racial": 0
+            },
+            "mod_mail": true,
+            "perks": 300
+        }
+        """
+        return await self.get(f"member/meta/{member_id}/")
+
+    async def get_member_warnings(self, member_id: int) -> List[dict]:
+        """
+        API returns a list of str (which are stringed dicts) so need to deserialize that.
+        Example return from API:
+        [
+            '{"date": "2020-05-04T21:36:43.045204+00:00",
+            "reason": "test",
+            "mod": 197918569894379520}'
+        ]
+        """
+        member_meta = await self.get_member_meta(member_id)
+        warnings = member_meta["warnings"]
+        deserialized_warnings = [json.loads(item) for item in warnings]
+        return deserialized_warnings
+
+    async def get_member_warnings_count(self, member_id: int) -> int:
+        return len(await self.get_member_warnings(member_id))
+
+    async def add_member_warning(self, mod_id: int, member_id: id, reason: str):
+        new_warning = {
+            "mod": mod_id,
+            "reason": reason,
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+
+        current_warnings = await self.get_member_warnings(member_id)
+        current_warnings.append(json.dumps(new_warning))
+
+        warnings_payload = {"warnings": current_warnings}
+
+        await self.put(f"member/meta/{member_id}/", json=warnings_payload)
