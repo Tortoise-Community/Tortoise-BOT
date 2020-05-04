@@ -108,17 +108,18 @@ class TortoiseAPI(APIClient):
                 raise e
             else:
                 return False
-
         return data["verified"]
 
     async def insert_new_member(self, member: Member):
         """For inserting new members in the database."""
-        data = {"user_id": member.id,
-                "guild_id": member.guild.id,
-                "join_date": datetime.now(timezone.utc).isoformat(),
-                "name": member.display_name,
-                "tag": member.discriminator,
-                "member": True}
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "join_date": datetime.now(timezone.utc).isoformat(),
+            "name": member.display_name,
+            "tag": member.discriminator,
+            "member": True
+        }
         await self.post("members/", json=data)
 
     async def member_rejoined(self, member: Member):
@@ -126,10 +127,12 @@ class TortoiseAPI(APIClient):
         await self.put(f"members/edit/{member.id}/", json=data)
 
     async def member_left(self, member: Member):
-        data = {"user_id": member.id,
-                "guild_id": member.guild.id,
-                "leave_date": datetime.now(timezone.utc).isoformat(),
-                "member": False}
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "leave_date": datetime.now(timezone.utc).isoformat(),
+            "member": False
+        }
         await self.put(f"members/edit/{member.id}/", json=data)
 
     async def get_member_roles(self, member_id: int) -> List[int]:
@@ -141,9 +144,14 @@ class TortoiseAPI(APIClient):
         return await self.get(f"members/edit/{member_id}/")
 
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
-        await self.put(f"members/edit/{member.id}/", json={"user_id": member.id,
-                                                           "guild_id": member.guild.id,
-                                                           "roles": roles_ids})
+        await self.put(
+            f"members/edit/{member.id}/",
+            json={
+                "user_id": member.id,
+                "guild_id": member.guild.id,
+                "roles": roles_ids
+            }
+        )
 
     async def get_all_rules(self) -> List[dict]:
         """
@@ -182,3 +190,39 @@ class TortoiseAPI(APIClient):
 
     async def delete_suggestion(self, suggestion_id: int):
         await self.delete(f"suggestions/{suggestion_id}/")
+
+    async def get_member_meta(self, member_id: int) -> dict:
+        """
+        Return type:
+        {
+            "warnings": [],
+            "muted_until": null,
+            "strikes": {
+                "AD": 0,
+                "Homo": 0,
+                "Common": 0,
+                "Racial": 0
+            },
+            "mod_mail": true,
+            "perks": 300
+        }
+        """
+        return await self.get(f"private/member/meta/{member_id}/")
+
+    async def get_member_warnings(self, member_id: int) -> List[dict]:
+        member_meta = await self.get_member_meta(member_id)
+        return member_meta["warnings"]
+
+    async def add_member_warning(self, mod_id: int, member_id: id, reason: str):
+        new_warning = {
+            "mod": mod_id,
+            "reason": reason,
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+
+        current_warnings = await self.get_member_warnings(member_id)
+        current_warnings.append(new_warning)
+
+        warnings_payload = {"warnings": current_warnings}
+
+        await self.put(f"private/member/meta/{member_id}/", json=warnings_payload)
