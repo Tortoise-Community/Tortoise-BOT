@@ -279,9 +279,11 @@ class SocketCommunication(commands.Cog):
 
         if channel is None and user is None:
             raise DiscordIDNotFound()
-        elif channel is not None:
+
+        if channel is not None:
             await channel.send(message)
-        elif user is not None:
+
+        if user is not None:
             try:
                 await user.send(message)
             except Forbidden:
