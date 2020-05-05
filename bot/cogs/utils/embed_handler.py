@@ -101,7 +101,7 @@ def authored(message: str, *, author: Union[Member, User]) -> Embed:
     return embed
 
 
-def thumbnail(message: str, member: Union[Member, User], title: str) -> Embed:
+def thumbnail(message: str, member: Union[Member, User], title: str = None) -> Embed:
     """
     Construct embed and sets thumbnail based on passed param member avatar image..
     Embed color is based on passed author top role color.

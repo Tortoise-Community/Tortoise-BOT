@@ -15,6 +15,8 @@ from bot.cogs.utils.exceptions import (
 )
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.members import get_member_activity, get_member_status
+from bot.cogs.utils.embed_handler import thumbnail
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -281,11 +283,11 @@ class SocketCommunication(commands.Cog):
             raise DiscordIDNotFound()
 
         if channel is not None:
-            await channel.send(message)
+            await channel.send(embed=thumbnail(message, self.bot.user))
 
         if user is not None:
             try:
-                await user.send(message)
+                await user.send(embed=thumbnail(message, self.bot.user, "A message just for you!"))
             except Forbidden:
                 logger.info(f"Skipping send endpoint to {user} as he blocked DMs.")
 
