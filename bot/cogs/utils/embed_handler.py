@@ -136,10 +136,10 @@ def status_embed(member, *, description="") -> Embed:
     else:
         embed.add_field(name="**DEVICE**", value="PC: :desktop:")
 
-    embed.add_field(name='**Status**', value=get_member_status(member=member),inline=False)
-    embed.add_field(name="**Joined server at**", value=member.joined_at,inline=False)
-    embed.add_field(name="**Roles**", value=get_member_roles_as_mentions(member.roles),inline=False)
-    embed.add_field(name="**Activity**", value=get_member_activity(member=member),inline=False)
+    embed.add_field(name='**Status**', value=get_member_status(member=member), inline=False)
+    embed.add_field(name="**Joined server at**", value=member.joined_at, inline=False)
+    embed.add_field(name="**Roles**", value=get_member_roles_as_mentions(member.roles), inline=False)
+    embed.add_field(name="**Activity**", value=get_member_activity(member=member), inline=False)
     embed.set_thumbnail(url=member.avatar_url)
     return embed
 
@@ -162,9 +162,9 @@ def infraction_embed(
     embed = Embed(title="**Infraction information**", color=infraction_type.value)
     embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
 
-    embed.add_field(name="**Member**", value=f"{infracted_member}",inline=False)
-    embed.add_field(name="**Type**", value=infraction_type.name,inline=False)
-    embed.add_field(name="**Reason**", value=reason,inline=False)
+    embed.add_field(name="**Member**", value=f"{infracted_member}", inline=False)
+    embed.add_field(name="**Type**", value=infraction_type.name, inline=False)
+    embed.add_field(name="**Reason**", value=reason, inline=False)
     return embed
 
 
