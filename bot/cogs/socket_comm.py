@@ -15,6 +15,8 @@ from bot.cogs.utils.exceptions import (
 )
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.members import get_member_activity, get_member_status
+from bot.cogs.utils.embed_handler import thumbnail
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -279,11 +281,13 @@ class SocketCommunication(commands.Cog):
 
         if channel is None and user is None:
             raise DiscordIDNotFound()
-        elif channel is not None:
-            await channel.send(message)
-        elif user is not None:
+
+        if channel is not None:
+            await channel.send(embed=thumbnail(message, self.bot.user))
+
+        if user is not None:
             try:
-                await user.send(message)
+                await user.send(embed=thumbnail(message, self.bot.user, "A message just for you!"))
             except Forbidden:
                 logger.info(f"Skipping send endpoint to {user} as he blocked DMs.")
 
@@ -343,9 +347,9 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(constants.tortoise_guild_id)
         verified_role = guild.get_role(constants.verified_role_id)
         unverified_role = guild.get_role(constants.unverified_role_id)
-        verification_channel = guild.get_channel(constants.verification_channel_id)
+        successful_verifications_channel = guild.get_channel(constants.successful_verifications_channel_id)
 
-        for check_none in (guild, verified_role, unverified_role, verification_channel):
+        for check_none in (guild, verified_role, unverified_role, successful_verifications_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -360,7 +364,7 @@ class SocketCommunication(commands.Cog):
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
         await member.add_roles(verified_role)
-        await verification_channel.send(f"{member} is now verified.")
+        await successful_verifications_channel.send(f"{member} is now verified.")
         await member.send("You are now verified.")
 
     @endpoint_register()
