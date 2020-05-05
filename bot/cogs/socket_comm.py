@@ -347,9 +347,9 @@ class SocketCommunication(commands.Cog):
         guild = self.bot.get_guild(constants.tortoise_guild_id)
         verified_role = guild.get_role(constants.verified_role_id)
         unverified_role = guild.get_role(constants.unverified_role_id)
-        verification_channel = guild.get_channel(constants.verification_channel_id)
+        successful_verifications_channel = guild.get_channel(constants.successful_verifications_channel_id)
 
-        for check_none in (guild, verified_role, unverified_role, verification_channel):
+        for check_none in (guild, verified_role, unverified_role, successful_verifications_channel):
             if check_none is None:
                 raise DiscordIDNotFound()
 
@@ -364,7 +364,7 @@ class SocketCommunication(commands.Cog):
             logger.debug(f"Bot could't remove unverified role {unverified_role}")
 
         await member.add_roles(verified_role)
-        await verification_channel.send(f"{member} is now verified.")
+        await successful_verifications_channel.send(f"{member} is now verified.")
         await member.send("You are now verified.")
 
     @endpoint_register()
