@@ -37,7 +37,7 @@ class ModMail(commands.Cog):
         # and callable is the method to call when that option is selected.
         self._options = {
             constants.mod_mail_emoji_id: {
-                "message": "Mod mail",
+                "message": "Contact staff (mod mail)",
                 "callable": self.create_mod_mail
             },
             constants.event_emoji_id: {
