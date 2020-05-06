@@ -33,12 +33,20 @@ class Security(commands.Cog):
         # For this to work bot needs to have manage_guild permission (so he can get guild invites)
         if "https:" in message.content or "http:" in message.content:
             # Find any url
-            base_url = re.findall(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
-                                  message.content)
+            base_url = re.findall(
+                r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+                message.content
+            )
+
             for invite in base_url:
+
                 # Get the endpoint of that url (for discord invite url shorteners)
-                async with self.session.get(invite) as response:
-                    invite = str(response.url)
+                try:
+                    async with self.session.get(invite) as response:
+                        invite = str(response.url)
+                except aiohttp.ClientConnectorError:
+                    # The link is not valid
+                    continue
 
                 if "discordapp.com/invite/" in invite or "discord.gg/" in invite:
                     if not await Security.check_if_invite_is_our_guild(invite, message.guild):
