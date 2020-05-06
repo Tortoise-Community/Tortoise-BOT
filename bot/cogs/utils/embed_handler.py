@@ -115,7 +115,7 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
     return embed
 
 
-def status_embed(member, *, description="") -> Embed:
+def status_embed(member: Member, *, description: str = "") -> Embed:
     """
     Construct status embed for certain member.
     Status will have info such as member device, online status, activity, roles etc.
@@ -130,7 +130,7 @@ def status_embed(member, *, description="") -> Embed:
     )
 
     if member.status == Status.offline:
-        embed.add_field(name="DEVICE", value=":no_entry:")
+        embed.add_field(name="**DEVICE**", value=":no_entry:")
     elif member.is_on_mobile():
         embed.add_field(name="**DEVICE**", value="Phone: :iphone:")
     else:
@@ -138,15 +138,16 @@ def status_embed(member, *, description="") -> Embed:
 
     embed.add_field(name="**Status**", value=get_member_status(member=member), inline=False)
     embed.add_field(name="**Joined server at**", value=member.joined_at, inline=False)
-    embed.add_field(name="**Roles**", value=get_member_roles_as_mentions(member.roles), inline=False)
+    embed.add_field(name="**Roles**", value=get_member_roles_as_mentions(member), inline=False)
     embed.add_field(name="**Activity**", value=get_member_activity(member=member), inline=False)
     embed.set_thumbnail(url=member.avatar_url)
+
     return embed
 
 
 def infraction_embed(
         ctx,
-        infracted_member,
+        infracted_member: Union[Member, User],
         infraction_type: constants.Infraction,
         reason: str
 ) -> Embed:
