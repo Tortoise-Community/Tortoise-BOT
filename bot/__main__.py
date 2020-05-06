@@ -7,6 +7,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from bot.bot import Bot
+from bot.non_blocking_file_handler import NonBlockingFileHandler
 
 
 root_logger = logging.getLogger()
@@ -14,7 +15,7 @@ root_logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(message)s")
 
-file_handler = logging.FileHandler("log.txt", encoding="utf-8")
+file_handler = NonBlockingFileHandler("log.txt", encoding="utf-8")
 file_handler.setFormatter(formatter)
 root_logger.addHandler(file_handler)
 

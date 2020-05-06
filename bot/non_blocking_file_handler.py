@@ -8,7 +8,7 @@ from logging import FileHandler
 from queue import Queue
 
 
-class AsyncFileHandler(FileHandler):
+class NonBlockingFileHandler(FileHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._queue = Queue(maxsize=9999)

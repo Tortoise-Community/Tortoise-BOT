@@ -22,8 +22,8 @@ class Bot(commands.Bot):
 
     async def on_ready(self):
         console_logger.info(
-            f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
-            f"d.py version: {discord.__version__}"
+            f"Successfully logged in as {self.user.name} ID:{self.user.id} \t"
+            f"d.py version: {discord.__version__} \t"
             "Further logging output will go to log file.."
         )
 
