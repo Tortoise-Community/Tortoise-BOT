@@ -4,10 +4,12 @@ import discord
 
 
 def get_member_status(member: discord.Member) -> str:
+    green_circle = "\U0001F7E2"
+
     if member.status == discord.Status.dnd:
         return "DND 🔴"
     elif member.status == discord.Status.online:
-        return "ONLINE 🟢"
+        return f"ONLINE {green_circle}"
     elif member.status == discord.Status.idle:
         return "IDLE 🌙"
     elif member.status == discord.Status.offline:
