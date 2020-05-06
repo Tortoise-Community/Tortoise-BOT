@@ -18,7 +18,7 @@ def get_member_status(member: discord.Member) -> str:
 
 def get_member_roles_as_mentions(member: discord.Member) -> str:
     role_mentions = [role.mention for role in member.roles]
-    return "".join(role_mentions)
+    return " ".join(role_mentions)
 
 
 def get_member_activity(member: discord.Member) -> Union[None, str]:
