@@ -103,7 +103,7 @@ tortoise_developers = (197918569894379520, 612349409736392928)
 embed_space = "\u200b "
 
 # After this is exceeded the link to tortoise paste service should be sent
-max_message_length = 500
+max_message_length = 1000
 
 
 class Infraction(Enum):
