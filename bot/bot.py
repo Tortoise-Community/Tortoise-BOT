@@ -11,6 +11,7 @@ from bot.constants import error_log_channel_id
 
 
 logger = logging.getLogger(__name__)
+console_logger = logging.getLogger("console")
 
 
 class Bot(commands.Bot):
@@ -20,9 +21,10 @@ class Bot(commands.Bot):
         self._was_ready_once = False
 
     async def on_ready(self):
-        logger.info(
-            f"Successfully logged in as {self.user.name} ID:{self.user.id}\t"
-            f"d.py version: {discord.__version__}"
+        console_logger.info(
+            f"Successfully logged in as {self.user.name} ID:{self.user.id} \t"
+            f"d.py version: {discord.__version__} \t"
+            "Further logging output will go to log file.."
         )
 
         if not self._was_ready_once:

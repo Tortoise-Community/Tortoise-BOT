@@ -4,10 +4,12 @@ import discord
 
 
 def get_member_status(member: discord.Member) -> str:
+    green_circle = "\U0001F7E2"
+
     if member.status == discord.Status.dnd:
         return "DND 🔴"
     elif member.status == discord.Status.online:
-        return "ONLINE 🟢"
+        return f"ONLINE {green_circle}"
     elif member.status == discord.Status.idle:
         return "IDLE 🌙"
     elif member.status == discord.Status.offline:
@@ -18,7 +20,7 @@ def get_member_status(member: discord.Member) -> str:
 
 def get_member_roles_as_mentions(member: discord.Member) -> str:
     role_mentions = [role.mention for role in member.roles]
-    return "".join(role_mentions)
+    return " ".join(role_mentions)
 
 
 def get_member_activity(member: discord.Member) -> Union[None, str]:
