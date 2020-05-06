@@ -60,9 +60,10 @@ self_assignable_roles = {
 
 
 # Emoji IDs
-mod_mail_emoji_id = 620502308815503380
+mod_mail_emoji_id = 706195614857297970
 event_emoji_id = 611403448750964746
 bug_emoji_id = 690635117655359559
+suggestions_emoji_id = 613185393776656384
 
 
 # Captcha Verification
