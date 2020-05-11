@@ -187,7 +187,7 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        user_suggestions_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
+        user_suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
         await user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)

@@ -52,7 +52,7 @@ class Admins(commands.Cog):
         await member.ban(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
 
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 

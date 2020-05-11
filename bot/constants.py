@@ -21,6 +21,7 @@ react_for_roles_channel_id = 603651772950773761
 mod_mail_report_channel_id = 693790120712601610
 bug_reports_channel_id = 693790120712601610
 code_submissions_channel_id = 610079185569841153
+suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
 system_log_channel_id = 593883395436838942

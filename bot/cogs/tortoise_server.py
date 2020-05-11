@@ -32,7 +32,8 @@ class TortoiseServer(commands.Cog):
             return
 
         if len(message.content) > constants.max_message_length:
-            await message.delete()
+            # TODO we are skipping message deletion for now until we implement system to check
+            #  if sent message is code or not
             msg = (
                 "Your message is quite long.\n"
                 f"You should consider using our paste service {constants.tortoise_paste_service_link}"
