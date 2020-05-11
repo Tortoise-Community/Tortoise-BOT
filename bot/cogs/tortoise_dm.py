@@ -131,7 +131,7 @@ class TortoiseDM(commands.Cog):
 
         for emoji in emoji_map.keys():
             if emoji is None:
-                logger.warning(f"Sending DM options failed as emoji is not found.")
+                logger.warning("Sending DM options failed as emoji is not found.")
                 return
             else:
                 await msg.add_reaction(emoji)

@@ -132,7 +132,7 @@ class TortoiseServer(commands.Cog):
             previous_roles = await self.bot.api_client.get_member_roles(member.id)
             await self.add_verified_roles_to_member(member, previous_roles)
 
-            logger.debug(f"Updating database as member re-joined.")
+            logger.debug("Updating database as member re-joined.")
             await self.bot.api_client.member_rejoined(member)
 
             await log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
