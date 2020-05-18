@@ -19,6 +19,7 @@ from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
 from bot.constants import ytdl_format_options, ffmpeg_options
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 
 
 ytdl = YoutubeDL(ytdl_format_options)
@@ -178,7 +179,8 @@ class Music(commands.Cog):
         """A local check which applies to all commands in this cog."""
         if not ctx.guild:
             raise commands.NoPrivateMessage
-        return True
+        else:
+            return check_if_it_is_tortoise_guild(ctx)
 
     async def cog_command_error(self, ctx, error):
         """A local error handler for all errors arising from commands in this cog."""

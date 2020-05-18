@@ -263,7 +263,7 @@ class Admins(commands.Cog):
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command()
-    @commands.cooldown(1, 300, commands.BucketType.guild)
+    @commands.cooldown(1, 900, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
         """

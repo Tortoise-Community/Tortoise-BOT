@@ -107,6 +107,7 @@ class Other(commands.Cog):
         await ctx.send(f"```{msg}```")
 
     @commands.command()
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def countdown(self, ctx, start: int):
         try:
             await ctx.message.delete()
