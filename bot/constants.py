@@ -21,6 +21,7 @@ react_for_roles_channel_id = 603651772950773761
 mod_mail_report_channel_id = 693790120712601610
 bug_reports_channel_id = 693790120712601610
 code_submissions_channel_id = 610079185569841153
+suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
 system_log_channel_id = 593883395436838942
@@ -60,9 +61,10 @@ self_assignable_roles = {
 
 
 # Emoji IDs
-mod_mail_emoji_id = 620502308815503380
+mod_mail_emoji_id = 706195614857297970
 event_emoji_id = 611403448750964746
 bug_emoji_id = 690635117655359559
+suggestions_emoji_id = 613185393776656384
 
 
 # Captcha Verification
@@ -102,7 +104,7 @@ tortoise_developers = (197918569894379520, 612349409736392928)
 embed_space = "\u200b "
 
 # After this is exceeded the link to tortoise paste service should be sent
-max_message_length = 500
+max_message_length = 1000
 
 
 class Infraction(Enum):

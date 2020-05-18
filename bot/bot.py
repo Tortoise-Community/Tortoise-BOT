@@ -52,7 +52,7 @@ class Bot(commands.Bot):
             if count < 5:
                 await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
             else:
-                await error_log_channel.send(f"```Stopping spam, too many pages. See log for more info.```")
+                await error_log_channel.send("```Stopping spam, too many pages. See log for more info.```")
                 break
 
     @staticmethod

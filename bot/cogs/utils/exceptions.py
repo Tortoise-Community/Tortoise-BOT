@@ -28,17 +28,17 @@ class EndpointError(EndpointResponse):
 
 class EndpointNotFound(EndpointError):
     def __init__(self):
-        super().__init__(400, f"Endpoint not found.")
+        super().__init__(400, "Endpoint not found.")
 
 
 class EndpointBadArguments(EndpointError):
     def __init__(self):
-        super().__init__(400, f"Endpoint bad arguments.")
+        super().__init__(400, "Endpoint bad arguments.")
 
 
 class DiscordIDNotFound(EndpointError):
     def __init__(self):
-        super().__init__(404, f"Discord ID not found.")
+        super().__init__(404, "Discord ID not found.")
 
 
 class InternalServerError(EndpointError):

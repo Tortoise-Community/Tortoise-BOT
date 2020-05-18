@@ -23,7 +23,7 @@ class UnsupportedFileEncoding(ValueError):
     pass
 
 
-class ModMail(commands.Cog):
+class TortoiseDM(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -32,12 +32,13 @@ class ModMail(commands.Cog):
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
         self.active_bug_reports = set()
+        self.active_suggestions = set()
 
         # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM
         # and callable is the method to call when that option is selected.
         self._options = {
             constants.mod_mail_emoji_id: {
-                "message": "Mod mail",
+                "message": "Contact staff (mod mail)",
                 "callable": self.create_mod_mail
             },
             constants.event_emoji_id: {
@@ -47,6 +48,10 @@ class ModMail(commands.Cog):
             constants.bug_emoji_id: {
                 "message": "Bug report",
                 "callable": self.create_bug_report
+            },
+            constants.suggestions_emoji_id: {
+                "message": "Make a suggestion",
+                "callable": self.create_suggestion
             }
         }
 
@@ -126,18 +131,21 @@ class ModMail(commands.Cog):
 
         for emoji in emoji_map.keys():
             if emoji is None:
-                logger.warning(f"Sending DM options failed as emoji is not found.")
+                logger.warning("Sending DM options failed as emoji is not found.")
                 return
             else:
                 await msg.add_reaction(emoji)
 
     def is_any_session_active(self, user_id: int) -> bool:
         # If the mod mail or anything else is active don't clutter the active session
-        return any(user_id in active for active in (
-            self.active_mod_mails.keys(),
-            self.active_mod_mails.values(),
-            self.active_event_submissions,
-            self.active_bug_reports)
+        return any(
+            user_id in active for active in (
+                self.active_mod_mails.keys(),
+                self.active_mod_mails.values(),
+                self.active_event_submissions,
+                self.active_bug_reports,
+                self.active_suggestions
+            )
         )
 
     async def create_mod_mail(self, user: discord.User):
@@ -152,55 +160,66 @@ class ModMail(commands.Cog):
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
 
     async def create_event_submission(self, user: discord.User):
-        user_reply = await self._wait_for(self.active_event_submissions, user)
+        user_reply = await self._get_user_reply(self.active_event_submissions, user)
         if user_reply is None:
-            return
-
-        try:
-            possible_attachment = await self.get_message_txt_attachment(user_reply)
-        except (UnsupportedFileExtension, UnsupportedFileEncoding) as e:
-            await user.send(embed=failure(f"Error: {e} , canceling."))
-            self.active_event_submissions.remove(user.id)
-            return
-
-        event_submission = user_reply.content if possible_attachment is None else possible_attachment
-        if len(event_submission) < 10:
-            await user.send(embed=failure("Too short - seems invalid, canceling."))
-            self.active_event_submissions.remove(user.id)
             return
 
         code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
         await code_submissions_channel.send(
             f"User `{user}` ID:{user.id} submitted code submission: "
-            f"{event_submission}"
+            f"{user_reply}"
         )
         await user.send(embed=success("Event submission successfully submitted."))
         self.active_event_submissions.remove(user.id)
 
     async def create_bug_report(self, user: discord.User):
-        user_reply = await self._wait_for(self.active_bug_reports, user)
-
+        user_reply = await self._get_user_reply(self.active_bug_reports, user)
         if user_reply is None:
             return
+
+        bug_report_channel = self.bot.get_channel(constants.bug_reports_channel_id)
+        await bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {user_reply}")
+        await user.send(embed=success("Bug report successfully submitted, thank you."))
+        self.active_bug_reports.remove(user.id)
+
+    async def create_suggestion(self, user: discord.User):
+        user_reply = await self._get_user_reply(self.active_suggestions, user)
+        if user_reply is None:
+            return
+
+        user_suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
+        await user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
+        await user.send(embed=success("Suggestion successfully submitted, thank you."))
+        self.active_suggestions.remove(user.id)
+
+    async def _get_user_reply(self, container: set, user: discord.User) -> Union[str, None]:
+        """
+        Helper method to get user reply, only deals with errors.
+        Uses self._wait_for method so it can get both the user message reply and text from attachment file.
+        :param container: set, container holding active user sessions by having their IDs in it.
+        :param user: Discord user to wait reply from
+        :return: Union[str, None] string representing user reply, can be None representing invalid reply.
+        """
+        user_reply = await self._wait_for(container, user)
+
+        if user_reply is None:
+            return None
 
         try:
             possible_attachment = await self.get_message_txt_attachment(user_reply)
         except (UnsupportedFileExtension, UnsupportedFileEncoding) as e:
             await user.send(embed=failure(f"Error: {e} , canceling."))
-            self.active_bug_reports.remove(user.id)
+            container.remove(user.id)
             return
 
-        bug_report = user_reply.content if possible_attachment is None else possible_attachment
+        user_reply_content = user_reply.content if possible_attachment is None else possible_attachment
 
-        if len(bug_report) < 10:
+        if len(user_reply_content) < 10:
             await user.send(embed=failure("Too short - seems invalid, canceling."))
-            self.active_bug_reports.remove(user.id)
-            return
-
-        bug_report_channel = self.bot.get_channel(constants.bug_reports_channel_id)
-        await bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {bug_report}")
-        await user.send(embed=success("Bug report successfully submitted, thank you."))
-        self.active_bug_reports.remove(user.id)
+            container.remove(user.id)
+            return None
+        else:
+            return user_reply_content
 
     async def _wait_for(self, container: set, user: discord.User) -> Union[discord.Message, None]:
         """
@@ -218,7 +237,7 @@ class ModMail(commands.Cog):
 
         await user.send(
             embed=info(
-                "Reply with message, link to paste service or uploading utf-8 `.txt` file.\n"
+                "Reply with single message, link to paste service or uploading utf-8 `.txt` file.\n"
                 "You have 5m, type `cancel` to cancel right away.", user
             )
         )
@@ -354,4 +373,4 @@ class ModMail(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(ModMail(bot))
+    bot.add_cog(TortoiseDM(bot))

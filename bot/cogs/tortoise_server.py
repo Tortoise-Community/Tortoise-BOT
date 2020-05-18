@@ -32,7 +32,8 @@ class TortoiseServer(commands.Cog):
             return
 
         if len(message.content) > constants.max_message_length:
-            await message.delete()
+            # TODO we are skipping message deletion for now until we implement system to check
+            #  if sent message is code or not
             msg = (
                 "Your message is quite long.\n"
                 f"You should consider using our paste service {constants.tortoise_paste_service_link}"
@@ -131,7 +132,7 @@ class TortoiseServer(commands.Cog):
             previous_roles = await self.bot.api_client.get_member_roles(member.id)
             await self.add_verified_roles_to_member(member, previous_roles)
 
-            logger.debug(f"Updating database as member re-joined.")
+            logger.debug("Updating database as member re-joined.")
             await self.bot.api_client.member_rejoined(member)
 
             await log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))

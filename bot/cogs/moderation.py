@@ -52,7 +52,7 @@ class Admins(commands.Cog):
         await member.ban(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
 
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
         deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         await deterrence_log_channel.send(embed=deterrence_embed)
 
@@ -263,7 +263,7 @@ class Admins(commands.Cog):
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command()
-    @commands.cooldown(1, 300, commands.BucketType.guild)
+    @commands.cooldown(1, 900, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
         """
