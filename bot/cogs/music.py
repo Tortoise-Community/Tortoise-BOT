@@ -190,13 +190,15 @@ class Music(commands.Cog):
             except discord.HTTPException:
                 pass
         elif isinstance(error, InvalidVoiceChannel):
-            await ctx.send("Error connecting to Voice Channel. "
-                           "Please make sure you are in a valid channel or provide me with one")
+            await ctx.send(
+                "Error connecting to Voice Channel. "
+                "Please make sure you are in a valid channel or provide me with one"
+            )
         elif isinstance(error, TortoiseGuildCheckFailure):
             await ctx.send(f"{error}")
-
-        print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+        else:
+            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     def get_player(self, ctx):
         """Retrieve the guild player, or generate one."""
