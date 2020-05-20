@@ -328,7 +328,6 @@ class SocketCommunication(commands.Cog):
             response_data[member_id] = member_data
 
         return_data = {"data": response_data}
-        logger.debug(f"Processing members done, returning: {return_data}")
         return return_data
 
     @endpoint_register(endpoint_key="verify")
