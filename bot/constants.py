@@ -1,4 +1,4 @@
-from enum import Enum
+from aenum import Enum, NoAlias
 
 from discord import Color
 
@@ -108,6 +108,8 @@ max_message_length = 1000
 
 
 class Infraction(Enum):
+    _settings_ = NoAlias
+
     warning = Color.gold()
     kick = Color.gold()
     ban = Color.red()
