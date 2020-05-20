@@ -310,7 +310,6 @@ class SocketCommunication(commands.Cog):
         logger.debug(f"Processing members: {members}")
 
         for member_id in members:
-            logger.debug(f"Processing member: {member_id}")
             member = tortoise_guild.get_member(member_id)
             member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
