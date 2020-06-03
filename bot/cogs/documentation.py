@@ -110,9 +110,10 @@ class Documentation(commands.Cog):
                     break
 
         cache = list(self._doc_cache[key].items())
+        
         def transform(tup):
             return tup[0]
-        #add to utils
+        
         matches = Fuzzy.finder(obj, cache, key=lambda t: t[0], lazy=False)[:8]
 
         embed_msg = simple_embed("", "Links", 0xffb101)
@@ -133,7 +134,7 @@ class Documentation(commands.Cog):
         """
         await self.fetch_doc_links(ctx, 'latest', obj)
 
-    @commands.command(aliases=['pydoc','py'])
+    @commands.command(aliases=['pydoc', 'py'])
     async def python(self, ctx, *, obj: str = None):
         """Gives you a documentation link for a Python entity."""
         await self.fetch_doc_links(ctx, 'python', obj) 
