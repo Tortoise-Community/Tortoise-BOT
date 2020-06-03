@@ -6,6 +6,7 @@ from discord.ext import commands
 from cogs.utils.doc_dependency import Fuzzy,  SphinxObjectFileReader
 from cogs.utils.embed_handler import simple_embed
 
+
 class Documentation(commands.Cog):
 
     def __init__(self, bot):
@@ -81,7 +82,6 @@ class Documentation(commands.Cog):
                 cache[key] = self.parse_object_inv(stream, page)
 
         self._doc_cache = cache
-
 
     async def fetch_doc_links(self, ctx, key, obj):
         page_types = {
