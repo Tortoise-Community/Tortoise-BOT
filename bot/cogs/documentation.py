@@ -8,11 +8,10 @@ from cogs.utils.embed_handler import simple_embed
 
 class Documentation(commands.Cog):
 
-    def __init__(self,bot):
+    def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
         
-  
     def parse_object_inv(self, stream, url):
         # key: URL
         # n.b.: key doesn't have `discord` or `discord.ext.commands` namespaces
@@ -69,9 +68,7 @@ class Documentation(commands.Cog):
             result[f'{prefix}{key}'] = os.path.join(url, location)
 
         return result
-
-        
-    
+ 
     async def build_documentation_lookup_table(self, page_types):
         cache = {}
         for key, page in page_types.items():
@@ -118,16 +115,14 @@ class Documentation(commands.Cog):
         #add to utils
         matches = Fuzzy.finder(obj, cache, key=lambda t: t[0], lazy=False)[:8]
 
-        embed_msg = simple_embed("","Links",0xffb101)
+        embed_msg = simple_embed("", "Links", 0xffb101)
         if len(matches) == 0:
-            embed_msg = simple_embed("Query didn't match any entity","Sorry",ctx.me.top_role.color)
+            embed_msg = simple_embed("Query didn't match any entity", "Sorry", ctx.me.top_role.color)
             return await ctx.send(embed=embed_msg)
 
         embed_msg.description = '\n'.join(f'[`{key}`]({url})' for key, url in matches)
 
         await ctx.send(embed=embed_msg)
-
-
 
     @commands.command(aliases=['dpy'], invoke_without_command=True)
     async def discordpy(self, ctx, *, obj: str = None):
@@ -135,7 +130,6 @@ class Documentation(commands.Cog):
         Gives you a documentation link for a discord.py entity.
         Events, objects, and functions are all supported through a
         a cruddy fuzzy algorithm.
-
         """
         await self.fetch_doc_links(ctx, 'latest', obj)
 
@@ -143,9 +137,6 @@ class Documentation(commands.Cog):
     async def python(self, ctx, *, obj: str = None):
         """Gives you a documentation link for a Python entity."""
         await self.fetch_doc_links(ctx, 'python', obj) 
-
-
-
 
 def setup(bot):
     bot.add_cog(Documentation(bot))        
