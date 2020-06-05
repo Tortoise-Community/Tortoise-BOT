@@ -1,18 +1,19 @@
 import os
 import re
-import aiohttp
 
+import aiohttp
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import simple_embed
-from bot.cogs.utils.doc_dependency import Fuzzy,  SphinxObjectFileReader
+from bot.cogs.utils.embed_handler import info, failure
+from bot.cogs.utils.doc_dependency import Fuzzy, SphinxObjectFileReader
 
 
 class Documentation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self._doc_cache = {}
         self.session = aiohttp.ClientSession()
 
     @classmethod
@@ -30,6 +31,7 @@ class Documentation(commands.Cog):
         # next line is "# Project: <name>"
         # then after that is "# Version: <version>"
         projname = stream.readline().rstrip()[11:]
+        _ = stream.readline().rstrip()[11:]  # represents version
 
         # next line says if it's a zlib header
         line = stream.readline()
@@ -95,7 +97,7 @@ class Documentation(commands.Cog):
             await ctx.send(page_types[key])
             return
 
-        if not hasattr(self, '_doc_cache'):
+        if not self._doc_cache:
             await ctx.trigger_typing()
             await self.build_documentation_lookup_table(page_types)
 
@@ -115,12 +117,12 @@ class Documentation(commands.Cog):
 
         matches = Fuzzy.finder(obj, cache, key=lambda t: t[0], lazy=False)[:8]
 
-        embed_msg = simple_embed("", "Links", discord.Colour.gold())
         if len(matches) == 0:
-            embed_msg = simple_embed("Query didn't match any entity", "Sorry", ctx.me.top_role.color)
-            return await ctx.send(embed=embed_msg)
+            await ctx.send(embed=failure("Query didn't match any entity"))
+            return
 
-        embed_msg.description = '\n'.join(f'[`{key}`]({url})' for key, url in matches)
+        embed_msg = "\n".join(f"[`{key}`]({url})" for key, url in matches)
+        embed_msg = info(embed_msg, ctx.me, title="Links")
 
         await ctx.send(embed=embed_msg)
 
