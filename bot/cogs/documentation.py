@@ -1,19 +1,23 @@
-import re
 import os
-import discord 
+import re
 import aiohttp
+
+import discord
 from discord.ext import commands
-from cogs.utils.doc_dependency import Fuzzy,  SphinxObjectFileReader
-from cogs.utils.embed_handler import simple_embed
+
+from bot.cogs.utils.embed_handler import simple_embed
+from bot.cogs.utils.doc_dependency import Fuzzy,  SphinxObjectFileReader
 
 
 class Documentation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self._doc_cache = {}
         self.session = aiohttp.ClientSession()
-        
-    def parse_object_inv(self, stream, url):
+
+    @classmethod
+    def parse_object_inv(cls, stream, url):
         # key: URL
         # n.b.: key doesn't have `discord` or `discord.ext.commands` namespaces
         result = {}
@@ -27,7 +31,6 @@ class Documentation(commands.Cog):
         # next line is "# Project: <name>"
         # then after that is "# Version: <version>"
         projname = stream.readline().rstrip()[11:]
-        version = stream.readline().rstrip()[11:]
 
         # next line says if it's a zlib header
         line = stream.readline()
@@ -44,7 +47,7 @@ class Documentation(commands.Cog):
             name, directive, prio, location, dispname = match.groups()
             domain, _, subdirective = directive.partition(':')
             if directive == 'py:module' and name in result:
-                """    
+                """
                 From the Sphinx Repository:
                 due to a bug in 1.1 and below,
                 two inventory entries are created
@@ -69,11 +72,11 @@ class Documentation(commands.Cog):
             result[f'{prefix}{key}'] = os.path.join(url, location)
 
         return result
- 
+
     async def build_documentation_lookup_table(self, page_types):
         cache = {}
         for key, page in page_types.items():
-            sub = cache[key] = {}
+            cache[key] = {}
             async with self.session.get(page + '/objects.inv') as resp:
                 if resp.status != 200:
                     raise RuntimeError('Cannot build doc lookup table, try again later.')
@@ -110,13 +113,10 @@ class Documentation(commands.Cog):
                     break
 
         cache = list(self._doc_cache[key].items())
-        
-        def transform(tup):
-            return tup[0]
-        
+
         matches = Fuzzy.finder(obj, cache, key=lambda t: t[0], lazy=False)[:8]
 
-        embed_msg = simple_embed("", "Links", 0xffb101)
+        embed_msg = simple_embed("", "Links", discord.Colour.gold())
         if len(matches) == 0:
             embed_msg = simple_embed("Query didn't match any entity", "Sorry", ctx.me.top_role.color)
             return await ctx.send(embed=embed_msg)
@@ -137,7 +137,8 @@ class Documentation(commands.Cog):
     @commands.command(aliases=['pydoc', 'py'])
     async def python(self, ctx, *, obj: str = None):
         """Gives you a documentation link for a Python entity."""
-        await self.fetch_doc_links(ctx, 'python', obj) 
+        await self.fetch_doc_links(ctx, 'python', obj)
+
 
 def setup(bot):
-    bot.add_cog(Documentation(bot))        
+    bot.add_cog(Documentation(bot))
