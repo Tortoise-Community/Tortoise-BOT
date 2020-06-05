@@ -13,7 +13,6 @@ class Documentation(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self._doc_cache = {}
         self.session = aiohttp.ClientSession()
 
     @classmethod
