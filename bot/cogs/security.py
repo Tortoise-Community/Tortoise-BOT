@@ -47,8 +47,8 @@ class Security(commands.Cog):
         for category, banned_words in self.banned_words.loaded.items():
             for banned_word in banned_words:
                 if banned_word in message.content.lower(): 
-                    embed = info(f"Curse word **{banned_word}** detected from the category **{category}**",message.guild.me,"")
-                    embed.set_footer(text=f"Author: {message.author}",icon_url=message.author.avatar_url)
+                    embed = info(f"Curse word **{banned_word}** detected from the category **{category}**", message.guild.me, "")
+                    embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
                     await self.log_channel.send(embed=embed)              
 
     # Checks all the conditions for message moderation              
@@ -80,9 +80,9 @@ class Security(commands.Cog):
     async def on_message_edit(self, msg_before, msg_after):
         embed=info(
         f"""**Message edited in** {msg_before.channel.mention}\n\n**Before:** {msg_before.content}\n
-        **After: **{msg_after.content}\n\n[jump]({msg_after.jump_url})""",msg_before.guild.me,""
+        **After: **{msg_after.content}\n\n[jump]({msg_after.jump_url})""", msg_before.guild.me, ""
         )
-        embed.set_footer(text=f"Author: {msg_before.author}",icon_url=msg_before.author.avatar_url)
+        embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar_url)
         await self.log_channel.send(embed=embed)    
         await self._security_check(msg_after) 
     
@@ -90,9 +90,9 @@ class Security(commands.Cog):
     @check_config
     async def on_message_delete(self, message):
         embed=info(
-        f"""**Message deleted in** {message.channel.mention}\n\n**Message: **{message.content}""",message.guild.me,""
+        f"""**Message deleted in** {message.channel.mention}\n\n**Message: **{message.content}""", message.guild.me, ""
         )
-        embed.set_footer(text=f"Author: {message.author}",icon_url=message.author.avatar_url)
+        embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
         await self.log_channel.send(embed=embed) 
 
     @staticmethod
