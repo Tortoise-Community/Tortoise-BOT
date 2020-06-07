@@ -66,15 +66,15 @@ class Security(commands.Cog):
             for message in args:
                 if message.guild is None or message.author == message.guild.me:
                     return
-                # elif message.guild.id != constants.tortoise_guild_id:
-                # # Functionality only available in Tortoise guild
-                #     return
+                elif message.guild.id != constants.tortoise_guild_id:
+                    # Functionality only available in Tortoise guild
+                    return
                 elif not isinstance(message.author, Member):
                     # Web-hooks messages will appear as from User even tho they are in Guild.
                     return
-                # elif message.author.guild_permissions.administrator:
-                # # Ignore admins
-                #     return
+                elif message.author.guild_permissions.administrator:
+                    # Ignore admins
+                    return
             return await function(self, *args)
 
         return wrapper
