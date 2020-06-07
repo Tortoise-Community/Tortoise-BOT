@@ -1,11 +1,11 @@
 import re
+import functools
 
 import aiohttp
 from discord import Member
 from discord.ext import commands
 
-import constants
-import functools
+from bot import constants
 from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info
 
@@ -15,10 +15,10 @@ class Security(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession()
         self.banned_words = ConfigHandler("banned_words.json")
-        self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
-        
+        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
+
         if "https:" in message.content or "http:" in message.content:
 
             # Find any url
@@ -40,60 +40,78 @@ class Security(commands.Cog):
                 if "discord.com/invite/" in invite or "discord.gg/" in invite:
                     if not await Security.check_if_invite_is_our_guild(invite, message.guild):
                         # TODO give him warning points etc / send to deterrence channel
-                        embed = info(f"{message.author.mention} You are not allowed to send other server invites here.", message.guild.me, "")
+                        embed = info(
+                            f"{message.author.mention} You are not allowed to send other server invites here.",
+                            message.guild.me,
+                            ""
+                        )
                         await message.channel.send(embed=embed)
                         await message.delete()
 
         for category, banned_words in self.banned_words.loaded.items():
             for banned_word in banned_words:
-                if banned_word in message.content.lower(): 
-                    embed = info(f"Curse word **{banned_word}** detected from the category **{category}**", message.guild.me, "")
+                if banned_word in message.content.lower():
+                    embed = info(
+                        f"Curse word **{banned_word}** detected from the category **{category}**",
+                        message.guild.me,
+                        ""
+                    )
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-                    await self.log_channel.send(embed=embed)              
+                    await log_channel.send(embed=embed)
 
-    # Checks all the conditions for message moderation              
+    # Checks all the conditions for message moderation
     def check_config(function):
         @functools.wraps(function)
         async def wrapper(self, *args):
-            for message in args: 
+            for message in args:
                 if message.guild is None or message.author == message.guild.me:
                     return
-                elif message.guild.id != constants.tortoise_guild_id:
-                # Functionality only available in Tortoise guild
-                    return
+                # elif message.guild.id != constants.tortoise_guild_id:
+                # # Functionality only available in Tortoise guild
+                #     return
                 elif not isinstance(message.author, Member):
-                # Web-hooks messages will appear as from User even tho they are in Guild.
+                    # Web-hooks messages will appear as from User even tho they are in Guild.
                     return
-                elif message.author.guild_permissions.administrator:
-                # Ignore admins
-                    return
+                # elif message.author.guild_permissions.administrator:
+                # # Ignore admins
+                #     return
             return await function(self, *args)
+
         return wrapper
 
     @commands.Cog.listener()
     @check_config
     async def on_message(self, message):
-        await self._security_check(message) 
-    
+        await self._security_check(message)
+
     @commands.Cog.listener()
     @check_config
     async def on_message_edit(self, msg_before, msg_after):
-        embed=info(
-        f"""**Message edited in** {msg_before.channel.mention}\n\n**Before:** {msg_before.content}\n
-        **After: **{msg_after.content}\n\n[jump]({msg_after.jump_url})""", msg_before.guild.me, ""
+        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
+        msg = (
+            f"**Message edited in** {msg_before.channel.mention}\n\n"
+            f"**Before:** {msg_before.content}\n"
+            f"**After: **{msg_after.content}\n\n"
+            f"[jump]({msg_after.jump_url})"
         )
+
+        embed = info(msg, msg_before.guild.me)
         embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar_url)
-        await self.log_channel.send(embed=embed)    
-        await self._security_check(msg_after) 
-    
+        await log_channel.send(embed=embed)
+        await self._security_check(msg_after)
+
     @commands.Cog.listener()
     @check_config
     async def on_message_delete(self, message):
-        embed=info(
-        f"""**Message deleted in** {message.channel.mention}\n\n**Message: **{message.content}""", message.guild.me, ""
+        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
+        msg = (
+            f"**Message deleted in** {message.channel.mention}\n\n"
+            f"**Message: **{message.content}"
         )
+
+        embed = info(msg, message.guild.me, "")
         embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-        await self.log_channel.send(embed=embed) 
+        await log_channel.send(embed=embed)
 
     @staticmethod
     async def check_if_invite_is_our_guild(full_link, guild):
