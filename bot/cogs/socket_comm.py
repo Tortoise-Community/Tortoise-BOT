@@ -79,7 +79,11 @@ class SocketCommunication(commands.Cog):
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
         self._socket_server = SocketCommunication.create_server()
+        self.verified_role = bot.get_role(constants.verified_role_id)
+        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
+        self.unverified_role = bot.get_role(constants.unverified_role_id)
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
+        self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
 
     def cog_unload(self):
         logger.debug("Unloading socket comm, closing connections.")
@@ -306,11 +310,10 @@ class SocketCommunication(commands.Cog):
         }
         """
         response_data = {}
-        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         logger.debug(f"Processing members: {members}")
 
         for member_id in members:
-            member = tortoise_guild.get_member(member_id)
+            member = self.tortoise_guild.get_member(member_id)
             member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
             if member is None:
@@ -342,27 +345,26 @@ class SocketCommunication(commands.Cog):
         except ValueError:
             raise EndpointBadArguments()
 
-        guild = self.bot.get_guild(constants.tortoise_guild_id)
-        verified_role = guild.get_role(constants.verified_role_id)
-        unverified_role = guild.get_role(constants.unverified_role_id)
-        successful_verifications_channel = guild.get_channel(constants.successful_verifications_channel_id)
+        primary_checks = (
+            self.tortoise_guild, self.verified_role, self.unverified_role, self.successful_verifications_channel
+            )
 
-        for check_none in (guild, verified_role, unverified_role, successful_verifications_channel):
+        for check_none in primary_checks:
             if check_none is None:
                 raise DiscordIDNotFound()
 
-        member = guild.get_member(member_id)
+        member = self.tortoise_guild.get_member(member_id)
 
         if member is None:
             raise DiscordIDNotFound()
 
         try:
-            await member.remove_roles(unverified_role)
+            await member.remove_roles(self.unverified_role)
         except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {unverified_role}")
+            logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
 
-        await member.add_roles(verified_role)
-        await successful_verifications_channel.send(f"{member} is now verified.")
+        await member.add_roles(self.verified_role)
+        await self.successful_verifications_channel.send(f"{member} is now verified.")
         await member.send("You are now verified.")
 
     @endpoint_register()
