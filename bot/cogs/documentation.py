@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from bot.cogs.utils.embed_handler import info, failure
-from bot.cogs.utils.doc_dependency import Fuzzy, SphinxObjectFileReader
+from bot.cogs.utils.bot_dependency import Fuzzy, SphinxObjectFileReader
 
 
 class Documentation(commands.Cog):

@@ -15,10 +15,10 @@ logger = logging.getLogger(__name__)
 class Admins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
         self.muted_role = bot.get_role(constants.muted_role_id)
         self.verified_role = bot.get_role(constants.verified_role_id)
         self.unverified_role = bot.get_role(constants.unverified_role_id)
+        self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)

@@ -7,7 +7,8 @@ import discord
 from discord.ext import commands
 
 from bot.cogs.utils.embed_handler import info, status_embed
-from bot.constants import github_repo_link
+from bot.constants import github_repo_link, embed_space
+from bot.cogs.utils.bot_dependency import construct_load_bar_string
 
 
 class Other(commands.Cog):
@@ -78,33 +79,42 @@ class Other(commands.Cog):
         """
         bot_ram_usage = self.process.memory_full_info().rss / 1024 ** 2
         bot_ram_usage = f"{bot_ram_usage:.2f} MB"
+        bot_ram_usage_field = construct_load_bar_string(self.process.memory_percent(), bot_ram_usage)
 
         virtual_memory = psutil.virtual_memory()
-        server_ram_usage = f"{virtual_memory.used / 1024 / 1024:.0f} MB"
-        total_server_ram = f"{virtual_memory.total / 1024 / 1024:.0f} MB"
+        server_ram_usage = f"{virtual_memory.used/1024/1024:.0f} MB"
+        server_ram_usage_field = construct_load_bar_string(virtual_memory.percent, server_ram_usage)
 
         cpu_count = psutil.cpu_count()
 
         bot_cpu_usage = self.process.cpu_percent()
         if bot_cpu_usage > 100:
             bot_cpu_usage = bot_cpu_usage / cpu_count
+        bot_cpu_usage_field = construct_load_bar_string(bot_cpu_usage)
 
         server_cpu_usage = psutil.cpu_percent()
         if server_cpu_usage > 100:
             server_cpu_usage = server_cpu_usage / cpu_count
+        server_cpu_usage_field = construct_load_bar_string(server_cpu_usage)
 
         io_counters = self.process.io_counters()
-        io_read_bytes = f"{io_counters.read_bytes / 1024 / 1024:.3f}MB"
-        io_write_bytes = f"{io_counters.write_bytes / 1024 / 1024:.3f}MB"
+        io_read_bytes = f"{io_counters.read_bytes/1024/1024:.3f}MB"
+        io_write_bytes = f"{io_counters.write_bytes/1024/1024:.3f}MB"
 
-        msg = (f"Bot RAM usage: {bot_ram_usage}\n"
-               f"Server RAM usage: {server_ram_usage}\n"
-               f"Total server RAM: {total_server_ram}\n"
-               f"Bot CPU usage: {bot_cpu_usage}\n"
-               f"Server CPU usage: {server_cpu_usage}\n"
-               f"IO (r/w): {io_read_bytes} / {io_write_bytes}")
+        # The weird numbers is just guessing number of spaces so the lines align
+        # Needed since embeds are not monospaced font
+        field_content = (f"**Bot RAM usage:**{embed_space*7}{bot_ram_usage_field}\n"
+                         f"**Server RAM usage:**{embed_space}{server_ram_usage_field}\n"
+                         f"**Bot CPU usage:**{embed_space*9}{bot_cpu_usage_field}\n"
+                         f"**Server CPU usage:**{embed_space*3}{server_cpu_usage_field}\n"
+                         f"**IO (r/w):** {io_read_bytes} / {io_write_bytes}\n")
 
-        await ctx.send(f"```{msg}```")
+        embed = info("", ctx.me, "")
+        embed.set_author(name="Tortoise BOT", avatar_url=ctx.me.avatar_url)
+        embed.add_field(name="Bot Stats", value=field_content, inline=True)
+        embed.set_footer(text="Tortoise Community")
+
+        await ctx.send(embed=embed)
 
     @commands.command()
     @commands.cooldown(1, 10, commands.BucketType.user)

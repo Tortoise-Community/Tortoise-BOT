@@ -3,6 +3,38 @@ import io
 import zlib
 
 
+def construct_load_bar_string(percent, message=None, size=None):
+
+    # Taken from albertopoljak's Licensy Bot coded in discord.py
+    # Original source: https://github.com/albertopoljak/Licensy
+    if size is None:
+        size = 10
+    else:
+        if size < 8:
+            size = 8
+
+    limiters = "|"
+    element_emtpy = "▱"
+    element_full = "▰"
+    constructed = ""
+
+    if percent > 100:
+        percent = 100
+    progress = int(round(percent / size))
+
+    constructed += limiters
+    for x in range(0, progress):
+        constructed += element_full
+    for x in range(progress, size):
+        constructed += element_emtpy
+    constructed += limiters
+    if message is None:
+        constructed = f"{constructed} {percent:.2f}%"
+    else:
+        constructed = f"{constructed} {message}"
+    return constructed
+
+
 class SphinxObjectFileReader:
     # Inspired by Sphinx's InventoryFileReader
     BUFSIZE = 16 * 1024
