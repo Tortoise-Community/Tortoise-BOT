@@ -19,6 +19,7 @@ class TortoiseAPI(commands.Cog):
     """Commands using Tortoise API"""
     def __init__(self, bot: Bot):
         self.bot: Bot = bot
+        self.system_log_channel = bot.get_channel(constants.system_log_channel_id)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -64,9 +65,7 @@ class TortoiseAPI(commands.Cog):
     async def on_member_remove(self, member: Member):
         logger.debug(f"Member {member} left, updating database accordingly.")
         await self.bot.api_client.member_left(member)
-
-        system_log_channel = self.bot.get_channel(constants.system_log_channel_id)
-        await system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
+        await self.system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
 
 
 def setup(bot):
