@@ -79,9 +79,9 @@ class SocketCommunication(commands.Cog):
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self.verified_clients = set()
         self._socket_server = SocketCommunication.create_server()
-        self.verified_role = bot.get_role(constants.verified_role_id)
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
-        self.unverified_role = bot.get_role(constants.unverified_role_id)
+        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
         self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
 

@@ -11,8 +11,9 @@ class Security(commands.Cog):
     # Bot will have to have manage_roles permission in order for this to work
     def __init__(self, bot):
         self.bot = bot
-        self.unverified_role = bot.get_role(constants.unverified_role_id)
-        self.verified_role = bot.get_role(constants.verified_role_id)
+        self.guild = bot.get_guild(constants.tortoise_guild_id)
+        self.unverified_role = self.guild.get_role(constants.unverified_role_id)
+        self.verified_role = self.guild.get_role(constants.verified_role_id)
         self.system_log_channel = bot.get_channel(constants.system_log_channel_id)
 
     @commands.Cog.listener()

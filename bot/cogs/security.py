@@ -13,9 +13,10 @@ from bot.cogs.utils.embed_handler import info
 class Security(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.guild = bot.get_guild(constants.tortoise_guild_id)
         self.session = aiohttp.ClientSession()
         self.banned_words = ConfigHandler("banned_words.json")
-        self.trusted = bot.get_role(constants.trusted_role_id)
+        self.trusted = self.guild.get_role(constants.trusted_role_id)
         self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
