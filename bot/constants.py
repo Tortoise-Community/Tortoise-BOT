@@ -37,6 +37,7 @@ error_log_channel_id = 690650346665803777
 muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
 unverified_role_id = 605808609195982864
+trusted_role_id = 703657957438652476
 
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed

@@ -15,6 +15,10 @@ logger = logging.getLogger(__name__)
 class Admins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
+        self.muted_role = bot.get_role(constants.muted_role_id)
+        self.verified_role = bot.get_role(constants.verified_role_id)
+        self.unverified_role = bot.get_role(constants.unverified_role_id)
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -29,8 +33,7 @@ class Admins(commands.Cog):
         await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
 
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-        await deterrence_log_channel.send(embed=deterrence_embed)
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
         dm_embed.add_field(
@@ -53,8 +56,7 @@ class Admins(commands.Cog):
         await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
 
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-        await deterrence_log_channel.send(embed=deterrence_embed)
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
         dm_embed.add_field(
@@ -78,8 +80,6 @@ class Admins(commands.Cog):
             await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
             return
 
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-
         embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
         embed.add_field(
             name="**NOTE**",
@@ -89,8 +89,8 @@ class Admins(commands.Cog):
             )
         )
 
-        await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
-        await deterrence_log_channel.send(embed=embed)
+        await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
+        await self.deterrence_log_channel.send(embed=embed)
 
         await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
@@ -190,17 +190,14 @@ class Admins(commands.Cog):
         Mutes the member.
 
         """
-        muted_role = ctx.guild.get_role(constants.muted_role_id)
-        verified_role = ctx.guild.get_role(constants.verified_role_id)
-
-        if muted_role in member.roles:
+        if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
         reason = "Muting member. " + reason
 
-        await member.add_roles(muted_role, reason=reason)
-        await member.remove_roles(verified_role, reason=reason)
+        await member.add_roles(self.muted_role, reason=reason)
+        await member.remove_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
 
@@ -213,17 +210,14 @@ class Admins(commands.Cog):
         Unmutes the member.
 
         """
-        muted_role = ctx.guild.get_role(constants.muted_role_id)
-        verified_role = ctx.guild.get_role(constants.verified_role_id)
-
-        if muted_role not in member.roles:
+        if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
             return
 
         reason = f"Unmuted by {ctx.author.id}"
 
-        await member.remove_roles(muted_role, reason=reason)
-        await member.add_roles(verified_role, reason=reason)
+        await member.remove_roles(self.muted_role, reason=reason)
+        await member.add_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
 
@@ -237,8 +231,10 @@ class Admins(commands.Cog):
         Failed members are printed to log.
 
         """
-        unverified_role = ctx.guild.get_role(constants.unverified_role_id)
-        unverified_members = (member for member in unverified_role.members if member.status == discord.Status.online)
+        unverified_members = (
+            member for member in self.unverified_role.members if member.status ==
+            discord.Status.online
+            )
         failed = []
         count = 0
 
@@ -295,7 +291,7 @@ class Admins(commands.Cog):
 
     @commands.command()
     async def paste(self, ctx):
-        await ctx.send(f"{constants.tortoise_paste_service_link}")
+        await ctx.send(embed=info(f":page_facing_up: {constants.tortoise_paste_service_link}", ctx.me, ""))
 
 
 def setup(bot):

@@ -15,9 +15,10 @@ class Security(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession()
         self.banned_words = ConfigHandler("banned_words.json")
+        self.trusted = bot.get_role(constants.trusted_role_id)
+        self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
 
         if "https:" in message.content or "http:" in message.content:
 
@@ -57,7 +58,7 @@ class Security(commands.Cog):
                         ""
                     )
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-                    await log_channel.send(embed=embed)
+                    await self.log_channel.send(embed=embed)
 
     # Checks all the conditions for message moderation
     def check_config(function):
@@ -75,6 +76,9 @@ class Security(commands.Cog):
                 elif message.author.guild_permissions.administrator:
                     # Ignore admins
                     return
+                    # Whitelists the members with Trusted role to prevent unnecessary logging
+                elif self.trusted in message.author.roles:
+                    return
             return await function(self, *args)
 
         return wrapper
@@ -87,7 +91,6 @@ class Security(commands.Cog):
     @commands.Cog.listener()
     @check_config
     async def on_message_edit(self, msg_before, msg_after):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         msg = (
             f"**Message edited in** {msg_before.channel.mention}\n\n"
             f"**Before:** {msg_before.content}\n"
@@ -97,13 +100,12 @@ class Security(commands.Cog):
 
         embed = info(msg, msg_before.guild.me)
         embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar_url)
-        await log_channel.send(embed=embed)
+        await self.log_channel.send(embed=embed)
         await self._security_check(msg_after)
 
     @commands.Cog.listener()
     @check_config
     async def on_message_delete(self, message):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         msg = (
             f"**Message deleted in** {message.channel.mention}\n\n"
             f"**Message: **{message.content}"
@@ -111,7 +113,7 @@ class Security(commands.Cog):
 
         embed = info(msg, message.guild.me, "")
         embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-        await log_channel.send(embed=embed)
+        await self.log_channel.send(embed=embed)
 
     @staticmethod
     async def check_if_invite_is_our_guild(full_link, guild):
