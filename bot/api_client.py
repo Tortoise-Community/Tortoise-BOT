@@ -144,6 +144,9 @@ class TortoiseAPI(APIClient):
     async def get_member_data(self, member_id: int) -> dict:
         return await self.get(f"members/edit/{member_id}/")
 
+    async def get_all_members(self) -> list:
+        return await self.get("members/")
+
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
         await self.put(
             f"members/edit/{member.id}/",

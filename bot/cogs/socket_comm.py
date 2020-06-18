@@ -310,7 +310,6 @@ class SocketCommunication(commands.Cog):
         logger.debug(f"Processing members: {members}")
 
         for member_id in members:
-            logger.debug(f"Processing member: {member_id}")
             member = tortoise_guild.get_member(member_id)
             member_data = {"activity": "NOT FOUND", "top_role": "NOT FOUND"}
 
@@ -329,7 +328,6 @@ class SocketCommunication(commands.Cog):
             response_data[member_id] = member_data
 
         return_data = {"data": response_data}
-        logger.debug(f"Processing members done, returning: {return_data}")
         return return_data
 
     @endpoint_register(endpoint_key="verify")

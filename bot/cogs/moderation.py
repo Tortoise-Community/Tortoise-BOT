@@ -1,8 +1,9 @@
 import logging
 import asyncio
+from datetime import datetime
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from bot import constants
 from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 class Admins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.scheduled_dm_unverified.start()
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -227,40 +229,69 @@ class Admins(commands.Cog):
 
         await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
 
-    @commands.command()
-    @commands.cooldown(1, 300, commands.BucketType.guild)
-    @commands.has_permissions(administrator=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def dm_unverified(self, ctx):
+    @tasks.loop(hours=24)
+    async def scheduled_dm_unverified(self):
         """
         Dms all unverified members reminder that they need to verify.
         Failed members are printed to log.
 
         """
-        unverified_role = ctx.guild.get_role(constants.unverified_role_id)
-        unverified_members = (member for member in unverified_role.members if member.status == discord.Status.online)
+        guild = self.bot.get_guild(constants.tortoise_guild_id)
+        members = await self.bot.api_client.get_all_members()
         failed = []
+        kicked = []
         count = 0
 
-        for member in unverified_members:
-            msg = (
-                f"Hey {member.mention}!\n"
-                f"You've been in our guild **{ctx.guild.name}** for some time..\n"
-                f"We noticed you still didn't verify so please go to our channel "
-                f"{constants.verification_url} and verify."
-            )
+        for user in filter(lambda m: not m['verified'], members):  # filter is only temporary until API endpoint added
+            date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
+            days_since_joined = (datetime.today() - date_joined).days
+
+            member = guild.get_member(user['user_id'])
+            if days_since_joined in (10, 15, 20, 25):
+                msg = (
+                    f"Hey {member.mention}!\n"
+                    f"You've been in our guild **{guild.name}** for the past {days_since_joined} days...\n"
+                    f"We noticed you still haven't verified so please go to "
+                    f"{constants.verification_url} and verify.\n\n"
+                    f"If you do not do this within **{30-days_since_joined}** days, "
+                    f"you will be automatically removed from the server and will have to manually rejoin."
+                )
+
+            elif days_since_joined >= 30:
+                msg = (
+                    f"Hey {member.mention}!\n"
+                    f"As you have not verified for the past {days_since_joined} days, you have been automatically"
+                    f"removed from our guild **{guild.name}**.\n\n"
+                    f"If you still wish to join, please join using the link https://discord.com/invite/GQdZjmW "
+                    f"and remember to go through the verification process as soon as possible to be granted entry."
+                )
+
+            else:
+                continue
 
             try:
                 await member.send(msg)
             except discord.Forbidden:
-                failed.append(str(member))
+                failed.append(member.name)
             else:
                 count += 1
 
-        await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
+            if days_since_joined >= 30:
+                await member.kick(reason="Failed to verify within 30 days.")
+                kicked.append(member.name)
 
+        logger.info(f"Successfully messaged {count} unverified users.")
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
+
+        if kicked:
+            logger.info(f"Successfully kicked: {kicked}")
+
+    @scheduled_dm_unverified.before_loop
+    async def before_automatic_dm_unverified(self):
+        logger.info("Starting DM unverified loop...")
+        await self.bot.wait_until_ready()
+        logger.info("Rule update loop started!")
 
     @commands.command()
     @commands.cooldown(1, 900, commands.BucketType.guild)

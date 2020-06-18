@@ -20,7 +20,7 @@ from async_timeout import timeout
 
 from bot.constants import ytdl_format_options, ffmpeg_options
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-
+from bot.cogs.utils.exceptions import TortoiseGuildCheckFailure
 
 ytdl = YoutubeDL(ytdl_format_options)
 
@@ -190,11 +190,15 @@ class Music(commands.Cog):
             except discord.HTTPException:
                 pass
         elif isinstance(error, InvalidVoiceChannel):
-            await ctx.send("Error connecting to Voice Channel. "
-                           "Please make sure you are in a valid channel or provide me with one")
-
-        print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
-        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            await ctx.send(
+                "Error connecting to Voice Channel. "
+                "Please make sure you are in a valid channel or provide me with one"
+            )
+        elif isinstance(error, TortoiseGuildCheckFailure):
+            await ctx.send(f"{error}")
+        else:
+            print(f"Ignoring exception in command {ctx.command}:", file=sys.stderr)
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
     def get_player(self, ctx):
         """Retrieve the guild player, or generate one."""

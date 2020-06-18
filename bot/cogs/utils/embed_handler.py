@@ -1,6 +1,8 @@
 from typing import Union
+from asyncio import TimeoutError
 
-from discord import Embed, Color, Member, User, Status
+from discord.ext.commands import Bot
+from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
@@ -188,3 +190,38 @@ def get_top_role_color(member: Union[Member, User], *, fallback_color) -> Color:
         return fallback_color
     else:
         return color
+
+
+class RemovableMessage:
+    emoji_remove = "❌"
+
+    @classmethod
+    async def create_instance(cls, bot: Bot,  message: Message, *, timeout: int = 30):
+        self = RemovableMessage()
+
+        self.bot = bot
+        self.message = message
+        self.timeout = timeout
+
+        await self.message.add_reaction(cls.emoji_remove)
+        await self._listen()
+
+    def __init__(self):
+        self.bot = None
+        self.message = None
+        self.timeout = None
+
+    def _check(self, payload: RawReactionActionEvent):
+        return (
+            str(payload.emoji) == self.emoji_remove and
+            payload.message_id == self.message.id and
+            payload.user_id == self.message.author.id and
+            payload.user_id != self.bot.user.id
+        )
+
+    async def _listen(self):
+        try:
+            await self.bot.wait_for("raw_reaction_add", check=self._check, timeout=self.timeout)
+            await self.message.delete()
+        except TimeoutError:
+            await self.message.remove_reaction(self.emoji_remove, self.bot.user)

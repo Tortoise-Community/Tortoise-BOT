@@ -1,4 +1,4 @@
-from enum import Enum
+from aenum import Enum, NoAlias
 
 from discord import Color
 
@@ -10,7 +10,7 @@ rules_url = "https://www.tortoisecommunity.ml/pages/rules"
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
 tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
-line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
+line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 
 
 # Channel IDs
@@ -41,20 +41,16 @@ unverified_role_id = 605808609195982864
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed
 self_assignable_roles = {
-    582547250635603988: 589128905290547217,     # python
-    603276308084031511: 589129070609039454,     # java
-    603647289902366723: 589129970820055080,     # go
-    603276263414562836: 589129320480636986,     # javascript
-    603274583772233728: 589808988506554398,     # rust
-    603274784805224478: 591254311162347561,     # html
-    603278259517390880: 589131517683433485,     # css
-    603277646234779658: 589129183494406154,     # php
-    603277725679222819: 589131126619111424,     # sql
-    603277676714786914: 589131390944280577,     # ruby
-    603275563972689942: 589131022520811523,     # c
-    603275529587654665: 589129873809735700,     # c++
-    603275597514407941: 589130125208190991,     # c#
-    603277763293609990: 589129583375286415,     # r
+    582547250635603988: 589128905290547217,     # Python
+    603276263414562836: 589129320480636986,     # Javascript
+    603278259517390880: 723143791908749342,     # HTML/CSS
+    603277725679222819: 589131126619111424,     # SQL
+    603275563972689942: 589131022520811523,     # C
+    603275529587654665: 589129873809735700,     # C++
+    603275597514407941: 589130125208190991,     # C#
+    603276308084031511: 589129070609039454,     # Java
+    603647289902366723: 589129970820055080,     # GO
+    603277763293609990: 589129583375286415,     # R
     610825682070798359: 610834658267103262,     # events
     583614910215356416: 603157798225838101      # announcements
 }
@@ -108,6 +104,8 @@ max_message_length = 1000
 
 
 class Infraction(Enum):
+    _settings_ = NoAlias
+
     warning = Color.gold()
     kick = Color.gold()
     ban = Color.red()
