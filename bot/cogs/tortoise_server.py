@@ -71,7 +71,7 @@ class TortoiseServer(commands.Cog):
         if rule_dict is None:
             await ctx.send(embed=failure("No such rule."), delete_after=5)
         else:
-            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, "Rule info"))
+            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, f"Rule {alias}"))
 
     def _get_rule_by_value(self, number: int) -> Union[dict, None]:
         for rule_dict in self._rules:

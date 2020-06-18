@@ -196,11 +196,12 @@ class RemovableMessage:
     emoji_remove = "❌"
 
     @classmethod
-    async def create_instance(cls, bot: Bot,  message: Message, *, timeout: int = 30):
+    async def create_instance(cls, bot: Bot,  message: Message, action_member: Member, *, timeout: int = 30):
         self = RemovableMessage()
 
         self.bot = bot
         self.message = message
+        self.action_member = action_member
         self.timeout = timeout
 
         await self.message.add_reaction(cls.emoji_remove)
@@ -209,13 +210,14 @@ class RemovableMessage:
     def __init__(self):
         self.bot = None
         self.message = None
+        self.action_member = None
         self.timeout = None
 
     def _check(self, payload: RawReactionActionEvent):
         return (
             str(payload.emoji) == self.emoji_remove and
             payload.message_id == self.message.id and
-            payload.user_id == self.message.author.id and
+            payload.user_id == self.action_member.id and
             payload.user_id != self.bot.user.id
         )
 
