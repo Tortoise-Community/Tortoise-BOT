@@ -1,6 +1,7 @@
 import sys
 import logging
 import traceback
+from pathlib import Path
 from typing import Generator
 
 import discord
@@ -15,6 +16,10 @@ console_logger = logging.getLogger("console")
 
 
 class Bot(commands.Bot):
+    # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
+    allowed_extensions = ()
+    banned_extensions = ("captcha_verification", "test")
+
     def __init__(self, prefix, *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
@@ -32,7 +37,26 @@ class Bot(commands.Bot):
             self._was_ready_once = True
 
     async def on_first_ready(self):
+        self.load_extensions()
         await self.change_presence(activity=discord.Game(name="DM me!"))
+
+    def load_extensions(self):
+        for extension_path in Path("bot/cogs").glob("*.py"):
+            extension_name = extension_path.stem
+
+            if extension_name in self.banned_extensions:
+                continue
+            elif self.allowed_extensions and extension_name not in self.allowed_extensions:
+                continue
+
+            dotted_path = f"bot.cogs.{extension_name}"
+
+            try:
+                self.load_extension(dotted_path)
+                console_logger.info(f"loaded {dotted_path}")
+            except Exception as e:
+                traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
+                console_logger.info(f"Failed to load cog {dotted_path} - traceback:{traceback_msg}")
 
     @staticmethod
     async def on_connect():

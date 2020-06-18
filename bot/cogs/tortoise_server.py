@@ -71,7 +71,7 @@ class TortoiseServer(commands.Cog):
         if rule_dict is None:
             await ctx.send(embed=failure("No such rule."), delete_after=5)
         else:
-            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, "Rule info"))
+            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, f"Rule {alias}"))
 
     def _get_rule_by_value(self, number: int) -> Union[dict, None]:
         for rule_dict in self._rules:
@@ -100,7 +100,7 @@ class TortoiseServer(commands.Cog):
         rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
 
         message = await ctx.send(embed=rules_embed)
-        await RemovableMessage.create_instance(self.bot, message)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -209,7 +209,9 @@ class TortoiseServer(commands.Cog):
             member = guild.get_member(payload.user_id)
             role = self.get_assignable_role(payload, guild)
 
-            if role is not None:
+            if member.id == self.bot.user.id:
+                return  # Ignore the bot
+            elif role is not None:
                 await member.add_roles(role)
                 embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
                 await member.send(embed=embed)

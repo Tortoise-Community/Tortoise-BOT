@@ -26,6 +26,7 @@ class UnsupportedFileEncoding(ValueError):
 class TortoiseDM(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
 
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
@@ -57,6 +58,12 @@ class TortoiseDM(commands.Cog):
 
         # User IDs for which the trigger_typing() is active, so we don't spam the method.
         self._typing_active = set()
+
+        # Server Utility Channels
+        self.bug_report_channel = bot.get_channel(constants.bug_reports_channel_id)
+        self.user_suggestions_channel = bot.get_channel(constants.suggestions_channel_id)
+        self.mod_mail_report_channel = bot.get_channel(constants.mod_mail_report_channel_id)
+        self.code_submissions_channel = bot.get_channel(constants.code_submissions_channel_id)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -120,13 +127,12 @@ class TortoiseDM(commands.Cog):
                 return key
 
     async def send_dm_options(self, *, output):
-        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
         emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
         msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
 
         embed = discord.Embed(description=msg_options)
         embed.set_footer(text=f"Tortoise Community{constants.embed_space * 100}")
-        embed.set_thumbnail(url=str(tortoise_guild.icon_url))
+        embed.set_thumbnail(url=str(self.tortoise_guild.icon_url))
         msg = await output.send(embed=embed)
 
         for emoji in emoji_map.keys():
@@ -153,9 +159,8 @@ class TortoiseDM(commands.Cog):
             await user.send(embed=failure("You already have a pending mod mail, please be patient."))
             return
 
-        mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
         submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
-        await mod_mail_report_channel.send(embed=submission_embed)
+        await self.mod_mail_report_channel.send(embed=submission_embed)
         self.pending_mod_mails.add(user.id)
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
 
@@ -164,8 +169,7 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
-        await code_submissions_channel.send(
+        await self.code_submissions_channel.send(
             f"User `{user}` ID:{user.id} submitted code submission: "
             f"{user_reply}"
         )
@@ -177,8 +181,7 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        bug_report_channel = self.bot.get_channel(constants.bug_reports_channel_id)
-        await bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {user_reply}")
+        await self.bug_report_channel.send(f"User `{user}` ID:{user.id} submitted bug report: {user_reply}")
         await user.send(embed=success("Bug report successfully submitted, thank you."))
         self.active_bug_reports.remove(user.id)
 
@@ -187,8 +190,7 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        user_suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
-        await user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
+        await self.user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)
 
@@ -295,7 +297,6 @@ class TortoiseDM(commands.Cog):
         mod = ctx.author
         # Keep a log of all messages in mod-mail
         log = MessageLogger(mod.id, user.id)
-        mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
 
         if user is None:
             await ctx.send(embed=failure("That user cannot be found or you entered incorrect ID."))
@@ -347,7 +348,7 @@ class TortoiseDM(commands.Cog):
                 await mod.send(embed=timeout_embed)
                 await user.send(embed=timeout_embed)
                 del self.active_mod_mails[user_id]
-                await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
+                await self.mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
             # Deal with dynamic timeout.
@@ -362,7 +363,7 @@ class TortoiseDM(commands.Cog):
                 await mod.send(embed=close_embed)
                 await user.send(embed=close_embed)
                 del self.active_mod_mails[user_id]
-                await mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
+                await self.mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
             # Deal with user-mod communication
