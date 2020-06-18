@@ -7,7 +7,9 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import success, warning, failure, authored, welcome, welcome_dm, info
+from bot.cogs.utils.embed_handler import (
+    success, warning, failure, authored, welcome, welcome_dm, info, RemovableMessage
+)
 
 
 logger = logging.getLogger(__name__)
@@ -96,7 +98,9 @@ class TortoiseServer(commands.Cog):
             embed_body.append(rule_entry)
 
         rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
-        await ctx.send(embed=rules_embed)
+
+        message = await ctx.send(embed=rules_embed)
+        await RemovableMessage.create_instance(self.bot, message)
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)

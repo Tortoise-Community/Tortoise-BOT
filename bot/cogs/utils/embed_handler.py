@@ -215,6 +215,7 @@ class RemovableMessage:
         return (
             str(payload.emoji) == self.emoji_remove and
             payload.message_id == self.message.id and
+            payload.user_id == self.message.author.id and
             payload.user_id != self.bot.user.id
         )
 
