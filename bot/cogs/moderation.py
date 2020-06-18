@@ -242,6 +242,15 @@ class Admins(commands.Cog):
             days_since_joined = (datetime.today() - date_joined).days
 
             member = self.tortoise_guild.get_member(user['user_id'])
+
+            if not user['member']:
+                # Column is not deleted if member has left the guild, we just change field 'member' to False
+                continue
+            elif member is None:
+                # If bot was offline for a moment and leave event was not registered
+                logger.warning(f"Member {member} {member.id} found in database as member but not found in guild.")
+                continue
+
             if days_since_joined in (10, 15, 20, 25):
                 msg = (
                     f"Hey {member.mention}!\n"
