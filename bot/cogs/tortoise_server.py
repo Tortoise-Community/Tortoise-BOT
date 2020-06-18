@@ -100,7 +100,7 @@ class TortoiseServer(commands.Cog):
         rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
 
         message = await ctx.send(embed=rules_embed)
-        await RemovableMessage.create_instance(self.bot, message)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)

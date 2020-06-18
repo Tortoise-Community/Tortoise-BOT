@@ -196,7 +196,7 @@ class RemovableMessage:
     emoji_remove = "❌"
 
     @classmethod
-    async def create_instance(cls, bot: Bot,  message: Message, action_member: Member, *, timeout: int = 30):
+    async def create_instance(cls, bot: Bot,  message: Message, action_member: Member, *, timeout: int = 120):
         self = RemovableMessage()
 
         self.bot = bot
