@@ -10,14 +10,40 @@ from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info
 
 
+# Checks all the conditions for message moderation
+def check_config(function):
+    @functools.wraps(function)
+    async def wrapper(self, *args):
+        for message in args:
+            if message.guild is None or message.author == message.guild.me:
+                return
+            elif message.guild.id != constants.tortoise_guild_id:
+                # Functionality only available in Tortoise guild
+                return
+            elif not isinstance(message.author, Member):
+                # Web-hooks messages will appear as from User even tho they are in Guild.
+                return
+            elif message.author.guild_permissions.administrator:
+                # Ignore admins
+                return
+                # Whitelists the members with Trusted role to prevent unnecessary logging
+            elif self.trusted in message.author.roles:
+                return
+        return await function(self, *args)
+
+    return wrapper
+
+
 class Security(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.guild = bot.get_guild(constants.tortoise_guild_id)
         self.session = aiohttp.ClientSession()
         self.banned_words = ConfigHandler("banned_words.json")
+        self.trusted = self.guild.get_role(constants.trusted_role_id)
+        self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
 
         if "https:" in message.content or "http:" in message.content:
 
@@ -57,27 +83,7 @@ class Security(commands.Cog):
                         ""
                     )
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-                    await log_channel.send(embed=embed)
-
-    # Checks all the conditions for message moderation
-    def check_config(function):
-        @functools.wraps(function)
-        async def wrapper(self, *args):
-            for message in args:
-                if message.guild is None or message.author == message.guild.me:
-                    return
-                elif message.guild.id != constants.tortoise_guild_id:
-                    # Functionality only available in Tortoise guild
-                    return
-                elif not isinstance(message.author, Member):
-                    # Web-hooks messages will appear as from User even tho they are in Guild.
-                    return
-                elif message.author.guild_permissions.administrator:
-                    # Ignore admins
-                    return
-            return await function(self, *args)
-
-        return wrapper
+                    await self.log_channel.send(embed=embed)
 
     @commands.Cog.listener()
     @check_config
@@ -87,7 +93,6 @@ class Security(commands.Cog):
     @commands.Cog.listener()
     @check_config
     async def on_message_edit(self, msg_before, msg_after):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         msg = (
             f"**Message edited in** {msg_before.channel.mention}\n\n"
             f"**Before:** {msg_before.content}\n"
@@ -97,13 +102,12 @@ class Security(commands.Cog):
 
         embed = info(msg, msg_before.guild.me)
         embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar_url)
-        await log_channel.send(embed=embed)
+        await self.log_channel.send(embed=embed)
         await self._security_check(msg_after)
 
     @commands.Cog.listener()
     @check_config
     async def on_message_delete(self, message):
-        log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         msg = (
             f"**Message deleted in** {message.channel.mention}\n\n"
             f"**Message: **{message.content}"
@@ -111,7 +115,7 @@ class Security(commands.Cog):
 
         embed = info(msg, message.guild.me, "")
         embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
-        await log_channel.send(embed=embed)
+        await self.log_channel.send(embed=embed)
 
     @staticmethod
     async def check_if_invite_is_our_guild(full_link, guild):

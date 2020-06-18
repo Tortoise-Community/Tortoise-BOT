@@ -16,6 +16,11 @@ logger = logging.getLogger(__name__)
 class Admins(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
+        self.muted_role = self.tortoise_guild.get_role(constants.muted_role_id)
+        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
+        self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
         self.scheduled_dm_unverified.start()
 
     @commands.command()
@@ -31,8 +36,7 @@ class Admins(commands.Cog):
         await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
 
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-        await deterrence_log_channel.send(embed=deterrence_embed)
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
         dm_embed.add_field(
@@ -55,8 +59,7 @@ class Admins(commands.Cog):
         await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
 
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-        await deterrence_log_channel.send(embed=deterrence_embed)
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
         dm_embed.add_field(
@@ -80,8 +83,6 @@ class Admins(commands.Cog):
             await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
             return
 
-        deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
-
         embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
         embed.add_field(
             name="**NOTE**",
@@ -91,8 +92,8 @@ class Admins(commands.Cog):
             )
         )
 
-        await deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
-        await deterrence_log_channel.send(embed=embed)
+        await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
+        await self.deterrence_log_channel.send(embed=embed)
 
         await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
@@ -192,17 +193,14 @@ class Admins(commands.Cog):
         Mutes the member.
 
         """
-        muted_role = ctx.guild.get_role(constants.muted_role_id)
-        verified_role = ctx.guild.get_role(constants.verified_role_id)
-
-        if muted_role in member.roles:
+        if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
         reason = "Muting member. " + reason
 
-        await member.add_roles(muted_role, reason=reason)
-        await member.remove_roles(verified_role, reason=reason)
+        await member.add_roles(self.muted_role, reason=reason)
+        await member.remove_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
 
@@ -215,17 +213,14 @@ class Admins(commands.Cog):
         Unmutes the member.
 
         """
-        muted_role = ctx.guild.get_role(constants.muted_role_id)
-        verified_role = ctx.guild.get_role(constants.verified_role_id)
-
-        if muted_role not in member.roles:
+        if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
             return
 
         reason = f"Unmuted by {ctx.author.id}"
 
-        await member.remove_roles(muted_role, reason=reason)
-        await member.add_roles(verified_role, reason=reason)
+        await member.remove_roles(self.muted_role, reason=reason)
+        await member.add_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
 
@@ -236,36 +231,34 @@ class Admins(commands.Cog):
         Failed members are printed to log.
 
         """
-        guild = self.bot.get_guild(constants.tortoise_guild_id)
         members = await self.bot.api_client.get_all_members()
         failed = []
         kicked = []
         count = 0
 
-        for user in filter(lambda m: not m['verified'], members):  # filter is only temporary until API endpoint added
+        # TODO filter is only temporary until API endpoint added
+        for user in filter(lambda m: not m['verified'], members):
             date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
             days_since_joined = (datetime.today() - date_joined).days
 
-            member = guild.get_member(user['user_id'])
+            member = self.tortoise_guild.get_member(user['user_id'])
             if days_since_joined in (10, 15, 20, 25):
                 msg = (
                     f"Hey {member.mention}!\n"
-                    f"You've been in our guild **{guild.name}** for the past {days_since_joined} days...\n"
+                    f"You've been in our guild **{self.tortoise_guild.name}** for the past {days_since_joined} days.\n"
                     f"We noticed you still haven't verified so please go to "
                     f"{constants.verification_url} and verify.\n\n"
-                    f"If you do not do this within **{30-days_since_joined}** days, "
-                    f"you will be automatically removed from the server and will have to manually rejoin."
+                    f"If you do not do this within **{30-days_since_joined}** days, you will be automatically removed "
+                    f"from the server and will have to manually rejoin."
                 )
-
             elif days_since_joined >= 30:
                 msg = (
                     f"Hey {member.mention}!\n"
                     f"As you have not verified for the past {days_since_joined} days, you have been automatically"
-                    f"removed from our guild **{guild.name}**.\n\n"
+                    f"removed from our guild **{self.tortoise_guild.name}**.\n\n"
                     f"If you still wish to join, please join using the link https://discord.com/invite/GQdZjmW "
                     f"and remember to go through the verification process as soon as possible to be granted entry."
                 )
-
             else:
                 continue
 
@@ -307,9 +300,11 @@ class Admins(commands.Cog):
         count = 0
 
         for member in members:
-            dm_embed = discord.Embed(title=f"Message for role {role}",
-                                     description=message,
-                                     color=role.color)
+            dm_embed = discord.Embed(
+                title=f"Message for role {role}",
+                description=message,
+                color=role.color
+            )
             dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
 
             try:
@@ -326,7 +321,7 @@ class Admins(commands.Cog):
 
     @commands.command()
     async def paste(self, ctx):
-        await ctx.send(f"{constants.tortoise_paste_service_link}")
+        await ctx.send(embed=info(f":page_facing_up: {constants.tortoise_paste_service_link}", ctx.me, title=""))
 
 
 def setup(bot):
