@@ -10,6 +10,29 @@ from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info
 
 
+# Checks all the conditions for message moderation
+def check_config(function):
+    @functools.wraps(function)
+    async def wrapper(self, *args):
+        for message in args:
+            if message.guild is None or message.author == message.guild.me:
+                return
+            elif message.guild.id != constants.tortoise_guild_id:
+                # Functionality only available in Tortoise guild
+                return
+            elif not isinstance(message.author, Member):
+                # Web-hooks messages will appear as from User even tho they are in Guild.
+                return
+            elif message.author.guild_permissions.administrator:
+                # Ignore admins
+                return
+                # Whitelists the members with Trusted role to prevent unnecessary logging
+            elif self.trusted in message.author.roles:
+                return
+        return await function(self, *args)
+
+    return wrapper
+
 class Security(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -60,29 +83,6 @@ class Security(commands.Cog):
                     )
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
                     await self.log_channel.send(embed=embed)
-
-    # Checks all the conditions for message moderation
-    def check_config(function):
-        @functools.wraps(function)
-        async def wrapper(self, *args):
-            for message in args:
-                if message.guild is None or message.author == message.guild.me:
-                    return
-                elif message.guild.id != constants.tortoise_guild_id:
-                    # Functionality only available in Tortoise guild
-                    return
-                elif not isinstance(message.author, Member):
-                    # Web-hooks messages will appear as from User even tho they are in Guild.
-                    return
-                elif message.author.guild_permissions.administrator:
-                    # Ignore admins
-                    return
-                    # Whitelists the members with Trusted role to prevent unnecessary logging
-                elif self.trusted in message.author.roles:
-                    return
-            return await function(self, *args)
-
-        return wrapper
 
     @commands.Cog.listener()
     @check_config
