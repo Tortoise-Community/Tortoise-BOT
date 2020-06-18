@@ -39,8 +39,7 @@ for extension_path in Path("bot/cogs").glob("*.py"):
 
     if extension_name in banned_extensions:
         continue
-
-    if allowed_extensions and extension_name not in allowed_extensions:
+    elif allowed_extensions and extension_name not in allowed_extensions:
         continue
 
     dotted_path = f"bot.cogs.{extension_name}"

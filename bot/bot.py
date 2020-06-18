@@ -28,8 +28,19 @@ class Bot(commands.Bot):
         )
 
         if not self._was_ready_once:
-            await self.change_presence(activity=discord.Game(name="DM me!"))
+            await self.on_first_ready()
             self._was_ready_once = True
+
+    async def on_first_ready(self):
+        await self.change_presence(activity=discord.Game(name="DM me!"))
+
+    @staticmethod
+    async def on_connect():
+        logger.info("Connection to Discord established.")
+
+    @staticmethod
+    async def on_disconnect():
+        logger.info("Connection to Discord lost.")
 
     async def on_error(self, event: str, *args, **kwargs):
         exception_type, exception_value, exception_traceback = sys.exc_info()
