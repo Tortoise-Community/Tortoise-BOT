@@ -10,7 +10,7 @@ rules_url = "https://www.tortoisecommunity.ml/pages/rules"
 verification_url = "https://www.tortoisecommunity.ml/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
 tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
-line_img_url = "https://cdn.discordapp.com/attachments/581139962611892229/692712698487767080/animated_line.gif"
+line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 
 
 # Channel IDs
