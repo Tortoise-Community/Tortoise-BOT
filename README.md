@@ -4,7 +4,7 @@
 # Tortoise-BOT
 **Fully functional Bot for Discord coded in Discord.py**
 
-<img alt="Tortoise logo" align="right" src="https://i.imgur.com/7LrGjdG.jpg" width=40%>
+<img alt="Tortoise logo" align="right" src="https://i.imgur.com/bKk1StC.png" width=40%/>
 
 This bot is intended to work only in Tortoise Community guild and it's
 mostly tied to one guild. 
