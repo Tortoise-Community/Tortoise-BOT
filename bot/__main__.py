@@ -24,7 +24,9 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 console_logger.addHandler(console)
 
-allowed_extensions = [*Path("bot/cogs").glob("*.py")]
+
+# If not empty then only these will be loaded. Good for local debugging.
+allowed_extensions = ()
 banned_extensions = ("captcha_verification", "test")
 root_logger.info(f"Banned extension: {banned_extensions}")
 
@@ -32,10 +34,13 @@ load_dotenv()
 bot = Bot(prefix="t.")
 
 
-for extension_path in allowed_extensions:
+for extension_path in Path("bot/cogs").glob("*.py"):
     extension_name = extension_path.stem
 
     if extension_name in banned_extensions:
+        continue
+
+    if allowed_extensions and extension_name not in allowed_extensions:
         continue
 
     dotted_path = f"bot.cogs.{extension_name}"
