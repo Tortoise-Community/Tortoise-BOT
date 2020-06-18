@@ -10,25 +10,23 @@ from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info
 
 
-# Checks all the conditions for message moderation
-def check_config(function):
+def security_bypass_check(function):
     @functools.wraps(function)
     async def wrapper(self, *args):
         for message in args:
-            if message.guild is None or message.author == message.guild.me:
+            if message.guild is None or message.author.bot:
                 return
             elif message.guild.id != constants.tortoise_guild_id:
-                # Functionality only available in Tortoise guild
                 return
             elif not isinstance(message.author, Member):
                 # Web-hooks messages will appear as from User even tho they are in Guild.
                 return
             elif message.author.guild_permissions.administrator:
-                # Ignore admins
                 return
-                # Whitelists the members with Trusted role to prevent unnecessary logging
             elif self.trusted in message.author.roles:
+                # Whitelists the members with Trusted role to prevent unnecessary logging
                 return
+
         return await function(self, *args)
 
     return wrapper
@@ -86,13 +84,16 @@ class Security(commands.Cog):
                     await self.log_channel.send(embed=embed)
 
     @commands.Cog.listener()
-    @check_config
+    @security_bypass_check
     async def on_message(self, message):
         await self._security_check(message)
 
     @commands.Cog.listener()
-    @check_config
+    @security_bypass_check
     async def on_message_edit(self, msg_before, msg_after):
+        if msg_before.content == msg_after.content:
+            return
+
         msg = (
             f"**Message edited in** {msg_before.channel.mention}\n\n"
             f"**Before:** {msg_before.content}\n"
@@ -106,7 +107,7 @@ class Security(commands.Cog):
         await self._security_check(msg_after)
 
     @commands.Cog.listener()
-    @check_config
+    @security_bypass_check
     async def on_message_delete(self, message):
         msg = (
             f"**Message deleted in** {message.channel.mention}\n\n"

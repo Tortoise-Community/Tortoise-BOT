@@ -345,11 +345,11 @@ class SocketCommunication(commands.Cog):
         except ValueError:
             raise EndpointBadArguments()
 
-        primary_checks = (
+        none_checks = (
             self.tortoise_guild, self.verified_role, self.unverified_role, self.successful_verifications_channel
             )
 
-        for check_none in primary_checks:
+        for check_none in none_checks:
             if check_none is None:
                 raise DiscordIDNotFound()
 
