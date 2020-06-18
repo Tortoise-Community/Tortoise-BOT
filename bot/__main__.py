@@ -24,14 +24,15 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 console_logger.addHandler(console)
 
+allowed_extensions = [*Path("bot/cogs").glob("*.py")]
 banned_extensions = ("captcha_verification", "test")
 root_logger.info(f"Banned extension: {banned_extensions}")
-
 
 load_dotenv()
 bot = Bot(prefix="t.")
 
-for extension_path in Path("bot/cogs").glob("*.py"):
+
+for extension_path in allowed_extensions:
     extension_name = extension_path.stem
 
     if extension_name in banned_extensions:
