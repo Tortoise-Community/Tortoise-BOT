@@ -164,6 +164,9 @@ class TortoiseServer(commands.Cog):
                 f"Last time you didn't verify so please head over to {constants.verification_url}"
             )
             await member.send(embed=welcome_dm(msg))
+            
+        channel = self.bot.get_channel(723526255495872566)
+        await channel.edit(name = f"Member count : {member.guild.member_count}")
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
