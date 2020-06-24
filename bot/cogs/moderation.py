@@ -1,5 +1,6 @@
 import logging
 import asyncio
+from typing import Union
 from datetime import datetime
 
 import discord
@@ -50,7 +51,7 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, member: discord.Member, *, reason="Reason not stated."):
+    async def ban(self, ctx, member: Union[discord.Member, discord.User], *, reason="Reason not stated."):
         """
         Bans  member from the guild.
 
