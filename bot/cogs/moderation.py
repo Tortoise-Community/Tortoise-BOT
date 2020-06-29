@@ -22,7 +22,8 @@ class Admins(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
-        self.scheduled_dm_unverified.start()
+        # TODO do not kick members due to old system
+        # self.scheduled_dm_unverified.start()
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -232,6 +233,12 @@ class Admins(commands.Cog):
         Failed members are printed to log.
 
         """
+
+        # TODO
+        """
+        date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
+        AttributeError: 'NoneType' object has no attribute 'split'
+        """
         members = await self.bot.api_client.get_all_members()
         failed = []
         count = 0
@@ -250,7 +257,7 @@ class Admins(commands.Cog):
                 continue
             elif member is None:
                 # If bot was offline for a moment and leave event was not registered
-                logger.warning(f"Member {member} {member.id} found in database as member but not found in guild.")
+                logger.warning(f"Member {member} found in database as member but not found in guild.")
                 continue
 
             if days_since_joined % 5 == 0:
