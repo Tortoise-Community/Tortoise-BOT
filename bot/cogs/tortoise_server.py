@@ -19,9 +19,11 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
+        self.member_count_channel = bot.get_channel(constants.member_count_channel)
         self._database_role_update_lock = False
         self._rules = None
         self.update_rules.start()
+        self.update_member_count_channel.start()
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -54,11 +56,10 @@ class TortoiseServer(commands.Cog):
     async def update_rules(self):
         await self.refresh_rules_helper()
 
-    @update_rules.before_loop
-    async def before_update_rules(self):
-        logger.info("Starting rule update loop..")
-        await self.bot.wait_until_ready()
-        logger.info("Rule update loop started!")
+    @tasks.loop(minutes=5)
+    async def update_member_count_channel(self):
+        guild = self.member_count_channel.guild
+        await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
 
     @commands.command()
     @commands.check(tortoise_bot_developer_only)
