@@ -132,9 +132,13 @@ class TortoiseDM(commands.Cog):
     async def send_dm_options(self, *, output):
         emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
         msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
+        disclaimer = (
+            "Note: Abusing any of these options is punishable. Please do not use them just to test.\n"
+            "Your Tortoise Community."
+        )
 
-        embed = discord.Embed(description=msg_options)
-        embed.set_footer(text=f"Tortoise Community{constants.embed_space * 100}")
+        embed = discord.Embed(description=f"{msg_options}\n{constants.embed_space}")
+        embed.set_footer(text=disclaimer)
         embed.set_thumbnail(url=str(self.tortoise_guild.icon_url))
         msg = await output.send(embed=embed)
 
