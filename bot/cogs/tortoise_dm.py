@@ -28,6 +28,9 @@ class TortoiseDM(commands.Cog):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
 
+        self.admin_role = self.tortoise_guild.get_role(constants.admin_role)
+        self.moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
         self.pending_mod_mails = set()
@@ -160,7 +163,13 @@ class TortoiseDM(commands.Cog):
             return
 
         submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
+        # Ping roles so they get notified sooner
+        await self.mod_mail_report_channel.send(
+            f"{self.admin_role.mention} {self.moderator_role.mention}",
+            delete_after=30
+        )
         await self.mod_mail_report_channel.send(embed=submission_embed)
+
         self.pending_mod_mails.add(user.id)
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
 
