@@ -332,8 +332,7 @@ class TortoiseDM(commands.Cog):
                 (
                     "has accepted your mod mail request.\n"
                     "Reply here in DMs to chat with them.\n"
-                    "This mod mail will be logged, by continuing you agree to that.\n"
-                    "Type `close` to close this mod mail."
+                    "This mod mail will be logged, by continuing you agree to that."
                 ),
                 author=mod
             )
@@ -373,7 +372,7 @@ class TortoiseDM(commands.Cog):
                 _timeout = regular_timeout
 
             # Deal with canceling mod mail
-            if mail_msg.content.lower() == "close":
+            if mail_msg.content.lower() == "close" and mail_msg.author.id == mod.id:
                 close_embed = success(f"Mod mail successfully closed by {mail_msg.author}.")
                 log.add_embed(close_embed)
                 await mod.send(embed=close_embed)
