@@ -40,6 +40,7 @@ class TortoiseDM(commands.Cog):
 
         # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM
         # and callable is the method to call when that option is selected.
+        # TODO if callable errors container will not be properly updated so users will not be able to call it again
         self._options = {
             constants.mod_mail_emoji_id: {
                 "message": "Contact staff (mod mail)",
@@ -168,10 +169,7 @@ class TortoiseDM(commands.Cog):
 
         submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
         # Ping roles so they get notified sooner
-        await self.mod_mail_report_channel.send(
-            f"{self.admin_role.mention} {self.moderator_role.mention}",
-            delete_after=30
-        )
+        await self.mod_mail_report_channel.send(f"{self.moderator_role.mention}", delete_after=30)
         await self.mod_mail_report_channel.send(embed=submission_embed)
 
         self.pending_mod_mails.add(user.id)
@@ -203,7 +201,8 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        await self.user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
+        msg = await self.user_suggestions_channel.send(f"`{user}` {user.id} submitted suggestion: {user_reply}")
+        await self.bot.api_client.post_suggestion(user, msg, user_reply)
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)
 

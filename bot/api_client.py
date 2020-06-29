@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 import aiohttp
 from dotenv import load_dotenv
-from discord import Member, Message
+from discord import Member, User, Message
 
 from bot.constants import SuggestionStatus
 
@@ -176,7 +176,7 @@ class TortoiseAPI(APIClient):
     async def get_suggestion(self, suggestion_id: int) -> dict:
         return await self.get(f"suggestions/{suggestion_id}/")
 
-    async def post_suggestion(self, author: Member, message: Message, suggestion: str):
+    async def post_suggestion(self, author: User, message: Message, suggestion: str):
         data = {
             "message_id": message.id,
             "author_id": author.id,
