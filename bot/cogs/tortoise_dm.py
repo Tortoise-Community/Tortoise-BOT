@@ -296,9 +296,12 @@ class TortoiseDM(commands.Cog):
         return content
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def attend(self, ctx, user_id: int):
+        if not any(role in ctx.author.roles for role in (self.admin_role, self.moderator_role)):
+            await ctx.send(embed=failure("You do not have permission to use this command."))
+            return
+
         # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
         first_timeout = 10_800
         # Flag for above variable. False means there has been no messages from the user.
