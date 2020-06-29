@@ -351,11 +351,13 @@ class SocketCommunication(commands.Cog):
 
         for check_none in none_checks:
             if check_none is None:
+                logger.info(f"One of necessary IDs was not found {none_checks}")
                 raise DiscordIDNotFound()
 
         member = self.tortoise_guild.get_member(member_id)
 
         if member is None:
+            logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
             raise DiscordIDNotFound()
 
         try:
