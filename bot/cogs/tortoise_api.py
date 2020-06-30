@@ -7,7 +7,7 @@ from bot import constants
 from bot.bot import Bot
 from bot.api_client import ResponseCodeError
 from bot.cogs.utils.converters import DatabaseMember
-from bot.cogs.utils.embed_handler import failure, warning, success, goodbye
+from bot.cogs.utils.embed_handler import failure, warning, success, goodbye, suggestion_embed
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
@@ -20,6 +20,7 @@ class TortoiseAPI(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot: Bot = bot
         self.system_log_channel = bot.get_channel(constants.system_log_channel_id)
+        self.user_suggestions_channel = bot.get_channel(constants.suggestions_channel_id)
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -66,6 +67,40 @@ class TortoiseAPI(commands.Cog):
         logger.debug(f"Member {member} left, updating database accordingly.")
         await self.bot.api_client.member_left(member)
         await self.system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
+
+    @commands.command()
+    @commands.check(tortoise_bot_developer_only)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def approve(self, ctx, message_id: int, *, reason: str = "No reason specified"):
+        """Approve a suggestion"""
+        msg = await self.user_suggestions_channel.fetch_message(message_id)
+        if msg is None or not msg.embeds:
+            await ctx.send(embed=failure("Suggestion message found."), delete_after=5)
+            return
+
+        msg_embed = msg.embeds[0]
+
+        await self.bot.api_client.put_suggestion(message_id, constants.SuggestionStatus.approved, reason)
+        await msg.update(
+            embed=suggestion_embed(msg.author, constants.SuggestionStatus.approved, msg_embed.description)
+        )
+        await ctx.send(embed=success("Suggestion successfully approved."), delete_after=5)
+
+    @commands.command()
+    @commands.check(tortoise_bot_developer_only)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def deny(self, ctx, message_id: int, *, reason: str = "No reason specified"):
+        """Deny a suggestion"""
+        msg = await self.user_suggestions_channel.fetch_message(message_id)
+        if msg is None or not msg.embeds:
+            await ctx.send(embed=failure("Suggestion message found."), delete_after=5)
+            return
+
+        msg_embed = msg.embeds[0]
+
+        await self.bot.api_client.put_suggestion(message_id, constants.SuggestionStatus.denied, reason)
+        await msg.update(embed=suggestion_embed(msg.author, constants.SuggestionStatus.denied, msg_embed.description))
+        await ctx.send(embed=success("Suggestion successfully denied."), delete_after=5)
 
 
 def setup(bot):

@@ -229,26 +229,37 @@ class RemovableMessage:
             await self.message.remove_reaction(self.emoji_remove, self.bot.user)
 
 
+def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
+    """
+    Creates suggestion embed message with author thumbnail and suggestion status.
+    :param author: User discord user from which to get name and avatar
+    :param suggestion: str actual suggestion text
+    :param status: constants.SuggestionStatus status for suggestion
+    :return: discord.Embed
+    """
+    embed = Embed(
+        title=f"{author}'s suggestion",
+        description=suggestion,
+        color=Color.green()
+    )
+    embed.set_thumbnail(url=str(author.avatar_url))
+    embed.add_field(name="Status", value=status)
+    embed.set_footer(text="Powered by Tortoise Community.")
+    return embed
+
+
 async def create_suggestion(channel: TextChannel, author: User, suggestion: str) -> Message:
     """
-    Creates suggestion embed message with author thumbnail, status and up-vote and down-vote reactions.
+    Creates suggestion embed with up-vote and down-vote reactions.
     :param channel: TextChannel channel where to sent created suggestion embed
     :param author: User discord user from which to get name and avatar
     :param suggestion: str actual suggestion text
     :return: discord.Message
     """
-
     thumbs_up_reaction = "\U0001F44D"
     thumbs_down_reaction = "\U0001F44E"
 
-    embed = Embed(
-        title=f"{author}'s suggestion",
-        description=suggestion,
-        color=get_top_role_color(channel.guild.me, fallback_color=Color.green())
-    )
-    embed.set_thumbnail(url=str(author.avatar_url))
-    embed.add_field(name="Status", value=constants.SuggestionStatus.under_review)
-    embed.set_footer(text="Powered by Tortoise Community.")
+    embed = suggestion_embed(author, suggestion, constants.SuggestionStatus.under_review)
 
     suggestion_msg = await channel.send(embed=embed)
     await suggestion_msg.add_reaction(thumbs_up_reaction)
