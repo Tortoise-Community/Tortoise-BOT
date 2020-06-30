@@ -229,7 +229,15 @@ class RemovableMessage:
             await self.message.remove_reaction(self.emoji_remove, self.bot.user)
 
 
-async def create_suggestion_embed(channel: TextChannel, author: User, suggestion: str):
+async def create_suggestion(channel: TextChannel, author: User, suggestion: str) -> Message:
+    """
+    Creates suggestion embed message with author thumbnail, status and up-vote and down-vote reactions.
+    :param channel: TextChannel channel where to sent created suggestion embed
+    :param author: User discord user from which to get name and avatar
+    :param suggestion: str actual suggestion text
+    :return: discord.Message
+    """
+
     thumbs_up_reaction = "\U0001F44D"
     thumbs_down_reaction = "\U0001F44E"
 
@@ -245,3 +253,5 @@ async def create_suggestion_embed(channel: TextChannel, author: User, suggestion
     suggestion_msg = await channel.send(embed=embed)
     await suggestion_msg.add_reaction(thumbs_up_reaction)
     await suggestion_msg.add_reaction(thumbs_down_reaction)
+
+    return suggestion_msg
