@@ -23,5 +23,4 @@ console.setFormatter(formatter)
 console_logger.addHandler(console)
 
 load_dotenv()
-bot = Bot(prefix="t.")
-bot.run(os.getenv("BOT_TOKEN"))
+Bot().run(os.getenv("BOT_TOKEN"))

@@ -137,7 +137,7 @@ class TortoiseAPI(commands.Cog):
     @commands.command()
     @commands.check(tortoise_bot_developer_only)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def delete_suggestion(self, ctx, message_id: int, *, reason: str = "No reason specified"):
+    async def delete_suggestion(self, ctx, message_id: int):
         """Delete a suggestion"""
         msg: Message = await self.user_suggestions_channel.fetch_message(message_id)
         if msg is not None:

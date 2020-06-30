@@ -20,7 +20,7 @@ class Bot(commands.Bot):
     allowed_extensions = ()
     banned_extensions = ("captcha_verification", "test")
 
-    def __init__(self, prefix, *args, **kwargs):
+    def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
         self._was_ready_once = False
