@@ -240,15 +240,15 @@ def suggestion_embed(author: User, suggestion: str, status: constants.Suggestion
     embed = Embed(
         title=f"{author}'s suggestion",
         description=suggestion,
-        color=Color.green()
+        color=Color.gold()
     )
     embed.set_thumbnail(url=str(author.avatar_url))
-    embed.add_field(name="Status", value=status)
+    embed.add_field(name="Status", value=status.value)
     embed.set_footer(text="Powered by Tortoise Community.")
     return embed
 
 
-async def create_suggestion(channel: TextChannel, author: User, suggestion: str) -> Message:
+async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: str) -> Message:
     """
     Creates suggestion embed with up-vote and down-vote reactions.
     :param channel: TextChannel channel where to sent created suggestion embed

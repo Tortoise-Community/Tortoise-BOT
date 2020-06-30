@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_embed
+from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.message_logger import MessageLogger
 
@@ -201,7 +201,7 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        msg = await create_suggestion_embed(self.user_suggestions_channel, user, user_reply)
+        msg = await create_suggestion_msg(self.user_suggestions_channel, user, user_reply)
         await self.bot.api_client.post_suggestion(user, msg, user_reply)
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)
