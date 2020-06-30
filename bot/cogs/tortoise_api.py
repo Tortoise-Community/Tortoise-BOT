@@ -1,7 +1,7 @@
 import logging
 
-from discord import Member, Embed, Message, Color, Forbidden
 from discord.ext import commands
+from discord import Member, Embed, Message, Color, Forbidden
 
 from bot import constants
 from bot.bot import Bot

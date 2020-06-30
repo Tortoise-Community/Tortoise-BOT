@@ -7,9 +7,10 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.cooldown import CoolDown
 from bot.cogs.utils.message_logger import MessageLogger
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,8 @@ class TortoiseDM(commands.Cog):
 
         self.admin_role = self.tortoise_guild.get_role(constants.admin_role)
         self.moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+
+        self.cool_down = CoolDown(seconds=5)
 
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
@@ -75,16 +78,24 @@ class TortoiseDM(commands.Cog):
             return  # Only allow in DMs
 
         user_id = payload.user_id
+        user = self.bot.get_user(user_id)
+
         if user_id == self.bot.user.id:
             return  # Ignore the bot
         elif self.is_any_session_active(user_id):
             return
 
+        if self.cool_down.is_on_cool_down(user_id):
+            msg = f"You are on cooldown. You can retry after {self.cool_down.retry_after(user_id)}s"
+            await user.send(embed=failure(msg))
+            return
+        else:
+            self.cool_down.add_to_cool_down(user_id)
+
         for emoji_id, sub_dict in self._options.items():
             emoji = self.bot.get_emoji(emoji_id)
 
             if emoji == payload.emoji:
-                user = self.bot.get_user(user_id)
                 await sub_dict["callable"](user)
                 break
 
