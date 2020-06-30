@@ -2,7 +2,7 @@ from typing import Union
 from asyncio import TimeoutError
 
 from discord.ext.commands import Bot
-from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent
+from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
@@ -227,3 +227,21 @@ class RemovableMessage:
             await self.message.delete()
         except TimeoutError:
             await self.message.remove_reaction(self.emoji_remove, self.bot.user)
+
+
+async def create_suggestion_embed(channel: TextChannel, author: User, suggestion: str):
+    thumbs_up_reaction = "\U0001F44D"
+    thumbs_down_reaction = "\U0001F44E"
+
+    embed = Embed(
+        title=f"{author}'s suggestion",
+        description=suggestion,
+        color=get_top_role_color(channel.guild.me, fallback_color=Color.green())
+    )
+    embed.set_thumbnail(url=str(author.avatar_url))
+    embed.add_field(name="Status", value=constants.SuggestionStatus.under_review)
+    embed.set_footer(text="Powered by Tortoise Community.")
+
+    suggestion_msg = await channel.send(embed=embed)
+    await suggestion_msg.add_reaction(thumbs_up_reaction)
+    await suggestion_msg.add_reaction(thumbs_down_reaction)
