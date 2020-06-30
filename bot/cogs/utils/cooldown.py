@@ -31,7 +31,6 @@ class CoolDown:
         while self._loop_running:
             to_delete = []
             for key, date in self._cool_downs.items():
-                print(self.retry_after(key))
                 if self._get_current_datetime() > date:
                     to_delete.append(key)
 
