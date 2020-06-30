@@ -19,6 +19,10 @@ class CoolDown:
     def is_on_cool_down(self, key: Any) -> bool:
         return key in self._cool_downs
 
+    def retry_after(self, key: Any) -> float:
+        difference: timedelta = self._cool_downs[key] - self._get_current_datetime()
+        return difference.seconds
+
     @classmethod
     def _get_current_datetime(cls) -> datetime:
         return datetime.now(timezone.utc)
@@ -27,6 +31,7 @@ class CoolDown:
         while self._loop_running:
             to_delete = []
             for key, date in self._cool_downs.items():
+                print(self.retry_after(key))
                 if self._get_current_datetime() > date:
                     to_delete.append(key)
 
