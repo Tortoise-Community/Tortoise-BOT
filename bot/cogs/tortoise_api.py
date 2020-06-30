@@ -134,6 +134,18 @@ class TortoiseAPI(commands.Cog):
         except Forbidden:
             pass
 
+    @commands.command()
+    @commands.check(tortoise_bot_developer_only)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def delete_suggestion(self, ctx, message_id: int, *, reason: str = "No reason specified"):
+        """Delete a suggestion"""
+        msg: Message = await self.user_suggestions_channel.fetch_message(message_id)
+        if msg is not None:
+            await msg.delete()
+
+        await self.bot.api_client.delete_suggestion(message_id)
+        await ctx.send(embed=success("Suggestion successfully deleted."), delete_after=5)
+
 
 def setup(bot):
     bot.add_cog(TortoiseAPI(bot))
