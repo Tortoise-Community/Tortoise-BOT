@@ -33,6 +33,7 @@ class TortoiseDM(commands.Cog):
         self.moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
 
         self.cool_down = CoolDown(seconds=5)
+        self.bot.loop.create_task(self.cool_down.start(), "DM options cooldown.")
 
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
