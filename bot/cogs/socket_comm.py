@@ -385,6 +385,22 @@ class SocketCommunication(commands.Cog):
         await website_log_channel.send(f"{data}")
 
     @endpoint_register()
+    async def signal_update(self, signal: str):
+        """
+        Signals the bot it should update something locally like cache by fetching it from database.
+        :param signal: can be:
+                       'rules' signals updating rules
+                       'server_meta' signals updating server meta
+        """
+        if signal == "rules":
+            # TODO
+            pass
+        elif signal == "server_meta":
+            await self.bot.reload_tortoise_meta_cache()
+        else:
+            raise EndpointBadArguments()
+
+    @endpoint_register()
     async def ping(self):
         if self.bot.is_closed():
             raise EndpointError(503, "VPS online but Discord websocket closed.")
