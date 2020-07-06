@@ -9,13 +9,14 @@ from discord.ext import commands
 from discord import HTTPException, Forbidden
 
 from bot import constants
+from bot.cogs.utils.embed_handler import info
+from bot.cogs.utils.embed_handler import thumbnail
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.members import get_member_activity, get_member_status
 from bot.cogs.utils.exceptions import (
     EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
     InternalServerError, DiscordIDNotFound
 )
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.members import get_member_activity, get_member_status
-from bot.cogs.utils.embed_handler import thumbnail
 
 
 logger = logging.getLogger(__name__)
@@ -366,7 +367,9 @@ class SocketCommunication(commands.Cog):
             logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
 
         await member.add_roles(self.verified_role)
-        await self.successful_verifications_channel.send(f"{member} is now verified.")
+        await self.successful_verifications_channel.send(embed=info(
+            f"{member} is now verified.", member.guild.me, title="")
+        )
         await member.send("You are now verified.")
 
     @endpoint_register()
