@@ -196,8 +196,11 @@ class Other(commands.Cog):
         content = (
             "You can format your code by using markdown like this:\n\n"
             "\\`\\`\\`python\n"
-            "your code here\n"
+            "print('Hello world')\n"
             "\\`\\`\\`\n\n"
+            "This would give you:\n"
+            "```python\n"
+            "print('Hello world')```\n"
             "Note that character ` is not a quote but a backtick.\n\n"
             "If, however, you have large amounts of code then it's better to use our paste service: "
             f"{tortoise_paste_service_link}"
