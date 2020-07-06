@@ -42,25 +42,30 @@ class TortoiseDM(commands.Cog):
         self.active_bug_reports = set()
         self.active_suggestions = set()
 
-        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM
-        # and callable is the method to call when that option is selected.
+        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM,
+        # callable is the method to call when that option is selected and check is callable that returns
+        # bool whether that option is disabled or not.
         # TODO if callable errors container will not be properly updated so users will not be able to call it again
         self._options = {
             constants.mod_mail_emoji_id: {
                 "message": "Contact staff (mod mail)",
-                "callable": self.create_mod_mail
+                "callable": self.create_mod_mail,
+                "check": lambda: self.bot.tortoise_meta_cache["mod_mail"]
             },
             constants.event_emoji_id: {
                 "message": "Event submission",
-                "callable": self.create_event_submission
+                "callable": self.create_event_submission,
+                "check": lambda: self.bot.tortoise_meta_cache["event_submission"]
             },
             constants.bug_emoji_id: {
                 "message": "Bug report",
-                "callable": self.create_bug_report
+                "callable": self.create_bug_report,
+                "check": lambda: self.bot.tortoise_meta_cache["bug_report"]
             },
             constants.suggestions_emoji_id: {
                 "message": "Make a suggestion",
-                "callable": self.create_suggestion
+                "callable": self.create_suggestion,
+                "check": lambda: self.bot.tortoise_meta_cache["suggestions"]
             }
         }
 
@@ -96,7 +101,7 @@ class TortoiseDM(commands.Cog):
         for emoji_id, sub_dict in self._options.items():
             emoji = self.bot.get_emoji(emoji_id)
 
-            if emoji == payload.emoji:
+            if sub_dict["check"]() and emoji == payload.emoji:
                 await sub_dict["callable"](user)
                 break
 
@@ -143,8 +148,19 @@ class TortoiseDM(commands.Cog):
                 return key
 
     async def send_dm_options(self, *, output):
-        emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
-        msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
+        emoji_map = {
+            self.bot.get_emoji(emoji_id): sub_dict['message']
+            for emoji_id, sub_dict in self._options.items()
+            if sub_dict["check"]()
+        }
+
+        if not emoji_map:
+            # All DM options are disabled
+            return
+
+        msg_options = "\n\n".join(
+            f"{emoji} {message}" for emoji, message in emoji_map.items()
+        )
         disclaimer = (
             "Note: Abusing any of these options is punishable. Please do not use them just to test.\n"
             "Your Tortoise Community."

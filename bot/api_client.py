@@ -8,7 +8,7 @@ import aiohttp
 from dotenv import load_dotenv
 from discord import Member, User, Message
 
-from bot.constants import SuggestionStatus
+from bot.constants import SuggestionStatus, tortoise_guild_id
 
 
 load_dotenv()  # TODO why here also? in main too
@@ -244,3 +244,6 @@ class TortoiseAPI(APIClient):
         warnings_payload = {"warnings": current_warnings}
 
         await self.put(f"member/meta/{member_id}/", json=warnings_payload)
+
+    async def get_tortoise_meta(self) -> dict:
+        return await self.get(f"server/meta/{tortoise_guild_id}/")

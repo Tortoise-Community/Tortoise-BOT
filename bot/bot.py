@@ -24,6 +24,12 @@ class Bot(commands.Bot):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
         self._was_ready_once = False
+        self.tortoise_meta_cache = {
+            "event_submission": False,
+            "mod_mail": False,
+            "bug_report": False,
+            "suggestions": False
+        }
 
     async def on_ready(self):
         console_logger.info(
@@ -39,6 +45,10 @@ class Bot(commands.Bot):
     async def on_first_ready(self):
         self.load_extensions()
         await self.change_presence(activity=discord.Game(name="DM me!"))
+        await self.reload_tortoise_meta_cache()
+
+    async def reload_tortoise_meta_cache(self):
+        self.tortoise_meta_cache = await self.api_client.get_tortoise_meta()
 
     def load_extensions(self):
         for extension_path in Path("bot/cogs").glob("*.py"):
