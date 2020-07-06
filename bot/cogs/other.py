@@ -6,7 +6,7 @@ import psutil
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import info, status_embed
+from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
 from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
 
 
@@ -180,19 +180,20 @@ class Other(commands.Cog):
 
     @commands.command()
     async def ask(self, ctx):
-        msg = (
+        content = (
             "Don't ask to ask just ask.\n\n"
             " • You will have much higher chances of getting a answer\n"
             " • It saves time both for us and you as we can skip the whole process of actually getting the "
             "question out of you\n\n"
             "For more info visit https://dontasktoask.com/"
         )
-        embed = info(msg, ctx.me, "")
-        await ctx.send(embed=embed)
+        embed = info(content, ctx.me, "")
+        message = await ctx.send(embed=embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
 
     @commands.command()
     async def markdown(self, ctx):
-        msg = (
+        content = (
             "You can format your code by using markdown like this:\n\n"
             "\\`\\`\\`python\n"
             "your code here\n"
@@ -201,8 +202,14 @@ class Other(commands.Cog):
             "If, however, you have large amounts of code then it's better to use our paste service: "
             f"{tortoise_paste_service_link}"
         )
-        embed = info(msg, ctx.me, "")
-        await ctx.send(embed=embed)
+        embed = info(content, ctx.me, "")
+        message = await ctx.send(embed=embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+
+    @commands.command()
+    async def paste(self, ctx):
+        """Shows the link to our paste service"""
+        await ctx.send(embed=info(f":page_facing_up: {tortoise_paste_service_link}", ctx.me, title=""))
 
 
 def setup(bot):
