@@ -22,8 +22,6 @@ class Admins(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
-        # TODO do not kick members due to old system
-        # self.scheduled_dm_unverified.start()
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -193,18 +191,19 @@ class Admins(commands.Cog):
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
         """
         Mutes the member.
-
         """
         if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
-        reason = "Muting member. " + reason
+        reason = f"Muting member. {reason}"
 
         await member.add_roles(self.muted_role, reason=reason)
         await member.remove_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
+
+        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
@@ -278,12 +277,6 @@ class Admins(commands.Cog):
         logger.info(f"Successfully messaged {count} unverified users.")
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
-
-    @scheduled_dm_unverified.before_loop
-    async def before_automatic_dm_unverified(self):
-        logger.info("Starting DM unverified loop...")
-        await self.bot.wait_until_ready()
-        logger.info("Rule update loop started!")
 
     @commands.command()
     @commands.cooldown(1, 900, commands.BucketType.guild)
