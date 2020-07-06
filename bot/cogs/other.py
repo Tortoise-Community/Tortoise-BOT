@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from bot.cogs.utils.embed_handler import info, status_embed
-from bot.constants import github_repo_link, embed_space
+from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
 
 
 class Other(commands.Cog):
@@ -177,6 +177,32 @@ class Other(commands.Cog):
         )
         await ctx.send(f"```{msg}```")
         await ctx.message.delete()
+
+    @commands.command()
+    async def ask(self, ctx):
+        msg = (
+            "Don't ask to ask just ask.\n\n"
+            " • You will have much higher chances of getting a answer\n"
+            " • It saves time both for us and you as we can skip the whole process of actually getting the "
+            "question out of you\n\n"
+            "For more info visit https://dontasktoask.com/"
+        )
+        embed = info(msg, ctx.me, "")
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def markdown(self, ctx):
+        msg = (
+            "You can format your code by using markdown like this:\n\n"
+            "\\`\\`\\`python\n"
+            "your code here\n"
+            "\\`\\`\\`\n\n"
+            "Note that character ` is not a quote but a backtick.\n\n"
+            "If, however, you have large amounts of code then it's better to use our paste service: "
+            f"{tortoise_paste_service_link}"
+        )
+        embed = info(msg, ctx.me, "")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
