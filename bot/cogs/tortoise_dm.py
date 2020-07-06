@@ -7,9 +7,10 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.embed_handler import authored, failure, success, info
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.cooldown import CoolDown
 from bot.cogs.utils.message_logger import MessageLogger
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,12 @@ class TortoiseDM(commands.Cog):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
 
+        self.admin_role = self.tortoise_guild.get_role(constants.admin_role)
+        self.moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+
+        self.cool_down = CoolDown(seconds=120)
+        self.bot.loop.create_task(self.cool_down.start())
+
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
         self.pending_mod_mails = set()
@@ -35,24 +42,30 @@ class TortoiseDM(commands.Cog):
         self.active_bug_reports = set()
         self.active_suggestions = set()
 
-        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM
-        # and callable is the method to call when that option is selected.
+        # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM,
+        # callable is the method to call when that option is selected and check is callable that returns
+        # bool whether that option is disabled or not.
+        # TODO if callable errors container will not be properly updated so users will not be able to call it again
         self._options = {
             constants.mod_mail_emoji_id: {
                 "message": "Contact staff (mod mail)",
-                "callable": self.create_mod_mail
+                "callable": self.create_mod_mail,
+                "check": lambda: self.bot.tortoise_meta_cache["mod_mail"]
             },
             constants.event_emoji_id: {
                 "message": "Event submission",
-                "callable": self.create_event_submission
+                "callable": self.create_event_submission,
+                "check": lambda: self.bot.tortoise_meta_cache["event_submission"]
             },
             constants.bug_emoji_id: {
                 "message": "Bug report",
-                "callable": self.create_bug_report
+                "callable": self.create_bug_report,
+                "check": lambda: self.bot.tortoise_meta_cache["bug_report"]
             },
             constants.suggestions_emoji_id: {
                 "message": "Make a suggestion",
-                "callable": self.create_suggestion
+                "callable": self.create_suggestion,
+                "check": lambda: self.bot.tortoise_meta_cache["suggestions"]
             }
         }
 
@@ -71,16 +84,24 @@ class TortoiseDM(commands.Cog):
             return  # Only allow in DMs
 
         user_id = payload.user_id
+        user = self.bot.get_user(user_id)
+
         if user_id == self.bot.user.id:
             return  # Ignore the bot
         elif self.is_any_session_active(user_id):
             return
 
+        if self.cool_down.is_on_cool_down(user_id):
+            msg = f"You are on cooldown. You can retry after {self.cool_down.retry_after(user_id)}s"
+            await user.send(embed=failure(msg))
+            return
+        else:
+            self.cool_down.add_to_cool_down(user_id)
+
         for emoji_id, sub_dict in self._options.items():
             emoji = self.bot.get_emoji(emoji_id)
 
-            if emoji == payload.emoji:
-                user = self.bot.get_user(user_id)
+            if sub_dict["check"]() and emoji == payload.emoji:
                 await sub_dict["callable"](user)
                 break
 
@@ -127,11 +148,26 @@ class TortoiseDM(commands.Cog):
                 return key
 
     async def send_dm_options(self, *, output):
-        emoji_map = {self.bot.get_emoji(emoji_id): sub_dict['message'] for emoji_id, sub_dict in self._options.items()}
-        msg_options = "\n\n".join(f"{emoji} {message}" for emoji, message in emoji_map.items())
+        emoji_map = {
+            self.bot.get_emoji(emoji_id): sub_dict['message']
+            for emoji_id, sub_dict in self._options.items()
+            if sub_dict["check"]()
+        }
 
-        embed = discord.Embed(description=msg_options)
-        embed.set_footer(text=f"Tortoise Community{constants.embed_space * 100}")
+        if not emoji_map:
+            # All DM options are disabled
+            return
+
+        msg_options = "\n\n".join(
+            f"{emoji} {message}" for emoji, message in emoji_map.items()
+        )
+        disclaimer = (
+            "Note: Abusing any of these options is punishable. Please do not use them just to test.\n"
+            "Your Tortoise Community."
+        )
+
+        embed = discord.Embed(description=f"{msg_options}\n{constants.embed_space}")
+        embed.set_footer(text=disclaimer)
         embed.set_thumbnail(url=str(self.tortoise_guild.icon_url))
         msg = await output.send(embed=embed)
 
@@ -160,7 +196,10 @@ class TortoiseDM(commands.Cog):
             return
 
         submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
+        # Ping roles so they get notified sooner
+        await self.mod_mail_report_channel.send(f"{self.moderator_role.mention}", delete_after=30)
         await self.mod_mail_report_channel.send(embed=submission_embed)
+
         self.pending_mod_mails.add(user.id)
         await user.send(embed=success("Mod mail was sent to admins, please wait for one of the admins to accept."))
 
@@ -190,7 +229,8 @@ class TortoiseDM(commands.Cog):
         if user_reply is None:
             return
 
-        await self.user_suggestions_channel.send(f"User `{user}` ID:{user.id} submitted suggestion: {user_reply}")
+        msg = await create_suggestion_msg(self.user_suggestions_channel, user, user_reply)
+        await self.bot.api_client.post_suggestion(user, msg, user_reply)
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)
 
@@ -283,9 +323,12 @@ class TortoiseDM(commands.Cog):
         return content
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def attend(self, ctx, user_id: int):
+        if not any(role in ctx.author.roles for role in (self.admin_role, self.moderator_role)):
+            await ctx.send(embed=failure("You do not have permission to use this command."))
+            return
+
         # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
         first_timeout = 10_800
         # Flag for above variable. False means there has been no messages from the user.
@@ -316,8 +359,7 @@ class TortoiseDM(commands.Cog):
                 (
                     "has accepted your mod mail request.\n"
                     "Reply here in DMs to chat with them.\n"
-                    "This mod mail will be logged, by continuing you agree to that.\n"
-                    "Type `close` to close this mod mail."
+                    "This mod mail will be logged, by continuing you agree to that."
                 ),
                 author=mod
             )
@@ -357,7 +399,7 @@ class TortoiseDM(commands.Cog):
                 _timeout = regular_timeout
 
             # Deal with canceling mod mail
-            if mail_msg.content.lower() == "close":
+            if mail_msg.content.lower() == "close" and mail_msg.author.id == mod.id:
                 close_embed = success(f"Mod mail successfully closed by {mail_msg.author}.")
                 log.add_embed(close_embed)
                 await mod.send(embed=close_embed)

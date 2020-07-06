@@ -6,9 +6,9 @@ from datetime import datetime, timezone
 
 import aiohttp
 from dotenv import load_dotenv
-from discord import Member, Message
+from discord import Member, User, Message
 
-from bot.constants import SuggestionStatus
+from bot.constants import SuggestionStatus, tortoise_guild_id
 
 
 load_dotenv()  # TODO why here also? in main too
@@ -176,7 +176,7 @@ class TortoiseAPI(APIClient):
     async def get_suggestion(self, suggestion_id: int) -> dict:
         return await self.get(f"suggestions/{suggestion_id}/")
 
-    async def post_suggestion(self, author: Member, message: Message, suggestion: str):
+    async def post_suggestion(self, author: User, message: Message, suggestion: str):
         data = {
             "message_id": message.id,
             "author_id": author.id,
@@ -244,3 +244,6 @@ class TortoiseAPI(APIClient):
         warnings_payload = {"warnings": current_warnings}
 
         await self.put(f"member/meta/{member_id}/", json=warnings_payload)
+
+    async def get_tortoise_meta(self) -> dict:
+        return await self.get(f"server/meta/{tortoise_guild_id}/")

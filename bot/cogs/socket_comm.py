@@ -351,11 +351,13 @@ class SocketCommunication(commands.Cog):
 
         for check_none in none_checks:
             if check_none is None:
+                logger.info(f"One of necessary IDs was not found {none_checks}")
                 raise DiscordIDNotFound()
 
         member = self.tortoise_guild.get_member(member_id)
 
         if member is None:
+            logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
             raise DiscordIDNotFound()
 
         try:
@@ -381,6 +383,22 @@ class SocketCommunication(commands.Cog):
                 raise DiscordIDNotFound()
 
         await website_log_channel.send(f"{data}")
+
+    @endpoint_register()
+    async def signal_update(self, signal: str):
+        """
+        Signals the bot it should update something locally like cache by fetching it from database.
+        :param signal: can be:
+                       'rules' signals updating rules
+                       'server_meta' signals updating server meta
+        """
+        if signal == "rules":
+            # TODO
+            pass
+        elif signal == "server_meta":
+            await self.bot.reload_tortoise_meta_cache()
+        else:
+            raise EndpointBadArguments()
 
     @endpoint_register()
     async def ping(self):

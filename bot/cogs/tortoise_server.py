@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
 from bot import constants
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.embed_handler import (
     success, warning, failure, authored, welcome, welcome_dm, info, RemovableMessage
 )
@@ -19,9 +19,11 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
+        self.member_count_channel = bot.get_channel(constants.member_count_channel)
         self._database_role_update_lock = False
         self._rules = None
         self.update_rules.start()
+        self.update_member_count_channel.start()
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -42,8 +44,7 @@ class TortoiseServer(commands.Cog):
             )
             await message.channel.send(embed=warning(msg))
 
-    @tasks.loop(hours=24)
-    async def update_rules(self):
+    async def refresh_rules_helper(self):
         try:
             self._rules = await self.bot.api_client.get_all_rules()
         except Exception as e:
@@ -51,11 +52,21 @@ class TortoiseServer(commands.Cog):
             logger.critical(msg)
             await self.bot.log_error(msg)
 
-    @update_rules.before_loop
-    async def before_update_rules(self):
-        logger.info("Starting rule update loop..")
-        await self.bot.wait_until_ready()
-        logger.info("Rule update loop started!")
+    @tasks.loop(hours=24)
+    async def update_rules(self):
+        await self.refresh_rules_helper()
+
+    @tasks.loop(minutes=5)
+    async def update_member_count_channel(self):
+        guild = self.member_count_channel.guild
+        await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
+
+    @commands.command()
+    @commands.check(tortoise_bot_developer_only)
+    async def refresh_rules(self, ctx):
+        """Manually refreshes rules by fetching data from the API."""
+        await self.refresh_rules_helper()
+        await ctx.send(embed=info("Done", ctx.me), delete_after=5)
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -124,7 +135,7 @@ class TortoiseServer(commands.Cog):
             msg = (
                 "Welcome to Tortoise Community!\n"
                 "In order to proceed and join the community you will need to verify.\n\n"
-                f"Please head over to {constants.verification_url}"
+                f"Please head over to\n{constants.verification_url}"
             )
             await member.send(embed=welcome_dm(msg))
             return

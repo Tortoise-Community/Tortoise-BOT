@@ -1,5 +1,6 @@
 import logging
 import asyncio
+from typing import Union
 from datetime import datetime
 
 import discord
@@ -21,7 +22,8 @@ class Admins(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
-        self.scheduled_dm_unverified.start()
+        # TODO do not kick members due to old system
+        # self.scheduled_dm_unverified.start()
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -50,7 +52,7 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, member: discord.Member, *, reason="Reason not stated."):
+    async def ban(self, ctx, member: Union[discord.Member, discord.User], *, reason="Reason not stated."):
         """
         Bans  member from the guild.
 
@@ -231,9 +233,14 @@ class Admins(commands.Cog):
         Failed members are printed to log.
 
         """
+
+        # TODO
+        """
+        date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
+        AttributeError: 'NoneType' object has no attribute 'split'
+        """
         members = await self.bot.api_client.get_all_members()
         failed = []
-        kicked = []
         count = 0
 
         # TODO filter is only temporary until API endpoint added
@@ -242,43 +249,35 @@ class Admins(commands.Cog):
             days_since_joined = (datetime.today() - date_joined).days
 
             member = self.tortoise_guild.get_member(user['user_id'])
-            if days_since_joined in (10, 15, 20, 25):
+
+            if not user['member']:
+                # Column is not deleted if member has left the guild, we just change field 'member' to False
+                # Also, VERY IMPORTANT, we have members in database from previous system that didn't verify but were
+                # let of the hook! Do not kick!
+                continue
+            elif member is None:
+                # If bot was offline for a moment and leave event was not registered
+                logger.warning(f"Member {member} found in database as member but not found in guild.")
+                continue
+
+            if days_since_joined % 5 == 0:
                 msg = (
                     f"Hey {member.mention}!\n"
                     f"You've been in our guild **{self.tortoise_guild.name}** for the past {days_since_joined} days.\n"
                     f"We noticed you still haven't verified so please go to "
                     f"{constants.verification_url} and verify.\n\n"
-                    f"If you do not do this within **{30-days_since_joined}** days, you will be automatically removed "
-                    f"from the server and will have to manually rejoin."
                 )
-            elif days_since_joined >= 30:
-                msg = (
-                    f"Hey {member.mention}!\n"
-                    f"As you have not verified for the past {days_since_joined} days, you have been automatically"
-                    f"removed from our guild **{self.tortoise_guild.name}**.\n\n"
-                    f"If you still wish to join, please join using the link https://discord.com/invite/GQdZjmW "
-                    f"and remember to go through the verification process as soon as possible to be granted entry."
-                )
-            else:
-                continue
 
-            try:
-                await member.send(msg)
-            except discord.Forbidden:
-                failed.append(member.name)
-            else:
-                count += 1
-
-            if days_since_joined >= 30:
-                await member.kick(reason="Failed to verify within 30 days.")
-                kicked.append(member.name)
+                try:
+                    await member.send(msg)
+                except discord.Forbidden:
+                    failed.append(member.name)
+                else:
+                    count += 1
 
         logger.info(f"Successfully messaged {count} unverified users.")
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
-
-        if kicked:
-            logger.info(f"Successfully kicked: {kicked}")
 
     @scheduled_dm_unverified.before_loop
     async def before_automatic_dm_unverified(self):
