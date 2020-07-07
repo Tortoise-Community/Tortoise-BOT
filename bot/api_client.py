@@ -41,7 +41,7 @@ class APIClient:
 
     @staticmethod
     def _url_for(endpoint: str) -> str:
-        return f"https://api.tortoisecommunity.ml/private/{endpoint}"
+        return f"https://api.tortoisecommunity.com/private/{endpoint}"
 
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:

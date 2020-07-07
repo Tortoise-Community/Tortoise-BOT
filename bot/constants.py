@@ -3,12 +3,12 @@ from aenum import Enum, NoAlias
 from discord import Color
 
 tortoise_guild_id = 577192344529404154
-website_url = "https://www.tortoisecommunity.ml/"
-privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
-rules_url = "https://www.tortoisecommunity.ml/pages/rules"
-verification_url = "https://www.tortoisecommunity.ml/verification/"
+website_url = "https://www.tortoisecommunity.com/"
+privacy_url = "https://www.tortoisecommunity.com/pages/privacy"
+rules_url = "https://www.tortoisecommunity.com/pages/rules"
+verification_url = "https://www.tortoisecommunity.com/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
-tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 
 
