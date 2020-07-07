@@ -110,4 +110,4 @@ pipenv run start
 
 # License
 
-MIT - see [LICENSE](LICENSE) file for details.
+MIT - see [LICENSE](https://github.com/Tortoise-Community/Tortoise-BOT/blob/dev/LICENSE) file for details.
