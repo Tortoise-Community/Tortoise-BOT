@@ -1,5 +1,6 @@
 import sys
 import logging
+import asyncio
 import traceback
 from pathlib import Path
 from typing import Generator
@@ -18,7 +19,7 @@ console_logger = logging.getLogger("console")
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
     allowed_extensions = ()
-    banned_extensions = ("captcha_verification", "test")
+    banned_extensions = ("test",)
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
@@ -48,6 +49,9 @@ class Bot(commands.Bot):
         await self.reload_tortoise_meta_cache()
 
     async def reload_tortoise_meta_cache(self):
+        # For some reason it takes some time to propagate change in API database so if we fetch right away
+        # we will get old data.
+        await asyncio.sleep(3)
         self.tortoise_meta_cache = await self.api_client.get_tortoise_meta()
 
     def load_extensions(self):
