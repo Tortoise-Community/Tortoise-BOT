@@ -14,7 +14,7 @@ from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 logger = logging.getLogger(__name__)
 
 
-class Admins(commands.Cog):
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
@@ -212,7 +212,6 @@ class Admins(commands.Cog):
     async def unmute(self, ctx, member: discord.Member):
         """
         Unmutes the member.
-
         """
         if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
@@ -230,10 +229,9 @@ class Admins(commands.Cog):
         """
         Dms all unverified members reminder that they need to verify.
         Failed members are printed to log.
-
         """
-
         # TODO
+        return
         """
         date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
         AttributeError: 'NoneType' object has no attribute 'split'
@@ -311,10 +309,6 @@ class Admins(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @commands.command()
-    async def paste(self, ctx):
-        await ctx.send(embed=info(f":page_facing_up: {constants.tortoise_paste_service_link}", ctx.me, title=""))
-
 
 def setup(bot):
-    bot.add_cog(Admins(bot))
+    bot.add_cog(Moderation(bot))

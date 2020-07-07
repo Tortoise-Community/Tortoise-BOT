@@ -11,11 +11,10 @@ from discord import HTTPException, Forbidden
 from bot import constants
 from bot.cogs.utils.embed_handler import info
 from bot.cogs.utils.embed_handler import thumbnail
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.members import get_member_activity, get_member_status
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.exceptions import (
-    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
-    InternalServerError, DiscordIDNotFound
+    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess, InternalServerError, DiscordIDNotFound
 )
 
 
@@ -107,8 +106,8 @@ class SocketCommunication(commands.Cog):
         logger.debug("Socket com unloaded.")
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
+    @commands.check(tortoise_bot_developer_only)
     async def show_endpoints(self, ctx):
         await ctx.send(" ,".join(_endpoints_mapping))
 
