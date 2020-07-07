@@ -65,12 +65,6 @@ bug_emoji_id = 723274927968354364
 suggestions_emoji_id = 613185393776656384
 
 
-# Captcha Verification
-captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/"
-                     "Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png"),
-            ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
-
-
 # Music Options
 # For all options see:
 # https://github.com/ytdl-org/youtube-dl/blob/3e4cedf9e8cd3157df2457df7274d0c842421945/youtube_dl/YoutubeDL.py#L137-L312
