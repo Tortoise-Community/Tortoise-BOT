@@ -19,7 +19,8 @@ class Other(commands.Cog):
     async def say(self, ctx, *, message):
         """Says something"""
         await ctx.message.delete()
-        await ctx.send(message)
+        clean = await commands.clean_content().convert(ctx, message)
+        await ctx.send(clean)
 
     @commands.command()
     async def members(self, ctx):
