@@ -8,7 +8,7 @@ from discord.errors import HTTPException
 from bot import constants
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.embed_handler import (
-    success, warning, failure, authored, welcome, welcome_dm, info, RemovableMessage
+    success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
 )
 
 
@@ -137,7 +137,7 @@ class TortoiseServer(commands.Cog):
                 "In order to proceed and join the community you will need to verify.\n\n"
                 f"Please head over to\n{constants.verification_url}"
             )
-            await member.send(embed=welcome_dm(msg))
+            await member.send(embed=footer_embed(msg, "Welcome"))
             return
 
         verified = await self.bot.api_client.is_verified(member.id)
@@ -155,7 +155,7 @@ class TortoiseServer(commands.Cog):
                 "Welcome back to Tortoise Community!\n\n"
                 "The roles you had last time will be restored and added back to you.\n"
             )
-            await member.send(embed=welcome_dm(msg))
+            await member.send(embed=footer_embed(msg, "Welcome"))
         else:
             logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
 
@@ -174,7 +174,7 @@ class TortoiseServer(commands.Cog):
                 "Seems like this is not your first time joining.\n\n"
                 f"Last time you didn't verify so please head over to {constants.verification_url}"
             )
-            await member.send(embed=welcome_dm(msg))
+            await member.send(embed=footer_embed(msg, "Welcome"))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)

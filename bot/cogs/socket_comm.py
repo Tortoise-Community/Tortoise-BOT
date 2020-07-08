@@ -9,8 +9,7 @@ from discord.ext import commands
 from discord import HTTPException, Forbidden
 
 from bot import constants
-from bot.cogs.utils.embed_handler import info
-from bot.cogs.utils.embed_handler import thumbnail
+from bot.cogs.utils.embed_handler import info, thumbnail, footer_embed
 from bot.cogs.utils.members import get_member_activity, get_member_status
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.exceptions import (
@@ -363,13 +362,13 @@ class SocketCommunication(commands.Cog):
         try:
             await member.remove_roles(self.unverified_role)
         except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
+            logger.warning(f"Bot could't remove unverified role {self.unverified_role}")
 
         await member.add_roles(self.verified_role)
         await self.successful_verifications_channel.send(embed=info(
             f"{member} is now verified.", member.guild.me, title="")
         )
-        await member.send("You are now verified.")
+        await member.send(embed=footer_embed("You are now verified.", "Verification success."))
 
     @endpoint_register()
     async def contact(self, data: dict):

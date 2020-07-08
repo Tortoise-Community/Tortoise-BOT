@@ -13,20 +13,22 @@ def simple_embed(message: str, title: str, color: Color) -> Embed:
     return embed
 
 
-def welcome_dm(message: str) -> Embed:
+def footer_embed(message: str, title) -> Embed:
     """
-    Constructs welcome embed to be sent when user joins,
-    with fixed  green color and fixed footer showing privacy url and rules url.
+    Constructs embed with fixed  green color and fixed footer showing website, privacy url and rules url.
     :param message: embed description
+    :param title: title of embed
     :return: Embed object
     """
-    content_footer = (f"Links: [Website]({constants.website_url}) | "
-                      f"[Privacy statement]({constants.privacy_url}) | "
-                      f"[Rules]({constants.rules_url})")
+    content_footer = (
+        f"Links: [Website]({constants.website_url}) | "
+        f"[Privacy statement]({constants.privacy_url}) | "
+        f"[Rules]({constants.rules_url})"
+    )
     message = f"{message}\n\n{content_footer}"
-    welcome_dm_embed = simple_embed(message, "Welcome", color=Color.dark_green())
-    welcome_dm_embed.set_image(url=constants.line_img_url)
-    return welcome_dm_embed
+    footer_embed = simple_embed(message, title, color=Color.dark_green())
+    footer_embed.set_image(url=constants.line_img_url)
+    return footer_embed
 
 
 def welcome(message: str) -> Embed:
