@@ -9,7 +9,7 @@ from discord.ext import commands
 from discord import HTTPException, Forbidden
 
 from bot import constants
-from bot.cogs.utils.embed_handler import info, thumbnail, footer_embed
+from bot.cogs.utils.embed_handler import info, thumbnail, success
 from bot.cogs.utils.members import get_member_activity, get_member_status
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.exceptions import (
@@ -79,6 +79,8 @@ class SocketCommunication(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
+        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
+        self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
         self.verified_clients = set()
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self._socket_server = SocketCommunication.create_server()
@@ -368,7 +370,12 @@ class SocketCommunication(commands.Cog):
         await self.successful_verifications_channel.send(embed=info(
             f"{member} is now verified.", member.guild.me, title="")
         )
-        await member.send(embed=footer_embed("You are now verified.", "Verification success."))
+
+        msg = (
+            f"You are now verified {self.verified_emoji}\n\n"
+            f"Make sure to read {self.welcome_channel.mention}"
+        )
+        await member.send(embed=success(msg))
 
     @endpoint_register()
     async def contact(self, data: dict):

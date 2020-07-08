@@ -63,6 +63,7 @@ mod_mail_emoji_id = 706195614857297970
 event_emoji_id = 611403448750964746
 bug_emoji_id = 723274927968354364
 suggestions_emoji_id = 613185393776656384
+verified_emoji_id = 610713784268357632
 
 
 # Music Options
