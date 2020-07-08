@@ -87,13 +87,6 @@ class TortoiseAPI(APIClient):
     def __init__(self, loop):
         super().__init__(loop)
 
-    async def does_member_exist(self, member_id: int) -> bool:
-        try:
-            await self.is_verified(member_id, re_raise=True)
-            return True
-        except ResponseCodeError:
-            return False
-
     async def is_verified(self, member_id: int, *, re_raise=False) -> bool:
         """
         "verify-confirmation/{member_id}/" endpoint return format {'verified': True} or 404 status

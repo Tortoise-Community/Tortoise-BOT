@@ -7,7 +7,7 @@ from bot import constants
 from bot.bot import Bot
 from bot.api_client import ResponseCodeError
 from bot.cogs.utils.converters import DatabaseMember
-from bot.cogs.utils.embed_handler import failure, warning, success, goodbye
+from bot.cogs.utils.embed_handler import failure, success, goodbye
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
@@ -30,13 +30,6 @@ class TortoiseAPI(commands.Cog):
         await ctx.send(response)
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def does_member_exist(self, ctx, member: DatabaseMember):
-        response = await self.bot.api_client.does_member_exist(member)
-        await ctx.send(response)
-
-    @commands.command()
     @commands.check(tortoise_bot_developer_only)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_data(self, ctx, member: DatabaseMember):
@@ -48,18 +41,6 @@ class TortoiseAPI(commands.Cog):
             return
 
         await ctx.send(f"{data}")
-
-    @commands.command()
-    @commands.check(tortoise_bot_developer_only)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def manually_add_database_member(self, ctx, member: Member):
-        if await self.bot.api_client.does_member_exist(member.id):
-            await ctx.send(embed=warning("Member already exists, aborting.."))
-            return
-
-        logger.info(f"{ctx.author} is manually adding member {member} {member.id} to database")
-        await self.bot.api_client.insert_new_member(member)
-        await ctx.send(embed=success(f"Member {member} successfully added to database."))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
