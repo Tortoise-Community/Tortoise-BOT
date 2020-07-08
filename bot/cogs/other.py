@@ -183,7 +183,7 @@ class Other(commands.Cog):
     async def ask(self, ctx):
         content = (
             "Don't ask to ask just ask.\n\n"
-            " • You will have much higher chances of getting a answer\n"
+            " • You will have much higher chances of getting an answer\n"
             " • It saves time both for us and you as we can skip the whole process of actually getting the "
             "question out of you\n\n"
             "For more info visit https://dontasktoask.com/"
