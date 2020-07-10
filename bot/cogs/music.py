@@ -65,7 +65,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
             # take first item from a playlist
             data = data["entries"][0]
 
-        await ctx.send(embed=success(f"```ini\n[Added {data['title']} to the queue.]```"))
+        await ctx.send(embed=info(f"```ini\n[Added {data['title']} to the queue.]```", ctx.me, ""))
 
         if download:
             source = ytdl.prepare_filename(data)
