@@ -276,7 +276,7 @@ class Moderation(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @commands.command()
+    @commands.command(aliases=["dm"])
     @commands.cooldown(1, 900, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
@@ -299,7 +299,7 @@ class Moderation(commands.Cog):
 
             try:
                 await member.send(embed=dm_embed)
-            except discord.Forbidden:
+            except discord.HTTPException:
                 failed.append(str(member))
             else:
                 count += 1
