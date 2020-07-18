@@ -237,7 +237,8 @@ class Music(commands.Cog):
                 channel = ctx.author.voice.channel
             except AttributeError:
                 raise InvalidVoiceChannel("No channel to join. Please either specify a valid channel or join one.")
-        elif "music" not in channel.name.lower():
+
+        if "music" not in channel.name.lower():
             raise InvalidVoiceChannel("Can't join channel - channel has to have 'music' in it's name.")
 
         vc = ctx.voice_client
