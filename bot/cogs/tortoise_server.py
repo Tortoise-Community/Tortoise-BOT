@@ -283,17 +283,12 @@ class TortoiseServer(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def announce(self, ctx, *, arg):
-        await self.announcements_channel.send(arg)
-        await ctx.send(success("Announced ✅"))
+    async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
+        """Send message to channel"""
+        if channel is None:
+            channel = ctx.channel
 
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def welcome(self, ctx, *, arg):
-        await self.welcome_channel.send(arg)
-        await ctx.send(success("Added in Welcome ✅"))
+        await channel.send(message)
 
 
 def setup(bot):
