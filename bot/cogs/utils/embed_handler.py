@@ -26,9 +26,9 @@ def footer_embed(message: str, title) -> Embed:
         f"[Rules]({constants.rules_url})"
     )
     message = f"{message}\n\n{content_footer}"
-    footer_embed = simple_embed(message, title, color=Color.dark_green())
-    footer_embed.set_image(url=constants.line_img_url)
-    return footer_embed
+    embed = simple_embed(message, title, color=Color.dark_green())
+    embed.set_image(url=constants.line_img_url)
+    return embed
 
 
 def welcome(message: str) -> Embed:
