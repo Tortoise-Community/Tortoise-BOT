@@ -87,89 +87,17 @@ class TortoiseAPI(APIClient):
     def __init__(self, loop):
         super().__init__(loop)
 
-    async def is_verified(self, member_id: int, *, re_raise=False) -> bool:
-        """
-        "verify-confirmation/{member_id}/" endpoint return format {'verified': True} or 404 status
-        :param member_id: int member id
-        :param re_raise: bool whether to re-raise ResponseCodeError if member_id is not found.
-        :return: bool
-        """
-        # Endpoint return format {'verified': True} or 404 status
-        try:
-            data = await self.get(f"verify-confirmation/{member_id}/")
-        except ResponseCodeError as e:
-            if re_raise:
-                raise e
-            else:
-                return False
-        return data["verified"]
-
-    async def insert_new_member(self, member: Member):
-        """For inserting new members in the database."""
-        data = {
-            "user_id": member.id,
-            "guild_id": member.guild.id,
-            "join_date": datetime.now(timezone.utc).isoformat(),
-            "name": member.display_name,
-            "tag": member.discriminator,
-            "member": True
-        }
-        await self.post("members/", json=data)
-
-    async def member_rejoined(self, member: Member):
-        data = {"user_id": member.id, "guild_id": member.guild.id, "member": True, "leave_date": None}
-        await self.put(f"members/edit/{member.id}/", json=data)
-
-    async def member_left(self, member: Member):
-        data = {
-            "user_id": member.id,
-            "guild_id": member.guild.id,
-            "leave_date": datetime.now(timezone.utc).isoformat(),
-            "member": False
-        }
-        await self.put(f"members/edit/{member.id}/", json=data)
-
-    async def get_member_roles(self, member_id: int) -> List[int]:
-        # Endpoint return format {'roles': [int...]} or 404 status
-        data = await self.get(f"members/{member_id}/roles/")
-        return data["roles"]
-
-    async def get_member_data(self, member_id: int) -> dict:
-        return await self.get(f"members/edit/{member_id}/")
-
-    async def get_all_members(self) -> list:
-        return await self.get("members/")
-
-    async def edit_member_roles(self, member: Member, roles_ids: List[int]):
-        await self.put(
-            f"members/edit/{member.id}/",
-            json={
-                "user_id": member.id,
-                "guild_id": member.guild.id,
-                "roles": roles_ids
-            }
-        )
-
-    async def get_all_rules(self) -> List[dict]:
-        """
-        Return format:
-        [
-          {"number": 1,
-          "alias": ["tos", "guidelines", "terms"],
-          "statement": "Follow the Discord Community Guidelines and Terms Of Service."
-          },
-          ...
-        ]
-        """
-        return await self.get("rules/")
-
-    async def get_all_suggestions(self) -> List[dict]:
+    async def get_suggestions_under_review(self) -> List[dict]:
+        # Gets all suggestion that are under-review
         return await self.get("suggestions/")
 
     async def get_suggestion(self, suggestion_id: int) -> dict:
+        # Return format
+        # (message_id, author_id, author_name, default, brief, status, reason, avatar, link, date)
         return await self.get(f"suggestions/{suggestion_id}/")
 
     async def post_suggestion(self, author: User, message: Message, suggestion: str):
+        # Creates new suggestion with default under-review status.
         data = {
             "message_id": message.id,
             "author_id": author.id,
@@ -181,30 +109,93 @@ class TortoiseAPI(APIClient):
         }
         await self.post("suggestions/", json=data)
 
-    async def put_suggestion(self, suggestion_id: int, status: SuggestionStatus, reason: str):
+    async def edit_suggestion(self, suggestion_id: int, status: SuggestionStatus, reason: str):
         data = {"status": status.value, "reason": reason}
         await self.put(f"suggestions/{suggestion_id}/", json=data)
 
     async def delete_suggestion(self, suggestion_id: int):
         await self.delete(f"suggestions/{suggestion_id}/")
 
-    async def get_member_meta(self, member_id: int) -> dict:
-        """
-        Return type:
-        {
-            "warnings": [],
-            "muted_until": null,
-            "strikes": {
-                "AD": 0,
-                "Homo": 0,
-                "Common": 0,
-                "Racial": 0
-            },
-            "mod_mail": true,
-            "perks": 300
+    async def get_all_rules(self) -> List[dict]:
+        # Return is list of dicts in format  ('number', 'alias', 'statement'):
+        return await self.get("rules/")
+
+    async def get_server_meta(self, guild_id: int = tortoise_guild_id) -> dict:
+        # Return ('event_submission', 'mod_mail', 'bug_report', 'suggestions', 'suggestion_message_id', 'bot_status')
+        return await self.get(f"server/meta/{guild_id}/")
+
+    async def get_all_members(self) -> List[dict]:
+        # Gets all members with all data except email
+        return await self.get("members/")
+
+    async def get_member_data(self, member_id: int) -> dict:
+        # Gets all member data excluding email.
+        return await self.get(f"members/{member_id}/")
+
+    async def get_member_roles(self, member_id: int) -> List[int]:
+        # TODO create new API endpoint just for this, instead of getting all fields
+        member_data = await self.get_member_data(member_id)
+        return member_data["roles"]
+
+    async def get_member_leave_date(self, member_id: int) -> datetime:
+        # TODO create new API endpoint just for this, instead of getting all fields
+        member_data = await self.get_member_data(member_id)
+        return member_data["leave_date"]
+
+    async def edit_member_roles(self, member: Member, roles_ids: List[int]):
+        payload = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "roles": roles_ids
         }
-        """
-        return await self.get(f"member/meta/{member_id}/")
+        await self.put(f"members/{member.id}/", json=payload)
+
+    async def insert_new_member(self, member: Member):
+        """For inserting new members in the database."""
+        data = {
+            "name": member.display_name,
+            "tag": member.discriminator,
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "join_date": datetime.now(timezone.utc).isoformat(),
+            "member": True
+        }
+        await self.post("members/", json=data)
+
+    async def member_rejoined(self, member: Member):
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "leave_date": None,
+            "member": True
+        }
+        await self.put(f"members/{member.id}/", json=data)
+
+    async def member_left(self, member: Member):
+        data = {
+            "user_id": member.id,
+            "guild_id": member.guild.id,
+            "leave_date": datetime.now(timezone.utc).isoformat(),
+            "member": False
+        }
+        await self.put(f"members/{member.id}/", json=data)
+
+    async def get_top_members(self) -> List[dict]:
+        # Returns top 20 members based on perks
+        # Return is a list of dicts with ('user_id', 'name', 'tag', 'perks')
+        return await self.get("members/top/")
+
+    async def get_member_meta(self, member_id: int) -> dict:
+        # Return ('join_date', 'leave_date', 'mod_mail', 'verified', 'member', 'roles')
+        return await self.get(f"members/meta/{member_id}/")
+
+    async def is_verified(self, member_id: int) -> bool:
+        member_meta = await self.get_member_meta(member_id)
+        return member_meta["verified"]
+
+    async def get_member_moderation(self, member_id: int) -> dict:
+        # Return ('warnings', 'muted_until', 'strikes', 'perks')
+        return await self.get(f"members/moderation/{member_id}/")
 
     async def get_member_warnings(self, member_id: int) -> List[dict]:
         """
@@ -216,10 +207,8 @@ class TortoiseAPI(APIClient):
             "mod": 197918569894379520}'
         ]
         """
-        member_meta = await self.get_member_meta(member_id)
-        warnings = member_meta["warnings"]
-        deserialized_warnings = [json.loads(item) for item in warnings]
-        return deserialized_warnings
+        member_moderation = await self.get_member_moderation(member_id)
+        return [json.loads(warning) for warning in member_moderation["warnings"]]
 
     async def get_member_warnings_count(self, member_id: int) -> int:
         return len(await self.get_member_warnings(member_id))
@@ -231,12 +220,8 @@ class TortoiseAPI(APIClient):
             "date": datetime.now(timezone.utc).isoformat()
         }
 
+        # TODO check if it needs to be current_warnings.append(json.dumps(new_warning)) ??
         current_warnings = await self.get_member_warnings(member_id)
-        current_warnings.append(json.dumps(new_warning))
-
+        current_warnings.append(new_warning)
         warnings_payload = {"warnings": current_warnings}
-
-        await self.put(f"member/meta/{member_id}/", json=warnings_payload)
-
-    async def get_tortoise_meta(self) -> dict:
-        return await self.get(f"server/meta/{tortoise_guild_id}/")
+        await self.put(f"member/moderation/{member_id}/", json=warnings_payload)

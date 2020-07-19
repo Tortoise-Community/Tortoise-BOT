@@ -52,7 +52,7 @@ class Bot(commands.Bot):
         # For some reason it takes some time to propagate change in API database so if we fetch right away
         # we will get old data.
         await asyncio.sleep(3)
-        self.tortoise_meta_cache = await self.api_client.get_tortoise_meta()
+        self.tortoise_meta_cache = await self.api_client.get_server_meta()
 
     def load_extensions(self):
         for extension_path in Path("bot/cogs").glob("*.py"):

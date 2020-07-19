@@ -109,6 +109,6 @@ class Infraction(Enum):
 
 
 class SuggestionStatus(Enum):
-    under_review = "Under review"
+    under_review = "Under Review"
     denied = "Denied"
     approved = "Approved"

@@ -104,7 +104,7 @@ class TortoiseAPI(commands.Cog):
         else:
             msg_embed.set_field_at(1, name="Reason", value=reason, inline=True)
 
-        await self.bot.api_client.put_suggestion(message_id, status, reason)
+        await self.bot.api_client.edit_suggestion(message_id, status, reason)
         await msg.edit(embed=msg_embed)
         await self._dm_member(api_data["author_id"], msg_embed)
 
