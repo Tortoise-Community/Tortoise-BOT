@@ -213,20 +213,22 @@ class TortoiseAPI(APIClient):
         ]
         """
         member_moderation = await self.get_member_moderation(member_id)
-        return [json.loads(warning) for warning in member_moderation["warnings"]]
+        warnings = member_moderation["warnings"]
+        deserialized_warnings = [json.loads(warning) for warning in warnings]
+        return deserialized_warnings
 
     async def get_member_warnings_count(self, member_id: int) -> int:
         return len(await self.get_member_warnings(member_id))
 
-    async def add_member_warning(self, mod_id: int, member_id: id, reason: str):
+    async def add_member_warning(self, mod_id: int, member_id: int, reason: str):
         new_warning = {
             "mod": mod_id,
             "reason": reason,
             "date": datetime.now(timezone.utc).isoformat()
         }
 
-        # TODO check if it needs to be current_warnings.append(json.dumps(new_warning)) ??
         current_warnings = await self.get_member_warnings(member_id)
         current_warnings.append(new_warning)
-        warnings_payload = {"warnings": current_warnings}
-        await self.put(f"member/moderation/{member_id}/", json=warnings_payload)
+        serialized_warnings = [json.dumps(warning_dict) for warning_dict in current_warnings]
+        warnings_payload = {"warnings": serialized_warnings}
+        await self.put(f"members/moderation/{member_id}/", json=warnings_payload)

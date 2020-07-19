@@ -92,15 +92,18 @@ class Moderation(commands.Cog):
             )
         )
 
-        await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
-        await self.deterrence_log_channel.send(embed=embed)
-
-        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
-
-        await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
-
-        await asyncio.sleep(5)
-        await ctx.message.delete()
+        try:
+            await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
+        except Exception as e:
+            msg = "Could not apply warning, problem with API."
+            logger.info(f"{msg} {e}")
+            await ctx.send(embed=failure(f"{msg}\nInfraction member should not think he got away."))
+        else:
+            await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
+            await self.deterrence_log_channel.send(embed=embed)
+            await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
+            await asyncio.sleep(5)
+            await ctx.message.delete()
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -111,6 +114,9 @@ class Moderation(commands.Cog):
 
         """
         warnings = await self.bot.api_client.get_member_warnings(member.id)
+
+        if not warnings:
+            await ctx.send(embed=info("No warnings.", ctx.me))
 
         for sub_dict in warnings:
             formatted_warnings = [f"{key}:{value}" for key, value in sub_dict.items()]

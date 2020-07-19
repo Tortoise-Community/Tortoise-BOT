@@ -6,6 +6,7 @@ from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
 from bot import constants
+from bot.api_client import ResponseCodeError
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.embed_handler import (
     success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
@@ -129,7 +130,7 @@ class TortoiseServer(commands.Cog):
         logger.info(f"New member joined {member}")
         try:
             member_meta = await self.bot.api_client.get_member_meta(member.id)
-        except self.bot.api_client.ResponseCodeError:
+        except ResponseCodeError:
             await self._new_member_register_in_database(member)
         else:
             if member_meta["leave_date"] is None and member_meta["verified"]:
