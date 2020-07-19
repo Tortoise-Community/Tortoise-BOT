@@ -7,7 +7,7 @@ from bot import constants
 from bot.bot import Bot
 from bot.api_client import ResponseCodeError
 from bot.cogs.utils.converters import DatabaseMember
-from bot.cogs.utils.embed_handler import failure, success, goodbye
+from bot.cogs.utils.embed_handler import failure, success, goodbye, info
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
@@ -36,11 +36,11 @@ class TortoiseAPI(commands.Cog):
         try:
             data = await self.bot.api_client.get_member_data(member)
         except ResponseCodeError as e:
-            await ctx.send(embed=failure(f"Something went wrong, got response status {e.status}.\n"
-                                         f"Does the member exist?"))
-            return
-
-        await ctx.send(f"{data}")
+            msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
+            await ctx.send(embed=failure(msg))
+        else:
+            pretty = "\n".join(f"{key}:{value}\n" for key, value in data.items())
+            await ctx.send(embed=info(pretty, ctx.me, "Member data"))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
