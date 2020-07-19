@@ -126,37 +126,49 @@ class TortoiseServer(commands.Cog):
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member: discord.Member):
-        logger.debug(f"New member joined {member}")
+        logger.info(f"New member joined {member}")
+        try:
+            member_meta = await self.bot.api_client.get_member_meta(member.id)
+        except self.bot.api_client.ResponseCodeError:
+            await self._new_member_register_in_database(member)
+        else:
+            if member_meta["leave_date"] is None and member_meta["verified"]:
+                pass
+            else:
+                await self._new_member_re_joined(member, member_meta["verified"])
 
-        if not await self.bot.api_client.does_member_exist(member.id):
-            logger.debug(f"New member {member} does not exist in database, adding now.")
+    async def _new_member_register_in_database(self, member: discord.Member):
+        logger.info(f"New member {member} does not exist in database, adding now.")
+        await self.bot.api_client.insert_new_member(member)
+        await member.add_roles(self.unverified_role)
+        # Ghost ping the member so he takes note of verification channel where all info is
+        await self.verification_channel.send(member.mention, delete_after=1)
+        await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
+        dm_msg = (
+            "Welcome to Tortoise Community!\n"
+            "In order to proceed and join the community you will need to verify.\n\n"
+            f"Please head over to\n{constants.verification_url}"
+        )
+        await member.send(embed=footer_embed(dm_msg, "Welcome"))
 
-            await self.bot.api_client.insert_new_member(member)
+    async def _new_member_direct_access(self, member: discord.Member):
+        logger.info(f"Member {member} joined directly from website, giving access to guild.")
+        await self.add_verified_roles_to_member(member)
+        await self.bot.api_client.member_rejoined(member)
+        await self.log_channel.send(embed=welcome(f"{member} has joined to Tortoise Community."))
+        msg = (
+            "Welcome to Tortoise Community!\n\n"
+            "We see you've come directly from our website after verification,\n"
+            "you've been given access to our server, enjoy your stay."
+        )
+        await member.send(embed=footer_embed(msg, "Welcome"))
 
-            await member.add_roles(self.unverified_role)
-
-            # Ghost ping the member so he takes note of verification channel where all info is
-            await self.verification_channel.send(member.mention, delete_after=1)
-
-            await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-            msg = (
-                "Welcome to Tortoise Community!\n"
-                "In order to proceed and join the community you will need to verify.\n\n"
-                f"Please head over to\n{constants.verification_url}"
-            )
-            await member.send(embed=footer_embed(msg, "Welcome"))
-            return
-
-        verified = await self.bot.api_client.is_verified(member.id)
+    async def _new_member_re_joined(self, member: discord.Member, verified: bool):
         if verified:
-            logger.debug(f"Member {member} is verified in database, adding roles.")
-
+            logger.info(f"Member {member} re-joined and is verified in database, adding previous roles..")
             previous_roles = await self.bot.api_client.get_member_roles(member.id)
             await self.add_verified_roles_to_member(member, previous_roles)
-
-            logger.debug("Updating database as member re-joined.")
             await self.bot.api_client.member_rejoined(member)
-
             await self.log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
             msg = (
                 "Welcome back to Tortoise Community!\n\n"
@@ -164,17 +176,12 @@ class TortoiseServer(commands.Cog):
             )
             await member.send(embed=footer_embed(msg, "Welcome"))
         else:
-            logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
-
+            logger.info(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
             await self.bot.api_client.member_rejoined(member)
-
             await member.add_roles(self.unverified_role)
-
             await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-
             # Ghost ping the member so he takes note of verification channel where all info is
             await self.verification_channel.send(member.mention, delete_after=1)
-
             msg = (
                 "Hi, welcome to Tortoise Community!\n"
                 "Seems like this is not your first time joining.\n\n"

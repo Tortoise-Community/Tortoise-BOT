@@ -26,8 +26,13 @@ class TortoiseAPI(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def is_verified(self, ctx, member: DatabaseMember):
-        response = await self.bot.api_client.is_verified(member)
-        await ctx.send(response)
+        try:
+            response = await self.bot.api_client.is_verified(member)
+        except ResponseCodeError as e:
+            msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
+            await ctx.send(embed=failure(msg))
+        else:
+            await ctx.send(embed=info(f"{response}", ctx.me, f"{member}"))
 
     @commands.command()
     @commands.check(tortoise_bot_developer_only)

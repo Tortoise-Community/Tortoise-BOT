@@ -132,16 +132,6 @@ class TortoiseAPI(APIClient):
         # Gets all member data excluding email.
         return await self.get(f"members/{member_id}/")
 
-    async def get_member_roles(self, member_id: int) -> List[int]:
-        # TODO create new API endpoint just for this, instead of getting all fields
-        member_data = await self.get_member_data(member_id)
-        return member_data["roles"]
-
-    async def get_member_leave_date(self, member_id: int) -> datetime:
-        # TODO create new API endpoint just for this, instead of getting all fields
-        member_data = await self.get_member_data(member_id)
-        return member_data["leave_date"]
-
     async def edit_member_roles(self, member: Member, roles_ids: List[int]):
         payload = {
             "user_id": member.id,
@@ -189,7 +179,19 @@ class TortoiseAPI(APIClient):
         # Return ('join_date', 'leave_date', 'mod_mail', 'verified', 'member', 'roles')
         return await self.get(f"members/meta/{member_id}/")
 
+    async def get_member_roles(self, member_id: int) -> List[int]:
+        member_meta = await self.get_member_meta(member_id)
+        return member_meta["roles"]
+
+    async def get_member_leave_date(self, member_id: int) -> datetime:
+        member_meta = await self.get_member_meta(member_id)
+        return member_meta["leave_date"]
+
     async def is_verified(self, member_id: int) -> bool:
+        """
+        Returns bool whether the member is verified or not.
+        If member does not exist in database raises ResponseCodeError
+        """
         member_meta = await self.get_member_meta(member_id)
         return member_meta["verified"]
 
