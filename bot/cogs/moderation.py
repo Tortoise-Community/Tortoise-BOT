@@ -7,8 +7,8 @@ import discord
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 
 
 logger = logging.getLogger(__name__)
@@ -50,13 +50,10 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, member: Union[discord.Member, discord.User], *, reason="Reason not stated."):
-        """
-        Bans  member from the guild.
-
-        """
-        await member.ban(reason=reason)
-        await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
+    async def ban(self, ctx, member: Union[discord.Member, discord.abc.Snowflake], *, reason="Reason not stated."):
+        """Bans  member from the guild."""
+        await ctx.guild.ban(reason=reason)
+        await ctx.send(embed=success(f"{member} successfully banned."), delete_after=5)
 
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
@@ -68,6 +65,14 @@ class Moderation(commands.Cog):
         )
 
         await member.send(embed=dm_embed)
+
+    @commands.command()
+    @commands.bot_has_permissions(ban_members=True)
+    @commands.has_permissions(ban_members=True)
+    async def unban(self, ctx, user: discord.abc.Snowflake, *, reason="Reason not stated."):
+        """Unbans  member from the guild."""
+        await ctx.guild.unban(reason=reason)
+        await ctx.send(embed=success(f"{user} successfully unbanned."), delete_after=5)
 
     @commands.command(aliases=["warning"])
     @commands.bot_has_permissions(manage_messages=True)
@@ -118,14 +123,14 @@ class Moderation(commands.Cog):
         if not warnings:
             await ctx.send(embed=info("No warnings.", ctx.me))
 
-        for sub_dict in warnings:
+        for count, sub_dict in enumerate(warnings):
             formatted_warnings = [f"{key}:{value}" for key, value in sub_dict.items()]
 
             warnings_msg = "\n".join(formatted_warnings)
             # TODO temporal quick fix for possible too long message, to fix when embed navigation is done
             warnings_msg = warnings_msg[:1900]
 
-            warnings_embed = thumbnail(warnings_msg, member, "Listing warnings")
+            warnings_embed = thumbnail(warnings_msg, member, f"Warning #{count+1}")
             await ctx.send(embed=warnings_embed)
 
     @commands.command(aliases=["warnings_count"])

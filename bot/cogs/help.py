@@ -3,7 +3,7 @@ import logging
 from discord.ext import commands
 
 from bot.constants import embed_space
-from bot.cogs.utils.paginator import Paginator
+from bot.cogs.utils.paginator import EmbedPaginator
 
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class PrettyHelpCommand(commands.MinimalHelpCommand):
     def __init__(self):
         super().__init__()
-        self.paginator = Paginator(page_size=1000)
+        self.paginator = EmbedPaginator(page_size=1000)
 
     def get_opening_note(self):
         return None

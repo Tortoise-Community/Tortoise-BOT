@@ -1,6 +1,9 @@
 from typing import List, Union
 
-from discord import User, Member, HTTPException
+from discord.abc import Messageable
+from discord import ClientUser, User, Member, HTTPException
+
+from bot.cogs.utils.embed_handler import info
 
 
 class Paginator:
@@ -19,6 +22,14 @@ class Paginator:
             prefix: str = "",
             suffix: str = ""
     ):
+        """
+
+        :param page_size: Maximum page string size for the page content.
+        :param separator: Separator used to break large chunks of content to smaller ones, if needed.
+        :param timeout: How long will the reactions be awaited for.
+        :param prefix: Prefix for the message content.
+        :param suffix: Suffix for the message content.
+        """
         self._separator = separator
         self._timeout = timeout
         self._prefix = prefix
@@ -69,7 +80,7 @@ class Paginator:
                 Paginator.break_long_entries(chunk_list, max_chunk_size)
                 break
 
-    async def start(self, destination, author: Union[User, Member], bot_reference):
+    async def start(self, destination: Messageable, author: Union[User, Member], bot_reference):
         self._pages = self._make_pages()
         await self.create_message(destination)
         if len(self._pages) > 1:
@@ -118,10 +129,10 @@ class Paginator:
             # Silently ignore if no permission to remove reaction.
             pass
 
-    async def create_message(self, destination) -> None:
+    async def create_message(self, destination: Messageable) -> None:
         self._message = await destination.send(self.get_message_content())
 
-    async def update_message(self):
+    async def update_message(self) -> None:
         await self._message.edit(content=self.get_message_content())
 
     def get_message_content(self) -> str:
@@ -171,5 +182,23 @@ class Paginator:
                     await self.update_message()
 
 
-class HelpPaginator(Paginator):
-    pass
+class EmbedPaginator(Paginator):
+
+    @classmethod
+    def _get_bot_member_from_destination(cls, destination: Messageable) -> Union[Member, ClientUser]:
+        try:
+            # noinspection PyUnresolvedReferences
+            return destination.guild.me
+        except AttributeError:
+            # noinspection PyUnresolvedReferences
+            return destination.me
+
+    async def create_message(self, destination) -> None:
+        self._message = await destination.send(
+            embed=info(self.get_message_content(), self._get_bot_member_from_destination(destination))
+        )
+
+    async def update_message(self):
+        await self._message.edit(
+            embed=info(self.get_message_content(), self._get_bot_member_from_destination(self._message.channel))
+        )
