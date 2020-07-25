@@ -289,15 +289,6 @@ class TortoiseServer(commands.Cog):
 
         await self.code_submissions_channel.send(embed=embed)
 
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
-        """Send message to channel"""
-        if channel is None:
-            channel = ctx.channel
-
-        await channel.send(message)
-
 
 def setup(bot):
     bot.add_cog(TortoiseServer(bot))

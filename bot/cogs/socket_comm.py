@@ -404,7 +404,8 @@ class SocketCommunication(commands.Cog):
             # TODO
             pass
         elif signal == "server_meta":
-            # Don't await as API is waiting for response, (for some reason it sends signal and updates db after)
+            # Don't await as API is waiting for response, (for some reason it sends signal and only updates db after
+            # receiving any response)
             self.bot.loop.create_task(self.bot.reload_tortoise_meta_cache())
         else:
             raise EndpointBadArguments()

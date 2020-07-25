@@ -320,6 +320,15 @@ class Moderation(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
+    @commands.command()
+    @commands.has_permissions(manage_messages=True)
+    async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
+        """Send message to channel"""
+        if channel is None:
+            channel = ctx.channel
+
+        await channel.send(message)
+
 
 def setup(bot):
     bot.add_cog(Moderation(bot))
