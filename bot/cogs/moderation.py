@@ -50,12 +50,12 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, member: Union[discord.Member, discord.abc.Snowflake], *, reason="Reason not stated."):
+    async def ban(self, ctx, user: Union[discord.Member, discord.abc.Snowflake], *, reason="Reason not stated."):
         """Bans  member from the guild."""
-        await ctx.guild.ban(reason=reason)
-        await ctx.send(embed=success(f"{member} successfully banned."), delete_after=5)
+        await ctx.guild.ban(user=user, reason=reason)
+        await ctx.send(embed=success(f"{user} successfully banned."), delete_after=5)
 
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
+        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
@@ -64,7 +64,7 @@ class Moderation(commands.Cog):
             value="If this happened by a mistake contact moderators."
         )
 
-        await member.send(embed=dm_embed)
+        await user.send(embed=dm_embed)
 
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
