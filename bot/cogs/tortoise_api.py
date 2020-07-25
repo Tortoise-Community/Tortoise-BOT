@@ -85,33 +85,35 @@ class TortoiseAPI(commands.Cog):
         :param status: is the message being approved or denied
         :return:
         """
+        dm_embed = ""
+        field_title = "Reason"
         msg: Message = await self.user_suggestions_channel.fetch_message(message_id)
-        if msg is None or not msg.embeds:
-            await ctx.send(embed=failure("Suggestion message found."), delete_after=5)
-            return
+        if msg is None:
+            return await ctx.send(embed=failure("Suggestion message not found."), delete_after=10)
+        elif not msg.embeds or not msg.embeds.fields:
+            return await ctx.send(embed=failure("Message is not in correct format."), delete_after=10)
 
         api_data = await self.bot.api_client.get_suggestion(message_id)
 
         msg_embed = msg.embeds[0]
         if status == constants.SuggestionStatus.denied:
+            dm_embed = failure(f"Your suggestion {msg.jump_url} was denied.\nReason: `{reason}`")
             msg_embed.colour = Color.red()
         elif status == constants.SuggestionStatus.approved:
+            dm_embed = success(f"Your suggestion {msg.jump_url} was approved.\nReason: `{reason}`", ctx.me)
             msg_embed.colour = Color.green()
-
-        if not msg_embed.fields:
-            await ctx.send(embed=failure("Message is not in correct format."), delete_after=5)
-            return
+            field_title = "Comment"
 
         msg_embed.set_field_at(0, name="Status", value=status.value)
 
         if len(msg_embed.fields) == 1:
-            msg_embed.add_field(name="Reason", value=reason, inline=True)
+            msg_embed.add_field(name=field_title, value=reason, inline=True)
         else:
-            msg_embed.set_field_at(1, name="Reason", value=reason, inline=True)
+            msg_embed.set_field_at(1, name=field_title, value=reason, inline=True)
 
         await self.bot.api_client.edit_suggestion(message_id, status, reason)
         await msg.edit(embed=msg_embed)
-        await self._dm_member(api_data["author_id"], msg_embed)
+        await self._dm_member(api_data["author_id"], dm_embed)
 
     async def _dm_member(self, user_id, embed: Embed):
         try:
