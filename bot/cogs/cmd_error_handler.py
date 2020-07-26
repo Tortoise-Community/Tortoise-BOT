@@ -66,7 +66,7 @@ class CommandErrorHandler(commands.Cog):
                 pass
 
         else:
-            exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
+            exception_msg = f"Ignoring error {error} in command {ctx.command} exception: {traceback.format_exc()}"
             logger.warning(exception_msg)
             await self.bot.log_error(exception_msg)
 
