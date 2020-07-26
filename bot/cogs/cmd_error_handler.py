@@ -68,9 +68,12 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send(embed=failure(f"{error}"))
 
         else:
-            exception_msg = f"Ignoring error {error} in command {ctx.command} exception: {traceback.format_exc()}"
-            logger.warning(exception_msg)
-            await self.bot.log_error(exception_msg)
+            error_type = type(error)
+            feedback_message = f"Uncaught {error_type} exception in command '{ctx.command}'"
+            traceback_message = traceback.format_exception(etype=error_type, value=error, tb=error.__traceback__)
+            log_message = f"{feedback_message} {traceback_message}"
+            logger.critical(log_message)
+            await self.bot.log_error(log_message)
 
     @classmethod
     def _get_missing_permission(cls, error) -> str:
