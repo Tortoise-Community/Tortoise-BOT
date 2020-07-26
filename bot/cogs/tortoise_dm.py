@@ -250,15 +250,15 @@ class TortoiseDM(commands.Cog):
         try:
             possible_attachment = await self.get_message_txt_attachment(user_reply)
         except (UnsupportedFileExtension, UnsupportedFileEncoding) as e:
-            await user.send(embed=failure(f"Error: {e} , canceling."))
             container.remove(user.id)
+            await user.send(embed=failure(f"Error: {e} , canceling."))
             return
 
         user_reply_content = user_reply.content if possible_attachment is None else possible_attachment
 
         if len(user_reply_content) < 10:
-            await user.send(embed=failure("Too short - seems invalid, canceling."))
             container.remove(user.id)
+            await user.send(embed=failure("Too short - seems invalid, canceling."))
             return None
         else:
             return user_reply_content
@@ -276,24 +276,21 @@ class TortoiseDM(commands.Cog):
             return msg.guild is None and msg.author == user
 
         container.add(user.id)
-
-        await user.send(
-            embed=info(
-                "Reply with single message, link to paste service or uploading utf-8 `.txt` file.\n"
-                "You have 5m, type `cancel` to cancel right away.", user
-            )
+        await user.send(embed=info(
+            "Reply with single message, link to paste service or uploading utf-8 `.txt` file.\n"
+            "You have 5m, type `cancel` to cancel right away.", user)
         )
 
         try:
             user_reply = await self.bot.wait_for("message", check=check, timeout=300)
         except TimeoutError:
-            await user.send(embed=failure("You took too long to reply."))
             container.remove(user.id)
+            await user.send(embed=failure("You took too long to reply."))
             return
 
         if user_reply.content.lower() == "cancel":
-            await user.send(embed=success("Successfully canceled."))
             container.remove(user.id)
+            await user.send(embed=success("Successfully canceled."))
             return
 
         return user_reply
@@ -330,11 +327,11 @@ class TortoiseDM(commands.Cog):
             return
 
         # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
-        first_timeout = 10_800
+        first_timeout = 21_600  # 6 hours
         # Flag for above variable. False means there has been no messages from the user.
         first_timeout_flag = False
         # After the user sends first reply this is the timeout we use.
-        regular_timeout = 600
+        regular_timeout = 1800  # 30 min
 
         user = self.bot.get_user(user_id)
         mod = ctx.author
@@ -393,6 +390,13 @@ class TortoiseDM(commands.Cog):
                 await self.mod_mail_report_channel.send(file=discord.File(StringIO(str(log)), filename=log.filename))
                 break
 
+            # Deal with attachments. We don't re-upload we just copy paste attachment url.
+            attachments = self._get_attachments_as_urls(mail_msg)
+            mail_msg.content += attachments
+
+            if len(mail_msg.content) > 1900:
+                mail_msg.content = f"{mail_msg.content[:1900]} ...truncated because it was too long."
+
             # Deal with dynamic timeout.
             if mail_msg.author == user and not first_timeout_flag:
                 first_timeout_flag = True
@@ -413,6 +417,14 @@ class TortoiseDM(commands.Cog):
                 await mod.send(mail_msg.content)
             elif mail_msg.author == mod:
                 await user.send(mail_msg.content)
+
+    @classmethod
+    def _get_attachments_as_urls(cls, message: discord.Message) -> str:
+        if not message.attachments:
+            return ""
+
+        urls = '\n'.join(attachment.url for attachment in message.attachments)
+        return f"\nAttachments:\n{urls}"
 
 
 def setup(bot):
