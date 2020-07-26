@@ -5,6 +5,8 @@ import traceback
 import discord
 from discord.ext import commands
 
+from bot.cogs.utils.embed_handler import failure
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +21,7 @@ class CommandErrorHandler(commands.Cog):
         error = getattr(error_, "original", error_)
 
         # If command has local error handler, ignore
-        if hasattr(ctx.command, "on_error") or hasattr(ctx.cog, "cog_command_error"):
+        if hasattr(ctx.command, "on_error"):
             pass
 
         elif isinstance(error, commands.CommandNotFound):
@@ -28,44 +30,50 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.BotMissingPermissions):
             fmt = self._get_missing_permission(error)
             _message = f"I need the **{fmt}** permission(s) to run this command."
-            await ctx.send(_message)
+            await ctx.send(embed=failure(_message))
 
         elif isinstance(error, commands.DisabledCommand):
-            await ctx.send("This command has been disabled.")
+            await ctx.send(embed=failure("This command has been disabled."))
 
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s.")
+            msg = f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s."
+            await ctx.send(embed=failure(msg))
 
         elif isinstance(error, commands.MissingPermissions):
             fmt = self._get_missing_permission(error)
             _message = f"You need the **{fmt}** permission(s) to use this command."
-            await ctx.send(_message)
+            await ctx.send(embed=failure(_message))
 
         elif isinstance(error, commands.UserInputError):
-            await ctx.send(f"Invalid command input: {error}")
+            await ctx.send(embed=failure(f"Invalid command input: {error}"))
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
-                await ctx.author.send("This command cannot be used in direct messages.")
+                await ctx.author.send(embed=failure("This command cannot be used in direct messages."))
             except discord.Forbidden:
                 pass
 
         elif isinstance(error, commands.CheckFailure):
             """-.- All arguments including error message are eaten and pushed to .args"""
             if error.args:
-                await ctx.send(". ".join(error.args))
+                await ctx.send(embed=failure(". ".join(error.args)))
             else:
-                await ctx.send("You do not have permission to use this command.")
+                await ctx.send(embed=failure("You do not have permission to use this command."))
 
         elif isinstance(error, discord.Forbidden):
             # Conditional to check if it is a closed DM that raised Forbidden
             if error.code == 50007:
                 pass
+            else:
+                await ctx.send(embed=failure(f"{error}"))
 
         else:
-            exception_msg = f"Ignoring exception in command {ctx.command} error: {traceback.format_exc()}"
-            logger.warning(exception_msg)
-            await self.bot.log_error(exception_msg)
+            error_type = type(error)
+            feedback_message = f"Uncaught {error_type} exception in command '{ctx.command}'"
+            traceback_message = traceback.format_exception(etype=error_type, value=error, tb=error.__traceback__)
+            log_message = f"{feedback_message} {traceback_message}"
+            logger.critical(log_message)
+            await self.bot.log_error(log_message)
 
     @classmethod
     def _get_missing_permission(cls, error) -> str:

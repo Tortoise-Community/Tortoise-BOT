@@ -17,8 +17,10 @@ class MessageLogger:
 
     @classmethod
     def format_message_to_string(cls, message: Message) -> str:
-        temp_msg = [f"author:{message.author}",
-                    f"content:{message.content}"]
+        temp_msg = [
+            f"author:{message.author}",
+            f"content:{message.content}"
+        ]
 
         for attachment in message.attachments:
             temp_msg.append(f"attachment:{attachment.filename} url:{attachment.url}")

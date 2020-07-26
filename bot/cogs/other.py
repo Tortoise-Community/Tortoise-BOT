@@ -6,8 +6,8 @@ import psutil
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import info, status_embed
-from bot.constants import github_repo_link, embed_space
+from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
+from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
 
 
 class Other(commands.Cog):
@@ -19,7 +19,8 @@ class Other(commands.Cog):
     async def say(self, ctx, *, message):
         """Says something"""
         await ctx.message.delete()
-        await ctx.send(message)
+        clean = await commands.clean_content().convert(ctx, message)
+        await ctx.send(clean)
 
     @commands.command()
     async def members(self, ctx):
@@ -177,6 +178,71 @@ class Other(commands.Cog):
         )
         await ctx.send(f"```{msg}```")
         await ctx.message.delete()
+
+    @commands.command()
+    async def ask(self, ctx):
+        content = (
+            "Don't ask to ask just ask.\n\n"
+            " • You will have much higher chances of getting an answer\n"
+            " • It saves time both for us and you as we can skip the whole process of actually getting the "
+            "question out of you\n\n"
+            "For more info visit https://dontasktoask.com/"
+        )
+        embed = info(content, ctx.me, "")
+        message = await ctx.send(embed=embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+
+    @commands.command()
+    async def markdown(self, ctx):
+        content = (
+            "You can format your code by using markdown like this:\n\n"
+            "\\`\\`\\`python\n"
+            "print('Hello world')\n"
+            "\\`\\`\\`\n\n"
+            "This would give you:\n"
+            "```python\n"
+            "print('Hello world')```\n"
+            "Note that character ` is not a quote but a backtick.\n\n"
+            "If, however, you have large amounts of code then it's better to use our paste service: "
+            f"{tortoise_paste_service_link}"
+        )
+        embed = info(content, ctx.me, "")
+        message = await ctx.send(embed=embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+
+    @commands.command()
+    async def paste(self, ctx):
+        """Shows the link to our paste service"""
+        await ctx.send(embed=info(f":page_facing_up: {tortoise_paste_service_link}", ctx.me, title=""))
+
+    @commands.command(aliases=['this'])
+    async def zen(self, ctx):
+        zen = """
+            Beautiful is better than ugly.
+            Explicit is better than implicit.
+            Simple is better than complex.
+            Complex is better than complicated.
+            Flat is better than nested.
+            Sparse is better than dense.
+            Readability counts.
+            Special cases aren't special enough to break the rules.
+            Although practicality beats purity.
+            Errors should never pass silently.
+            Unless explicitly silenced.
+            In the face of ambiguity, refuse the temptation to guess.
+            There should be one-- and preferably only one --obvious way to do it.
+            Although that way may not be obvious at first unless you're Dutch.
+            Now is better than never.
+            Although never is often better than *right* now.
+            If the implementation is hard to explain, it's a bad idea.
+            If the implementation is easy to explain, it may be a good idea.
+            Namespaces are one honking great idea -- let's do more of those!
+        """
+        await ctx.send(embed=info(zen, ctx.me, title="The Zen of Python, by Tim Peters"))
+
+    @commands.command(aliases=['xkcd'])
+    async def antigravity(self, ctx):
+        await ctx.send(embed=info("https://xkcd.com/353/", ctx.me, title=""))
 
 
 def setup(bot):

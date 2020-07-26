@@ -25,7 +25,7 @@ way the setup of pre-commit hook will be correct.
 
 ## Installation Instructions
 
-Python 3.7 required
+Python 3.8 required
 
 ```bash
 
@@ -110,4 +110,4 @@ pipenv run start
 
 # License
 
-MIT - see [LICENSE](LICENSE) file for details.
+MIT - see [LICENSE](https://github.com/Tortoise-Community/Tortoise-BOT/blob/dev/LICENSE) file for details.

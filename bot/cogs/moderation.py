@@ -1,20 +1,20 @@
 import logging
 import asyncio
-from typing import Union
 from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
+from bot.cogs.utils.converters import GetFetchUser
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 
 
 logger = logging.getLogger(__name__)
 
 
-class Admins(commands.Cog):
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
@@ -22,8 +22,6 @@ class Admins(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
-        # TODO do not kick members due to old system
-        # self.scheduled_dm_unverified.start()
 
     @commands.command()
     @commands.bot_has_permissions(kick_members=True)
@@ -52,15 +50,11 @@ class Admins(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, member: Union[discord.Member, discord.User], *, reason="Reason not stated."):
-        """
-        Bans  member from the guild.
-
-        """
-        await member.ban(reason=reason)
-        await ctx.send(embed=success(f"{member.name} successfully banned."), delete_after=5)
-
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
+    async def ban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
+        """Bans  member from the guild."""
+        await ctx.guild.ban(user=user, reason=reason)
+        await ctx.send(embed=success(f"{user} successfully banned."), delete_after=5)
+        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
@@ -69,7 +63,15 @@ class Admins(commands.Cog):
             value="If this happened by a mistake contact moderators."
         )
 
-        await member.send(embed=dm_embed)
+        await user.send(embed=dm_embed)
+
+    @commands.command()
+    @commands.bot_has_permissions(ban_members=True)
+    @commands.has_permissions(ban_members=True)
+    async def unban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
+        """Unbans  member from the guild."""
+        await ctx.guild.unban(user=user, reason=reason)
+        await ctx.send(embed=success(f"{user} successfully unbanned."), delete_after=5)
 
     @commands.command(aliases=["warning"])
     @commands.bot_has_permissions(manage_messages=True)
@@ -94,15 +96,18 @@ class Admins(commands.Cog):
             )
         )
 
-        await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
-        await self.deterrence_log_channel.send(embed=embed)
-
-        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
-
-        await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
-
-        await asyncio.sleep(5)
-        await ctx.message.delete()
+        try:
+            await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
+        except Exception as e:
+            msg = "Could not apply warning, problem with API."
+            logger.info(f"{msg} {e}")
+            await ctx.send(embed=failure(f"{msg}\nInfraction member should not think he got away."))
+        else:
+            await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
+            await self.deterrence_log_channel.send(embed=embed)
+            await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
+            await asyncio.sleep(5)
+            await ctx.message.delete()
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
@@ -114,14 +119,17 @@ class Admins(commands.Cog):
         """
         warnings = await self.bot.api_client.get_member_warnings(member.id)
 
-        for sub_dict in warnings:
+        if not warnings:
+            await ctx.send(embed=info("No warnings.", ctx.me))
+
+        for count, sub_dict in enumerate(warnings):
             formatted_warnings = [f"{key}:{value}" for key, value in sub_dict.items()]
 
             warnings_msg = "\n".join(formatted_warnings)
             # TODO temporal quick fix for possible too long message, to fix when embed navigation is done
             warnings_msg = warnings_msg[:1900]
 
-            warnings_embed = thumbnail(warnings_msg, member, "Listing warnings")
+            warnings_embed = thumbnail(warnings_msg, member, f"Warning #{count+1}")
             await ctx.send(embed=warnings_embed)
 
     @commands.command(aliases=["warnings_count"])
@@ -193,18 +201,19 @@ class Admins(commands.Cog):
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
         """
         Mutes the member.
-
         """
         if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
-        reason = "Muting member. " + reason
+        reason = f"Muting member. {reason}"
 
         await member.add_roles(self.muted_role, reason=reason)
         await member.remove_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
+
+        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
     @commands.command()
     @commands.bot_has_permissions(manage_roles=True)
@@ -213,7 +222,6 @@ class Admins(commands.Cog):
     async def unmute(self, ctx, member: discord.Member):
         """
         Unmutes the member.
-
         """
         if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
@@ -231,10 +239,9 @@ class Admins(commands.Cog):
         """
         Dms all unverified members reminder that they need to verify.
         Failed members are printed to log.
-
         """
-
         # TODO
+        return
         """
         date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
         AttributeError: 'NoneType' object has no attribute 'split'
@@ -279,13 +286,7 @@ class Admins(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @scheduled_dm_unverified.before_loop
-    async def before_automatic_dm_unverified(self):
-        logger.info("Starting DM unverified loop...")
-        await self.bot.wait_until_ready()
-        logger.info("Rule update loop started!")
-
-    @commands.command()
+    @commands.command(aliases=["dm"])
     @commands.cooldown(1, 900, commands.BucketType.guild)
     @commands.has_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
@@ -308,7 +309,7 @@ class Admins(commands.Cog):
 
             try:
                 await member.send(embed=dm_embed)
-            except discord.Forbidden:
+            except discord.HTTPException:
                 failed.append(str(member))
             else:
                 count += 1
@@ -319,9 +320,14 @@ class Admins(commands.Cog):
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command()
-    async def paste(self, ctx):
-        await ctx.send(embed=info(f":page_facing_up: {constants.tortoise_paste_service_link}", ctx.me, title=""))
+    @commands.has_permissions(manage_messages=True)
+    async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
+        """Send message to channel"""
+        if channel is None:
+            channel = ctx.channel
+
+        await channel.send(message)
 
 
 def setup(bot):
-    bot.add_cog(Admins(bot))
+    bot.add_cog(Moderation(bot))

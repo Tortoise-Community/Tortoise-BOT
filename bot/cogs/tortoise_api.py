@@ -7,7 +7,7 @@ from bot import constants
 from bot.bot import Bot
 from bot.api_client import ResponseCodeError
 from bot.cogs.utils.converters import DatabaseMember
-from bot.cogs.utils.embed_handler import failure, warning, success, goodbye
+from bot.cogs.utils.embed_handler import failure, success, goodbye, info, thumbnail
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
@@ -26,15 +26,13 @@ class TortoiseAPI(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def is_verified(self, ctx, member: DatabaseMember):
-        response = await self.bot.api_client.is_verified(member)
-        await ctx.send(response)
-
-    @commands.command()
-    @commands.has_permissions(administrator=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def does_member_exist(self, ctx, member: DatabaseMember):
-        response = await self.bot.api_client.does_member_exist(member)
-        await ctx.send(response)
+        try:
+            response = await self.bot.api_client.is_verified(member)
+        except ResponseCodeError as e:
+            msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
+            await ctx.send(embed=failure(msg))
+        else:
+            await ctx.send(embed=info(f"{response}", ctx.me, f"{member}"))
 
     @commands.command()
     @commands.check(tortoise_bot_developer_only)
@@ -43,23 +41,11 @@ class TortoiseAPI(commands.Cog):
         try:
             data = await self.bot.api_client.get_member_data(member)
         except ResponseCodeError as e:
-            await ctx.send(embed=failure(f"Something went wrong, got response status {e.status}.\n"
-                                         f"Does the member exist?"))
-            return
-
-        await ctx.send(f"{data}")
-
-    @commands.command()
-    @commands.check(tortoise_bot_developer_only)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def manually_add_database_member(self, ctx, member: Member):
-        if await self.bot.api_client.does_member_exist(member.id):
-            await ctx.send(embed=warning("Member already exists, aborting.."))
-            return
-
-        logger.info(f"{ctx.author} is manually adding member {member} {member.id} to database")
-        await self.bot.api_client.insert_new_member(member)
-        await ctx.send(embed=success(f"Member {member} successfully added to database."))
+            msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
+            await ctx.send(embed=failure(msg))
+        else:
+            pretty = "\n".join(f"{key}:{value}\n" for key, value in data.items())
+            await ctx.send(embed=info(pretty, ctx.me, "Member data"))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -96,36 +82,44 @@ class TortoiseAPI(commands.Cog):
         :param ctx: context where approve/deny command was called.
         :param message_id: suggestion message id
         :param reason: reason for approving/denying
-        :param status: is the message being approved or denied
+        :param status: either constants.SuggestionStatus.approved or constants.SuggestionStatus.denied
         :return:
         """
         msg: Message = await self.user_suggestions_channel.fetch_message(message_id)
-        if msg is None or not msg.embeds:
-            await ctx.send(embed=failure("Suggestion message found."), delete_after=5)
-            return
+        if msg is None:
+            return await ctx.send(embed=failure("Suggestion message not found."), delete_after=10)
+        elif not msg.embeds or not msg.embeds[0].fields:
+            return await ctx.send(embed=failure("Message is not in correct format."), delete_after=10)
 
         api_data = await self.bot.api_client.get_suggestion(message_id)
 
         msg_embed = msg.embeds[0]
         if status == constants.SuggestionStatus.denied:
+            field_title = "Reason"
+            state = "denied"
             msg_embed.colour = Color.red()
-        elif status == constants.SuggestionStatus.approved:
+        else:
+            field_title = "Comment"
+            state = "approved"
             msg_embed.colour = Color.green()
 
-        if not msg_embed.fields:
-            await ctx.send(embed=failure("Message is not in correct format."), delete_after=5)
-            return
+        dm_embed_msg = (
+            f"Your suggestion[[link]]({msg.jump_url}) was **{state}**:\n"
+            f"```\"{api_data['brief'][:200]}\"```\n"
+            f"\nReason:\n{reason}"
+        )
+        dm_embed = thumbnail(dm_embed_msg, member=ctx.me, title=f"Suggestion {state}.")
 
         msg_embed.set_field_at(0, name="Status", value=status.value)
 
         if len(msg_embed.fields) == 1:
-            msg_embed.add_field(name="Reason", value=reason, inline=True)
+            msg_embed.add_field(name=field_title, value=reason, inline=True)
         else:
-            msg_embed.set_field_at(1, name="Reason", value=reason, inline=True)
+            msg_embed.set_field_at(1, name=field_title, value=reason, inline=True)
 
-        await self.bot.api_client.put_suggestion(message_id, status, reason)
+        await self.bot.api_client.edit_suggestion(message_id, status, reason)
         await msg.edit(embed=msg_embed)
-        await self._dm_member(api_data["author_id"], msg_embed)
+        await self._dm_member(api_data["author_id"], dm_embed)
 
     async def _dm_member(self, user_id, embed: Embed):
         try:

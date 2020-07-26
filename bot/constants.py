@@ -3,12 +3,12 @@ from aenum import Enum, NoAlias
 from discord import Color
 
 tortoise_guild_id = 577192344529404154
-website_url = "https://www.tortoisecommunity.ml/"
-privacy_url = "https://www.tortoisecommunity.ml/pages/privacy"
-rules_url = "https://www.tortoisecommunity.ml/pages/rules"
-verification_url = "https://www.tortoisecommunity.ml/verification/"
+website_url = "https://www.tortoisecommunity.com/"
+privacy_url = "https://www.tortoisecommunity.com/pages/privacy"
+rules_url = "https://www.tortoisecommunity.com/pages/rules"
+verification_url = "https://www.tortoisecommunity.com/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
-tortoise_paste_service_link = "https://paste.tortoisecommunity.ml/"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 
 
@@ -63,12 +63,7 @@ mod_mail_emoji_id = 706195614857297970
 event_emoji_id = 611403448750964746
 bug_emoji_id = 723274927968354364
 suggestions_emoji_id = 613185393776656384
-
-
-# Captcha Verification
-captchas = [("PRNU", "https://cdn.discordapp.com/attachments/581139962611892229/622697949914464286/"
-                     "Example-of-PDM-character-extraction-for-the-animated-CAPTCHA-available-on-the-Sandbox.png"),
-            ("PQJRYD", "https://cdn.discordapp.com/attachments/581139962611892229/622698143842172955/captche.jpg")]
+verified_emoji_id = 610713784268357632
 
 
 # Music Options
@@ -114,6 +109,6 @@ class Infraction(Enum):
 
 
 class SuggestionStatus(Enum):
-    under_review = "Under review"
+    under_review = "Under Review"
     denied = "Denied"
     approved = "Approved"

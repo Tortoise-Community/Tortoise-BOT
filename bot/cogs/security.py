@@ -26,9 +26,7 @@ def security_bypass_check(function):
             elif self.trusted in message.author.roles:
                 # Whitelists the members with Trusted role to prevent unnecessary logging
                 return
-
         return await function(self, *args)
-
     return wrapper
 
 
@@ -42,9 +40,7 @@ class Security(commands.Cog):
         self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
-
         if "https:" in message.content or "http:" in message.content:
-
             # Find any url
             base_url = re.findall(
                 r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
@@ -52,7 +48,6 @@ class Security(commands.Cog):
             )
 
             for invite in base_url:
-
                 # Get the endpoint of that url (for discord invite url shorteners)
                 try:
                     async with self.session.get(invite) as response:
@@ -67,7 +62,7 @@ class Security(commands.Cog):
                         embed = info(
                             f"{message.author.mention} You are not allowed to send other server invites here.",
                             message.guild.me,
-                            ""
+                            title=""
                         )
                         await message.channel.send(embed=embed)
                         await message.delete()

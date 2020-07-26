@@ -9,13 +9,12 @@ from discord.ext import commands
 from discord import HTTPException, Forbidden
 
 from bot import constants
-from bot.cogs.utils.exceptions import (
-    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess,
-    InternalServerError, DiscordIDNotFound
-)
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.cogs.utils.embed_handler import info, thumbnail, success
 from bot.cogs.utils.members import get_member_activity, get_member_status
-from bot.cogs.utils.embed_handler import thumbnail
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from bot.cogs.utils.exceptions import (
+    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess, InternalServerError, DiscordIDNotFound
+)
 
 
 logger = logging.getLogger(__name__)
@@ -80,6 +79,8 @@ class SocketCommunication(commands.Cog):
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
+        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
+        self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
         self.verified_clients = set()
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self._socket_server = SocketCommunication.create_server()
@@ -106,8 +107,8 @@ class SocketCommunication(commands.Cog):
         logger.debug("Socket com unloaded.")
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
+    @commands.check(tortoise_bot_developer_only)
     async def show_endpoints(self, ctx):
         await ctx.send(" ,".join(_endpoints_mapping))
 
@@ -363,11 +364,18 @@ class SocketCommunication(commands.Cog):
         try:
             await member.remove_roles(self.unverified_role)
         except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
+            logger.warning(f"Bot could't remove unverified role {self.unverified_role}")
 
         await member.add_roles(self.verified_role)
-        await self.successful_verifications_channel.send(f"{member} is now verified.")
-        await member.send("You are now verified.")
+        await self.successful_verifications_channel.send(embed=info(
+            f"{member} is now verified.", member.guild.me, title="")
+        )
+
+        msg = (
+            f"You are now verified {self.verified_emoji}\n\n"
+            f"Make sure to read {self.welcome_channel.mention}"
+        )
+        await member.send(embed=success(msg))
 
     @endpoint_register()
     async def contact(self, data: dict):
@@ -396,7 +404,9 @@ class SocketCommunication(commands.Cog):
             # TODO
             pass
         elif signal == "server_meta":
-            await self.bot.reload_tortoise_meta_cache()
+            # Don't await as API is waiting for response, (for some reason it sends signal and only updates db after
+            # receiving any response)
+            self.bot.loop.create_task(self.bot.reload_tortoise_meta_cache())
         else:
             raise EndpointBadArguments()
 

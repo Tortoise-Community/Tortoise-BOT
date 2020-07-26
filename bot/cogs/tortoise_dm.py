@@ -197,7 +197,7 @@ class TortoiseDM(commands.Cog):
 
         submission_embed = authored(f"`{user.id}` submitted for mod mail.", author=user)
         # Ping roles so they get notified sooner
-        await self.mod_mail_report_channel.send(f"{self.moderator_role.mention}", delete_after=30)
+        await self.mod_mail_report_channel.send("@here", delete_after=30)
         await self.mod_mail_report_channel.send(embed=submission_embed)
 
         self.pending_mod_mails.add(user.id)

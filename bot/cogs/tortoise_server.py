@@ -1,4 +1,5 @@
 import logging
+from asyncio import TimeoutError
 from typing import Iterable, Union
 
 import discord
@@ -6,9 +7,10 @@ from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
 from bot import constants
+from bot.api_client import ResponseCodeError
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.cogs.utils.embed_handler import (
-    success, warning, failure, authored, welcome, welcome_dm, info, RemovableMessage
+    success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
 )
 
 
@@ -19,7 +21,17 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
+
+        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
+        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.member_count_channel = bot.get_channel(constants.member_count_channel)
+        self.log_channel = bot.get_channel(constants.system_log_channel_id)
+        self.verification_channel = bot.get_channel(constants.verification_channel_id)
+        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
+        self.announcements_channel = bot.get_channel(constants.announcements_channel_id)
+        self.code_submissions_channel = bot.get_channel(constants.code_submissions_channel_id)
+
         self._database_role_update_lock = False
         self._rules = None
         self.update_rules.start()
@@ -116,65 +128,68 @@ class TortoiseServer(commands.Cog):
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_member_join(self, member: discord.Member):
-        log_channel = self.bot.get_channel(constants.system_log_channel_id)
-        verification_channel = self.bot.get_channel(constants.verification_channel_id)
-        logger.debug(f"New member joined {member}")
+        logger.info(f"New member joined {member}")
+        try:
+            member_meta = await self.bot.api_client.get_member_meta(member.id)
+        except ResponseCodeError:
+            await self._new_member_register_in_database(member)
+        else:
+            if member_meta["leave_date"] is None and member_meta["verified"]:
+                pass
+            else:
+                await self._new_member_re_joined(member, member_meta["verified"])
 
-        if not await self.bot.api_client.does_member_exist(member.id):
-            logger.debug(f"New member {member} does not exist in database, adding now.")
+    async def _new_member_register_in_database(self, member: discord.Member):
+        logger.info(f"New member {member} does not exist in database, adding now.")
+        await self.bot.api_client.insert_new_member(member)
+        await member.add_roles(self.unverified_role)
+        # Ghost ping the member so he takes note of verification channel where all info is
+        await self.verification_channel.send(member.mention, delete_after=1)
+        await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
+        dm_msg = (
+            "Welcome to Tortoise Community!\n"
+            "In order to proceed and join the community you will need to verify.\n\n"
+            f"Please head over to\n{constants.verification_url}"
+        )
+        await member.send(embed=footer_embed(dm_msg, "Welcome"))
 
-            await self.bot.api_client.insert_new_member(member)
+    async def _new_member_direct_access(self, member: discord.Member):
+        logger.info(f"Member {member} joined directly from website, giving access to guild.")
+        await self.add_verified_roles_to_member(member)
+        await self.bot.api_client.member_rejoined(member)
+        await self.log_channel.send(embed=welcome(f"{member} has joined to Tortoise Community."))
+        msg = (
+            "Welcome to Tortoise Community!\n\n"
+            "We see you've come directly from our website after verification,\n"
+            "you've been given access to our server, enjoy your stay."
+        )
+        await member.send(embed=footer_embed(msg, "Welcome"))
 
-            unverified_role = member.guild.get_role(constants.unverified_role_id)
-            await member.add_roles(unverified_role)
-
-            # Ghost ping the member so he takes note of verification channel where all info is
-            await verification_channel.send(member.mention, delete_after=1)
-
-            await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-            msg = (
-                "Welcome to Tortoise Community!\n"
-                "In order to proceed and join the community you will need to verify.\n\n"
-                f"Please head over to\n{constants.verification_url}"
-            )
-            await member.send(embed=welcome_dm(msg))
-            return
-
-        verified = await self.bot.api_client.is_verified(member.id)
+    async def _new_member_re_joined(self, member: discord.Member, verified: bool):
         if verified:
-            logger.debug(f"Member {member} is verified in database, adding roles.")
-
+            logger.info(f"Member {member} re-joined and is verified in database, adding previous roles..")
             previous_roles = await self.bot.api_client.get_member_roles(member.id)
             await self.add_verified_roles_to_member(member, previous_roles)
-
-            logger.debug("Updating database as member re-joined.")
             await self.bot.api_client.member_rejoined(member)
-
-            await log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
+            await self.log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
             msg = (
                 "Welcome back to Tortoise Community!\n\n"
                 "The roles you had last time will be restored and added back to you.\n"
             )
-            await member.send(embed=welcome_dm(msg))
+            await member.send(embed=footer_embed(msg, "Welcome"))
         else:
-            logger.debug(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
-
+            logger.info(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
             await self.bot.api_client.member_rejoined(member)
-
-            unverified_role = member.guild.get_role(constants.unverified_role_id)
-            await member.add_roles(unverified_role)
-
-            await log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-
+            await member.add_roles(self.unverified_role)
+            await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             # Ghost ping the member so he takes note of verification channel where all info is
-            await verification_channel.send(member.mention, delete_after=1)
-
+            await self.verification_channel.send(member.mention, delete_after=1)
             msg = (
                 "Hi, welcome to Tortoise Community!\n"
                 "Seems like this is not your first time joining.\n\n"
                 f"Last time you didn't verify so please head over to {constants.verification_url}"
             )
-            await member.send(embed=welcome_dm(msg))
+            await member.send(embed=footer_embed(msg, "Welcome"))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -190,20 +205,16 @@ class TortoiseServer(commands.Cog):
         await self.bot.api_client.edit_member_roles(after, roles_ids)
 
     async def add_verified_roles_to_member(self, member: discord.Member, additional_roles: Iterable[int] = tuple()):
-        guild = self.bot.get_guild(constants.tortoise_guild_id)
-        verified_role = guild.get_role(constants.verified_role_id)
-        unverified_role = guild.get_role(constants.unverified_role_id)
-
         try:
-            await member.remove_roles(unverified_role)
+            await member.remove_roles(self.unverified_role)
         except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {unverified_role}")
+            logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
 
         self._database_role_update_lock = True
         # In case additional_roles are fetched from database, they can be no longer existing due to not removing roles
         # that got deleted, so just catch Exception and ignore.
-        roles = [guild.get_role(role_id) for role_id in additional_roles]
-        roles.append(verified_role)
+        roles = [self.tortoise_guild.get_role(role_id) for role_id in additional_roles]
+        roles.append(self.verified_role)
 
         for role in roles:
             try:
@@ -273,29 +284,11 @@ class TortoiseServer(commands.Cog):
             await ctx.send(embed=failure("You took too long to reply."))
             return
 
-        code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
-
         title = f"Submission from {ctx.author}"
         embed = discord.Embed(title=title, description=code_msg.content, color=ctx.me.top_role.color)
         embed.set_thumbnail(url=ctx.author.avatar_url)
 
-        await code_submissions_channel.send(embed=embed)
-
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def announce(self, ctx, *, arg):
-        announcements_channel = self.bot.get_channel(constants.announcements_channel_id)
-        await announcements_channel.send(arg)
-        await ctx.send(success("Announced ✅"))
-
-    @commands.command()
-    @commands.has_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def welcome(self, ctx, *, arg):
-        channel = self.bot.get_channel(constants.welcome_channel_id)
-        await channel.send(arg)
-        await ctx.send(success("Added in Welcome ✅"))
+        await self.code_submissions_channel.send(embed=embed)
 
 
 def setup(bot):
