@@ -14,7 +14,45 @@ transparency - also to make coding easier as everyone can improve it.
 
 ## Features and Commands
 
-To do, check out cogs source code directory to see for yourself.
+There are a lot of features - note that some features are heavily tied to API and are not usable without it.
+
+Backend:
+
+* Custom error handler, custom paginator.
+
+* Security system that block members posting other guild invites & monitors editing/deleting messages and 
+has basic support for detecting bad words
+
+* Custom socket API for website -> bot communication, this way the website can verify members, send custom messages, 
+get member data directly from the bot, signal cache updates etc
+
+* Custom DM commands, message the bot and you will get option (depending if they are enabled, all of them can be disabled 
+on need) to make suggestion, event code submission, bug report or initialize  mod-mail.
+
+* Custom API communication for bot -> website API so we can debug verifications/member data or approve/deny/delete 
+suggestions, get rules etc
+
+* Custom self-assignable roles upon reaction on message.
+
+* Custom greetings for new members or members who came back.
+
+* If members leave their non-colored roles are saved and restored if they ever return.
+
+Commands:
+
+
+> Fun: slap, shoot, throw
+
+> Bow owner commands: load/unload cogs
+
+> Moderation kick, ban, unban, warnings (multiple commands, tied with API), promote, clear, mute, unmute, dm_members, send
+
+> Other: say, members, status, pfp, github, ping, stats, countdown, issues, ask, markdown, paste, zen, antigravity
+
+> Reddit: meme, newpost, hotpost
+
+
+And more such as music commands, documentation commands for python/dpy docs etc
 
 ## Contributing
 
