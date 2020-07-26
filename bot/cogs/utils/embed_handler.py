@@ -1,7 +1,6 @@
 from typing import Union
 from asyncio import TimeoutError
 
-from discord.abc import Snowflake
 from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
@@ -152,7 +151,7 @@ def status_embed(member: Member, *, description: str = "") -> Embed:
 
 def infraction_embed(
         ctx,
-        infracted_member: Union[Member, Snowflake],
+        infracted_member: Union[Member, User],
         infraction_type: constants.Infraction,
         reason: str
 ) -> Embed:

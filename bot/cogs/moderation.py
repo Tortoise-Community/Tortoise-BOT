@@ -1,12 +1,12 @@
 import logging
 import asyncio
-from typing import Union
 from datetime import datetime
 
 import discord
 from discord.ext import commands, tasks
 
 from bot import constants
+from bot.cogs.utils.converters import GetFetchUser
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 
@@ -50,11 +50,10 @@ class Moderation(commands.Cog):
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, user: Union[discord.Member, discord.abc.Snowflake], *, reason="Reason not stated."):
+    async def ban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
         """Bans  member from the guild."""
         await ctx.guild.ban(user=user, reason=reason)
         await ctx.send(embed=success(f"{user} successfully banned."), delete_after=5)
-
         deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
@@ -69,9 +68,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.bot_has_permissions(ban_members=True)
     @commands.has_permissions(ban_members=True)
-    async def unban(self, ctx, user: discord.abc.Snowflake, *, reason="Reason not stated."):
+    async def unban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
         """Unbans  member from the guild."""
-        await ctx.guild.unban(reason=reason)
+        await ctx.guild.unban(user=user, reason=reason)
         await ctx.send(embed=success(f"{user} successfully unbanned."), delete_after=5)
 
     @commands.command(aliases=["warning"])
