@@ -327,11 +327,11 @@ class TortoiseDM(commands.Cog):
             return
 
         # Time to wait for FIRST USER reply. Useful if mod attends but user is away.
-        first_timeout = 10_800
+        first_timeout = 21_600  # 6 hours
         # Flag for above variable. False means there has been no messages from the user.
         first_timeout_flag = False
         # After the user sends first reply this is the timeout we use.
-        regular_timeout = 600
+        regular_timeout = 1800  # 30 min
 
         user = self.bot.get_user(user_id)
         mod = ctx.author
