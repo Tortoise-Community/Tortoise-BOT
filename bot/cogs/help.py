@@ -20,9 +20,9 @@ class PrettyHelpCommand(commands.MinimalHelpCommand):
     def add_bot_commands_formatting(self, commands_, heading):
         if commands_:
             max_length = 19
-            outputs = [f"`  {c.name}{embed_space * (max_length - len(c.name))}{c.short_doc}`" for c in commands_]
+            outputs = [f"`{c.name}{embed_space * (max_length - len(c.name))}{c.short_doc}`" for c in commands_]
             joined = "\n".join(outputs)
-            self.paginator.add_line(f"\n**__{heading}__**\n")
+            self.paginator.add_line(f"\n\n**__{heading}__**\n")
             self.paginator.add_line(joined)
 
     async def send_pages(self):

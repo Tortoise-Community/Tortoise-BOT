@@ -183,6 +183,9 @@ class Paginator:
 
 
 class EmbedPaginator(Paginator):
+    def __init__(self, embed_title: str = "", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._embed_title = embed_title
 
     @classmethod
     def _get_bot_member_from_destination(cls, destination: Messageable) -> Union[Member, ClientUser]:
@@ -195,10 +198,18 @@ class EmbedPaginator(Paginator):
 
     async def create_message(self, destination) -> None:
         self._message = await destination.send(
-            embed=info(self.get_message_content(), self._get_bot_member_from_destination(destination))
+            embed=info(
+                self.get_message_content(),
+                self._get_bot_member_from_destination(destination),
+                title=self._embed_title
+            )
         )
 
     async def update_message(self):
         await self._message.edit(
-            embed=info(self.get_message_content(), self._get_bot_member_from_destination(self._message.channel))
+            embed=info(
+                self.get_message_content(),
+                self._get_bot_member_from_destination(self._message.channel),
+                title=self._embed_title
+            )
         )

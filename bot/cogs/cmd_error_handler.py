@@ -64,6 +64,8 @@ class CommandErrorHandler(commands.Cog):
             # Conditional to check if it is a closed DM that raised Forbidden
             if error.code == 50007:
                 pass
+            else:
+                await ctx.send(embed=failure(f"{error}"))
 
         else:
             exception_msg = f"Ignoring error {error} in command {ctx.command} exception: {traceback.format_exc()}"
