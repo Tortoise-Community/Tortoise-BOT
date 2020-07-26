@@ -1,4 +1,5 @@
 import logging
+from asyncio import TimeoutError
 from typing import Iterable, Union
 
 import discord

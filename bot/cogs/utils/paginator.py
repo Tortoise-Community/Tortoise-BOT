@@ -1,4 +1,5 @@
 from typing import List, Union
+from asyncio import TimeoutError
 
 from discord.abc import Messageable
 from discord import ClientUser, User, Member, HTTPException
