@@ -21,7 +21,7 @@ class CommandErrorHandler(commands.Cog):
         error = getattr(error_, "original", error_)
 
         # If command has local error handler, ignore
-        if hasattr(ctx.command, "on_error") or hasattr(ctx.cog, "cog_command_error"):
+        if hasattr(ctx.command, "on_error"):
             pass
 
         elif isinstance(error, commands.CommandNotFound):
