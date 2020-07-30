@@ -107,6 +107,7 @@ PRAW_CLIENT_SECRET=put_something_here
 BOT_TOKEN=put_something_here
 API_ACCESS_TOKEN =put_something_here
 SOCKET_AUTH_TOKEN=put_something_here
+SOCKET_SERVER_PORT=put_something_here
 ```
 
 `PRAW_CLIENT_ID` and `PRAW_CLIENT_SECRET`
@@ -123,6 +124,8 @@ verifying new users, putting new users, editing users(infractions, leave date) e
 This is so the API can communicate with the bot,
 for example when member verifies on website the bot receives this verification trough the socket
 and adds roles to members/send him message etc
+
+`SOCKET_SERVER_PORT` port on which the socket will listen.
 
 #### Additional dependencies
 

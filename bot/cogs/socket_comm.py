@@ -116,7 +116,7 @@ class SocketCommunication(commands.Cog):
     def create_server():
         logger.debug("Starting socket comm server...")
         server = socket.socket()
-        server.bind(("0.0.0.0", 15555))
+        server.bind(("0.0.0.0", os.getenv("SOCKET_SERVER_PORT")))
         server.listen(3)
         server.setblocking(False)
         logger.debug("Socket comm server started.")
