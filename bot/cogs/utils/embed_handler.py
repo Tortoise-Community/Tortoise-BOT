@@ -48,6 +48,23 @@ def goodbye(message: str) -> Embed:
     """
     return simple_embed(message, "Goodbye", color=Color.dark_red())
 
+async def reddit_embed(post,color)-> Embed:
+
+    subreddit = post.subreddit.name
+    embed = Embed(title=post.title,
+                          url=post.url,
+                          description=f"[r/{subreddit}](https://www.reddit.com/r/{subreddit}/)",
+                          colour=color)
+
+    embed.description = f"<:upvote:741202481090002994> {post.score}\n💬 {len(post.comments)}"
+    embed.set_image(url=post.url)
+    embed.set_author(name=f"r/{subreddit}",
+                     icon_url="https://logodownload.org/wp-content/uploads/2018/02/reddit-logo-16.png")
+
+    embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
+
+    return embed
+
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
     """
