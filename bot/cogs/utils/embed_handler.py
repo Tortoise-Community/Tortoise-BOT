@@ -6,7 +6,7 @@ from discord import Embed, Color, Member, User, Status, Message, RawReactionActi
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-
+import datetime
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
@@ -82,12 +82,15 @@ async def reddit_embed(ctx,post,color)-> Embed:
                       url=post.url,
                       colour=color)
 
-        embed.description = f"<:upvote:741202481090002994> {post.score}\n💬 {len(post.comments)}"
+
+
+        embed.description = f"{post.selftext}\n<:upvote:741202481090002994> {post.score}​​ ​​ ​​​​ ​💬 {len(post.comments)}"
         embed.set_image(url=post.url)
         embed.set_author(name=f"r/{subreddit}",
-                         icon_url="https://logodownload.org/wp-content/uploads/2018/02/reddit-logo-16.png")
+                         icon_url=post.subreddit.icon_img)
 
         embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
+        embed.timestamp = datetime.datetime.fromtimestamp(post.created_utc)
 
         return embed
 
