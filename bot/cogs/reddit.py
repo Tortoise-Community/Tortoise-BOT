@@ -6,6 +6,30 @@ import discord
 from discord.ext import commands
 
 
+
+
+async def reddit_embed(post : praw.Reddit.submission,color):
+    subreddit = post.subreddit.name
+    embed = discord.Embed(title=post.title,
+                          url=post.url,
+                          description=f"[r/{subreddit}](https://www.reddit.com/r/{subreddit}/)",
+                          colour=color)
+
+    embed.description = f"""
+<:upvote:741202481090002994> {post.score}
+💬 {len(post.comments)}
+    """
+    embed.set_image(url=post.url)
+    embed.set_author(name=f"r/{subreddit}",
+                     icon_url="https://logodownload.org/wp-content/uploads/2018/02/reddit-logo-16.png")
+
+    embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
+
+
+
+    return embed
+
+
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
