@@ -73,12 +73,13 @@ async def reddit_embed(ctx,post,color)-> Embed:
     """
 
     if post.over_18:
-        await nsfw_warning_embed(ctx)
+        embed = await nsfw_warning_embed(ctx)
+        return embed
+
     else:
-        subreddit = post.subreddit.name
+        subreddit = post.subreddit.display_name
         embed = Embed(title=post.title,
                       url=post.url,
-                      description=f"[r/{subreddit}](https://www.reddit.com/r/{subreddit}/)",
                       colour=color)
 
         embed.description = f"<:upvote:741202481090002994> {post.score}\n💬 {len(post.comments)}"
@@ -89,7 +90,6 @@ async def reddit_embed(ctx,post,color)-> Embed:
         embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
 
         return embed
-
 
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
