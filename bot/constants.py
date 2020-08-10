@@ -13,7 +13,7 @@ line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173
 
 
 # Channel IDs
-welcome_channel_id = 657704940080201739
+welcome_channel_id = 738731842538176522
 announcements_channel_id = 578197131526144024
 react_for_roles_channel_id = 603651772950773761
 
