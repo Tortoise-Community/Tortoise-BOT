@@ -1,12 +1,10 @@
 import os
-import random
 import praw
-import discord
+import random
+
 from discord.ext import commands
+
 from bot.cogs.utils.embed_handler import reddit_embed
-
-embed_color = 0x3498d
-
 
 
 class Reddit(commands.Cog):
@@ -21,11 +19,10 @@ class Reddit(commands.Cog):
     @commands.command()
     async def meme(self, ctx):
         """Sends you the dankest of the dank memes from reddit"""
-
         subreddit = self.reddit.subreddit("memes")
         hot_memes = list(subreddit.hot(limit=100))
         rand_post = random.choice(hot_memes)
-        embed = await reddit_embed(ctx,rand_post,embed_color)
+        embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -34,7 +31,7 @@ class Reddit(commands.Cog):
         sub = self.reddit.subreddit(subreddit)
         new_posts = list(sub.new(limit=10))
         rand_post = random.choice(new_posts)
-        embed = await reddit_embed(ctx,rand_post,embed_color)
+        embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -43,7 +40,7 @@ class Reddit(commands.Cog):
         sub = self.reddit.subreddit(subreddit)
         host_posts = list(sub.hot(limit=10))
         rand_post = random.choice(host_posts)
-        embed =  await reddit_embed(ctx,rand_post,embed_color)
+        embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
 
