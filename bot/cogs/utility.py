@@ -6,8 +6,6 @@ import requests
 from bs4 import BeautifulSoup
 
 
-
-
 class LinkParser:
 
     def __init__(self):
@@ -33,6 +31,34 @@ class LinkParser:
         if soup.head.link:
             self.logo_url = soup.head.link.get("href")
 
+
+class StackOverFlow:
+
+    def __init__(self):
+
+        self.votes = None
+        self.answers = None
+        self.title = None
+        self.text = None
+        self.url = None
+
+    def fit(self,i):
+            summary = i.find("div", class_="summary")
+            q_dict = summary.find("div", class_="result-link").h3.find('a').attrs
+
+            self.url = f"https://stackoverflow.com/{q_dict['href']}"
+            self.title = q_dict['title']
+            self.text = i.find("div", class_="excerpt").get_text()
+            self.votes = i.find("div", class_="votes").find("span").get_text()
+
+            if i.find("div", class_="status answered"):
+                self.answers = i.find("div", class_="status answered").find("strong").get_text()
+
+            elif i.find("div", class_="status unanswered"):
+                self.answers = i.find("div", class_="status unanswered").find("strong").get_text()
+
+            elif i.find("div", class_="status answered-accepted"):
+                self.answers = i.find("div", class_="status answered-accepted").find("strong").get_text()
 
 
 
@@ -207,6 +233,50 @@ class Utility(commands.Cog):
         else:
             await ctx.send("Too many requests to process")
 
+    @commands.command(aliases=["sof", "stackof"])
+    async def stackoverflow(self, ctx, *, query):
+
+        """ Searches stackoverflow for a query"""
+
+        msg = await ctx.send(f"Searching for `{query}`")
+
+        limit = 5
+        search_url = f"https://stackoverflow.com/search?q={str(query).replace(' ', '+')}"
+        content = requests.get(search_url).content
+
+        soup = BeautifulSoup(content, "lxml")
+
+        m = 1
+
+        page_list = []
+
+        for i in soup.find_all("div", class_="question-summary search-result")[:limit]:
+            sof = StackOverFlow()
+            sof.fit(i)
+
+            embed = discord.Embed(color=self.color,
+                                  title=sof.title,
+                                  url=sof.url)
+
+            embed.description = f"""
+    {sof.text}
+
+    <:upvote:741202481090002994> {sof.votes}  ​​​​ ​💬 {sof.answers}
+
+    """
+
+            embed.set_author(name="StackOverFlow",
+                             icon_url="https://cdn2.iconfinder.com/data/icons/social-icons-color/512/stackoverflow-512.png")
+            embed.set_footer(
+                text=f"Page {m}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}")
+
+            page_list.append(embed)
+
+            m += 1
+
+        paginator = Paginator(ctx, page_list)
+        await msg.delete()
+        await paginator.start()
 
 
 def setup(bot):
