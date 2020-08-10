@@ -6,7 +6,7 @@ from discord import Embed, Color, Member, User, Status, Message, RawReactionActi
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-
+import datetime
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
@@ -47,6 +47,52 @@ def goodbye(message: str) -> Embed:
     :return: Embed object
     """
     return simple_embed(message, "Goodbye", color=Color.dark_red())
+
+async def nsfw_warning_embed(ctx,additional_msg = "") -> Embed:
+    """
+    Constructs a warning embed if a nsfw post is invoked
+    :param ctx: The invocation context
+    :param additional_msg: The additional message to add
+    :return: Embed object
+    """
+
+    embed = Embed(title="⚠️Warning",
+                  description=f"**NSFW** posts are not allowed inside the tortoise community\n{additional_msg}",
+                  colour=Color.red())
+    embed.set_author(name=ctx.author,icon_url=ctx.author.avatar_url)
+
+    return embed
+
+async def reddit_embed(ctx,post,color)-> Embed:
+    """
+    Embeds a reddit post
+    :param ctx: The invocation context
+    :param post: The post to embed
+    :param color: the color of the embed
+    :return: Embed object
+    """
+
+    if post.over_18:
+        embed = await nsfw_warning_embed(ctx)
+        return embed
+
+    else:
+        subreddit = post.subreddit.display_name
+        embed = Embed(title=post.title,
+                      url=post.url,
+                      colour=color)
+
+
+
+        embed.description = f"{post.selftext}\n<:upvote:741202481090002994> {post.score}​​ ​​ ​​​​ ​💬 {len(post.comments)}"
+        embed.set_image(url=post.url)
+        embed.set_author(name=f"r/{subreddit}",
+                         icon_url=post.subreddit.icon_img)
+
+        embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
+        embed.timestamp = datetime.datetime.fromtimestamp(post.created_utc)
+
+        return embed
 
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
