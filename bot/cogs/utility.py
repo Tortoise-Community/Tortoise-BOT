@@ -185,11 +185,10 @@ class Utility(commands.Cog):
     @commands.command(aliases =["g"])
     async def google(self,ctx,*,query):
 
-        """searches google for a query"""
+            """searches google for a query"""
 
-        num = 7
+            num = 7
 
-        if num < 10:
             embed = discord.Embed(color=self.color)
             desc = ""
             page_list = []
@@ -230,8 +229,7 @@ class Utility(commands.Cog):
             paginator = Paginator(ctx,page_list)
             await paginator.start()
 
-        else:
-            await ctx.send("Too many requests to process")
+
 
     @commands.command(aliases=["sof", "stackof"])
     async def stackoverflow(self, ctx, *, query):
