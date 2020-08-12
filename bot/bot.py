@@ -82,8 +82,7 @@ class Bot(commands.Bot):
 
     async def on_error(self, event: str, *args, **kwargs):
         exception_type, exception_value, exception_traceback = sys.exc_info()
-
-        if isinstance(exception_type, discord.Forbidden):
+        if issubclass(exception_type, discord.errors.Forbidden):
             return  # Ignore annoying messages (eg. if user disables DMs)
 
         msg = f"{event} event error exception!\n{traceback.format_exc()}"
