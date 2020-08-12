@@ -86,6 +86,11 @@ class TortoiseDM(commands.Cog):
         user_id = payload.user_id
         user = self.bot.get_user(user_id)
 
+        if user is None:
+            # Users cannot send messages if they do not share at least one guild with the bot,
+            # however they can react to messages they previously sent to bot making it possible
+            # that user will be None as they do not share a guild!
+            return
         if user_id == self.bot.user.id:
             return  # Ignore the bot
         elif self.is_any_session_active(user_id):
