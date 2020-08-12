@@ -80,7 +80,7 @@ async def reddit_embed(ctx, post, color=0x3498d) -> Embed:
         return await nsfw_warning_embed(ctx.author)
     else:
         subreddit = post.subreddit.display_name
-        upvote_emoji = ctx.me.get_emoji(constants.upvote_emoji_id)
+        upvote_emoji = ctx.bot.get_emoji(constants.upvote_emoji_id)
         embed = Embed(title=post.title, url=post.url, colour=color)
 
         embed.description = (
