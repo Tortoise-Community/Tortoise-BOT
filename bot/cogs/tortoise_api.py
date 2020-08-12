@@ -32,7 +32,7 @@ class TortoiseAPI(commands.Cog):
             msg = f"Something went wrong, got response status {e.status}.\nDoes the member exist?"
             await ctx.send(embed=failure(msg))
         else:
-            await ctx.send(embed=info(f"{response}", ctx.me, f"{member}"))
+            await ctx.send(embed=info(f"Verified: {response}", ctx.me, title=f"{member}"))
 
     @commands.command()
     @commands.has_permissions(administrator=True)
