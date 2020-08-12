@@ -23,7 +23,7 @@ class TortoiseAPI(commands.Cog):
         self.user_suggestions_channel = bot.get_channel(constants.suggestions_channel_id)
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def is_verified(self, ctx, member: DatabaseMember):
         try:
@@ -35,7 +35,7 @@ class TortoiseAPI(commands.Cog):
             await ctx.send(embed=info(f"{response}", ctx.me, f"{member}"))
 
     @commands.command()
-    @commands.check(tortoise_bot_developer_only)
+    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_data(self, ctx, member: DatabaseMember):
         try:
@@ -55,7 +55,7 @@ class TortoiseAPI(commands.Cog):
         await self.system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
 
     @commands.command()
-    @commands.check(tortoise_bot_developer_only)
+    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def approve(self, ctx, message_id: int, *, reason: str = "No reason specified"):
         """Approve a suggestion"""
@@ -63,7 +63,7 @@ class TortoiseAPI(commands.Cog):
         await ctx.send(embed=success("Suggestion successfully approved."), delete_after=5)
 
     @commands.command()
-    @commands.check(tortoise_bot_developer_only)
+    @commands.has_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def deny(self, ctx, message_id: int, *, reason: str = "No reason specified"):
         """Deny a suggestion"""
