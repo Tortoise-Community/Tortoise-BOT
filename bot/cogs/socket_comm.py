@@ -116,7 +116,7 @@ class SocketCommunication(commands.Cog):
     def create_server():
         logger.debug("Starting socket comm server...")
         server = socket.socket()
-        server.bind(("0.0.0.0", os.getenv("SOCKET_SERVER_PORT")))
+        server.bind(("0.0.0.0", int(os.getenv("SOCKET_SERVER_PORT"))))
         server.listen(3)
         server.setblocking(False)
         logger.debug("Socket comm server started.")
@@ -337,8 +337,7 @@ class SocketCommunication(commands.Cog):
     @endpoint_register(endpoint_key="verify")
     async def verify_member(self, member_id: str):
         """
-        Verifies the member, adds him the role and marks him as verified in the database,
-        also sends success messages.
+        Adds verified role to the member and also sends success messages.
         :param member_id: str member id to verify
         """
         try:
@@ -347,8 +346,9 @@ class SocketCommunication(commands.Cog):
             raise EndpointBadArguments()
 
         none_checks = (
-            self.tortoise_guild, self.verified_role, self.unverified_role, self.successful_verifications_channel
-            )
+            self.tortoise_guild, self.verified_role, self.unverified_role,
+            self.successful_verifications_channel, self.welcome_channel
+        )
 
         for check_none in none_checks:
             if check_none is None:
