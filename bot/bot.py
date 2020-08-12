@@ -94,7 +94,7 @@ class Bot(commands.Bot):
             return
 
         error_log_channel = self.get_channel(error_log_channel_id)
-        split_messages = list(Bot.split_string_into_chunks(message, 1980))
+        split_messages = list(Bot.split_string_into_chunks(message, 1900))
 
         for count, message in enumerate(split_messages):
             if count < 5:
