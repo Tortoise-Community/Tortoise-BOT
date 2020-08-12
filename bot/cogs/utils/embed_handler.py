@@ -2,6 +2,7 @@ import datetime
 from typing import Union
 from asyncio import TimeoutError
 
+from discord.errors import NotFound
 from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
@@ -273,7 +274,10 @@ class RemovableMessage:
             await self.bot.wait_for("raw_reaction_add", check=self._check, timeout=self.timeout)
             await self.message.delete()
         except TimeoutError:
-            await self.message.remove_reaction(self.emoji_remove, self.bot.user)
+            try:
+                await self.message.remove_reaction(self.emoji_remove, self.bot.user)
+            except NotFound:
+                pass  # If the message got deleted by user in the meantime
 
 
 def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
