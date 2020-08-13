@@ -14,6 +14,7 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
+        self.started = False
 
     @commands.command()
     async def say(self, ctx, *, message):
@@ -153,18 +154,29 @@ class Other(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def countdown(self, ctx, start: int):
         try:
-            await ctx.message.delete()
-        except discord.Forbidden:
-            pass
+            try:
+                await ctx.message.delete()
+            except discord.Forbidden:
+                pass
 
-        message = await ctx.send(start)
-        while start:
-            minutes, seconds = divmod(start, 60)
-            content = f"{minutes:02d}:{seconds:02d}"
-            await message.edit(content=content)
-            start -= 1
-            await asyncio.sleep(1)
-        await message.delete()
+            if not self.started:
+                self.started = True
+                message = await ctx.send(start)
+                while start:
+                    minutes, seconds = divmod(start, 60)
+                    content = f"{minutes:02d}:{seconds:02d}"
+                    try:
+                        await message.edit(content=content)
+                    except discord.HTTPException:
+                        break
+                    start -= 1
+                    await asyncio.sleep(1)
+                self.started = False
+                await message.delete()
+            else:
+                await ctx.send(embed=info("There is already an ongoing timer", ctx.me, ""))
+        except Exception as e:
+            print(e)
 
     @commands.command(aliases=['issues', 'add'])
     async def add_to_issues(self, ctx):
