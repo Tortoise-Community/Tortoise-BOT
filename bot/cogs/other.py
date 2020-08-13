@@ -6,6 +6,7 @@ import psutil
 import discord
 from discord.ext import commands
 
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
 from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
 
@@ -14,6 +15,7 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
+        self.countdown_started = False
 
     @commands.command()
     async def say(self, ctx, *, message):
@@ -150,20 +152,28 @@ class Other(commands.Cog):
         return constructed
 
     @commands.command()
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def countdown(self, ctx, start: int):
         try:
             await ctx.message.delete()
         except discord.Forbidden:
             pass
 
+        if self.countdown_started:
+            return await ctx.send(embed=info("There is already an ongoing timer", ctx.me, ""))
+
+        self.countdown_started = True
         message = await ctx.send(start)
         while start:
             minutes, seconds = divmod(start, 60)
             content = f"{minutes:02d}:{seconds:02d}"
-            await message.edit(content=content)
+            try:
+                await message.edit(content=content)
+            except discord.HTTPException:
+                break
             start -= 1
             await asyncio.sleep(1)
+        self.countdown_started = False
         await message.delete()
 
     @commands.command(aliases=['issues', 'add'])
