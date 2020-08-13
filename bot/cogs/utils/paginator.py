@@ -89,6 +89,10 @@ class Paginator:
             await self._add_all_reactions()
             await self._start_listener(author, bot_reference)
 
+    def close_page(self):
+        # Just to condone to standard paginator
+        pass
+
     @property
     def prefix(self) -> str:
         return self._prefix

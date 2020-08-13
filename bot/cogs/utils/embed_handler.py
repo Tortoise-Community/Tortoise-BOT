@@ -79,20 +79,20 @@ async def reddit_embed(ctx, post, color=0x3498d) -> Embed:
 
     if post.over_18:
         return await nsfw_warning_embed(ctx.author)
-    else:
-        subreddit = post.subreddit.display_name
-        upvote_emoji = ctx.bot.get_emoji(constants.upvote_emoji_id)
-        embed = Embed(title=post.title, url=post.url, colour=color)
 
-        embed.description = (
-            f"{post.selftext}\n"
-            f"{upvote_emoji} {post.score}​​ ​​ ​​​​ ​💬 {len(post.comments)}"
-        )
-        embed.set_image(url=post.url)
-        embed.set_author(name=f"r/{subreddit}", icon_url=post.subreddit.icon_img)
-        embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
-        embed.timestamp = datetime.datetime.fromtimestamp(post.created_utc)
-        return embed
+    subreddit = post.subreddit.display_name
+    upvote_emoji = ctx.bot.get_emoji(constants.upvote_emoji_id)
+    embed = Embed(title=post.title, url=post.url, colour=color)
+
+    embed.description = (
+        f"{post.selftext}\n"
+        f"{upvote_emoji} {post.score}​​ ​​ ​​​​ ​💬 {len(post.comments)}"
+    )
+    embed.set_image(url=post.url)
+    embed.set_author(name=f"r/{subreddit}", icon_url=post.subreddit.icon_img)
+    embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
+    embed.timestamp = datetime.datetime.fromtimestamp(post.created_utc)
+    return embed
 
 
 def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:

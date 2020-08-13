@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 from discord.ext import commands
 
-
 """
 TODO:
 long PEP8 breaking links should go to constants.
@@ -14,8 +13,8 @@ Use aiohttp as requests is blocking.
 googlesearch search is also blocking so either use async version of it or run it in executor.
 We have 2 paginators now extend/merge them into one.
 names such as m, i..etc are not descriptive
-
 """
+
 logo_url = (
     "https://www.freepnglogos.com/uploads/google-logo-png/"
     "google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"
@@ -98,8 +97,8 @@ class Paginator:
             current_page_index = pages.index(page)
             next_page = pages[current_page_index+1]
             return next_page
-        else:
-            return pages[-1]
+
+        return pages[-1]
 
     def get_prev_page(self, page):
         pages = self.pages
@@ -109,8 +108,7 @@ class Paginator:
             next_page = pages[current_page_index-1]
             return next_page
 
-        else:
-            return pages[0]
+        return pages[0]
 
     async def start(self):
         pages = self.pages
