@@ -6,6 +6,7 @@ import psutil
 import discord
 from discord.ext import commands
 
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
 from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
 
@@ -151,7 +152,7 @@ class Other(commands.Cog):
         return constructed
 
     @commands.command()
-    @commands.cooldown(1, 10, commands.BucketType.user)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def countdown(self, ctx, start: int):
         try:
             await ctx.message.delete()
