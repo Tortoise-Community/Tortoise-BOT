@@ -65,6 +65,18 @@ bug_emoji_id = 723274927968354364
 suggestions_emoji_id = 613185393776656384
 verified_emoji_id = 610713784268357632
 
+# Badges
+partner = "<:partner:753957703155449916>"
+staff = "<:staff:753957681336942673>"
+nitro = "<:nitro:753957661912989747>"
+hs_bal = "<:balance:753957264460873728>"
+hs_bril = "<:brilliance:753957311537479750>"
+hs_brav = "<:bravery:753957296475996234>"
+hs_ev = "<:events:753957640069185637>"
+verified_bot_dev = "<:dev:753957609328869384>"
+bg_1  = "<:bug1:753957385844031538>"
+bg_2 = "<:bug2:753957425664753754>"
+
 
 # Music Options
 # For all options see:
