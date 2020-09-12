@@ -77,6 +77,14 @@ verified_bot_dev = "<:dev:753957609328869384>"
 bg_1  = "<:bug1:753957385844031538>"
 bg_2 = "<:bug2:753957425664753754>"
 
+# Emotes
+online = "<:online:753999406562410536>"
+idle = "\🌙"
+offline = "<:offline:753999424446922782>"
+dnd = "<:dnd:753999445728952503>"
+spotify_emoji = "<:spotify:754238046123196467>"
+game_emoji = "\🎮"
+
 
 # Music Options
 # For all options see:
