@@ -18,7 +18,7 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ("games",)
+    allowed_extensions = ()
     banned_extensions = ("utility",)  # banned because it needs refactor
 
     def __init__(self, prefix="t.", *args, **kwargs):
