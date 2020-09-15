@@ -92,7 +92,6 @@ class Games(commands.Cog):
         await self.check_active_session(player.game)
 
     async def double(self, player):
-        # debit twice the amount
         player.bet_amount *= 2
         player.game.deck.give_random_card(player, 1)
         me = self.bot.get_user(player.user_id)
@@ -129,8 +128,9 @@ class Games(commands.Cog):
                                                       discord.Color.red()))
 
     @commands.command(aliases=['b'])
-    async def blackjack(self, ctx, bet_amount):
-        await self.init_blackjack(ctx, bet_amount)
+    async def blackjack(self, ctx):
+        # TODO: Bet amount update on server currency implementation
+        await self.init_blackjack(ctx, bet_amount=10)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):

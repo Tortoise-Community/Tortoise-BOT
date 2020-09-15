@@ -334,15 +334,15 @@ def bj_template_embed(author: User, player, description: str, color: discord.Col
 
 
 def black_jack_embed(user: discord.User, player, outcome=None, hidden=True):
-    embed = bj_template_embed(user, player, f"**Your bet: **{player.bet_amount}", discord.Color.gold())
+    embed = bj_template_embed(user, player, "", discord.Color.gold())
     embed.add_field(name="Dealer hand", value=player.game.get_emote_string(hidden=hidden))
-    # if outcome is None:
-    #     embed.colour = discord.Color.gold()
     if outcome == "win":
         embed.colour = discord.Color.dark_green()
+        embed.description = "**Outcome: ** You won!"
     elif outcome == "lose":
         embed.colour = discord.Color.dark_red()
-        embed.title = "lost!"
+        embed.description = "**Outcome: ** You lost!"
     elif outcome == "tie":
         embed.colour = discord.Color.dark_grey()
+        embed.description = "**Outcome: ** Its a tie!"
     return embed

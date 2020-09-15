@@ -1,7 +1,7 @@
 import random
 
 import discord
-from bot.constants import red_emotes, black_emotes, default_blank_emoji
+from bot.constants import red_emotes, black_emotes
 
 face_cards = ["K", "Q", "J"]
 
@@ -106,11 +106,9 @@ class Player:
 
 
 class Game(Player):
-    def __init__(self, channel):
+    def __init__(self, channel):  # noqa
         self.channel = channel
         self.participants = {}
         self.deck = Deck()
         self.cards = self.deck.get_random_cards(2)
         self.card_value = self.calculate_card_value()
-
-
