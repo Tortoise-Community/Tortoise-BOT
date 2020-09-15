@@ -321,7 +321,15 @@ async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: 
     return suggestion_msg
 
 
-def bj_template_embed(author: User, player, description: str, color: discord.Color):
+def bj_template_embed(author: User, player, description: str, color: Color) -> Embed:
+    """
+    Creates black jack embed template.
+    :param author: User discord user from which to get name and avatar
+    :param player: player object
+    :param description: embed description
+    :param color: discord.Color
+    :return: discord.Embed
+    """
     embed = authored(description, author=author)
     embed.colour = color
     embed.set_thumbnail(url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-ic"
@@ -334,6 +342,14 @@ def bj_template_embed(author: User, player, description: str, color: discord.Col
 
 
 def black_jack_embed(user: discord.User, player, outcome=None, hidden=True):
+    """
+    Creates embed based on set of constraints for blackjack
+    :param user:  discord.User
+    :param player: player object for blackjack
+    :param outcome: blackjack game outcome
+    :param hidden: (bool) dealer card value
+    :return: discord.Embed
+    """
     embed = bj_template_embed(user, player, "", discord.Color.gold())
     embed.add_field(name="Dealer hand", value=player.game.get_emote_string(hidden=hidden))
     if outcome == "win":

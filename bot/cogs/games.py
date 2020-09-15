@@ -86,8 +86,7 @@ class Games(commands.Cog):
         me = self.bot.get_user(player.user_id)
         await player.message.clear_reactions()
         embed = black_jack_embed(me, player)
-        embed.description = f"**Your bet: ** {player.bet_amount}\n"\
-                            f"**Status: **Waiting for other players..."
+        embed.description = "**Status: **Waiting for other players..."
         await player.message.edit(embed=embed)
         await self.check_active_session(player.game)
 
@@ -127,8 +126,9 @@ class Games(commands.Cog):
             await ctx.channel.send(embed=simple_embed("The lobby if full. Try in another channel.", "",
                                                       discord.Color.red()))
 
-    @commands.command(aliases=['b'])
+    @commands.command(aliases=['bj'])
     async def blackjack(self, ctx):
+        """Initializes single/multiplayer blackjack game"""
         # TODO: Bet amount update on server currency implementation
         await self.init_blackjack(ctx, bet_amount=10)
 
