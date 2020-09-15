@@ -2,12 +2,14 @@ import datetime
 from typing import Union
 from asyncio import TimeoutError
 
+import discord
 from discord.errors import NotFound
 from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
+# from bot.cogs.utils.gambling_backend import Pl
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -317,3 +319,30 @@ async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: 
     await suggestion_msg.add_reaction(thumbs_down_reaction)
 
     return suggestion_msg
+
+
+def bj_template_embed(author: User, player, description: str, color: discord.Color):
+    embed = authored(description, author=author)
+    embed.colour = color
+    embed.set_thumbnail(url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-ic"
+                            "on-splash-diwali-coasters-black-background.png")
+    card_string = player.get_emote_string(hidden=False)
+    embed.add_field(name="Your hand", value=f"{card_string}")
+    embed.set_footer(text="BlackJack",
+                     icon_url="https://i.pinimg.com/originals/c3/5f/63/c35f630a4efb237206ec94f8950dcad5.png")
+    return embed
+
+
+def black_jack_embed(user: discord.User, player, outcome=None, hidden=True):
+    embed = bj_template_embed(user, player, f"**Your bet: **{player.bet_amount}", discord.Color.gold())
+    embed.add_field(name="Dealer hand", value=player.game.get_emote_string(hidden=hidden))
+    # if outcome is None:
+    #     embed.colour = discord.Color.gold()
+    if outcome == "win":
+        embed.colour = discord.Color.dark_green()
+    elif outcome == "lose":
+        embed.colour = discord.Color.dark_red()
+        embed.title = "lost!"
+    elif outcome == "tie":
+        embed.colour = discord.Color.dark_grey()
+    return embed
