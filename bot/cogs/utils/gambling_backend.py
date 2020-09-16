@@ -1,16 +1,9 @@
 import random
 
 import discord
-from bot.constants import spade_emotes, club_emotes, heart_emotes, diamond_emotes
+from bot.constants import card_emotes
 
 face_cards = ["K", "Q", "J"]
-
-get_emotes = {
-    "spade": spade_emotes,
-    "club": club_emotes,
-    "heart": heart_emotes,
-    "diamond": diamond_emotes
-}
 
 
 class Card(object):
@@ -23,7 +16,7 @@ class Card(object):
         print(f"{self.name} of {self.suit}")
 
     def _get_emoji(self):
-        return get_emotes[self.suit].get(self.name)
+        return card_emotes[self.suit].get(self.name)
 
 
 class Deck:

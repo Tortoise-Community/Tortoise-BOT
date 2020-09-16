@@ -188,3 +188,10 @@ diamond_emotes = {
     "Q": "<:dQ:755714709742813216>",
     "J": "<:dJ:755714707150733353>"
 }
+
+card_emotes = {
+    "spade": spade_emotes,
+    "club": club_emotes,
+    "heart": heart_emotes,
+    "diamond": diamond_emotes
+}
