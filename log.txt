@@ -406,3 +406,349 @@ discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
 2020-09-15 23:24:23,840 - discord.client - Cleaning up tasks.
 2020-09-15 23:24:23,840 - discord.client - Cleaning up after 4 tasks.
 2020-09-15 23:24:24,074 - discord.client - Closing the event loop.
+2020-09-17 00:06:39,194 - discord.client - logging in using static token
+2020-09-17 00:06:42,681 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-17 00:06:42,684 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-17 00:06:43,589 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-03dm",{"micros":40123,"calls":["discord-sessions-prd-2-8",{"micros":37406,"calls":["start_session",{"micros":33792,"calls":["api-prd-main-t2fh",{"micros":30966,"calls":["get_user",{"micros":4754},"add_authorized_ip",{"micros":1550},"get_guilds",{"micros":2419},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 1e62c10668a8b655852191a38f1e1aea).
+2020-09-17 00:06:43,598 - bot.bot - Connection to Discord established.
+2020-09-17 00:06:47,187 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:06:47,256 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:06:47,260 - discord.state - Processed a chunk for 144 members in guild ID 577192344529404154.
+2020-09-17 00:06:47,261 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-17 00:06:47,303 - console - loaded bot.cogs.bot_owner_commands
+2020-09-17 00:06:47,314 - console - loaded bot.cogs.cmd_error_handler
+2020-09-17 00:06:47,321 - console - loaded bot.cogs.documentation
+2020-09-17 00:06:47,330 - console - loaded bot.cogs.fun
+2020-09-17 00:06:47,341 - console - loaded bot.cogs.games
+2020-09-17 00:06:47,357 - console - loaded bot.cogs.help
+2020-09-17 00:06:47,383 - console - loaded bot.cogs.moderation
+2020-09-17 00:06:48,435 - console - loaded bot.cogs.music
+2020-09-17 00:06:48,486 - console - loaded bot.cogs.other
+2020-09-17 00:06:48,761 - console - Failed to load cog bot.cogs.reddit - traceback:['Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 608, in _load_from_module_spec\n    setup(self)\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\reddit.py", line 48, in setup\n    bot.add_cog(Reddit(bot))\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\reddit.py", line 13, in __init__\n    self.reddit = praw.Reddit(\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\praw\\reddit.py", line 221, in __init__\n    raise MissingRequiredAttributeException(\n', "praw.exceptions.MissingRequiredAttributeException: Required configuration setting 'client_id' missing. \nThis setting can be provided in a praw.ini file, as a keyword argument to the `Reddit` class constructor, or as an environment variable.\n", '\nThe above exception was the direct cause of the following exception:\n\n', 'Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\bot.py", line 69, in load_extensions\n    self.load_extension(dotted_path)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 653, in load_extension\n    self._load_from_module_spec(spec, name)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 613, in _load_from_module_spec\n    raise errors.ExtensionFailed(key, e) from e\n', "discord.ext.commands.errors.ExtensionFailed: Extension 'bot.cogs.reddit' raised an error: MissingRequiredAttributeException: Required configuration setting 'client_id' missing. \nThis setting can be provided in a praw.ini file, as a keyword argument to the `Reddit` class constructor, or as an environment variable.\n"]
+2020-09-17 00:06:48,781 - console - loaded bot.cogs.security
+2020-09-17 00:06:48,792 - bot.cogs.socket_comm - Starting socket comm server...
+2020-09-17 00:06:48,793 - console - Failed to load cog bot.cogs.socket_comm - traceback:['Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 608, in _load_from_module_spec\n    setup(self)\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\socket_comm.py", line 420, in setup\n    bot.add_cog(SocketCommunication(bot))\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\socket_comm.py", line 86, in __init__\n    self._socket_server = SocketCommunication.create_server()\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\socket_comm.py", line 119, in create_server\n    server.bind(("0.0.0.0", int(os.getenv("SOCKET_SERVER_PORT"))))\n', "TypeError: int() argument must be a string, a bytes-like object or a number, not 'NoneType'\n", '\nThe above exception was the direct cause of the following exception:\n\n', 'Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\bot.py", line 69, in load_extensions\n    self.load_extension(dotted_path)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 653, in load_extension\n    self._load_from_module_spec(spec, name)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 613, in _load_from_module_spec\n    raise errors.ExtensionFailed(key, e) from e\n', "discord.ext.commands.errors.ExtensionFailed: Extension 'bot.cogs.socket_comm' raised an error: TypeError: int() argument must be a string, a bytes-like object or a number, not 'NoneType'\n"]
+2020-09-17 00:06:48,802 - console - loaded bot.cogs.tortoise_api
+2020-09-17 00:06:48,826 - console - loaded bot.cogs.tortoise_dm
+2020-09-17 00:06:48,838 - console - loaded bot.cogs.tortoise_server
+2020-09-17 00:06:50,712 - bot.cogs.tortoise_server - Failed to fetch rules from API:Status: 401 Response: {'detail': 'Invalid token.'}
+2020-09-17 00:06:52,946 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-17 00:06:53,676 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000001D88C40AEE0>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-17 00:06:53,794 - bot.cogs.tortoise_server - Failed to fetch rules from API:Status: 401 Response: {'detail': 'Invalid token.'}
+2020-09-17 00:06:56,313 - bot.cogs.tortoise_server - Failed to fetch rules from API:Status: 401 Response: {'detail': 'Invalid token.'}
+2020-09-17 00:07:00,495 - bot.cogs.tortoise_server - Failed to fetch rules from API:Status: 401 Response: {'detail': 'Invalid token.'}
+2020-09-17 00:07:05,277 - discord.client - Received signal to terminate bot and event loop.
+2020-09-17 00:07:05,277 - discord.client - Cleaning up tasks.
+2020-09-17 00:07:05,277 - discord.client - Cleaning up after 7 tasks.
+2020-09-17 00:07:05,291 - asyncio - Unclosed client session
+client_session: <aiohttp.client.ClientSession object at 0x000001D88E032850>
+2020-09-17 00:07:05,460 - discord.client - Closing the event loop.
+2020-09-17 00:08:18,015 - discord.client - logging in using static token
+2020-09-17 00:08:22,589 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-17 00:08:22,594 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-17 00:08:23,667 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-0cct",{"micros":120293,"calls":["discord-sessions-prd-2-85",{"micros":118188,"calls":["start_session",{"micros":106239,"calls":["api-prd-main-r8f0",{"micros":102623,"calls":["get_user",{"micros":5469},"add_authorized_ip",{"micros":13945},"get_guilds",{"micros":9840},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":7765,"calls":[]}]}]}] (Session ID: e97a7cc7de22346605b9b0268481f392).
+2020-09-17 00:08:23,682 - bot.bot - Connection to Discord established.
+2020-09-17 00:08:27,975 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:08:28,133 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:08:28,138 - discord.state - Processed a chunk for 144 members in guild ID 577192344529404154.
+2020-09-17 00:08:28,138 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-17 00:08:28,148 - console - loaded bot.cogs.games
+2020-09-17 00:08:32,540 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-17 00:08:33,202 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000002A4751A8FD0>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-17 00:12:41,053 - discord.client - Received signal to terminate bot and event loop.
+2020-09-17 00:12:41,054 - discord.client - Cleaning up tasks.
+2020-09-17 00:12:41,054 - discord.client - Cleaning up after 4 tasks.
+2020-09-17 00:12:41,724 - discord.client - Closing the event loop.
+2020-09-17 00:12:48,161 - discord.client - logging in using static token
+2020-09-17 00:12:51,986 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-17 00:12:51,989 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-17 00:12:53,052 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-z971",{"micros":121003,"calls":["discord-sessions-prd-1-16",{"micros":60274,"calls":["start_session",{"micros":50783,"calls":["api-prd-main-4xj0",{"micros":47981,"calls":["get_user",{"micros":3560},"add_authorized_ip",{"micros":2434},"get_guilds",{"micros":2943},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":3,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: a4c784705fdf2c2dcdbd5de352f56bd0).
+2020-09-17 00:12:53,065 - bot.bot - Connection to Discord established.
+2020-09-17 00:12:56,671 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:12:56,743 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:12:56,747 - discord.state - Processed a chunk for 144 members in guild ID 577192344529404154.
+2020-09-17 00:12:56,748 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-17 00:12:56,755 - console - loaded bot.cogs.games
+2020-09-17 00:13:01,320 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-17 00:13:01,981 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000001EAA981AF10>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-17 00:14:15,980 - discord.client - Received signal to terminate bot and event loop.
+2020-09-17 00:14:15,981 - discord.client - Cleaning up tasks.
+2020-09-17 00:14:15,981 - discord.client - Cleaning up after 4 tasks.
+2020-09-17 00:14:16,204 - discord.client - Closing the event loop.
+2020-09-17 00:14:21,324 - discord.client - logging in using static token
+2020-09-17 00:14:24,901 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-17 00:14:24,904 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-17 00:14:25,886 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-khp7",{"micros":70244,"calls":["discord-sessions-prd-2-60",{"micros":65914,"calls":["start_session",{"micros":45375,"calls":["api-prd-main-w1s2",{"micros":42057,"calls":["get_user",{"micros":2705},"add_authorized_ip",{"micros":1638},"get_guilds",{"micros":1223},"coros_wait",{"micros":0}]}]},"guilds_connect",{"micros":3,"calls":[]},"presence_connect",{"micros":9208,"calls":[]}]}]}] (Session ID: 30a4aaf2505d91061701f58615b29181).
+2020-09-17 00:14:25,902 - bot.bot - Connection to Discord established.
+2020-09-17 00:14:29,773 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:14:29,845 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:14:29,850 - discord.state - Processed a chunk for 144 members in guild ID 577192344529404154.
+2020-09-17 00:14:29,850 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-17 00:14:29,859 - console - loaded bot.cogs.games
+2020-09-17 00:14:34,313 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-17 00:14:35,018 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x0000026F8D1B8E50>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-17 00:18:00,058 - discord.client - Received signal to terminate bot and event loop.
+2020-09-17 00:18:00,058 - discord.client - Cleaning up tasks.
+2020-09-17 00:18:00,058 - discord.client - Cleaning up after 4 tasks.
+2020-09-17 00:18:00,267 - discord.client - Closing the event loop.
+2020-09-17 00:18:05,657 - discord.client - logging in using static token
+2020-09-17 00:18:09,575 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-17 00:18:09,576 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-17 00:18:10,609 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-fbtr",{"micros":60826,"calls":["discord-sessions-prd-2-59",{"micros":56661,"calls":["start_session",{"micros":37816,"calls":["api-prd-main-jlxb",{"micros":34817,"calls":["get_user",{"micros":2802},"add_authorized_ip",{"micros":1500},"get_guilds",{"micros":1847},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":3,"calls":[]},"presence_connect",{"micros":10415,"calls":[]}]}]}] (Session ID: 2c6f90b24bd4912e399b782d5725dd2a).
+2020-09-17 00:18:10,622 - bot.bot - Connection to Discord established.
+2020-09-17 00:18:14,207 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:18:14,322 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-17 00:18:14,326 - discord.state - Processed a chunk for 144 members in guild ID 577192344529404154.
+2020-09-17 00:18:14,327 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-17 00:18:14,334 - console - loaded bot.cogs.games
+2020-09-17 00:18:19,660 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-17 00:18:20,382 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000002BEA8338C70>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-17 00:23:46,349 - discord.client - Received signal to terminate bot and event loop.
+2020-09-17 00:23:46,349 - discord.client - Cleaning up tasks.
+2020-09-17 00:23:46,349 - discord.client - Cleaning up after 4 tasks.
+2020-09-17 00:23:46,516 - discord.client - Closing the event loop.

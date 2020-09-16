@@ -1,9 +1,16 @@
 import random
 
 import discord
-from bot.constants import red_emotes, black_emotes
+from bot.constants import spade_emotes, club_emotes, heart_emotes, diamond_emotes
 
 face_cards = ["K", "Q", "J"]
+
+get_emotes = {
+    "spade": spade_emotes,
+    "club": club_emotes,
+    "heart": heart_emotes,
+    "diamond": diamond_emotes
+}
 
 
 class Card(object):
@@ -16,10 +23,7 @@ class Card(object):
         print(f"{self.name} of {self.suit}")
 
     def _get_emoji(self):
-        if self.suit in ["Diamond", "Heart"]:
-            return red_emotes.get(self.name)
-        else:
-            return black_emotes.get(self.name)
+        return get_emotes[self.suit].get(self.name)
 
 
 class Deck:
@@ -29,7 +33,7 @@ class Deck:
         self.shuffle()
 
     def build_deck(self):
-        suits = ["Club", "Heart", "Diamond", "Spade"]
+        suits = ["club", "heart", "diamond", "spade"]
         cards_set = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "K", "Q", "J"]
         for suit in suits:
             for card in cards_set:
@@ -99,7 +103,7 @@ class Player:
 
     def get_emote_string(self, hidden=True):
         if not hidden:
-            emote_string = " ".join(card.emote for card in self.cards)
+            emote_string = "".join(card.emote for card in self.cards)
             emote_string += f"\nvalue: {self.card_value}"
             return emote_string
         return f"{self.cards[0].emote} + ?\nvalue: ?"
