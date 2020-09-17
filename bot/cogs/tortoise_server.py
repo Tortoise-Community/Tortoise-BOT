@@ -8,7 +8,7 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.api_client import ResponseCodeError
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import (
     success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
 )
@@ -34,7 +34,6 @@ class TortoiseServer(commands.Cog):
 
         self._database_role_update_lock = False
         self._rules = None
-        self.update_rules.start()
         self.update_member_count_channel.start()
 
     @commands.Cog.listener()
@@ -64,21 +63,10 @@ class TortoiseServer(commands.Cog):
             logger.critical(msg)
             await self.bot.log_error(msg)
 
-    @tasks.loop(hours=24)
-    async def update_rules(self):
-        await self.refresh_rules_helper()
-
     @tasks.loop(minutes=5)
     async def update_member_count_channel(self):
         guild = self.member_count_channel.guild
         await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
-
-    @commands.command()
-    @commands.check(tortoise_bot_developer_only)
-    async def refresh_rules(self, ctx):
-        """Manually refreshes rules by fetching data from the API."""
-        await self.refresh_rules_helper()
-        await ctx.send(embed=info("Done", ctx.me), delete_after=5)
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)

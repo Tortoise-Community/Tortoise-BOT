@@ -202,7 +202,7 @@ class Other(commands.Cog):
         message = await ctx.send(embed=embed)
         await RemovableMessage.create_instance(self.bot, message, ctx.author)
 
-    @commands.command()
+    @commands.command(aliases=["md"])
     async def markdown(self, ctx):
         content = (
             "You can format your code by using markdown like this:\n\n"

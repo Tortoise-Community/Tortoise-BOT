@@ -401,8 +401,8 @@ class SocketCommunication(commands.Cog):
                        'server_meta' signals updating server meta
         """
         if signal == "rules":
-            # TODO
-            pass
+            tortoise_server_cog = self.bot.get_cog("TortoiseServer")
+            self.bot.loop.create_task(tortoise_server_cog.refresh_rules_helper())
         elif signal == "server_meta":
             # Don't await as API is waiting for response, (for some reason it sends signal and only updates db after
             # receiving any response)
