@@ -120,7 +120,7 @@ class TortoiseAPI(APIClient):
         await self.delete(f"suggestions/{suggestion_id}/")
 
     async def get_all_rules(self) -> List[dict]:
-        # Return is list of dicts in format  ('number', 'alias', 'statement'):
+        # Return is list of dicts in format  ('number', 'name', alias', 'statement'):
         return await self.get("rules/")
 
     async def get_server_meta(self, guild_id: int = tortoise_guild_id) -> dict:

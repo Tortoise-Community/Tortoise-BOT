@@ -103,7 +103,8 @@ class TortoiseServer(commands.Cog):
         embed_body = []
         for rule_dict in self._rules:
             rule_entry = (
-                f"{rule_dict['number']}. Aliases: {', '.join(rule_dict['alias'])}\n"
+                f"{rule_dict['number']}. {rule_dict['name']}\n"
+                f"Aliases: {', '.join(rule_dict['alias'])}\n"
                 f"{rule_dict['statement']}"
             )
             embed_body.append(rule_entry)
