@@ -1,4 +1,0 @@
-2020-09-17 11:39:38,368 - discord.client - Received signal to terminate bot and event loop.
-2020-09-17 11:39:38,369 - discord.client - Cleaning up tasks.
-2020-09-17 11:39:38,369 - discord.client - Cleaning up after 4 tasks.
-2020-09-17 11:39:38,582 - discord.client - Closing the event loop.
