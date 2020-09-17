@@ -121,7 +121,7 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
 
 
 
-def status_embed(ctx,member: Member, *, description: str = "") -> Embed:
+def status_embed(ctx,member: Member) -> Embed:
     """
     Construct status embed for certain member.
     Status will have info such as member device, online status, activity, roles etc.

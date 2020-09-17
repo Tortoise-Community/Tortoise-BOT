@@ -33,13 +33,8 @@ class Other(commands.Cog):
         if member is None:
             member = ctx.author
 
-        if member.id == 577140178791956500:
-            embed = status_embed(member, description="waifu")
-        elif member.id == 247292930346319872:
-            embed = status_embed(member, description="Not telling")
-        else:
-            embed = status_embed(member)
 
+        embed = status_embed(ctx,member)
         await ctx.send(embed=embed)
 
     @commands.command()
