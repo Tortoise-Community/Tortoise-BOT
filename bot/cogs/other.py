@@ -27,7 +27,7 @@ class Other(commands.Cog):
         """Returns the number of members in a server."""
         await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
 
-    @commands.command()
+    @commands.command(aliases = ["userinfo","ui"])
     async def status(self, ctx, member: discord.Member = None):
         """Returns the status of a member."""
         if member is None:
