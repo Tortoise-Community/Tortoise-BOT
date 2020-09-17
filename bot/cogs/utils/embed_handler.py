@@ -158,9 +158,8 @@ def status_embed(ctx,member: Member, *, description: str = "") -> Embed:
         nick = constants.tick_no
 
     for activity in member.activities:
-        print(activity)
+
         clean_activity = format_activity(activity)
-        print(clean_activity)
         activities += f"{clean_activity}\n"
 
     embed.add_field(name=f"{constants.pin_emoji} General info",
