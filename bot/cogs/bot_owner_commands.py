@@ -58,10 +58,6 @@ class BotOwnerCommands(commands.Cog):
             return
 
         self.bot.reload_extension(f"bot.cogs.{extension_name}")
-
-        msg = f"{extension_name} reloaded."
-        logger.info(f"{msg} by {ctx.author.id}")
-
         await ctx.send(embed=success(f"{extension_name} reloaded.", ctx.me))
 
 

@@ -1,8 +1,14 @@
+import logging
+
 import discord
 from discord.ext import commands
-from bot.constants import hit_emoji_id, stay_emoji_id, double_emoji_id, blackjack_player_limit
-from bot.cogs.utils.embed_handler import simple_embed, black_jack_embed
+
 from bot.cogs.utils.gambling_backend import Game, Player
+from bot.cogs.utils.embed_handler import simple_embed, black_jack_embed
+from bot.constants import hit_emoji_id, stay_emoji_id, double_emoji_id, blackjack_player_limit
+
+
+logger = logging.getLogger(__name__)
 
 
 class Games(commands.Cog):
@@ -23,12 +29,10 @@ class Games(commands.Cog):
         for participant in list(participants):
             player = participants[participant]
             me = self.bot.get_user(player.user_id)
-            if dealer_card_value > 21:
+            if dealer_card_value > 21 or dealer_card_value < player.card_value:
                 await player.message.edit(embed=black_jack_embed(me, player, outcome="win", hidden=False))
             elif dealer_card_value > player.card_value:
                 await player.message.edit(embed=black_jack_embed(me, player, outcome="lose", hidden=False))
-            elif dealer_card_value < player.card_value:
-                await player.message.edit(embed=black_jack_embed(me, player, outcome="win", hidden=False))
             else:
                 await player.message.edit(embed=black_jack_embed(me, player, outcome="tie", hidden=False))
             await self.remove(player)
@@ -38,8 +42,7 @@ class Games(commands.Cog):
         while True:
             card_value = game.calculate_card_value(dealer=True)
             if card_value < 17:
-                random_cards = game.deck.get_random_cards(1)
-                game.cards.append(random_cards[0])
+                game.cards.append(game.deck.get_random_card())
             else:
                 break
         await self.evaluate_results(game)
@@ -93,8 +96,6 @@ class Games(commands.Cog):
     async def double(self, player):
         player.bet_amount *= 2
         player.game.deck.give_random_card(player, 1)
-        me = self.bot.get_user(player.user_id)
-        await player.message.edit(embed=black_jack_embed(me, player))
         await self.stay(player)
 
     async def init_blackjack(self, ctx, bet_amount):
@@ -119,12 +120,13 @@ class Games(commands.Cog):
                     await msg.add_reaction(reaction)
                 await self.check_blackjack(player)
             else:
-                await ctx.channel.send(embed=simple_embed("You've already joined the game."
-                                                          " You can try joining another lobby.", "",
-                                                          discord.Color.red()))
+                await ctx.channel.send(embed=simple_embed(
+                    "You've already joined the game. You can try joining another lobby.", "", discord.Color.red())
+                )
         else:
-            await ctx.channel.send(embed=simple_embed("The lobby if full. Try in another channel.", "",
-                                                      discord.Color.red()))
+            await ctx.channel.send(
+                embed=simple_embed("The lobby if full. Try in another channel.", "", discord.Color.red())
+            )
 
     @commands.command(aliases=['bj'])
     async def blackjack(self, ctx):
@@ -143,8 +145,8 @@ class Games(commands.Cog):
             try:
                 if payload.user_id == player.user_id:
                     await self.reaction_options[payload.emoji.id](player)  # noqa
-            except Exception as E:
-                print(E)
+            except Exception as e:
+                logger.critical(e)
 
 
 def setup(bot):

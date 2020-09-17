@@ -400,12 +400,12 @@ class SocketCommunication(commands.Cog):
                        'rules' signals updating rules
                        'server_meta' signals updating server meta
         """
+        # Don not await here as API is waiting for response, (for some reason it sends signal and only updates db after
+        # receiving any response). Use create_task instead.
         if signal == "rules":
             tortoise_server_cog = self.bot.get_cog("TortoiseServer")
             self.bot.loop.create_task(tortoise_server_cog.refresh_rules_helper())
         elif signal == "server_meta":
-            # Don't await as API is waiting for response, (for some reason it sends signal and only updates db after
-            # receiving any response)
             self.bot.loop.create_task(self.bot.reload_tortoise_meta_cache())
         else:
             raise EndpointBadArguments()

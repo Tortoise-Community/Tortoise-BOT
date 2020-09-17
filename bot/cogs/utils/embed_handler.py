@@ -2,14 +2,12 @@ import datetime
 from typing import Union
 from asyncio import TimeoutError
 
-import discord
 from discord.errors import NotFound
 from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-# from bot.cogs.utils.gambling_backend import Pl
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -321,7 +319,7 @@ async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: 
     return suggestion_msg
 
 
-def bj_template_embed(author: User, player, description: str, color: Color) -> Embed:
+def black_jack_template(author: User, player, description: str, color: Color) -> Embed:
     """
     Creates black jack embed template.
     :param author: User discord user from which to get name and avatar
@@ -332,33 +330,36 @@ def bj_template_embed(author: User, player, description: str, color: Color) -> E
     """
     embed = authored(description, author=author)
     embed.colour = color
-    embed.set_thumbnail(url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-ic"
-                            "on-splash-diwali-coasters-black-background.png")
+    embed.set_thumbnail(
+        url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-icon-splash-diwali-coasters-black-background.png"
+    )
     card_string = player.get_emote_string(hidden=False)
     embed.add_field(name="Your hand", value=f"{card_string}")
-    embed.set_footer(text="BlackJack",
-                     icon_url="https://i.pinimg.com/originals/c3/5f/63/c35f630a4efb237206ec94f8950dcad5.png")
+    embed.set_footer(
+        text="BlackJack",
+        icon_url="https://i.pinimg.com/originals/c3/5f/63/c35f630a4efb237206ec94f8950dcad5.png"
+    )
     return embed
 
 
-def black_jack_embed(user: discord.User, player, outcome=None, hidden=True):
+def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = True) -> Embed:
     """
     Creates embed based on set of constraints for blackjack
     :param user:  discord.User
     :param player: player object for blackjack
     :param outcome: blackjack game outcome
-    :param hidden: (bool) dealer card value
+    :param hidden: dealer card value
     :return: discord.Embed
     """
-    embed = bj_template_embed(user, player, "", discord.Color.gold())
+    embed = black_jack_template(user, player, "", Color.gold())
     embed.add_field(name="Dealer hand", value=player.game.get_emote_string(hidden=hidden))
     if outcome == "win":
-        embed.colour = discord.Color.dark_green()
-        embed.description = "**Outcome: ** You won!"
+        embed.colour = Color.dark_green()
+        embed.description = "**Outcome:** You won!"
     elif outcome == "lose":
-        embed.colour = discord.Color.dark_red()
-        embed.description = "**Outcome: ** You lost!"
+        embed.colour = Color.dark_red()
+        embed.description = "**Outcome:** You lost!"
     elif outcome == "tie":
-        embed.colour = discord.Color.dark_grey()
-        embed.description = "**Outcome: ** Its a tie!"
+        embed.colour = Color.dark_grey()
+        embed.description = "**Outcome:** It's a tie!"
     return embed
