@@ -6,7 +6,7 @@ from discord import Embed, Color, Member, User, Status, Message, RawReactionActi
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-from bot.cogs.utils.misc import get_badges, get_join_pos, has_verified_role, format_activity, get_device_status
+from bot.cogs.utils.misc import get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
