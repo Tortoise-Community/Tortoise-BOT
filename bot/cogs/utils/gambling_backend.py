@@ -1,7 +1,7 @@
 import random
 
 import discord
-from bot.constants import card_emotes
+from bot.constants import card_emotes, blank_card_emoji
 
 face_cards = ["K", "Q", "J"]
 
@@ -99,7 +99,7 @@ class Player:
             emote_string = "".join(card.emote for card in self.cards)
             emote_string += f"\nvalue: {self.card_value}"
             return emote_string
-        return f"{self.cards[0].emote} + ?\nvalue: ?"
+        return f"{self.cards[0].emote} + {blank_card_emoji}\nvalue: ?"
 
 
 class Game(Player):

@@ -65,10 +65,10 @@ bug_emoji_id = 723274927968354364
 suggestions_emoji_id = 613185393776656384
 verified_emoji_id = 610713784268357632
 upvote_emoji_id = 741202481090002994
-hit_emoji_id = 753975475910475926
-stay_emoji_id = 753975899111555133
-double_emoji_id = 753975477319893033
-default_blank_emoji = "<:cardboard_box:754085498384810065>"
+hit_emoji_id = 755715814883196958
+stay_emoji_id = 755717238732095562
+double_emoji_id = 755715816657518622
+blank_card_emoji = "<:card:755715225642336287>"
 
 
 # Music Options
