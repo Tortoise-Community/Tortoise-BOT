@@ -36,6 +36,18 @@ class TortoiseServer(commands.Cog):
         self._rules = None
         self.update_member_count_channel.start()
 
+    async def create_new_suggestion_message(self) -> int:
+        suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
+        suggestion_embed = info(
+            "React to this message to add new suggestion",
+            suggestions_channel.guild.me,
+            "New suggestion"
+        )
+        msg = await suggestions_channel.send(embed=suggestion_embed)
+        suggestion_emoji = self.bot.get_emoji(constants.suggestions_emoji_id)
+        await msg.add_reaction(suggestion_emoji)
+        return msg.id
+
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
     async def on_message(self, message):
@@ -46,7 +58,15 @@ class TortoiseServer(commands.Cog):
         elif message.author.bot:
             return
 
-        if len(message.content) > constants.max_message_length:
+        if message.channel.id == constants.suggestions_channel_id:
+            old_suggestion_id = await self.bot.api_client.get_suggestion_message_id()
+            old_message = await message.channel.fetch_message(old_suggestion_id)
+            await old_message.delete()
+            new_msg_id = await self.create_new_suggestion_message()
+            await self.bot.api_client.edit_suggestion_message_id(new_msg_id)
+
+        elif len(message.content) > constants.max_message_length:
+            # Below part is when someone sends too long message, bot will recomemend them to use our pastebin
             # TODO we are skipping message deletion for now until we implement system to check
             #  if sent message is code or not
             msg = (
