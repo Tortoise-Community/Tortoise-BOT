@@ -74,24 +74,25 @@ class Games(commands.Cog):
         await self.check_blackjack(player)
         await self.check_active_session(player.game)
 
-    async def check_active_session(self, game):
+    async def check_active_session(self, player):
         active_game_session = False
-        participants = game.participants
+        participants = player.game.participants
         for person in participants:
             if participants[person].stay is False:
                 active_game_session = True
         if not active_game_session:
-            await self.dealers_play(game)
+            await self.dealers_play(player.game)
+        else:
+            me = self.bot.get_user(player.user_id)
+            embed = black_jack_embed(me, player)
+            embed.description = "**Status: **Waiting for other players..."
+            await player.message.edit(embed=embed)
 
     async def stay(self, player):
         player.stay = True
         await self.check_blackjack(player)
-        me = self.bot.get_user(player.user_id)
         await player.message.clear_reactions()
-        embed = black_jack_embed(me, player)
-        embed.description = "**Status: **Waiting for other players..."
-        await player.message.edit(embed=embed)
-        await self.check_active_session(player.game)
+        await self.check_active_session(player)
 
     async def double(self, player):
         player.bet_amount *= 2
