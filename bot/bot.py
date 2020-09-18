@@ -18,10 +18,10 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ()
+    allowed_extensions = ("documentation", "tortoise_server", "bot_owner_commands")
     banned_extensions = ("utility",)  # banned because it needs refactor
 
-    def __init__(self, prefix="t.", *args, **kwargs):
+    def __init__(self, prefix=".", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
         self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
         self._was_ready_once = False

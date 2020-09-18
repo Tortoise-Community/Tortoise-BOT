@@ -1,0 +1,1337 @@
+2020-09-18 19:03:00,703 - discord.client - logging in using static token
+2020-09-18 19:03:05,279 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 19:03:05,282 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 19:03:06,457 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-4cc3",{"micros":136447,"calls":["discord-sessions-prd-2-30",{"micros":130842,"calls":["start_session",{"micros":78010,"calls":["api-prd-main-0218",{"micros":74131,"calls":["get_user",{"micros":4904},"add_authorized_ip",{"micros":8300},"get_guilds",{"micros":5905},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":24,"calls":[]},"presence_connect",{"micros":29213,"calls":[]}]}]}] (Session ID: eaf4b44ef5951d62c5a97bdbdb7badd8).
+2020-09-18 19:03:06,473 - bot.bot - Connection to Discord established.
+2020-09-18 19:03:08,470 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 19:03:08,490 - console - loaded bot.cogs.documentation
+2020-09-18 19:03:10,716 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:03:10,957 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:03:10,995 - discord.state - Processed a chunk for 157 members in guild ID 577192344529404154.
+2020-09-18 19:03:14,395 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-18 19:03:15,217 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000001B1C2ABBF10>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 19:04:44,493 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 19:04:44,494 - discord.client - Cleaning up tasks.
+2020-09-18 19:04:44,494 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 19:04:44,672 - discord.client - Closing the event loop.
+2020-09-18 19:04:47,260 - discord.client - logging in using static token
+2020-09-18 19:04:52,053 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 19:04:52,055 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 19:04:53,502 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-4n7f",{"micros":64665,"calls":["discord-sessions-prd-2-9",{"micros":62594,"calls":["start_session",{"micros":51840,"calls":["api-prd-main-0hts",{"micros":49023,"calls":["get_user",{"micros":7158},"add_authorized_ip",{"micros":1789},"get_guilds",{"micros":3806},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":18,"calls":[]},"presence_connect",{"micros":7161,"calls":[]}]}]}] (Session ID: 9645b5228c0a263c9a07d03e21fe5294).
+2020-09-18 19:04:53,519 - bot.bot - Connection to Discord established.
+2020-09-18 19:04:55,522 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 19:04:55,535 - console - loaded bot.cogs.documentation
+2020-09-18 19:05:00,268 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-18 19:05:00,970 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000001F3E7F5BEB0>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 19:05:02,541 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 19:05:03,668 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:05:04,573 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:05:05,116 - discord.state - Processed a chunk for 157 members in guild ID 577192344529404154.
+2020-09-18 19:06:04,080 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 19:06:04,080 - discord.client - Cleaning up tasks.
+2020-09-18 19:06:04,080 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 19:06:04,232 - discord.client - Closing the event loop.
+2020-09-18 19:06:07,254 - discord.client - logging in using static token
+2020-09-18 19:06:12,856 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 19:06:12,859 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 19:06:14,172 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-drxj",{"micros":78837,"calls":["discord-sessions-prd-2-62",{"micros":75627,"calls":["start_session",{"micros":42104,"calls":["api-prd-main-73d6",{"micros":38815,"calls":["get_user",{"micros":2236},"add_authorized_ip",{"micros":1696},"get_guilds",{"micros":3290},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":13,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 1afb923e944251ba52a73fa2759df799).
+2020-09-18 19:06:14,188 - bot.bot - Connection to Discord established.
+2020-09-18 19:06:16,190 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 19:06:16,211 - console - loaded bot.cogs.documentation
+2020-09-18 19:06:18,209 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:06:19,054 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:06:19,092 - discord.state - Processed a chunk for 158 members in guild ID 577192344529404154.
+2020-09-18 19:06:20,748 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-18 19:06:21,451 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x00000210C82FBE80>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 19:08:01,033 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 19:08:01,033 - discord.client - Cleaning up tasks.
+2020-09-18 19:08:01,033 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 19:08:01,158 - discord.client - Closing the event loop.
+2020-09-18 19:08:03,608 - discord.client - logging in using static token
+2020-09-18 19:08:07,179 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 19:08:07,257 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 19:08:08,228 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-70qp",{"micros":43623,"calls":["discord-sessions-prd-2-37",{"micros":42042,"calls":["start_session",{"micros":32168,"calls":["api-prd-main-tmf5",{"micros":29178,"calls":["get_user",{"micros":2357},"add_authorized_ip",{"micros":1725},"get_guilds",{"micros":2065},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":4944,"calls":[]}]}]}] (Session ID: dbe81d3c24af17359656cb0fc8fcf3e3).
+2020-09-18 19:08:08,246 - bot.bot - Connection to Discord established.
+2020-09-18 19:08:12,968 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:08:13,655 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 19:08:13,664 - discord.state - Processed a chunk for 158 members in guild ID 577192344529404154.
+2020-09-18 19:08:13,664 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 19:08:13,672 - console - loaded bot.cogs.documentation
+2020-09-18 19:08:19,246 - bot.bot - on_ready event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+2020-09-18 19:08:19,903 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_ready coro=<bound method Bot.on_ready of <bot.bot.Bot object at 0x000001DEDCF7BEB0>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 43, in on_ready
+    await self.on_first_ready()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 49, in on_first_ready
+    await self.reload_tortoise_meta_cache()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 55, in reload_tortoise_meta_cache
+    self.tortoise_meta_cache = await self.api_client.get_server_meta()
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 128, in get_server_meta
+    return await self.get(f"server/meta/{guild_id}/")
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 62, in get
+    await self.raise_for_status(resp)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\api_client.py", line 55, in raise_for_status
+    raise ResponseCodeError(response=response, response_json=response_json)
+bot.api_client.ResponseCodeError: Status: 401 Response: {'detail': 'Invalid token.'}
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 19:09:34,896 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 19:09:34,896 - discord.client - Cleaning up tasks.
+2020-09-18 19:09:34,897 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 19:09:35,098 - discord.client - Closing the event loop.
+2020-09-18 20:34:38,672 - discord.client - logging in using static token
+2020-09-18 20:34:43,073 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:34:43,076 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:34:44,248 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-07k7",{"micros":98148,"calls":["discord-sessions-prd-2-59",{"micros":95298,"calls":["start_session",{"micros":67246,"calls":["api-prd-main-1r85",{"micros":64592,"calls":["get_user",{"micros":3931},"add_authorized_ip",{"micros":2116},"get_guilds",{"micros":8811},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":7778,"calls":[]}]}]}] (Session ID: 35e6573596987b85a382685a6c6568ab).
+2020-09-18 20:34:44,264 - bot.bot - Connection to Discord established.
+2020-09-18 20:34:46,278 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:34:46,299 - console - loaded bot.cogs.documentation
+2020-09-18 20:34:46,323 - console - loaded bot.cogs.tortoise_server
+2020-09-18 20:34:46,324 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 69, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:34:54,576 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:34:55,308 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:34:56,009 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:34:56,088 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:35:22,446 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:35:22,446 - discord.client - Cleaning up tasks.
+2020-09-18 20:35:22,446 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:35:22,632 - discord.client - Closing the event loop.
+2020-09-18 20:35:24,884 - discord.client - logging in using static token
+2020-09-18 20:35:28,895 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:35:28,897 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:35:30,111 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-zv73",{"micros":77037,"calls":["discord-sessions-prd-2-54",{"micros":76253,"calls":["start_session",{"micros":56784,"calls":["api-prd-main-shxp",{"micros":54215,"calls":["get_user",{"micros":3666},"add_authorized_ip",{"micros":9740},"get_guilds",{"micros":10001},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":11259,"calls":[]}]}]}] (Session ID: 83ef009dba34c3fb18c0070ddc8883d5).
+2020-09-18 20:35:30,133 - bot.bot - Connection to Discord established.
+2020-09-18 20:35:32,155 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:35:32,175 - console - loaded bot.cogs.documentation
+2020-09-18 20:35:32,182 - console - Failed to load cog bot.cogs.tortoise_server - traceback:['Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 596, in _load_from_module_spec\n    spec.loader.exec_module(lib)\n', '  File "<frozen importlib._bootstrap_external>", line 779, in exec_module\n', '  File "<frozen importlib._bootstrap_external>", line 916, in get_code\n', '  File "<frozen importlib._bootstrap_external>", line 846, in source_to_code\n', '  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\tortoise_server.py", line 38\n', '    await self.refresh_rules_helper()\n', '    ^\n', "SyntaxError: 'await' outside async function\n", '\nThe above exception was the direct cause of the following exception:\n\n', 'Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\bot.py", line 69, in load_extensions\n    self.load_extension(dotted_path)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 653, in load_extension\n    self._load_from_module_spec(spec, name)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 599, in _load_from_module_spec\n    raise errors.ExtensionFailed(key, e) from e\n', "discord.ext.commands.errors.ExtensionFailed: Extension 'bot.cogs.tortoise_server' raised an error: SyntaxError: 'await' outside async function (tortoise_server.py, line 38)\n"]
+2020-09-18 20:35:37,637 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:35:38,907 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:35:38,927 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:35:39,296 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:35:58,358 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:35:58,358 - discord.client - Cleaning up tasks.
+2020-09-18 20:35:58,358 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:35:58,597 - discord.client - Closing the event loop.
+2020-09-18 20:38:19,313 - discord.client - logging in using static token
+2020-09-18 20:38:23,039 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:38:23,044 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:38:24,072 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-q8fp",{"micros":93877,"calls":["discord-sessions-prd-2-17",{"micros":91314,"calls":["start_session",{"micros":81180,"calls":["api-prd-main-2v6h",{"micros":76608,"calls":["get_user",{"micros":5803},"add_authorized_ip",{"micros":2258},"get_guilds",{"micros":6259},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":47,"calls":[]},"presence_connect",{"micros":0,"calls":[]}]}]}] (Session ID: db12a327ad68aaa5dac2241e98f05440).
+2020-09-18 20:38:24,088 - bot.bot - Connection to Discord established.
+2020-09-18 20:38:26,099 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:38:26,119 - console - loaded bot.cogs.documentation
+2020-09-18 20:38:26,127 - console - loaded bot.cogs.tortoise_server
+2020-09-18 20:38:26,128 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 73, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:38:32,574 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:38:32,929 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:38:32,965 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:38:33,109 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:39:48,039 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:39:48,040 - discord.client - Cleaning up tasks.
+2020-09-18 20:39:48,040 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:39:48,207 - discord.client - Closing the event loop.
+2020-09-18 20:39:50,297 - discord.client - logging in using static token
+2020-09-18 20:39:54,153 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:39:54,156 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:39:55,120 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-tm2c",{"micros":39834,"calls":["discord-sessions-prd-1-7",{"micros":39004,"calls":["start_session",{"micros":32117,"calls":["api-prd-main-sq79",{"micros":28945,"calls":["get_user",{"micros":2560},"add_authorized_ip",{"micros":1896},"get_guilds",{"micros":1659},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: ba09d86bddd64e000e9654298ffcd7f0).
+2020-09-18 20:39:55,135 - bot.bot - Connection to Discord established.
+2020-09-18 20:39:57,145 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:39:57,166 - console - loaded bot.cogs.documentation
+2020-09-18 20:39:57,175 - console - loaded bot.cogs.tortoise_server
+2020-09-18 20:39:57,176 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 73, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:40:02,058 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:40:02,541 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:40:03,465 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:40:03,472 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:40:46,744 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:40:46,744 - discord.client - Cleaning up tasks.
+2020-09-18 20:40:46,744 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:40:46,926 - discord.client - Closing the event loop.
+2020-09-18 20:40:49,422 - discord.client - logging in using static token
+2020-09-18 20:40:53,345 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:40:53,348 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:40:54,389 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-czms",{"micros":52790,"calls":["discord-sessions-prd-1-11",{"micros":41486,"calls":["start_session",{"micros":36300,"calls":["api-prd-main-523r",{"micros":33341,"calls":["get_user",{"micros":3583},"add_authorized_ip",{"micros":1486},"get_guilds",{"micros":1479},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":2124,"calls":[]}]}]}] (Session ID: 3fd72ceed1dcae682f91f9436c1eb04a).
+2020-09-18 20:40:54,406 - bot.bot - Connection to Discord established.
+2020-09-18 20:40:56,421 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:40:56,444 - console - loaded bot.cogs.documentation
+2020-09-18 20:40:56,457 - console - loaded bot.cogs.tortoise_server
+2020-09-18 20:40:56,458 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 74, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:41:00,121 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:41:00,684 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:41:01,276 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:41:01,371 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:45:00,637 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:45:00,637 - discord.client - Cleaning up tasks.
+2020-09-18 20:45:00,637 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:45:00,847 - discord.client - Closing the event loop.
+2020-09-18 20:46:44,727 - discord.client - logging in using static token
+2020-09-18 20:46:48,868 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:46:48,871 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:46:49,859 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-z9cb",{"micros":59653,"calls":["discord-sessions-prd-2-87",{"micros":46448,"calls":["start_session",{"micros":31908,"calls":["api-prd-main-pm6g",{"micros":29290,"calls":["get_user",{"micros":3500},"add_authorized_ip",{"micros":1672},"get_guilds",{"micros":2083},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":164,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: f5f4c30b77890ca4546179f547b05792).
+2020-09-18 20:46:49,871 - bot.bot - Connection to Discord established.
+2020-09-18 20:46:51,880 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:46:51,900 - console - loaded bot.cogs.documentation
+2020-09-18 20:46:51,914 - console - loaded bot.cogs.tortoise_server
+2020-09-18 20:46:51,916 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 73, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:47:01,396 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:47:03,302 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:47:03,617 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:47:03,906 - discord.state - Processed a chunk for 159 members in guild ID 577192344529404154.
+2020-09-18 20:50:38,368 - bot.cogs.tortoise_server - New member joined FFXI81#3761
+2020-09-18 20:50:39,813 - bot.cogs.tortoise_server - Member FFXI81#3761 re-joined but is not verified in database, waiting for him to verify.
+2020-09-18 20:50:41,680 - bot.bot - on_member_join event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 134, in on_member_join
+    await self._new_member_re_joined(member, member_meta["verified"])
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 177, in _new_member_re_joined
+    await member.add_roles(self.unverified_role)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\member.py", line 641, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+AttributeError: 'NoneType' object has no attribute 'id'
+
+2020-09-18 20:50:43,194 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_member_join coro=<bound method TortoiseServer.on_member_join of <bot.cogs.tortoise_server.TortoiseServer object at 0x000002C9EB8ACA90>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 134, in on_member_join
+    await self._new_member_re_joined(member, member_meta["verified"])
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 177, in _new_member_re_joined
+    await member.add_roles(self.unverified_role)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\member.py", line 641, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 20:50:47,740 - bot.cogs.tortoise_server - New member joined Aurélie#1804
+2020-09-18 20:50:48,931 - bot.cogs.tortoise_server - Member Aurélie#1804 re-joined but is not verified in database, waiting for him to verify.
+2020-09-18 20:50:49,417 - bot.bot - on_member_join event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 134, in on_member_join
+    await self._new_member_re_joined(member, member_meta["verified"])
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 177, in _new_member_re_joined
+    await member.add_roles(self.unverified_role)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\member.py", line 641, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+AttributeError: 'NoneType' object has no attribute 'id'
+
+2020-09-18 20:50:50,049 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_member_join coro=<bound method TortoiseServer.on_member_join of <bot.cogs.tortoise_server.TortoiseServer object at 0x000002C9EB8ACA90>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 134, in on_member_join
+    await self._new_member_re_joined(member, member_meta["verified"])
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 177, in _new_member_re_joined
+    await member.add_roles(self.unverified_role)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\member.py", line 641, in add_roles
+    await req(guild_id, user_id, role.id, reason=reason)
+AttributeError: 'NoneType' object has no attribute 'id'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 20:53:45,128 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:53:45,128 - discord.client - Cleaning up tasks.
+2020-09-18 20:53:45,128 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:53:45,287 - discord.client - Closing the event loop.
+2020-09-18 20:53:48,670 - discord.client - logging in using static token
+2020-09-18 20:53:52,530 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:53:52,536 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:53:53,883 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-czms",{"micros":66492,"calls":["discord-sessions-prd-2-33",{"micros":63762,"calls":["start_session",{"micros":56665,"calls":["api-prd-main-tzx0",{"micros":54350,"calls":["get_user",{"micros":2630},"add_authorized_ip",{"micros":5584},"get_guilds",{"micros":3908},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":11,"calls":[]},"presence_connect",{"micros":858,"calls":[]}]}]}] (Session ID: ecf9ed0c28042fcada21403c2b0d94cc).
+2020-09-18 20:53:53,898 - bot.bot - Connection to Discord established.
+2020-09-18 20:53:55,906 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:53:55,927 - console - loaded bot.cogs.documentation
+2020-09-18 20:53:55,946 - console - Failed to load cog bot.cogs.tortoise_server - traceback:['Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 608, in _load_from_module_spec\n    setup(self)\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\tortoise_server.py", line 285, in setup\n    bot.add_cog(TortoiseServer(bot))\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\tortoise_server.py", line 38, in __init__\n    self.bot.loop.run_untill_complete(self.refresh_rules_helper())\n', "AttributeError: 'ProactorEventLoop' object has no attribute 'run_untill_complete'\n", '\nThe above exception was the direct cause of the following exception:\n\n', 'Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\bot.py", line 69, in load_extensions\n    self.load_extension(dotted_path)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 653, in load_extension\n    self._load_from_module_spec(spec, name)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 613, in _load_from_module_spec\n    raise errors.ExtensionFailed(key, e) from e\n', "discord.ext.commands.errors.ExtensionFailed: Extension 'bot.cogs.tortoise_server' raised an error: AttributeError: 'ProactorEventLoop' object has no attribute 'run_untill_complete'\n"]
+2020-09-18 20:53:55,948 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 69, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:54:00,131 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:54:00,414 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:54:00,610 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:54:00,779 - discord.state - Processed a chunk for 160 members in guild ID 577192344529404154.
+2020-09-18 20:54:22,335 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:54:22,335 - discord.client - Cleaning up tasks.
+2020-09-18 20:54:22,335 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:54:22,557 - discord.client - Closing the event loop.
+2020-09-18 20:54:24,815 - discord.client - logging in using static token
+2020-09-18 20:54:28,376 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 20:54:28,446 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 20:54:29,435 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-bpf7",{"micros":47369,"calls":["discord-sessions-prd-2-71",{"micros":45414,"calls":["start_session",{"micros":39733,"calls":["api-prd-main-0q63",{"micros":33011,"calls":["get_user",{"micros":2397},"add_authorized_ip",{"micros":1309},"get_guilds",{"micros":1304},"coros_wait",{"micros":0}]}]},"guilds_connect",{"micros":23,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 2550ca3f1c4972b0b49f5a38a54357b8).
+2020-09-18 20:54:29,452 - bot.bot - Connection to Discord established.
+2020-09-18 20:54:31,459 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 20:54:31,479 - console - loaded bot.cogs.documentation
+2020-09-18 20:54:31,497 - console - Failed to load cog bot.cogs.tortoise_server - traceback:['Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 608, in _load_from_module_spec\n    setup(self)\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\tortoise_server.py", line 285, in setup\n    bot.add_cog(TortoiseServer(bot))\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\cogs\\tortoise_server.py", line 38, in __init__\n    self.bot.loop.run_until_complete(self.refresh_rules_helper())\n', '  File "c:\\users\\vaishnav\\appdata\\local\\programs\\python\\python38\\lib\\asyncio\\base_events.py", line 592, in run_until_complete\n    self._check_running()\n', '  File "c:\\users\\vaishnav\\appdata\\local\\programs\\python\\python38\\lib\\asyncio\\base_events.py", line 552, in _check_running\n    raise RuntimeError(\'This event loop is already running\')\n', 'RuntimeError: This event loop is already running\n', '\nThe above exception was the direct cause of the following exception:\n\n', 'Traceback (most recent call last):\n', '  File "C:\\Users\\Vaishnav\\Projects\\Tortoise-BOT\\bot\\bot.py", line 69, in load_extensions\n    self.load_extension(dotted_path)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 653, in load_extension\n    self._load_from_module_spec(spec, name)\n', '  File "C:\\Users\\Vaishnav\\.virtualenvs\\Tortoise-BOT-NdGTmAqy\\lib\\site-packages\\discord\\ext\\commands\\bot.py", line 613, in _load_from_module_spec\n    raise errors.ExtensionFailed(key, e) from e\n', "discord.ext.commands.errors.ExtensionFailed: Extension 'bot.cogs.tortoise_server' raised an error: RuntimeError: This event loop is already running\n"]
+2020-09-18 20:54:31,502 - discord.ext.tasks - Internal background task failed.
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\tasks\__init__.py", line 73, in _loop
+    await self.coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\cogs\tortoise_server.py", line 69, in update_member_count_channel
+    guild = self.member_count_channel.guild
+AttributeError: 'NoneType' object has no attribute 'guild'
+2020-09-18 20:54:36,310 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:54:36,365 - discord.state - Somehow timed out waiting for chunks.
+2020-09-18 20:54:37,242 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 20:54:37,245 - discord.state - Processed a chunk for 160 members in guild ID 577192344529404154.
+2020-09-18 20:54:56,974 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 20:54:56,974 - discord.client - Cleaning up tasks.
+2020-09-18 20:54:56,975 - discord.client - Cleaning up after 4 tasks.
+2020-09-18 20:54:57,144 - discord.client - Closing the event loop.
+2020-09-18 22:27:49,050 - discord.client - logging in using static token
+2020-09-18 22:27:51,761 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:27:51,764 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:27:52,539 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-cn9p",{"micros":66675,"calls":["discord-sessions-prd-2-6",{"micros":61021,"calls":["start_session",{"micros":41613,"calls":["api-prd-main-rkr5",{"micros":38932,"calls":["get_user",{"micros":3758},"add_authorized_ip",{"micros":2828},"get_guilds",{"micros":4161},"coros_wait",{"micros":5}]}]},"guilds_connect",{"micros":21,"calls":[]},"presence_connect",{"micros":97,"calls":[]}]}]}] (Session ID: b69dbcc1ddcb572672b14b34c8d55c3d).
+2020-09-18 22:27:52,561 - bot.bot - Connection to Discord established.
+2020-09-18 22:27:56,037 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:27:56,154 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:27:56,163 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:27:56,164 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:27:56,182 - console - loaded bot.cogs.documentation
+2020-09-18 22:27:56,190 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:28:19,478 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:28:19,478 - discord.client - Cleaning up tasks.
+2020-09-18 22:28:19,478 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:28:19,663 - discord.client - Closing the event loop.
+2020-09-18 22:28:25,656 - discord.client - logging in using static token
+2020-09-18 22:28:27,890 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:28:27,893 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:28:28,890 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-cn9p",{"micros":83677,"calls":["discord-sessions-prd-2-26",{"micros":80150,"calls":["start_session",{"micros":62020,"calls":["api-prd-main-b0g6",{"micros":53340,"calls":["get_user",{"micros":8570},"add_authorized_ip",{"micros":2481},"get_guilds",{"micros":3903},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":91,"calls":[]}]}]}] (Session ID: dda5698090b80b4d3dbfe5d40598c609).
+2020-09-18 22:28:28,906 - bot.bot - Connection to Discord established.
+2020-09-18 22:28:32,511 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:28:32,567 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:28:32,575 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:28:32,576 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:28:32,593 - console - loaded bot.cogs.documentation
+2020-09-18 22:28:32,606 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:29:29,684 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:29:29,684 - discord.client - Cleaning up tasks.
+2020-09-18 22:29:29,684 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:29:29,878 - discord.client - Closing the event loop.
+2020-09-18 22:29:32,807 - discord.client - logging in using static token
+2020-09-18 22:29:35,763 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:29:35,765 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:29:36,725 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-82v6",{"micros":57259,"calls":["discord-sessions-prd-1-6",{"micros":55172,"calls":["start_session",{"micros":32032,"calls":["api-prd-main-nhwh",{"micros":29331,"calls":["get_user",{"micros":2139},"add_authorized_ip",{"micros":1797},"get_guilds",{"micros":1703},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":6423,"calls":[]}]}]}] (Session ID: c791707c422ba5598df877e94fdf0190).
+2020-09-18 22:29:36,733 - bot.bot - Connection to Discord established.
+2020-09-18 22:29:40,003 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:29:40,099 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:29:40,106 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:29:40,107 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:29:40,114 - console - loaded bot.cogs.documentation
+2020-09-18 22:29:40,120 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:29:43,578 - bot.bot - on_message event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 663, in _parse_arguments
+    next(iterator)
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 930, in on_message
+    await self.process_commands(message)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 927, in process_commands
+    await self.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 892, in invoke
+    await ctx.command.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 790, in invoke
+    await self.prepare(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 751, in prepare
+    await self._parse_arguments(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 666, in _parse_arguments
+    raise discord.ClientException(fmt.format(self))
+discord.errors.ClientException: Callback for r command is missing "ctx" parameter.
+
+2020-09-18 22:29:44,084 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_message coro=<bound method BotBase.on_message of <bot.bot.Bot object at 0x0000011B5C7FBE80>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 663, in _parse_arguments
+    next(iterator)
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 930, in on_message
+    await self.process_commands(message)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 927, in process_commands
+    await self.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 892, in invoke
+    await ctx.command.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 790, in invoke
+    await self.prepare(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 751, in prepare
+    await self._parse_arguments(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 666, in _parse_arguments
+    raise discord.ClientException(fmt.format(self))
+discord.errors.ClientException: Callback for r command is missing "ctx" parameter.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 22:30:06,158 - bot.bot - on_message event error exception!
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 663, in _parse_arguments
+    next(iterator)
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 930, in on_message
+    await self.process_commands(message)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 927, in process_commands
+    await self.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 892, in invoke
+    await ctx.command.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 790, in invoke
+    await self.prepare(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 751, in prepare
+    await self._parse_arguments(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 666, in _parse_arguments
+    raise discord.ClientException(fmt.format(self))
+discord.errors.ClientException: Callback for r command is missing "ctx" parameter.
+
+2020-09-18 22:30:06,798 - asyncio - _ClientEventTask exception was never retrieved
+future: <ClientEventTask state=finished event=on_message coro=<bound method BotBase.on_message of <bot.bot.Bot object at 0x0000011B5C7FBE80>> exception=Forbidden('403 Forbidden (error code: 50001): Missing Access')>
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 663, in _parse_arguments
+    next(iterator)
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 312, in _run_event
+    await coro(*args, **kwargs)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 930, in on_message
+    await self.process_commands(message)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 927, in process_commands
+    await self.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\bot.py", line 892, in invoke
+    await ctx.command.invoke(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 790, in invoke
+    await self.prepare(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 751, in prepare
+    await self._parse_arguments(ctx)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\ext\commands\core.py", line 666, in _parse_arguments
+    raise discord.ClientException(fmt.format(self))
+discord.errors.ClientException: Callback for r command is missing "ctx" parameter.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 317, in _run_event
+    await self.on_error(event_name, *args, **kwargs)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 90, in on_error
+    await self.log_error(msg)
+  File "C:\Users\Vaishnav\Projects\Tortoise-BOT\bot\bot.py", line 101, in log_error
+    await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\abc.py", line 870, in send
+    data = await state.http.send_message(channel.id, content, tts=tts, embed=embed, nonce=nonce)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 221, in request
+    raise Forbidden(r, data)
+discord.errors.Forbidden: 403 Forbidden (error code: 50001): Missing Access
+2020-09-18 22:30:37,574 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:30:37,574 - discord.client - Cleaning up tasks.
+2020-09-18 22:30:37,574 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:30:37,756 - discord.client - Closing the event loop.
+2020-09-18 22:30:40,222 - discord.client - logging in using static token
+2020-09-18 22:30:42,662 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:30:42,665 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:30:43,435 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-qnqx",{"micros":111632,"calls":["discord-sessions-prd-2-21",{"micros":101932,"calls":["start_session",{"micros":89508,"calls":["api-prd-main-pd7r",{"micros":83394,"calls":["get_user",{"micros":4478},"add_authorized_ip",{"micros":2849},"get_guilds",{"micros":5766},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":73,"calls":[]},"presence_connect",{"micros":4031,"calls":[]}]}]}] (Session ID: a0e65c66f31bdf504973cbe53a3b6f64).
+2020-09-18 22:30:43,446 - bot.bot - Connection to Discord established.
+2020-09-18 22:30:46,940 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:30:47,130 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:30:47,134 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:30:47,135 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:30:47,143 - console - loaded bot.cogs.documentation
+2020-09-18 22:30:47,149 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:33:21,151 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:33:21,151 - discord.client - Cleaning up tasks.
+2020-09-18 22:33:21,151 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:33:21,316 - discord.client - Closing the event loop.
+2020-09-18 22:33:24,421 - discord.client - logging in using static token
+2020-09-18 22:33:26,763 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:33:26,801 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:33:27,522 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-pl5g",{"micros":79785,"calls":["discord-sessions-prd-2-86",{"micros":77050,"calls":["start_session",{"micros":63850,"calls":["api-prd-main-qznz",{"micros":43050,"calls":["get_user",{"micros":8548},"add_authorized_ip",{"micros":1718},"get_guilds",{"micros":5291},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":38,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: 0226588ac5b0679c1bf4b8d4eb72b6b8).
+2020-09-18 22:33:27,537 - bot.bot - Connection to Discord established.
+2020-09-18 22:33:31,117 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:33:31,256 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:33:31,261 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:33:31,261 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:33:31,271 - console - loaded bot.cogs.documentation
+2020-09-18 22:33:31,281 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:37:31,015 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:37:31,015 - discord.client - Cleaning up tasks.
+2020-09-18 22:37:31,015 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:37:32,147 - discord.client - Closing the event loop.
+2020-09-18 22:37:34,556 - discord.client - logging in using static token
+2020-09-18 22:37:37,042 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:37:37,045 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:37:37,748 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-r310",{"micros":47215,"calls":["discord-sessions-prd-2-11",{"micros":42043,"calls":["start_session",{"micros":33373,"calls":["api-prd-main-6hff",{"micros":30370,"calls":["get_user",{"micros":3021},"add_authorized_ip",{"micros":1480},"get_guilds",{"micros":1345},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 3a309a569e84ed8e73d4098e21986217).
+2020-09-18 22:37:37,755 - bot.bot - Connection to Discord established.
+2020-09-18 22:37:41,587 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:37:41,795 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:37:41,800 - discord.state - Processed a chunk for 162 members in guild ID 577192344529404154.
+2020-09-18 22:37:41,801 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:37:41,811 - console - loaded bot.cogs.documentation
+2020-09-18 22:37:41,819 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:38:29,434 - bot.cogs.tortoise_server - New member joined Manjunath P#5313
+2020-09-18 22:38:30,792 - bot.cogs.tortoise_server - Member Manjunath P#5313 re-joined but is not verified in database, waiting for him to verify.
+2020-09-18 22:39:08,096 - discord.gateway - Websocket closed with 1006 (), attempting a reconnect.
+2020-09-18 22:39:08,097 - discord.client - Got a request to RESUME the websocket.
+2020-09-18 22:39:08,097 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:08,117 - discord.client - Attempting a reconnect in 1.42s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 815, in _resolve_host
+    await event.wait()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\locks.py", line 37, in wait
+    raise self._exc
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 469, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:08,117 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:09,558 - discord.client - Attempting a reconnect in 0.56s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:09,558 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:10,121 - discord.client - Attempting a reconnect in 4.69s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:10,121 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:14,918 - discord.client - Attempting a reconnect in 2.43s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:14,918 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:18,028 - discord.client - Attempting a reconnect in 13.35s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:18,029 - bot.bot - Connection to Discord lost.
+2020-09-18 22:39:31,449 - discord.client - Attempting a reconnect in 40.02s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:39:31,449 - bot.bot - Connection to Discord lost.
+2020-09-18 22:40:15,203 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:40:15,207 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:40:16,390 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-gwhj",{"micros":103114,"calls":["discord-sessions-prd-2-88",{"micros":95514,"calls":["start_session",{"micros":65942,"calls":["api-prd-main-tz2m",{"micros":60540,"calls":["get_user",{"micros":14075},"add_authorized_ip",{"micros":2652},"get_guilds",{"micros":1513},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":2,"calls":[]},"presence_connect",{"micros":2,"calls":[]}]}]}] (Session ID: ccf565428eb246ecab03dce475ddc5a1).
+2020-09-18 22:40:16,412 - bot.bot - Connection to Discord established.
+2020-09-18 22:40:18,413 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:40:20,343 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:40:21,079 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:40:21,085 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:40:22,063 - discord.gateway - Shard ID None has stopped responding to the gateway. Closing and restarting.
+2020-09-18 22:43:39,183 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:43:39,184 - discord.client - Cleaning up tasks.
+2020-09-18 22:43:39,184 - discord.client - Cleaning up after 6 tasks.
+2020-09-18 22:43:39,342 - discord.client - Closing the event loop.
+2020-09-18 22:43:41,798 - discord.client - logging in using static token
+2020-09-18 22:43:50,547 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:43:50,549 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:43:51,876 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-zv73",{"micros":76393,"calls":["discord-sessions-prd-2-64",{"micros":74591,"calls":["start_session",{"micros":56671,"calls":["api-prd-main-rbth",{"micros":50446,"calls":["get_user",{"micros":2869},"add_authorized_ip",{"micros":3282},"get_guilds",{"micros":14859},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":3387,"calls":[]}]}]}] (Session ID: 29b3403e2d1f12a0b8147d6f2425756a).
+2020-09-18 22:43:51,895 - bot.bot - Connection to Discord established.
+2020-09-18 22:43:55,992 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:43:56,402 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:43:56,407 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:43:56,407 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:43:56,416 - console - loaded bot.cogs.documentation
+2020-09-18 22:43:56,422 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:44:46,485 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:44:46,485 - discord.client - Cleaning up tasks.
+2020-09-18 22:44:46,485 - discord.client - Cleaning up after 6 tasks.
+2020-09-18 22:44:46,655 - discord.client - Closing the event loop.
+2020-09-18 22:44:48,967 - discord.client - logging in using static token
+2020-09-18 22:44:52,386 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:44:52,389 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:44:53,389 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-f46t",{"micros":70620,"calls":["discord-sessions-prd-2-64",{"micros":69825,"calls":["start_session",{"micros":54241,"calls":["api-prd-main-rp5z",{"micros":50164,"calls":["get_user",{"micros":4215},"add_authorized_ip",{"micros":1700},"get_guilds",{"micros":2004},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":31,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 2216944b1efcf709eda44675e0cc5520).
+2020-09-18 22:44:53,407 - bot.bot - Connection to Discord established.
+2020-09-18 22:44:57,670 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:44:57,974 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:44:57,981 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:44:57,982 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:44:57,990 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 22:44:57,993 - console - loaded bot.cogs.documentation
+2020-09-18 22:44:57,999 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:48:08,558 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:48:08,558 - discord.client - Cleaning up tasks.
+2020-09-18 22:48:08,558 - discord.client - Cleaning up after 6 tasks.
+2020-09-18 22:48:08,735 - discord.client - Closing the event loop.
+2020-09-18 22:48:11,506 - discord.client - logging in using static token
+2020-09-18 22:48:15,341 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:48:15,343 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:48:16,379 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-pl5g",{"micros":79902,"calls":["discord-sessions-prd-2-77",{"micros":77126,"calls":["start_session",{"micros":63163,"calls":["api-prd-main-wzcr",{"micros":60127,"calls":["get_user",{"micros":13461},"add_authorized_ip",{"micros":4820},"get_guilds",{"micros":5595},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":1379,"calls":[]}]}]}] (Session ID: 87ac500d776c38b932a823c9159b28dc).
+2020-09-18 22:48:16,390 - bot.bot - Connection to Discord established.
+2020-09-18 22:48:20,366 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:48:20,696 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:48:20,748 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:48:20,750 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:48:20,771 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 22:48:20,777 - console - loaded bot.cogs.documentation
+2020-09-18 22:48:20,787 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:52:46,747 - bot.cogs.tortoise_server - Failed to fetch rules from API:
+2020-09-18 22:53:34,174 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:53:34,174 - discord.client - Cleaning up tasks.
+2020-09-18 22:53:34,174 - discord.client - Cleaning up after 8 tasks.
+2020-09-18 22:53:34,333 - discord.client - Closing the event loop.
+2020-09-18 22:53:36,968 - discord.client - logging in using static token
+2020-09-18 22:53:41,740 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:53:41,744 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:53:42,931 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-l95c",{"micros":73811,"calls":["discord-sessions-prd-2-29",{"micros":71393,"calls":["start_session",{"micros":61778,"calls":["api-prd-main-grhm",{"micros":53637,"calls":["get_user",{"micros":4180},"add_authorized_ip",{"micros":6179},"get_guilds",{"micros":1901},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":38,"calls":[]},"presence_connect",{"micros":477,"calls":[]}]}]}] (Session ID: e3be9132e9f4c018ef060d90160caa89).
+2020-09-18 22:53:42,949 - bot.bot - Connection to Discord established.
+2020-09-18 22:53:47,572 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:53:47,860 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:53:47,895 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:53:47,896 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:53:47,916 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 22:53:47,923 - console - loaded bot.cogs.documentation
+2020-09-18 22:53:47,933 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:55:16,740 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:55:16,740 - discord.client - Cleaning up tasks.
+2020-09-18 22:55:16,740 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 22:55:16,893 - discord.client - Closing the event loop.
+2020-09-18 22:55:19,010 - discord.client - logging in using static token
+2020-09-18 22:55:22,688 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:55:22,691 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:55:23,736 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-lvh8",{"micros":72859,"calls":["discord-sessions-prd-1-18",{"micros":71545,"calls":["start_session",{"micros":30164,"calls":["api-prd-main-js0k",{"micros":27584,"calls":["get_user",{"micros":2787},"add_authorized_ip",{"micros":1564},"get_guilds",{"micros":1757},"coros_wait",{"micros":0}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 8dc34ea1c2399022fb30fbdb6548e7ad).
+2020-09-18 22:55:23,751 - bot.bot - Connection to Discord established.
+2020-09-18 22:55:27,444 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:55:27,557 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:55:27,564 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:55:27,565 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:55:27,572 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 22:55:27,575 - console - loaded bot.cogs.documentation
+2020-09-18 22:55:27,580 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:56:43,363 - discord.gateway - Websocket closed with 1006 (), attempting a reconnect.
+2020-09-18 22:56:43,363 - discord.client - Got a request to RESUME the websocket.
+2020-09-18 22:56:43,363 - bot.bot - Connection to Discord lost.
+2020-09-18 22:56:43,364 - discord.client - Attempting a reconnect in 1.68s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 469, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:56:43,364 - bot.bot - Connection to Discord lost.
+2020-09-18 22:56:45,057 - discord.client - Attempting a reconnect in 1.99s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:56:45,057 - bot.bot - Connection to Discord lost.
+2020-09-18 22:56:45,212 - discord.gateway - Shard ID None has stopped responding to the gateway. Closing and restarting.
+2020-09-18 22:56:47,052 - discord.client - Attempting a reconnect in 1.95s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:56:47,052 - bot.bot - Connection to Discord lost.
+2020-09-18 22:56:49,029 - discord.client - Attempting a reconnect in 0.61s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:56:49,029 - bot.bot - Connection to Discord lost.
+2020-09-18 22:56:49,642 - discord.client - Attempting a reconnect in 21.94s
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 964, in _create_direct_connection
+    hosts = await asyncio.shield(self._resolve_host(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 829, in _resolve_host
+    addrs = await \
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\resolver.py", line 29, in resolve
+    infos = await self._loop.getaddrinfo(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\base_events.py", line 825, in getaddrinfo
+    return await self.run_in_executor(
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\concurrent\futures\thread.py", line 57, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\socket.py", line 918, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 499, in connect
+    await self._connect()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\client.py", line 460, in _connect
+    self.ws = await asyncio.wait_for(coro, timeout=180.0)
+  File "c:\users\vaishnav\appdata\local\programs\python\python38\lib\asyncio\tasks.py", line 483, in wait_for
+    return fut.result()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\gateway.py", line 224, in from_client
+    gateway = await client.http.get_gateway()
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 827, in get_gateway
+    data = await self.request(Route('GET', '/gateway'))
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\discord\http.py", line 165, in request
+    async with self.__session.request(method, url, **kwargs) as r:
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 1012, in __aenter__
+    self._resp = await self._coro
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\client.py", line 480, in _request
+    conn = await self._connector.connect(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 523, in connect
+    proto = await self._create_connection(req, traces, timeout)
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 858, in _create_connection
+    _, proto = await self._create_direct_connection(
+  File "C:\Users\Vaishnav\.virtualenvs\Tortoise-BOT-NdGTmAqy\lib\site-packages\aiohttp\connector.py", line 971, in _create_direct_connection
+    raise ClientConnectorError(req.connection_key, exc) from exc
+aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordapp.com:443 ssl:default [getaddrinfo failed]
+2020-09-18 22:56:49,643 - bot.bot - Connection to Discord lost.
+2020-09-18 22:57:13,807 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:57:13,809 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:57:14,553 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-shp3",{"micros":130135,"calls":["discord-sessions-prd-2-34",{"micros":111887,"calls":["start_session",{"micros":99219,"calls":["api-prd-main-lcxx",{"micros":93007,"calls":["get_user",{"micros":15713},"add_authorized_ip",{"micros":4477},"get_guilds",{"micros":2556},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":4564,"calls":[]}]}]}] (Session ID: aa5e356da4a7b080e68b906784854e56).
+2020-09-18 22:57:14,565 - bot.bot - Connection to Discord established.
+2020-09-18 22:57:17,077 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:57:17,077 - discord.client - Cleaning up tasks.
+2020-09-18 22:57:17,077 - discord.client - Cleaning up after 7 tasks.
+2020-09-18 22:57:17,261 - discord.client - Closing the event loop.
+2020-09-18 22:57:19,934 - discord.client - logging in using static token
+2020-09-18 22:57:22,429 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 22:57:22,437 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 22:57:23,207 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-70qp",{"micros":179878,"calls":["discord-sessions-prd-2-45",{"micros":178726,"calls":["start_session",{"micros":156027,"calls":["api-prd-main-x6f7",{"micros":141967,"calls":["get_user",{"micros":18509},"add_authorized_ip",{"micros":19657},"get_guilds",{"micros":7154},"coros_wait",{"micros":2}]}]},"guilds_connect",{"micros":10,"calls":[]},"presence_connect",{"micros":22,"calls":[]}]}]}] (Session ID: 45f9446ce79f6bb653207d50051235ee).
+2020-09-18 22:57:23,228 - bot.bot - Connection to Discord established.
+2020-09-18 22:57:26,392 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:57:26,480 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 22:57:26,496 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 22:57:26,496 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 22:57:26,504 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 22:57:26,506 - console - loaded bot.cogs.documentation
+2020-09-18 22:57:26,510 - console - loaded bot.cogs.tortoise_server
+2020-09-18 22:58:49,110 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 22:58:49,110 - discord.client - Cleaning up tasks.
+2020-09-18 22:58:49,110 - discord.client - Cleaning up after 6 tasks.
+2020-09-18 22:58:49,304 - discord.client - Closing the event loop.

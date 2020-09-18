@@ -35,7 +35,6 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
-        self.refresh_rules_helper()
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -83,7 +82,7 @@ class TortoiseServer(commands.Cog):
         if rule_dict is None:
             await ctx.send(embed=failure("No such rule."), delete_after=5)
         else:
-            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, f"Rule {alias}"))
+            await ctx.send(embed=info(rule_dict["statement"], ctx.guild.me, f"Rule: {rule_dict['name']}"))
 
     def _get_rule_by_value(self, number: int) -> Union[dict, None]:
         for rule_dict in self._rules:
@@ -104,13 +103,15 @@ class TortoiseServer(commands.Cog):
         embed_body = []
         for rule_dict in self._rules:
             rule_entry = (
-                f"{rule_dict['number']}. {rule_dict['name']}\n"
-                f"Aliases: {', '.join(rule_dict['alias'])}\n"
-                f"{rule_dict['statement']}"
+                f"**{rule_dict['number']}. {rule_dict['name']}**\n"
+                f"{rule_dict['statement']}\n"
+                f"[**aliases: **{', '.join(rule_dict['alias'])}]"
             )
             embed_body.append(rule_entry)
 
-        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, "Rules")
+        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, f"{ctx.guild.name} Rules")
+        rules_embed.set_footer(text="Tortoise Community")
+        rules_embed.set_thumbnail(url=ctx.guild.icon_url)
 
         message = await ctx.send(embed=rules_embed)
         await RemovableMessage.create_instance(self.bot, message, ctx.author)
@@ -280,6 +281,10 @@ class TortoiseServer(commands.Cog):
 
         await self.code_submissions_channel.send(embed=embed)
 
+    @commands.command()
+    async def r(self, ctx):
+        await self.refresh_rules_helper()
+        print("reloaded")
 
 def setup(bot):
     bot.add_cog(TortoiseServer(bot))
