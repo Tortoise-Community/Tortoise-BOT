@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
-from bot.constants import github_repo_link, embed_space, tortoise_paste_service_link
+from bot.constants import embed_space, tortoise_paste_service_link
 
 
 class Other(commands.Cog):
@@ -49,12 +49,6 @@ class Other(commands.Cog):
 
         embed = info(message, ctx.me)
         embed.set_image(url=url)
-        await ctx.send(embed=embed)
-
-    @commands.command(aliases=["git"])
-    async def github(self, ctx):
-        """GitHub repository"""
-        embed = info(f"[Tortoise github repository]({github_repo_link})", ctx.me, "Github")
         await ctx.send(embed=embed)
 
     @commands.command()

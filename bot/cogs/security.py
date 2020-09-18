@@ -93,8 +93,8 @@ class Security(commands.Cog):
                                               for file in paste_keys)
                     file_type = banned_file_extensions[extension]
                     embed = info(
-                        f"It looks like you tried to attach a {file_type} file which is not allowed. "
-                        f"As it could potentially contain malicius code."
+                        f"It looks like you tried to attach a {file_type} file which is not allowed, "
+                        f"As it could potentially contain malicious code."
                         f"\n\nYou can find the file paste here:\n {attachment_list}", message.guild.me, ""
                     )
                     await message.channel.send(f"Hey {message.author.mention}!", embed=embed)
