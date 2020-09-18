@@ -132,6 +132,13 @@ class TortoiseAPI(APIClient):
         # Return ('event_submission', 'mod_mail', 'bug_report', 'suggestions', 'suggestion_message_id', 'bot_status')
         return await self.get(f"server/meta/{guild_id}/")
 
+    async def get_suggestion_message_id(self) -> int:
+        return await self.get_server_meta()["suggestion_message_id"]
+
+    async def edit_suggestion_message_id(self, new_id: int, guild_id: int = tortoise_guild_id) -> None:
+        payload = {"suggestion_message_id" : new_id}
+        await self.put(f"server/meta/{guild_id}/", json=payload)
+
     async def get_all_members(self) -> List[dict]:
         # Gets all members with all data except email
         return await self.get("members/")
