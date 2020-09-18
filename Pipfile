@@ -13,7 +13,7 @@ praw = "*"
 psutil = "*"
 youtube-dl = "*"
 python-dateutil = "*"
-discord-py = {extras = ["voice"],version = "~=1.3.4"}
+discord-py = {extras = ["voice"],version = "~=1.4.1"}
 aenum = "*"
 
 [requires]

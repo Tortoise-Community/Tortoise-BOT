@@ -281,10 +281,6 @@ class TortoiseServer(commands.Cog):
 
         await self.code_submissions_channel.send(embed=embed)
 
-    @commands.command()
-    async def r(self, ctx):
-        await self.refresh_rules_helper()
-        print("reloaded")
 
 def setup(bot):
     bot.add_cog(TortoiseServer(bot))

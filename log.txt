@@ -1335,3 +1335,78 @@ aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordap
 2020-09-18 22:58:49,110 - discord.client - Cleaning up tasks.
 2020-09-18 22:58:49,110 - discord.client - Cleaning up after 6 tasks.
 2020-09-18 22:58:49,304 - discord.client - Closing the event loop.
+2020-09-18 23:03:10,195 - discord.client - logging in using static token
+2020-09-18 23:03:13,528 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 23:03:13,531 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:03:14,358 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-d5jm",{"micros":71042,"calls":["discord-sessions-prd-2-39",{"micros":69225,"calls":["start_session",{"micros":51647,"calls":["api-prd-main-tz2m",{"micros":48865,"calls":["get_user",{"micros":4140},"add_authorized_ip",{"micros":1587},"get_guilds",{"micros":2369},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":54,"calls":[]},"presence_connect",{"micros":5720,"calls":[]}]}]}] (Session ID: 51749d3dc9e1ce8623246ecc77828027).
+2020-09-18 23:03:14,375 - bot.bot - Connection to Discord established.
+2020-09-18 23:03:17,640 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 23:03:17,677 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 23:03:17,685 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 23:03:17,686 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 23:03:17,702 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:03:17,705 - console - loaded bot.cogs.documentation
+2020-09-18 23:03:17,713 - console - loaded bot.cogs.tortoise_server
+2020-09-18 23:06:00,902 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:06:00,902 - discord.client - Cleaning up tasks.
+2020-09-18 23:06:00,902 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 23:06:01,092 - discord.client - Closing the event loop.
+2020-09-18 23:06:03,652 - discord.client - logging in using static token
+2020-09-18 23:06:05,818 - discord.gateway - Created websocket connected to wss://gateway.discord.gg?encoding=json&v=6&compress=zlib-stream
+2020-09-18 23:06:05,821 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:06:06,778 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-3224",{"micros":82942,"calls":["discord-sessions-prd-2-79",{"micros":79936,"calls":["start_session",{"micros":54328,"calls":["api-prd-main-f5lh",{"micros":50235,"calls":["get_user",{"micros":6165},"add_authorized_ip",{"micros":3185},"get_guilds",{"micros":1744},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":4,"calls":[]},"presence_connect",{"micros":15618,"calls":[]}]}]}] (Session ID: 39c7207f54adb1065a7e15bd89c60ea0).
+2020-09-18 23:06:06,796 - bot.bot - Connection to Discord established.
+2020-09-18 23:06:10,166 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 23:06:10,323 - discord.state - Processed a chunk for 1000 members in guild ID 577192344529404154.
+2020-09-18 23:06:10,329 - discord.state - Processed a chunk for 163 members in guild ID 577192344529404154.
+2020-09-18 23:06:10,329 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.3.4 	Further logging output will go to log file..
+2020-09-18 23:06:10,339 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:06:10,343 - console - loaded bot.cogs.documentation
+2020-09-18 23:06:10,348 - console - loaded bot.cogs.tortoise_server
+2020-09-18 23:09:15,639 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:09:15,639 - discord.client - Cleaning up tasks.
+2020-09-18 23:09:15,640 - discord.client - Cleaning up after 5 tasks.
+2020-09-18 23:09:15,774 - discord.client - Closing the event loop.
+2020-09-18 23:17:19,064 - discord.client - logging in using static token
+2020-09-18 23:17:20,993 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:17:21,659 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-l95c",{"micros":75283,"calls":["discord-sessions-prd-2-85",{"micros":55904,"calls":["start_session",{"micros":37643,"calls":["api-prd-main-6gzf",{"micros":35628,"calls":["get_user",{"micros":2722},"add_authorized_ip",{"micros":1309},"get_guilds",{"micros":1135},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":3,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 61c13348c17410fc1f6f272de9feb1d9).
+2020-09-18 23:17:21,669 - bot.bot - Connection to Discord established.
+2020-09-18 23:17:24,934 - discord.state - Finished requesting guild member chunks for 1 guilds.
+2020-09-18 23:17:24,934 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.4.1 	Further logging output will go to log file..
+2020-09-18 23:17:24,943 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:17:24,946 - console - loaded bot.cogs.documentation
+2020-09-18 23:17:24,962 - console - loaded bot.cogs.other
+2020-09-18 23:17:24,967 - console - loaded bot.cogs.tortoise_server
+2020-09-18 23:18:00,445 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:18:00,445 - discord.client - Cleaning up tasks.
+2020-09-18 23:18:00,446 - discord.client - Cleaning up after 1 tasks.
+2020-09-18 23:18:00,513 - discord.client - All tasks finished cancelling.
+2020-09-18 23:18:00,513 - discord.client - Closing the event loop.
+2020-09-18 23:18:03,436 - discord.client - logging in using static token
+2020-09-18 23:18:05,492 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:18:06,062 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-pl5g",{"micros":92251,"calls":["discord-sessions-prd-1-6",{"micros":50651,"calls":["start_session",{"micros":28967,"calls":["api-prd-main-89g7",{"micros":26198,"calls":["get_user",{"micros":1774},"add_authorized_ip",{"micros":1422},"get_guilds",{"micros":1302},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":6,"calls":[]},"presence_connect",{"micros":13391,"calls":[]}]}]}] (Session ID: d2ed98379ef0bc676e507840f3c8e47e).
+2020-09-18 23:18:06,077 - bot.bot - Connection to Discord established.
+2020-09-18 23:18:10,216 - discord.state - Finished requesting guild member chunks for 1 guilds.
+2020-09-18 23:18:10,216 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.4.1 	Further logging output will go to log file..
+2020-09-18 23:18:10,224 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:18:10,227 - console - loaded bot.cogs.documentation
+2020-09-18 23:18:10,241 - console - loaded bot.cogs.other
+2020-09-18 23:18:10,245 - console - loaded bot.cogs.tortoise_server
+2020-09-18 23:18:16,205 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:18:16,206 - discord.client - Cleaning up tasks.
+2020-09-18 23:18:16,206 - discord.client - Cleaning up after 1 tasks.
+2020-09-18 23:18:16,381 - discord.client - Closing the event loop.
+2020-09-18 23:19:35,756 - discord.client - logging in using static token
+2020-09-18 23:19:37,956 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:19:38,478 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-zv73",{"micros":80721,"calls":["discord-sessions-prd-2-69",{"micros":77139,"calls":["start_session",{"micros":67953,"calls":["api-prd-main-n4j0",{"micros":64439,"calls":["get_user",{"micros":12357},"add_authorized_ip",{"micros":2119},"get_guilds",{"micros":2387},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":5,"calls":[]},"presence_connect",{"micros":1,"calls":[]}]}]}] (Session ID: 36bb0ef04c59c38ac01fe51066f4e76d).
+2020-09-18 23:19:38,493 - bot.bot - Connection to Discord established.
+2020-09-18 23:19:42,429 - discord.state - Finished requesting guild member chunks for 1 guilds.
+2020-09-18 23:19:42,429 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.4.1 	Further logging output will go to log file..
+2020-09-18 23:19:42,442 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:19:42,446 - console - loaded bot.cogs.documentation
+2020-09-18 23:19:42,460 - console - loaded bot.cogs.other
+2020-09-18 23:20:58,502 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:20:58,503 - discord.client - Cleaning up tasks.
+2020-09-18 23:20:58,503 - discord.client - Cleaning up after 1 tasks.
+2020-09-18 23:20:58,687 - discord.client - All tasks finished cancelling.
+2020-09-18 23:20:58,688 - discord.client - Closing the event loop.
