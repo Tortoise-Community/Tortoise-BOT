@@ -94,6 +94,11 @@ class TortoiseAPI(APIClient):
         # Gets all suggestion that are under-review
         return await self.get("suggestions/")
 
+    async def get_suggestion_reaction_message_id(self, guild_id) -> int:
+        # Returns the suggestion message id of the suggestion channel
+        server_meta = await self.get_server_meta(guild_id=guild_id)
+        return server_meta.get("suggestion_message_id")
+
     async def get_suggestion(self, suggestion_id: int) -> dict:
         # Return format
         # (message_id, author_id, author_name, default, brief, status, reason, avatar, link, date)

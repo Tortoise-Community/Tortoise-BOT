@@ -1410,3 +1410,17 @@ aiohttp.client_exceptions.ClientConnectorError: Cannot connect to host discordap
 2020-09-18 23:20:58,503 - discord.client - Cleaning up after 1 tasks.
 2020-09-18 23:20:58,687 - discord.client - All tasks finished cancelling.
 2020-09-18 23:20:58,688 - discord.client - Closing the event loop.
+2020-09-18 23:41:34,317 - discord.client - logging in using static token
+2020-09-18 23:41:36,398 - discord.gateway - Shard ID None has sent the IDENTIFY payload.
+2020-09-18 23:41:36,931 - discord.gateway - Shard ID None has connected to Gateway: ["gateway-prd-main-cn9p",{"micros":99120,"calls":["discord-sessions-prd-2-35",{"micros":97341,"calls":["start_session",{"micros":86820,"calls":["api-prd-main-5ns8",{"micros":80741,"calls":["get_user",{"micros":9153},"add_authorized_ip",{"micros":6710},"get_guilds",{"micros":4486},"coros_wait",{"micros":1}]}]},"guilds_connect",{"micros":25,"calls":[]},"presence_connect",{"micros":2505,"calls":[]}]}]}] (Session ID: 4b36395614460e56884f76f5c2f50ce8).
+2020-09-18 23:41:36,941 - bot.bot - Connection to Discord established.
+2020-09-18 23:41:40,230 - discord.state - Finished requesting guild member chunks for 1 guilds.
+2020-09-18 23:41:40,230 - console - Successfully logged in as gambling bot ID:729824279990108222 	d.py version: 1.4.1 	Further logging output will go to log file..
+2020-09-18 23:41:40,239 - console - loaded bot.cogs.bot_owner_commands
+2020-09-18 23:41:40,242 - console - loaded bot.cogs.documentation
+2020-09-18 23:41:40,259 - console - loaded bot.cogs.other
+2020-09-18 23:42:23,261 - discord.client - Received signal to terminate bot and event loop.
+2020-09-18 23:42:23,261 - discord.client - Cleaning up tasks.
+2020-09-18 23:42:23,262 - discord.client - Cleaning up after 1 tasks.
+2020-09-18 23:42:23,424 - discord.client - All tasks finished cancelling.
+2020-09-18 23:42:23,424 - discord.client - Closing the event loop.
