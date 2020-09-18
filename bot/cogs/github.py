@@ -11,6 +11,7 @@ class Github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
+        self.projects = []
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
