@@ -35,6 +35,7 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.refresh_rules_helper()
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
