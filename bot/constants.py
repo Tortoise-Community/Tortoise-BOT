@@ -9,6 +9,7 @@ rules_url = "https://www.tortoisecommunity.com/pages/rules"
 verification_url = "https://www.tortoisecommunity.com/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
 tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
+tortoise_paste_endpoint = "https://paste.tortoisecommunity.com/documents/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 
 
@@ -218,4 +219,11 @@ card_emotes = {
     "club": club_emotes,
     "heart": heart_emotes,
     "diamond": diamond_emotes
+}
+
+banned_file_extensions = {
+    "py": "Python",
+    "js": "Javascript",
+    "exe": "Executable",
+    "txt": "Text",
 }

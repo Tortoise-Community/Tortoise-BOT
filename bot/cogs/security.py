@@ -6,6 +6,7 @@ from discord import Member
 from discord.ext import commands
 
 from bot import constants
+from bot.constants import banned_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
 from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info
 
@@ -77,6 +78,27 @@ class Security(commands.Cog):
                     )
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
                     await self.log_channel.send(embed=embed)
+
+        if len(message.attachments) != 0:
+            for attachment in message.attachments:
+                extension = attachment.filename.rsplit('.')[-1]
+                if extension in banned_file_extensions:
+                    paste_keys = {}
+                    file_content = await attachment.read()
+                    async with self.session.post(url=tortoise_paste_endpoint, data=file_content) as resp:
+                        key = (await resp.json()).get("key")
+                        paste_keys[attachment.filename] = key
+                    await message.delete()
+                    attachment_list = "".join(f"[**{file}**: {tortoise_paste_service_link+paste_keys[file]}]\n"
+                                              for file in paste_keys)
+                    file_type = banned_file_extensions[extension]
+                    embed = info(
+                        f"It looks like you tried to attach a {file_type} file which is not allowed. "
+                        f"As it could potentially contain malicius code."
+                        f"\n\nYou can find the file paste here:\n {attachment_list}", message.guild.me, ""
+                    )
+                    await message.channel.send(f"Hey {message.author.mention}!", embed=embed)
+                    await message.delete()
 
     @commands.Cog.listener()
     @security_bypass_check
