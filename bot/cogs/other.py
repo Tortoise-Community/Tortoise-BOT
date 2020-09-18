@@ -29,19 +29,14 @@ class Other(commands.Cog):
         """Returns the number of members in a server."""
         await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
 
-    @commands.command()
+    @commands.command(aliases = ["userinfo","ui"])
     async def status(self, ctx, member: discord.Member = None):
         """Returns the status of a member."""
         if member is None:
             member = ctx.author
 
-        if member.id == 577140178791956500:
-            embed = status_embed(member, description="waifu")
-        elif member.id == 247292930346319872:
-            embed = status_embed(member, description="Not telling")
-        else:
-            embed = status_embed(member)
 
+        embed = status_embed(ctx,member)
         await ctx.send(embed=embed)
 
     @commands.command()

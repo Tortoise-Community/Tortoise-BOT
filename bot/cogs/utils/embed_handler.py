@@ -4,11 +4,11 @@ from asyncio import TimeoutError
 
 from discord.errors import NotFound
 from discord.ext.commands import Bot
-from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
+from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel, Activity, Game, Spotify
 
 from bot import constants
 from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-
+from bot.cogs.utils.misc import get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
@@ -165,7 +165,9 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
     return embed
 
 
-def status_embed(member: Member, *, description: str = "") -> Embed:
+
+
+def status_embed(ctx,member: Member) -> Embed:
     """
     Construct status embed for certain member.
     Status will have info such as member device, online status, activity, roles etc.
@@ -173,24 +175,49 @@ def status_embed(member: Member, *, description: str = "") -> Embed:
     :param description: optional, description to use as embed description
     :return: discord.Embed
     """
-    embed = Embed(
-        title=member.display_name,
-        description=description,
-        color=get_top_role_color(member, fallback_color=Color.green())
-    )
 
-    if member.status == Status.offline:
-        embed.add_field(name="**DEVICE**", value=":no_entry:")
-    elif member.is_on_mobile():
-        embed.add_field(name="**DEVICE**", value="Phone: :iphone:")
-    else:
-        embed.add_field(name="**DEVICE**", value="PC: :desktop:")
+    color_dict = {
+        Status.online: Color.green(),
+        Status.offline: 0x000000,
+        Status.idle: Color.orange(),
+        Status.dnd: Color.red()
+    }
 
-    embed.add_field(name="**Status**", value=get_member_status(member=member), inline=False)
-    embed.add_field(name="**Joined server at**", value=member.joined_at, inline=False)
-    embed.add_field(name="**Roles**", value=get_member_roles_as_mentions(member), inline=False)
-    embed.add_field(name="**Activity**", value=get_member_activity(member=member), inline=False)
+
+    embed = Embed(title=str(member),color= color_dict[member.status])
+    embed.description = get_badges(member)
     embed.set_thumbnail(url=member.avatar_url)
+
+    bot = constants.tick_no
+    nick = member.nick
+    verified = constants.tick_no
+    join_pos = get_join_pos(ctx, member)
+    activities = ""
+
+    if member.bot:
+        bot = constants.tick_yes
+
+    if has_verified_role(ctx, member):
+        verified = constants.tick_yes
+
+    if not nick:
+        nick = constants.tick_no
+
+    for activity in member.activities:
+
+        clean_activity = format_activity(activity)
+        activities += f"{clean_activity}\n"
+
+    embed.add_field(name=f"{constants.pin_emoji} General info",
+                    value=f"**Nick** : {nick}\n**Bot** : {bot}\n**Verified** : {verified}\n**Join position** : {join_pos}")
+    embed.add_field(name=f"{constants.user_emoji} Status", value=get_device_status(member), inline=False)
+    embed.add_field(name="\📆 Dates",
+                    value=f"**Join date** : {format_date(member.joined_at)}\n **Creation Date** : {format_date(member.created_at)}",
+                    inline=False)
+
+    if not activities == "":
+        embed.add_field(name='Activities', value=activities, inline=False)
+
 
     return embed
 
