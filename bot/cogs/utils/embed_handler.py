@@ -4,11 +4,12 @@ from asyncio import TimeoutError
 
 from discord.errors import NotFound
 from discord.ext.commands import Bot
-from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel, Activity, Game, Spotify
+from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
-from bot.cogs.utils.members import get_member_status, get_member_roles_as_mentions, get_member_activity
-from bot.cogs.utils.misc import get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
+from bot.cogs.utils.misc import (get_badges, get_join_pos, has_verified_role,
+                                 format_activity, get_device_status, format_date)
+
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
@@ -165,14 +166,12 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
     return embed
 
 
-
-
-def status_embed(ctx,member: Member) -> Embed:
+def status_embed(ctx, member: Member) -> Embed:
     """
     Construct status embed for certain member.
     Status will have info such as member device, online status, activity, roles etc.
+    :param ctx: context variable to get the member
     :param member: member to get data from
-    :param description: optional, description to use as embed description
     :return: discord.Embed
     """
 
@@ -183,8 +182,7 @@ def status_embed(ctx,member: Member) -> Embed:
         Status.dnd: Color.red()
     }
 
-
-    embed = Embed(title=str(member),color= color_dict[member.status])
+    embed = Embed(title=str(member), color=color_dict[member.status])
     embed.description = get_badges(member)
     embed.set_thumbnail(url=member.avatar_url)
 
@@ -209,16 +207,16 @@ def status_embed(ctx,member: Member) -> Embed:
         activities += f"{clean_activity}\n"
 
     embed.add_field(name=f"{constants.pin_emoji} General info",
-                    value=f"**Nick** : {nick}\n**Bot** : {bot}\n**Verified** : {verified}\n**Join position** : {join_pos}")
+                    value=f"**Nick** : {nick}\n**Bot** : {bot}\n"
+                          f"**Verified** : {verified}\n**Join position** : {join_pos}")
     embed.add_field(name=f"{constants.user_emoji} Status", value=get_device_status(member), inline=False)
-    embed.add_field(name="\📆 Dates",
-                    value=f"**Join date** : {format_date(member.joined_at)}\n **Creation Date** : {format_date(member.created_at)}",
+    embed.add_field(name="📆 Dates",
+                    value=f"**Join date** : {format_date(member.joined_at)}\n "
+                          f"**Creation Date** : {format_date(member.created_at)}",
                     inline=False)
 
     if not activities == "":
         embed.add_field(name='Activities', value=activities, inline=False)
-
-
     return embed
 
 

@@ -1,9 +1,14 @@
+import logging
+
 from discord import Member, Activity, Game, Spotify, CustomActivity, Status
 from bot import constants
 import datetime
 
 
-def get_badges(member : Member) -> str:
+logger = logging.getLogger(__name__)
+
+
+def get_badges(member: Member) -> str:
     """
     Convenience function that fetches all the badges a member has
     :param member: Member to fetch the badges from
@@ -31,8 +36,8 @@ def get_badges(member : Member) -> str:
         if flag[1]:
             try:
                 badges += badge_dict[flag[0]]
-            except:
-                pass
+            except Exception as e:
+                logger.critical(e)
 
     if member.is_avatar_animated():
         badges += constants.nitro
@@ -40,7 +45,7 @@ def get_badges(member : Member) -> str:
     return badges
 
 
-def get_join_pos(ctx,member:Member) -> int:
+def get_join_pos(ctx, member: Member) -> int:
     """
     Convenience function to get the join position of a member
     :param ctx: The invocation context
@@ -55,7 +60,8 @@ def get_join_pos(ctx,member:Member) -> int:
             join_pos += 1
     return join_pos
 
-def has_verified_role(ctx,member : Member) -> bool:
+
+def has_verified_role(ctx, member: Member) -> bool:
     """
     Convenience function to check if a member has the verified role
     :param ctx: The invocation context
@@ -66,6 +72,7 @@ def has_verified_role(ctx,member : Member) -> bool:
     role = ctx.guild.get_role(599647985198039050)
     return role in member.roles
 
+
 def format_activity(activity) -> str:
     """
     Convenience function to format an activity
@@ -73,32 +80,32 @@ def format_activity(activity) -> str:
     :return: str of formatted activity
     """
 
-    if isinstance(activity,Activity) or isinstance(activity,Game):
+    if isinstance(activity, Activity) or isinstance(activity, Game):
 
-        return f"\🎮 Playing **{activity.name}**"
+        return f"🎮 Playing **{activity.name}**"
 
-    elif isinstance(activity,Spotify):
+    elif isinstance(activity, Spotify):
 
         music_name = activity.title
         artists = ""
-        spotify_emoji = "<:spotify:754238046123196467>"
 
         for artist in activity.artists:
             artists += f"{artist}, "
 
-        return f"{spotify_emoji} Listening to **{music_name}** - {artists}"
+        return f"{constants.spotify_emoji} Listening to **{music_name}** - {artists}"
 
-    elif isinstance(activity,CustomActivity):
+    elif isinstance(activity, CustomActivity):
 
         title = activity.name
         emoji = activity.emoji
 
         if emoji:
-           return f"{emoji} {title}"
+            return f"{emoji} {title}"
         else:
-           return f"⚫ {title}"
+            return f"⚫ {title}"
 
-def get_device_status(member : Member):
+
+def get_device_status(member: Member):
 
     """
     Convenience function to get the status of member on all discord clients

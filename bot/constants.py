@@ -79,21 +79,21 @@ hs_bril = "<:brilliance:753957311537479750>"
 hs_brav = "<:bravery:753957296475996234>"
 hs_ev = "<:events:753957640069185637>"
 verified_bot_dev = "<:dev:753957609328869384>"
-bg_1  = "<:bug1:753957385844031538>"
+bg_1 = "<:bug1:753957385844031538>"
 bg_2 = "<:bug2:753957425664753754>"
 ear_supp = "<:early:753957626097696888>"
 
 # Emotes
+idle = "🌙"
+game_emoji = "🎮"
 online = "<:online:753999406562410536>"
-idle = "\🌙"
 offline = "<:offline:753999424446922782>"
 dnd = "<:dnd:753999445728952503>"
 spotify_emoji = "<:spotify:754238046123196467>"
-game_emoji = "\🎮"
 tick_yes = "<:tickyes:753974760899084439>"
 tick_no = "<:tickno:753974818549923960>"
 pin_emoji = "<:pinunread:754233175244537976>"
-user_emoji  = "<:user:754234411922227250>"
+user_emoji = "<:user:754234411922227250>"
 
 # Music Options
 # For all options see:
