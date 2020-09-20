@@ -136,7 +136,7 @@ class TortoiseAPI(APIClient):
         return await self.get_server_meta()["suggestion_message_id"]
 
     async def edit_suggestion_message_id(self, new_id: int, guild_id: int = tortoise_guild_id) -> None:
-        payload = {"suggestion_message_id" : new_id}
+        payload = {"suggestion_message_id": new_id}
         await self.put(f"server/meta/{guild_id}/", json=payload)
 
     async def get_all_members(self) -> List[dict]:
@@ -244,3 +244,15 @@ class TortoiseAPI(APIClient):
         serialized_warnings = [json.dumps(warning_dict) for warning_dict in current_warnings]
         warnings_payload = {"warnings": serialized_warnings}
         await self.put(f"members/moderation/{member_id}/", json=warnings_payload)
+
+    async def get_projects_data(self):
+        return await self.get("projects/")
+
+    async def put_project_data(self, project_id, data):
+        stats_payload = {
+            "stars": data["starts"],
+            "forks": data["forks"],
+            "commits": data["commits"],
+            "contributors": data["contributors"],
+        }
+        await self.put(f"projects/{project_id}/", json=stats_payload)

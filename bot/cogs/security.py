@@ -126,6 +126,8 @@ class Security(commands.Cog):
     @commands.Cog.listener()
     @security_bypass_check
     async def on_message_delete(self, message):
+        if message.content == "":
+            return
         msg = (
             f"**Message deleted in** {message.channel.mention}\n\n"
             f"**Message: **{message.content}"
