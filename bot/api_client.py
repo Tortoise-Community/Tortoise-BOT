@@ -133,7 +133,8 @@ class TortoiseAPI(APIClient):
         return await self.get(f"server/meta/{guild_id}/")
 
     async def get_suggestion_message_id(self) -> int:
-        return await self.get_server_meta()["suggestion_message_id"]
+        server_meta = await self.get_server_meta()
+        return server_meta["suggestion_message_id"]
 
     async def edit_suggestion_message_id(self, new_id: int, guild_id: int = tortoise_guild_id) -> None:
         payload = {"suggestion_message_id": new_id}

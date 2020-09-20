@@ -35,6 +35,7 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.suggestion_msg_id = 0
 
     async def create_new_suggestion_message(self) -> int:
         suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
@@ -55,16 +56,26 @@ class TortoiseServer(commands.Cog):
             return
         elif message.guild.id != constants.tortoise_guild_id:
             return
-        elif message.author.bot:
-            return
 
         if message.channel.id == constants.suggestions_channel_id:
-            old_suggestion_id = await self.bot.api_client.get_suggestion_message_id()
-            old_message = await message.channel.fetch_message(old_suggestion_id)
-            await old_message.delete()
-            new_msg_id = await self.create_new_suggestion_message()
-            await self.bot.api_client.edit_suggestion_message_id(new_msg_id)
-
+            if not self.suggestion_msg_id:
+                self.suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
+            
+            if self.suggestion_msg_id == message.id:
+                return
+            
+            try:
+                old_message = await message.channel.fetch_message(self.suggestion_msg_id)
+            except discord.NotFound:
+                pass
+            else:
+                await old_message.delete()
+            self.suggestion_msg_id = await self.create_new_suggestion_message()
+            await self.bot.api_client.edit_suggestion_message_id(self.suggestion_msg_id)
+            return
+        
+        if message.author.bot:
+            return
         elif len(message.content) > constants.max_message_length:
             # Below part is when someone sends too long message, bot will recomemend them to use our pastebin
             # TODO we are skipping message deletion for now until we implement system to check
@@ -248,6 +259,11 @@ class TortoiseServer(commands.Cog):
                 await member.add_roles(role)
                 embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
                 await member.send(embed=embed)
+        
+        elif payload.channel_id == constants.suggestions_channel_id:
+            if payload.emoji.id == constants.suggestions_emoji_id:
+                await self.bot.get_cog("TortoiseDM").on_raw_reaction_add_helper(payload)
+
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
