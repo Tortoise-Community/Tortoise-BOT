@@ -35,6 +35,7 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.suggestion_msg_id = 0
 
     async def create_new_suggestion_message(self) -> int:
         suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
@@ -57,19 +58,20 @@ class TortoiseServer(commands.Cog):
             return
 
         if message.channel.id == constants.suggestions_channel_id:
-            return  #todo
-            old_suggestion_id = await self.bot.api_client.get_suggestion_message_id()
-            if old_suggestion_id == message.id:
+            if not self.suggestion_msg_id:
+                self.suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
+            
+            if self.suggestion_msg_id == message.id:
                 return
             
             try:
-                old_message = await message.channel.fetch_message(old_suggestion_id)
+                old_message = await message.channel.fetch_message(self.suggestion_msg_id)
             except discord.NotFound:
                 pass
             else:
                 await old_message.delete()
-            new_msg_id = await self.create_new_suggestion_message()
-            await self.bot.api_client.edit_suggestion_message_id(new_msg_id)
+            self.suggestion_msg_id = await self.create_new_suggestion_message()
+            await self.bot.api_client.edit_suggestion_message_id(self.suggestion_msg_id)
             return
         
         if message.author.bot:
