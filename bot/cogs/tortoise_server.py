@@ -35,6 +35,7 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.bot.loop.create_task(self.refresh_rules_helper())
         self.suggestion_msg_id = 0
 
     async def create_new_suggestion_message(self) -> int:
