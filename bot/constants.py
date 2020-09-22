@@ -95,6 +95,10 @@ tick_no = "<:tickno:753974818549923960>"
 pin_emoji = "<:pinunread:754233175244537976>"
 user_emoji = "<:user:754234411922227250>"
 
+# Icons
+google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"
+stackof_icon = "https://cdn2.iconfinder.com/data/icons/social-icons-color/512/stackoverflow-512.png"
+
 # Music Options
 # For all options see:
 # https://github.com/ytdl-org/youtube-dl/blob/3e4cedf9e8cd3157df2457df7274d0c842421945/youtube_dl/YoutubeDL.py#L137-L312

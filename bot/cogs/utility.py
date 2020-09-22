@@ -1,10 +1,11 @@
 import asyncio
-import requests
+import aiohttp
 
 import discord
 from bs4 import BeautifulSoup
 from googlesearch import search
 from discord.ext import commands
+import requests
 
 """
 TODO:
@@ -28,11 +29,19 @@ class LinkParser:
         self.logo_url = logo_url
 
     def fit(self, link, limit):
-        soup = BeautifulSoup(requests.get(link).text, 'lxml')
+
+        resp_text = ""
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(link) as resp:
+                resp_text = await resp.text()
+
+
+
+        soup = BeautifulSoup(resp_text, 'lxml')
         desc = soup.find("meta", property="og:description")
 
         if desc:
-            print("desc")
             self.text = desc.get('content')
 
         if len(self.text) > limit:
@@ -177,7 +186,7 @@ class Utility(commands.Cog):
     def is_image(cls, url):
         """Checks if a url is an image"""
         try:
-            return str(requests.head(url).headers['Content-Type']).startswith("image")
+            return str(requests.head(url)).startswith("image")
         except requests.exceptions.MissingSchema:
             return False
 
@@ -230,13 +239,22 @@ class Utility(commands.Cog):
     async def stackoverflow(self, ctx, *, query):
         """ Searches stackoverflow for a query"""
 
+
+
         msg = await ctx.send(f"Searching for `{query}`")
 
         limit = 5
         search_url = f"https://stackoverflow.com/search?q={str(query).replace(' ', '+')}"
-        content = requests.get(search_url).content
 
-        soup = BeautifulSoup(content, "lxml")
+        resp_text = ""
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url) as resp:
+                resp_text = await resp.text()
+
+
+
+        soup = BeautifulSoup(resp_text, "lxml")
 
         m = 1
 
