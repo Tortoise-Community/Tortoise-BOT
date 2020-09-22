@@ -3,55 +3,10 @@ import aiohttp
 
 import discord
 from bs4 import BeautifulSoup
-from googlesearch import search
+from async_cse import Search
 from discord.ext import commands
-import requests
 
-"""
-TODO:
-long PEP8 breaking links should go to constants.
-Use aiohttp as requests is blocking.
-googlesearch search is also blocking so either use async version of it or run it in executor.
-We have 2 paginators now extend/merge them into one.
-names such as m, i..etc are not descriptive
-"""
-
-logo_url = (
-    "https://www.freepnglogos.com/uploads/google-logo-png/"
-    "google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"
-)
-
-
-class LinkParser:
-    def __init__(self):
-        self.title = "Click here"
-        self.text = "Click on the Above link"
-        self.logo_url = logo_url
-
-    def fit(self, link, limit):
-
-        resp_text = ""
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(link) as resp:
-                resp_text = await resp.text()
-
-
-
-        soup = BeautifulSoup(resp_text, 'lxml')
-        desc = soup.find("meta", property="og:description")
-
-        if desc:
-            self.text = desc.get('content')
-
-        if len(self.text) > limit:
-            self.text = f"{self.text[:limit]}..."
-
-        if soup.title:
-            self.title = str(soup.title.string)
-
-        if soup.head.link:
-            self.logo_url = soup.head.link.get("href")
+from bot.constants import upvote_emoji_id, google_icon, stackof_icon
 
 
 class StackOverFlow:
@@ -62,23 +17,23 @@ class StackOverFlow:
         self.text = None
         self.url = None
 
-    def fit(self, i):
-        summary = i.find("div", class_="summary")
+    def fit(self, soup):
+        summary = soup.find("div", class_="summary")
         q_dict = summary.find("div", class_="result-link").h3.find('a').attrs
 
         self.url = f"https://stackoverflow.com/{q_dict['href']}"
         self.title = q_dict['title']
-        self.text = i.find("div", class_="excerpt").get_text()
-        self.votes = i.find("div", class_="votes").find("span").get_text()
+        self.text = soup.find("div", class_="excerpt").get_text()
+        self.votes = soup.find("div", class_="votes").find("span").get_text()
 
-        if i.find("div", class_="status answered"):
-            self.answers = i.find("div", class_="status answered").find("strong").get_text()
+        if soup.find("div", class_="status answered"):
+            self.answers = soup.find("div", class_="status answered").find("strong").get_text()
 
-        elif i.find("div", class_="status unanswered"):
-            self.answers = i.find("div", class_="status unanswered").find("strong").get_text()
+        elif soup.find("div", class_="status unanswered"):
+            self.answers = soup.find("div", class_="status unanswered").find("strong").get_text()
 
-        elif i.find("div", class_="status answered-accepted"):
-            self.answers = i.find("div", class_="status answered-accepted").find("strong").get_text()
+        elif soup.find("div", class_="status answered-accepted"):
+            self.answers = soup.find("div", class_="status answered-accepted").find("strong").get_text()
 
 
 class Paginator:
