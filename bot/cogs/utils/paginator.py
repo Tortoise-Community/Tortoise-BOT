@@ -218,3 +218,102 @@ class EmbedPaginator(Paginator):
                 title=self._embed_title
             )
         )
+
+class ListPaginator:
+    """Constructs a Paginator when provided a list of Embeds/Messages"""
+    def __init__(
+            self, ctx: commands.Context, page_list,
+            restart_button="⏮",
+            back_button="◀",
+            forward_button="⏭",
+            next_button="▶",
+            pause_button="⏸",
+            stop_button="⏹"
+    ):
+        self.pages = page_list
+        self.ctx = ctx
+        self.bot = ctx.bot
+
+        self.restart_button = restart_button
+        self.back_button = back_button
+        self.pause_button = pause_button
+        self.forward_button = forward_button
+        self.next_button = next_button
+        self.stop_button = stop_button
+
+    def get_next_page(self, page):
+        pages = self.pages
+
+        if page != pages[-1]:
+            current_page_index = pages.index(page)
+            next_page = pages[current_page_index+1]
+            return next_page
+
+        return pages[-1]
+
+    def get_prev_page(self, page):
+        pages = self.pages
+
+        if page != pages[0]:
+            current_page_index = pages.index(page)
+            next_page = pages[current_page_index-1]
+            return next_page
+
+        return pages[0]
+
+    async def start(self):
+        pages = self.pages
+        ctx = self.ctx
+
+        embed = pages[0]
+
+        msg = await ctx.send(embed=embed)
+
+        emote_list = [self.restart_button, self.back_button, self.pause_button,
+                      self.next_button, self.forward_button, self.stop_button]
+
+        for emote in emote_list:
+            await msg.add_reaction(emote)
+
+        def check(_reaction, _user):
+            return _user == ctx.author and str(_reaction.emoji) in emote_list and (_reaction.message) ==msg
+
+        current_page = embed
+
+        try:
+            while True:
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=60, check=check)
+
+                if str(reaction.emoji) == self.restart_button:
+                    await msg.edit(embed=pages[0])
+                    current_page = pages[0]
+                    await msg.remove_reaction(self.restart_button, ctx.author)
+                elif str(reaction.emoji) == self.forward_button:
+
+                    await msg.edit(embed=pages[-1])
+                    current_page = pages[-1]
+
+                    await msg.remove_reaction(self.forward_button, ctx.author)
+                elif str(reaction.emoji) == self.next_button:
+                    next_page = self.get_next_page(current_page)
+                    await msg.edit(embed=self.get_next_page(current_page))
+                    current_page = next_page
+
+                    await msg.remove_reaction(self.next_button, ctx.author)
+
+                elif str(reaction.emoji) == self.pause_button:
+                    await msg.clear_reactions()
+                    break
+
+                elif str(reaction.emoji) == self.stop_button:
+                    await msg.delete()
+                    break
+
+                elif str(reaction.emoji) == self.back_button:
+                    prev_page = self.get_prev_page(current_page)
+                    await msg.edit(embed=prev_page)
+                    current_page = prev_page
+                    await msg.remove_reaction(self.back_button, ctx.author)
+
+        except TimeoutError:
+            await msg.clear_reactions()
