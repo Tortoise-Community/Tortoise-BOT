@@ -3,6 +3,7 @@ from asyncio import TimeoutError
 
 from discord.abc import Messageable
 from discord import ClientUser, User, Member, HTTPException
+from discord.ext import commands
 
 from bot.cogs.utils.embed_handler import info
 
@@ -219,6 +220,7 @@ class EmbedPaginator(Paginator):
             )
         )
 
+
 class ListPaginator:
     """Constructs a Paginator when provided a list of Embeds/Messages"""
     def __init__(
@@ -276,7 +278,7 @@ class ListPaginator:
             await msg.add_reaction(emote)
 
         def check(_reaction, _user):
-            return _user == ctx.author and str(_reaction.emoji) in emote_list and (_reaction.message) ==msg
+            return _user == ctx.author and str(_reaction.emoji) in emote_list and _reaction.message == msg
 
         current_page = embed
 

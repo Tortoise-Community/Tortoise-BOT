@@ -83,7 +83,7 @@ class TortoiseDM(commands.Cog):
         if payload.guild_id is not None:
             return  # Only allow in DMs
         await self.on_raw_reaction_add_helper(payload)
-    
+
     async def on_raw_reaction_add_helper(self, payload):
         user_id = payload.user_id
         user = self.bot.get_user(user_id)

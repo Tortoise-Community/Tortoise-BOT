@@ -43,7 +43,6 @@ class Utility(commands.Cog):
         self.google_api_key = os.getenv("GOOGLE_API_KEY")
         self.google_client = Search(self.google_api_key)
 
-
     @commands.command(aliases=["g"])
     async def google(self, ctx, *, query):
         """searches google for a query"""
@@ -55,14 +54,14 @@ class Utility(commands.Cog):
         page_number = 1
 
         for result in results:
-            page_embed = discord.Embed(color= self.color)
+            page_embed = discord.Embed(color=self.color)
 
             page_embed.title = result.title
             page_embed.description = result.description
             page_embed.url = result.url
 
-            page_embed.set_thumbnail(url = result.image_url)
-            page_embed.set_footer(text=f"Page {page_number}/{len(results)}",icon_url=google_icon)
+            page_embed.set_thumbnail(url=result.image_url)
+            page_embed.set_footer(text=f"Page {page_number}/{len(results)}", icon_url=google_icon)
 
             page_list.append(page_embed)
             page_number += 1
@@ -97,8 +96,10 @@ class Utility(commands.Cog):
             embed = discord.Embed(color=self.color, title=sof.title, url=sof.url)
             embed.description = f"{sof.text}\n\n{upvote_emoji} {sof.votes}  ​​​​ ​💬 {sof.answers}"
 
-            embed.set_author(name="StackOverFlow",icon_url=stackof_icon)
-            embed.set_footer(text=f"Page {page_number}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}")
+            embed.set_author(name="StackOverFlow", icon_url=stackof_icon)
+            embed.set_footer(
+                text=f"Page {page_number}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}"
+            )
 
             page_list.append(embed)
             page_number += 1
