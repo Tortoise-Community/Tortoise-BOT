@@ -16,7 +16,7 @@ class Github(commands.Cog):
         self.update_github_stats.start()
 
     async def get(self, endpoint: str):
-        with self.session.get(url=endpoint) as resp:
+        async with self.session.get(url=endpoint) as resp:
             return await resp.json()
 
     @staticmethod
@@ -24,21 +24,22 @@ class Github(commands.Cog):
         return project.rsplit("/")[-1]
 
     async def get_project_stats(self, name):
-        return self.get(endpoint=github_repo_stats_endpoint+name)
+        return await self.get(endpoint=(github_repo_stats_endpoint+name))
 
     async def get_total_commits(self, name):
-        endpoint = github_repo_stats_endpoint + name + "/stats/participation"
-        commit_list = self.get(endpoint=endpoint)
+        endpoint = (github_repo_stats_endpoint + name + "/stats/participation")
+        commit_list = await self.get(endpoint=endpoint)
         return sum(commit_list["all"])
 
     @tasks.loop(hours=6)
     async def update_github_stats(self):
         project_list = await self.bot.api_client.get_projects_data()
         for project in project_list:
-            name = self.get_project_name(project["github"])
-            project = self.get_project_stats(name)
+            name = await self.get_project_name(project["github"])
+            project = await self.get_project_stats(name)
+            self.projects[name] = {}
             self.projects[name]["stargazers_count"] = project["stargazers_count"]
-            self.projects[name]["commits"] = self.get_total_commits(name)
+            self.projects[name]["commits"] = await self.get_total_commits(name)
             print(self.projects)
 
     @commands.command(aliases=["git"])
