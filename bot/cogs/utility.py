@@ -5,8 +5,10 @@ import discord
 from bs4 import BeautifulSoup
 from async_cse import Search
 from discord.ext import commands
+import os
 
 from bot.constants import upvote_emoji_id, google_icon, stackof_icon
+from bot.cogs.utils.paginator import ListPaginator
 
 
 class StackOverFlow:
@@ -36,159 +38,41 @@ class StackOverFlow:
             self.answers = soup.find("div", class_="status answered-accepted").find("strong").get_text()
 
 
-class Paginator:
-    """Constructs a Paginator when provided a list of Embeds/Messages"""
-    def __init__(
-            self, ctx: commands.Context, page_list, restart_button="⏮",
-            back_button="◀", forward_button="⏭", next_button="▶",
-            pause_button="⏸", stop_button="⏹"
-    ):
-        self.pages = page_list
-        self.ctx = ctx
-        self.bot = ctx.bot
-
-        self.restart_button = restart_button
-        self.back_button = back_button
-        self.pause_button = pause_button
-        self.forward_button = forward_button
-        self.next_button = next_button
-        self.stop_button = stop_button
-
-    def get_next_page(self, page):
-        pages = self.pages
-
-        if page != pages[-1]:
-            current_page_index = pages.index(page)
-            next_page = pages[current_page_index+1]
-            return next_page
-
-        return pages[-1]
-
-    def get_prev_page(self, page):
-        pages = self.pages
-
-        if page != pages[0]:
-            current_page_index = pages.index(page)
-            next_page = pages[current_page_index-1]
-            return next_page
-
-        return pages[0]
-
-    async def start(self):
-        pages = self.pages
-        ctx = self.ctx
-
-        embed = pages[0]
-
-        msg = await ctx.send(embed=embed)
-
-        emote_list = [self.restart_button, self.back_button, self.pause_button,
-                      self.next_button, self.forward_button, self.stop_button]
-
-        for emote in emote_list:
-            await msg.add_reaction(emote)
-
-        def check(_reaction, _user):
-            return _user == ctx.author and str(_reaction.emoji) in emote_list
-
-        current_page = embed
-
-        try:
-            while True:
-                reaction, user = await self.bot.wait_for('reaction_add', timeout=60, check=check)
-
-                if str(reaction.emoji) == self.restart_button:
-                    await msg.edit(embed=pages[0])
-                    current_page = pages[0]
-                    await msg.remove_reaction(self.restart_button, ctx.author)
-                elif str(reaction.emoji) == self.forward_button:
-
-                    await msg.edit(embed=pages[-1])
-                    current_page = pages[-1]
-
-                    await msg.remove_reaction(self.forward_button, ctx.author)
-                elif str(reaction.emoji) == self.next_button:
-                    next_page = self.get_next_page(current_page)
-                    await msg.edit(embed=self.get_next_page(current_page))
-                    current_page = next_page
-
-                    await msg.remove_reaction(self.next_button, ctx.author)
-
-                elif str(reaction.emoji) == self.pause_button:
-                    await msg.clear_reactions()
-                    break
-
-                elif str(reaction.emoji) == self.stop_button:
-                    await msg.delete()
-                    break
-
-                elif str(reaction.emoji) == self.back_button:
-                    prev_page = self.get_prev_page(current_page)
-                    await msg.edit(embed=prev_page)
-                    current_page = prev_page
-                    await msg.remove_reaction(self.back_button, ctx.author)
-
-        except asyncio.TimeoutError:
-            await msg.clear_reactions()
-
-
 class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.color = 0x3498d
+        self.google_api_key = os.getenv("GOOGLE_API_KEY")
+        self.google_client = Search(self.google_api_key)
 
-    @classmethod
-    def is_image(cls, url):
-        """Checks if a url is an image"""
-        try:
-            return str(requests.head(url)).startswith("image")
-        except requests.exceptions.MissingSchema:
-            return False
 
     @commands.command(aliases=["g"])
     async def google(self, ctx, *, query):
         """searches google for a query"""
-        num = 7
 
-        embed = discord.Embed(color=self.color)
-        desc = ""
         page_list = []
 
-        await ctx.message.add_reaction("<a:loading:706195460439933000>")
         loading_msg = await ctx.send(f"🔍 **Searching Google for:** `{query}`")
-        m = 1
+        results = await self.google_client.search(query)
+        page_number = 1
 
-        for i in search(query, num=num, stop=num, pause=2):
+        for result in results:
+            page_embed = discord.Embed(color= self.color)
 
-            link_parser = LinkParser()
-            link_parser.fit(i, 200)
+            page_embed.title = result.title
+            page_embed.description = result.description
+            page_embed.url = result.url
 
-            page_embed = discord.Embed(color=self.color, title=link_parser.title, url=i)
-
-            if self.is_image(link_parser.logo_url):
-                page_embed.set_footer(text=f"Page {m}/5", icon_url=link_parser.logo_url)
-            else:
-                page_embed.set_footer(text=f"Page {m}/5")
-
-            if "Youtube" not in link_parser.title:
-                page_embed.description = link_parser.text
+            page_embed.set_thumbnail(url = result.image_url)
+            page_embed.set_footer(text=f"Page {page_number}/{len(results)}",icon_url=google_icon)
 
             page_list.append(page_embed)
-            desc += f"[Result {m}]({i})\n"
-            m += 1
-
-        embed.description = desc
-        embed.title = f"🔍 Found {len(page_list)} results"
-        embed.set_footer(
-            text="Google",
-            icon_url=logo_url
-        )
+            page_number += 1
 
         await loading_msg.delete()
-        await ctx.message.remove_reaction("<a:loading:706195460439933000>", self.bot.user)
-
-        paginator = Paginator(ctx, page_list)
+        paginator = ListPaginator(ctx, page_list)
         await paginator.start()
+
 
     @commands.command(aliases=["sof", "stackof"])
     async def stackoverflow(self, ctx, *, query):
