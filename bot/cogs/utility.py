@@ -73,52 +73,39 @@ class Utility(commands.Cog):
         paginator = ListPaginator(ctx, page_list)
         await paginator.start()
 
-
     @commands.command(aliases=["sof", "stackof"])
     async def stackoverflow(self, ctx, *, query):
         """ Searches stackoverflow for a query"""
 
-
-
         msg = await ctx.send(f"Searching for `{query}`")
+        upvote_emoji = self.bot.get_emoji(upvote_emoji_id)
 
-        limit = 5
+        limit = 10
         search_url = f"https://stackoverflow.com/search?q={str(query).replace(' ', '+')}"
-
         resp_text = ""
 
         async with aiohttp.ClientSession() as session:
             async with session.get(search_url) as resp:
                 resp_text = await resp.text()
 
-
-
         soup = BeautifulSoup(resp_text, "lxml")
-
-        m = 1
-
+        page_number = 1
         page_list = []
 
-        for i in soup.find_all("div", class_="question-summary search-result")[:limit]:
+        for result in soup.find_all("div", class_="question-summary search-result")[:limit]:
             sof = StackOverFlow()
-            sof.fit(i)
+            sof.fit(result)
 
             embed = discord.Embed(color=self.color, title=sof.title, url=sof.url)
+            embed.description = f"{sof.text}\n\n{upvote_emoji} {sof.votes}  ​​​​ ​💬 {sof.answers}"
 
-            embed.description = f"{sof.text}\n\n<:upvote:741202481090002994> {sof.votes}  ​​​​ ​💬 {sof.answers}"
-
-            embed.set_author(
-                name="StackOverFlow",
-                icon_url="https://cdn2.iconfinder.com/data/icons/social-icons-color/512/stackoverflow-512.png"
-            )
-            embed.set_footer(
-                text=f"Page {m}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}")
+            embed.set_author(name="StackOverFlow",icon_url=stackof_icon)
+            embed.set_footer(text=f"Page {page_number}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}")
 
             page_list.append(embed)
+            page_number += 1
 
-            m += 1
-
-        paginator = Paginator(ctx, page_list)
+        paginator = ListPaginator(ctx, page_list)
         await msg.delete()
         await paginator.start()
 
