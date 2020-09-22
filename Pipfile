@@ -16,6 +16,8 @@ python-dateutil = "*"
 discord-py = {extras = ["voice"],version = "~=1.4.1"}
 aenum = "*"
 bs4 = "*"
+async-cse = "*"
+lxml = "*"
 
 [requires]
 python_version = "3.8"

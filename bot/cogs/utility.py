@@ -70,7 +70,7 @@ class Utility(commands.Cog):
         paginator = ListPaginator(ctx, page_list)
         await paginator.start()
 
-    @commands.command(aliases=["sof", "stackof"])
+    @commands.command(aliases=["sof", "stack"])
     async def stackoverflow(self, ctx, *, query):
         """ Searches stackoverflow for a query"""
 
