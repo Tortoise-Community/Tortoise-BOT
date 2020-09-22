@@ -65,6 +65,7 @@ class Games(commands.Cog):
         await player.message.clear_reactions()
         player.game.participants.pop(player.user_id)
         self.reactable_messages.pop(player.message.id)
+        await self.check_active_session(player)
         del player
 
     async def hit(self, player):
