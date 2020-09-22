@@ -222,7 +222,7 @@ class EmbedPaginator(Paginator):
 class ListPaginator:
     """Constructs a Paginator when provided a list of Embeds/Messages"""
     def __init__(
-            self, ctx , page_list,
+            self, ctx: commands.Context, page_list,
             restart_button="⏮",
             back_button="◀",
             forward_button="⏭",
@@ -276,7 +276,7 @@ class ListPaginator:
             await msg.add_reaction(emote)
 
         def check(_reaction, _user):
-            return _user == ctx.author and str(_reaction.emoji) in emote_list
+            return _user == ctx.author and str(_reaction.emoji) in emote_list and (_reaction.message) ==msg
 
         current_page = embed
 
@@ -287,16 +287,13 @@ class ListPaginator:
                 if str(reaction.emoji) == self.restart_button:
                     await msg.edit(embed=pages[0])
                     current_page = pages[0]
-
                     await msg.remove_reaction(self.restart_button, ctx.author)
-
                 elif str(reaction.emoji) == self.forward_button:
 
                     await msg.edit(embed=pages[-1])
                     current_page = pages[-1]
 
                     await msg.remove_reaction(self.forward_button, ctx.author)
-
                 elif str(reaction.emoji) == self.next_button:
                     next_page = self.get_next_page(current_page)
                     await msg.edit(embed=self.get_next_page(current_page))
