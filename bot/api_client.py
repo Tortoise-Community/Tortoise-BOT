@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 class ResponseCodeError(ValueError):
     """Raised when a non-OK HTTP response is received."""
-
     def __init__(
         self,
         response: aiohttp.ClientResponse,

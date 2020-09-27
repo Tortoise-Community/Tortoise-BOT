@@ -28,10 +28,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(kick_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def kick(self, ctx, member: discord.Member, *, reason="No specific reason"):
-        """
-        Kicks  member from the guild.
-
-        """
+        """Kicks  member from the guild."""
         await member.kick(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
 
@@ -81,7 +78,6 @@ class Moderation(commands.Cog):
         """
         Warns a member.
         Reason length is maximum of 200 characters.
-
         """
         if len(reason) > 200:
             await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
@@ -113,10 +109,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_warnings(self, ctx, member: discord.Member):
-        """
-        Shows all warnings of member.
-
-        """
+        """Shows all warnings of member."""
         warnings = await self.bot.api_client.get_member_warnings(member.id)
 
         if not warnings:
@@ -136,10 +129,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def warning_count(self, ctx, member: discord.Member):
-        """
-        Shows count of all warnings from member.
-
-        """
+        """Shows count of all warnings from member."""
         count = await self.bot.api_client.get_member_warnings_count(member.id)
         warnings_embed = thumbnail(f"Warnings: {count}", member, "Warning count")
         await ctx.send(embed=warnings_embed)
@@ -149,10 +139,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_roles=True, manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def promote(self, ctx, member: discord.Member, role: discord.Role):
-        """
-        Promote member to role.
-
-        """
+        """Promote member to role."""
         if role >= ctx.author.top_role:
             await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
             return
@@ -185,9 +172,7 @@ class Moderation(commands.Cog):
         """
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
-
         """
-
         def check(msg):
             return member is None or msg.author == member
 
@@ -199,20 +184,15 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
-        """
-        Mutes the member.
-        """
+        """Mutes the member."""
         if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
         reason = f"Muting member. {reason}"
-
         await member.add_roles(self.muted_role, reason=reason)
         await member.remove_roles(self.verified_role, reason=reason)
-
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
-
         await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
     @commands.command()
@@ -220,9 +200,7 @@ class Moderation(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def unmute(self, ctx, member: discord.Member):
-        """
-        Unmutes the member.
-        """
+        """Unmutes the member."""
         if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
             return
@@ -293,7 +271,6 @@ class Moderation(commands.Cog):
         """
         DMs all member that have a certain role.
         Failed members are printed to log.
-
         """
         members = (member for member in role.members if not member.bot)
         failed = []

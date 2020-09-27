@@ -12,7 +12,6 @@ class Duration(Converter):
     Convert duration strings into UTC datetime.datetime objects.
     Source: https://github.com/python-discord/bot/blob/master/bot/converters.py
     """
-
     duration_parser = re.compile(
         r"((?P<years>\d+?) ?(years|year|Y|y) ?)?"
         r"((?P<months>\d+?) ?(months|month|m) ?)?"
