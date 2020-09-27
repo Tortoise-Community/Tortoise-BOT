@@ -1,4 +1,5 @@
 import re
+import logging
 import functools
 
 import aiohttp
@@ -6,9 +7,13 @@ from discord.ext import commands
 from discord import Member, Message
 
 from bot import constants
-from bot.constants import banned_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
 from bot.config_handler import ConfigHandler
-from bot.cogs.utils.embed_handler import info
+from bot.cogs.utils.embed_handler import info, warning
+from bot.constants import (extension_to_pastebin, allowed_file_extensions,
+                           tortoise_paste_endpoint, tortoise_paste_service_link)
+
+
+logger = logging.getLogger(__name__)
 
 
 def security_bypass_check(function):
@@ -48,9 +53,8 @@ class Security(commands.Cog):
             await self._deal_with_attachments(message)
 
     async def _deal_with_invites(self, message: Message):
-        # Find any url
         base_url = re.findall(
-            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",  # Find any url
             message.content
         )
 
@@ -66,11 +70,7 @@ class Security(commands.Cog):
             if "discord.com/invite/" in invite or "discord.gg/" in invite:
                 if not await Security.check_if_invite_is_our_guild(invite, message.guild):
                     # TODO give him warning points etc / send to deterrence channel
-                    embed = info(
-                        f"{message.author.mention} You are not allowed to send other server invites here.",
-                        message.guild.me,
-                        title=""
-                    )
+                    embed = warning(f"{message.author.mention} You are not allowed to send other server invites here.")
                     await message.channel.send(embed=embed)
                     await message.delete()
 
@@ -88,24 +88,28 @@ class Security(commands.Cog):
 
     async def _deal_with_attachments(self, message: Message):
         for attachment in message.attachments:
-            extension = attachment.filename.rsplit('.')[-1]
-            if extension in banned_file_extensions:
-                paste_keys = {}
-                file_content = await attachment.read()
-                async with self.session.post(url=tortoise_paste_endpoint, data=file_content) as resp:
-                    key = (await resp.json()).get("key")
-                    paste_keys[attachment.filename] = key
+            try:
+                extension = attachment.filename.rsplit('.')[1]
+            except IndexError:
+                extension = None
+
+            if extension not in allowed_file_extensions:
                 await message.delete()
-                attachment_list = "".join(f"[**{file}**: {tortoise_paste_service_link+paste_keys[file]}]\n"
-                                          for file in paste_keys)
-                file_type = banned_file_extensions[extension]
-                embed = info(
-                    f"It looks like you tried to attach a {file_type} file which is not allowed, "
-                    f"As it could potentially contain malicious code."
-                    f"\n\nYou can find the file paste here:\n {attachment_list}", message.guild.me, ""
+                reply = (
+                    f"It looks like you tried to attach a {extension} file which is not allowed, "
+                    "as it could potentially contain malicious code."
                 )
-                await message.channel.send(f"Hey {message.author.mention}!", embed=embed)
-                await message.delete()
+                if extension in extension_to_pastebin:
+                    file_content = await attachment.read()
+                    url = await self.create_pastebin_link(file_content)
+                    reply += f"\n\nYou can find the file paste here:\n[**{attachment.filename}** {url}]"
+
+                await message.channel.send(f"Hey {message.author.mention}!", embed=warning(reply))
+
+    async def create_pastebin_link(self, content: bytes) -> str:
+        async with self.session.post(url=tortoise_paste_endpoint, data=content) as resp:
+            data = await resp.json()
+        return f"{tortoise_paste_service_link}{data.get('key')}"
 
     @commands.Cog.listener()
     @security_bypass_check
