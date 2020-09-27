@@ -2,7 +2,7 @@
 count = True
 statistics = True
 max-complexity = 16
-max-line-length = 119
+max-line-length = 120
 exclude =
     .git,
     __pycache__,
