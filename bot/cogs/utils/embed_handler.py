@@ -308,7 +308,7 @@ class RemovableMessage:
 def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
     """
     Creates suggestion embed message with author thumbnail and suggestion status.
-    :param author: User discord user from which to get name and avatar
+    :param author: Discord User from which to get name and avatar
     :param suggestion: str actual suggestion text
     :param status: constants.SuggestionStatus status for suggestion
     :return: discord.Embed
@@ -320,7 +320,7 @@ def suggestion_embed(author: User, suggestion: str, status: constants.Suggestion
     )
     embed.set_thumbnail(url=str(author.avatar_url))
     embed.add_field(name="Status", value=status.value)
-    embed.set_footer(text="Powered by Tortoise Community.")
+    embed.set_footer(text=f"UID: {author.id} ◆ Powered by Tortoise Community.")
     return embed
 
 
