@@ -36,12 +36,12 @@ class TortoiseServer(commands.Cog):
         self._rules = None
         self.update_member_count_channel.start()
         self.bot.loop.create_task(self.refresh_rules_helper())
-        self.suggestion_msg_id = 0
+        self.SUGGESTION_MESSAGE_CONTENT = "React to this message to add new suggestion"
 
     async def create_new_suggestion_message(self) -> int:
         suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
         suggestion_embed = info(
-            "React to this message to add new suggestion",
+            self.SUGGESTION_MESSAGE_CONTENT,
             suggestions_channel.guild.me,
             "New suggestion"
         )
@@ -58,27 +58,8 @@ class TortoiseServer(commands.Cog):
         elif message.guild.id != constants.tortoise_guild_id:
             return
 
-        if message.channel.id == constants.suggestions_channel_id:
-            if not self.suggestion_msg_id:
-                self.suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
-
-            if self.suggestion_msg_id == message.id:
-                return
-
-            try:
-                old_message = await message.channel.fetch_message(self.suggestion_msg_id)
-            except discord.NotFound:
-                pass
-            else:
-                await old_message.delete()
-            self.suggestion_msg_id = await self.create_new_suggestion_message()
-            await self.bot.api_client.edit_suggestion_message_id(self.suggestion_msg_id)
-            return
-
-        if message.author.bot:
-            return
-        elif len(message.content) > constants.max_message_length:
-            # Below part is when someone sends too long message, bot will recomemend them to use our pastebin
+        if not message.author.bot and len(message.content) > constants.max_message_length:
+            # Below part is when someone sends too long message, bot will recommend them to use our pastebin
             # TODO we are skipping message deletion for now until we implement system to check
             #  if sent message is code or not
             msg = (
@@ -86,6 +67,24 @@ class TortoiseServer(commands.Cog):
                 f"You should consider using our paste service {constants.tortoise_paste_service_link}"
             )
             await message.channel.send(embed=warning(msg))
+
+        if message.channel.id == constants.suggestions_channel_id:
+            if (
+                message.author == self.bot.user and
+                message.embeds and
+                message.embeds[0].description == self.SUGGESTION_MESSAGE_CONTENT
+            ):
+                await self.bot.api_client.edit_suggestion_message_id(message.id)
+            else:
+                old_suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
+                try:
+                    old_message = await message.channel.fetch_message(old_suggestion_msg_id)
+                except discord.NotFound:
+                    pass
+                else:
+                    await old_message.delete()
+
+                await self.create_new_suggestion_message()
 
     async def refresh_rules_helper(self):
         try:
