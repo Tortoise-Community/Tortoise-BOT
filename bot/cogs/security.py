@@ -9,8 +9,9 @@ from discord import Member, Message
 from bot import constants
 from bot.config_handler import ConfigHandler
 from bot.cogs.utils.embed_handler import info, warning
-from bot.constants import (extension_to_pastebin, allowed_file_extensions,
-                           tortoise_paste_endpoint, tortoise_paste_service_link)
+from bot.constants import (
+    extension_to_pastebin, allowed_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
+)
 
 
 logger = logging.getLogger(__name__)
