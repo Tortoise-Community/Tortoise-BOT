@@ -2,8 +2,8 @@ import re
 import functools
 
 import aiohttp
-from discord import Member
 from discord.ext import commands
+from discord import Member, Message
 
 from bot import constants
 from bot.constants import banned_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
@@ -41,33 +41,40 @@ class Security(commands.Cog):
         self.log_channel = bot.get_channel(constants.bot_log_channel_id)
 
     async def _security_check(self, message):
+        await self._deal_with_vulgar_words(message)
         if "https:" in message.content or "http:" in message.content:
-            # Find any url
-            base_url = re.findall(
-                r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
-                message.content
-            )
+            await self._deal_with_invites(message)
+        if len(message.attachments) != 0:
+            await self._deal_with_attachments(message)
 
-            for invite in base_url:
-                # Get the endpoint of that url (for discord invite url shorteners)
-                try:
-                    async with self.session.get(invite) as response:
-                        invite = str(response.url)
-                except aiohttp.ClientConnectorError:
-                    # The link is not valid
-                    continue
+    async def _deal_with_invites(self, message: Message):
+        # Find any url
+        base_url = re.findall(
+            r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*(),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+",
+            message.content
+        )
 
-                if "discord.com/invite/" in invite or "discord.gg/" in invite:
-                    if not await Security.check_if_invite_is_our_guild(invite, message.guild):
-                        # TODO give him warning points etc / send to deterrence channel
-                        embed = info(
-                            f"{message.author.mention} You are not allowed to send other server invites here.",
-                            message.guild.me,
-                            title=""
-                        )
-                        await message.channel.send(embed=embed)
-                        await message.delete()
+        for invite in base_url:
+            # Get the endpoint of that url (for discord invite url shorteners)
+            try:
+                async with self.session.get(invite) as response:
+                    invite = str(response.url)
+            except aiohttp.ClientConnectorError:
+                # The link is not valid
+                continue
 
+            if "discord.com/invite/" in invite or "discord.gg/" in invite:
+                if not await Security.check_if_invite_is_our_guild(invite, message.guild):
+                    # TODO give him warning points etc / send to deterrence channel
+                    embed = info(
+                        f"{message.author.mention} You are not allowed to send other server invites here.",
+                        message.guild.me,
+                        title=""
+                    )
+                    await message.channel.send(embed=embed)
+                    await message.delete()
+
+    async def _deal_with_vulgar_words(self, message: Message):
         for category, banned_words in self.banned_words.loaded.items():
             for banned_word in banned_words:
                 if banned_word in message.content.lower():
@@ -79,26 +86,26 @@ class Security(commands.Cog):
                     embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
                     await self.log_channel.send(embed=embed)
 
-        if len(message.attachments) != 0:
-            for attachment in message.attachments:
-                extension = attachment.filename.rsplit('.')[-1]
-                if extension in banned_file_extensions:
-                    paste_keys = {}
-                    file_content = await attachment.read()
-                    async with self.session.post(url=tortoise_paste_endpoint, data=file_content) as resp:
-                        key = (await resp.json()).get("key")
-                        paste_keys[attachment.filename] = key
-                    await message.delete()
-                    attachment_list = "".join(f"[**{file}**: {tortoise_paste_service_link+paste_keys[file]}]\n"
-                                              for file in paste_keys)
-                    file_type = banned_file_extensions[extension]
-                    embed = info(
-                        f"It looks like you tried to attach a {file_type} file which is not allowed, "
-                        f"As it could potentially contain malicious code."
-                        f"\n\nYou can find the file paste here:\n {attachment_list}", message.guild.me, ""
-                    )
-                    await message.channel.send(f"Hey {message.author.mention}!", embed=embed)
-                    await message.delete()
+    async def _deal_with_attachments(self, message: Message):
+        for attachment in message.attachments:
+            extension = attachment.filename.rsplit('.')[-1]
+            if extension in banned_file_extensions:
+                paste_keys = {}
+                file_content = await attachment.read()
+                async with self.session.post(url=tortoise_paste_endpoint, data=file_content) as resp:
+                    key = (await resp.json()).get("key")
+                    paste_keys[attachment.filename] = key
+                await message.delete()
+                attachment_list = "".join(f"[**{file}**: {tortoise_paste_service_link+paste_keys[file]}]\n"
+                                          for file in paste_keys)
+                file_type = banned_file_extensions[extension]
+                embed = info(
+                    f"It looks like you tried to attach a {file_type} file which is not allowed, "
+                    f"As it could potentially contain malicious code."
+                    f"\n\nYou can find the file paste here:\n {attachment_list}", message.guild.me, ""
+                )
+                await message.channel.send(f"Hey {message.author.mention}!", embed=embed)
+                await message.delete()
 
     @commands.Cog.listener()
     @security_bypass_check
