@@ -91,11 +91,14 @@ online = "<:online:753999406562410536>"
 offline = "<:offline:753999424446922782>"
 dnd = "<:dnd:753999445728952503>"
 spotify_emoji = "<:spotify:754238046123196467>"
-tick_yes = "<:tickyes:753974760899084439>"
+tick_yes = "<:tickyes:758291659330420776>"
 tick_no = "<:tickno:753974818549923960>"
 pin_emoji = "<:pinunread:754233175244537976>"
 user_emoji = "<:user:754234411922227250>"
-
+git_start_emoji = "<:git_star:758616139646763064>"
+git_fork_emoji = "<:git_fork:758616130780004362>"
+git_commit_emoji = "<:git_commit:758616123590574090>"
+git_repo_emoji = "<:repo:758616137977561119>"
 
 # Icons
 google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/" \

@@ -3,7 +3,7 @@ import aiohttp
 import discord  # noqa
 from discord.ext import commands, tasks
 
-from bot.cogs.utils.embed_handler import info
+from bot.cogs.utils.embed_handler import info, project_embed
 from bot.constants import github_repo_link, github_repo_stats_endpoint
 from bot.api_client import TortoiseAPI  # noqa
 
@@ -37,15 +37,20 @@ class Github(commands.Cog):
         for project in project_list:
             name = await self.get_project_name(project["github"])
             project = await self.get_project_stats(name)
+            print(project)
             self.projects[name] = {}
-            self.projects[name]["stargazers_count"] = project["stargazers_count"]
-            self.projects[name]["commits"] = await self.get_total_commits(name)
-            print(self.projects)
+            self.projects['repo_count'] = len([project_list])
+            self.projects[name]['name'] = name
+            self.projects[name]['issues'] = project["issues_url"]
+            self.projects[name]['link'] = project["html_url"]
+            self.projects[name]["stars"] = project["stargazers_count"]
+            self.projects[name]["commits"] = "N/A"
+            self.projects[name]["forks"] = project["forks_count"]
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
         """GitHub repository"""
-        embed = info(f"[Tortoise github repository]({github_repo_link})", ctx.me, "Github")
+        embed = project_embed(self.projects, ctx.me)
         await ctx.send(embed=embed)
 
 

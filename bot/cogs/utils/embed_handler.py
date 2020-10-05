@@ -388,3 +388,22 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
         embed.colour = Color.dark_grey()
         embed.description = "**Outcome:** It's a tie!"
     return embed
+
+
+def project_embed(projects: dict, me):
+    desc = "▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Repositories: **{}\n **People: **{}\n"
+    embed = simple_embed(title="Tortoise Community", message=desc,
+                         color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
+    embed.set_author(name="Github Stats",
+                     icon_url="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+    for project in projects:
+        embed.add_field(name=f"{constants.git_repo_emoji} {projects[project]['name']}",
+                        value=f"{constants.embed_space}\n"
+                              f"• [repository]({projects[project]['link']})\n"
+                              f"• [issues]({projects[project]['issues']})",
+                        inline=False)
+        embed.add_field(name="Commits", value=f"{constants.git_commit_emoji} {projects[project]['commits']}")
+        embed.add_field(name="Stars", value=f"{constants.git_start_emoji} {projects[project]['stars']}")
+        embed.add_field(name="Forks", value=f"{constants.git_fork_emoji} {projects[project]['forks']}")
+
+    return embed
