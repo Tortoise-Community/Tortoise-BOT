@@ -18,7 +18,7 @@ from bot.cogs.utils.exceptions import (
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
 
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
@@ -104,7 +104,7 @@ class SocketCommunication(commands.Cog):
             # Not supported on Windows
             pass
 
-        logger.debug("Socket com unloaded.")
+        logger.info("Socket com unloaded.")
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -114,12 +114,12 @@ class SocketCommunication(commands.Cog):
 
     @staticmethod
     def create_server():
-        logger.debug("Starting socket comm server...")
+        logger.info("Starting socket comm server...")
         server = socket.socket()
         server.bind(("0.0.0.0", int(os.getenv("SOCKET_SERVER_PORT"))))
         server.listen(3)
         server.setblocking(False)
-        logger.debug("Socket comm server started.")
+        logger.info("Socket comm server started.")
         return server
 
     async def run_server(self, server: socket.socket):
@@ -139,7 +139,7 @@ class SocketCommunication(commands.Cog):
                     request += buffer
                 except ConnectionResetError:
                     # If the client disconnects without sending quit.
-                    logger.debug(f"{client_name} disconnected.")
+                    logger.info(f"{client_name} disconnected.")
                     return
 
                 if len(buffer) < buffer_size:
@@ -151,7 +151,7 @@ class SocketCommunication(commands.Cog):
                     return
 
             if not request:
-                logger.debug("Empty, closing.")
+                logger.info("Empty request, closing.")
                 break
 
             try:
@@ -352,7 +352,7 @@ class SocketCommunication(commands.Cog):
 
         for check_none in none_checks:
             if check_none is None:
-                logger.info(f"One of necessary IDs was not found {none_checks}")
+                logger.warning(f"One of necessary IDs was not found {none_checks}")
                 raise DiscordIDNotFound()
 
         member = self.tortoise_guild.get_member(member_id)

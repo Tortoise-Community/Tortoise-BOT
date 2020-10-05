@@ -1,8 +1,9 @@
 import logging
+import datetime
 
 from discord import Member, Activity, Game, Spotify, CustomActivity, Status
+
 from bot import constants
-import datetime
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,6 @@ def get_badges(member: Member) -> str:
     :param member: Member to fetch the badges from
     :return: str emotes of badges
     """
-
     badge_dict = {
         'staff': constants.staff,
         'partner': constants.partner,
@@ -32,7 +32,6 @@ def get_badges(member: Member) -> str:
     badges = ""
 
     for flag in member.public_flags:
-
         if flag[1]:
             try:
                 badges += badge_dict[flag[0]]
@@ -52,9 +51,7 @@ def get_join_pos(ctx, member: Member) -> int:
     :param member: The member
     :return: int position of a member
     """
-
     join_pos = 1
-
     for member_ in ctx.guild.members:
         if member_.joined_at < member.joined_at:
             join_pos += 1
@@ -68,7 +65,6 @@ def has_verified_role(ctx, member: Member) -> bool:
     :param member: The member
     :return: Bool which depends on whether the member has the verified role
     """
-
     role = ctx.guild.get_role(599647985198039050)
     return role in member.roles
 
@@ -81,11 +77,9 @@ def format_activity(activity) -> str:
     """
 
     if isinstance(activity, Activity) or isinstance(activity, Game):
-
         return f"🎮 Playing **{activity.name}**"
 
     elif isinstance(activity, Spotify):
-
         music_name = activity.title
         artists = ""
 
@@ -95,7 +89,6 @@ def format_activity(activity) -> str:
         return f"{constants.spotify_emoji} Listening to **{music_name}** - {artists}"
 
     elif isinstance(activity, CustomActivity):
-
         title = activity.name
         emoji = activity.emoji
 
@@ -106,13 +99,11 @@ def format_activity(activity) -> str:
 
 
 def get_device_status(member: Member):
-
     """
     Convenience function to get the status of member on all discord clients
     :param member: The member to get the status from
     :return: str containing all the status
     """
-
     stat_dict = {
         Status.online: constants.online,
         Status.idle: constants.idle,
@@ -128,13 +119,11 @@ def get_device_status(member: Member):
 
 
 def format_date(date: datetime.datetime) -> str:
-
     """
     Convenience function to format a date
     :param date: The date to format
     :return: str of formatted date
     """
-
     today = datetime.date.today()
     days = date.date() - today
     year = int(days.days / 365)

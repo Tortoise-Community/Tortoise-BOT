@@ -1,12 +1,13 @@
-import aiohttp
-import discord
-from bs4 import BeautifulSoup
-from async_cse import Search
-from discord.ext import commands
 import os
+import aiohttp
 
-from bot.constants import upvote_emoji_id, google_icon, stackof_icon
+import discord
+from async_cse import Search
+from bs4 import BeautifulSoup
+from discord.ext import commands
+
 from bot.cogs.utils.paginator import ListPaginator
+from bot.constants import upvote_emoji_id, google_icon, stackof_icon
 
 
 class StackOverFlow:

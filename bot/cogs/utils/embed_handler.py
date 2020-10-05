@@ -7,8 +7,9 @@ from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
-from bot.cogs.utils.misc import (get_badges, get_join_pos, has_verified_role,
-                                 format_activity, get_device_status, format_date)
+from bot.cogs.utils.misc import (
+    get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
+)
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -308,7 +309,7 @@ class RemovableMessage:
 def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
     """
     Creates suggestion embed message with author thumbnail and suggestion status.
-    :param author: User discord user from which to get name and avatar
+    :param author: Discord User from which to get name and avatar
     :param suggestion: str actual suggestion text
     :param status: constants.SuggestionStatus status for suggestion
     :return: discord.Embed
@@ -320,7 +321,7 @@ def suggestion_embed(author: User, suggestion: str, status: constants.Suggestion
     )
     embed.set_thumbnail(url=str(author.avatar_url))
     embed.add_field(name="Status", value=status.value)
-    embed.set_footer(text="Powered by Tortoise Community.")
+    embed.set_footer(text=f"UID: {author.id} ◆ Powered by Tortoise Community.")
     return embed
 
 

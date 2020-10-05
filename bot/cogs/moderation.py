@@ -24,14 +24,11 @@ class Moderation(commands.Cog):
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
 
     @commands.command()
-    @commands.bot_has_permissions(kick_members=True)
-    @commands.has_permissions(kick_members=True)
+    @commands.bot_has_guild_permissions(kick_members=True)
+    @commands.has_guild_permissions(kick_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def kick(self, ctx, member: discord.Member, *, reason="No specific reason"):
-        """
-        Kicks  member from the guild.
-
-        """
+        """Kicks  member from the guild."""
         await member.kick(reason=reason)
         await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
 
@@ -47,8 +44,8 @@ class Moderation(commands.Cog):
         await member.send(embed=dm_embed)
 
     @commands.command()
-    @commands.bot_has_permissions(ban_members=True)
-    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_guild_permissions(ban_members=True)
+    @commands.has_guild_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
         """Bans  member from the guild."""
@@ -66,22 +63,21 @@ class Moderation(commands.Cog):
         await user.send(embed=dm_embed)
 
     @commands.command()
-    @commands.bot_has_permissions(ban_members=True)
-    @commands.has_permissions(ban_members=True)
+    @commands.bot_has_guild_permissions(ban_members=True)
+    @commands.has_guild_permissions(ban_members=True)
     async def unban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
         """Unbans  member from the guild."""
         await ctx.guild.unban(user=user, reason=reason)
         await ctx.send(embed=success(f"{user} successfully unbanned."), delete_after=5)
 
     @commands.command(aliases=["warning"])
-    @commands.bot_has_permissions(manage_messages=True)
-    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_messages=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def warn(self, ctx, member: discord.Member, *, reason):
         """
         Warns a member.
         Reason length is maximum of 200 characters.
-
         """
         if len(reason) > 200:
             await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
@@ -110,13 +106,10 @@ class Moderation(commands.Cog):
             await ctx.message.delete()
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def show_warnings(self, ctx, member: discord.Member):
-        """
-        Shows all warnings of member.
-
-        """
+        """Shows all warnings of member."""
         warnings = await self.bot.api_client.get_member_warnings(member.id)
 
         if not warnings:
@@ -133,26 +126,20 @@ class Moderation(commands.Cog):
             await ctx.send(embed=warnings_embed)
 
     @commands.command(aliases=["warnings_count"])
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def warning_count(self, ctx, member: discord.Member):
-        """
-        Shows count of all warnings from member.
-
-        """
+        """Shows count of all warnings from member."""
         count = await self.bot.api_client.get_member_warnings_count(member.id)
         warnings_embed = thumbnail(f"Warnings: {count}", member, "Warning count")
         await ctx.send(embed=warnings_embed)
 
     @commands.command()
-    @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.has_guild_permissions(manage_roles=True, manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def promote(self, ctx, member: discord.Member, role: discord.Role):
-        """
-        Promote member to role.
-
-        """
+        """Promote member to role."""
         if role >= ctx.author.top_role:
             await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
             return
@@ -178,16 +165,14 @@ class Moderation(commands.Cog):
         await member.send(embed=dm_embed)
 
     @commands.command()
-    @commands.bot_has_permissions(manage_messages=True)
-    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_messages=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.guild_only()
     async def clear(self, ctx, amount: int, member: discord.Member = None):
         """
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
-
         """
-
         def check(msg):
             return member is None or msg.author == member
 
@@ -195,34 +180,27 @@ class Moderation(commands.Cog):
         await ctx.send(embed=success(f"{amount} messages cleared."), delete_after=3)
 
     @commands.command()
-    @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
-        """
-        Mutes the member.
-        """
+        """Mutes the member."""
         if self.muted_role in member.roles:
             await ctx.send(embed=failure("Cannot mute as member is already muted."))
             return
 
         reason = f"Muting member. {reason}"
-
         await member.add_roles(self.muted_role, reason=reason)
         await member.remove_roles(self.verified_role, reason=reason)
-
         await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
-
         await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
     @commands.command()
-    @commands.bot_has_permissions(manage_roles=True)
-    @commands.has_permissions(manage_messages=True)
+    @commands.bot_has_guild_permissions(manage_roles=True)
+    @commands.has_guild_permissions(manage_messages=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def unmute(self, ctx, member: discord.Member):
-        """
-        Unmutes the member.
-        """
+        """Unmutes the member."""
         if self.muted_role not in member.roles:
             await ctx.send(embed=failure("Cannot unmute as member is not muted."))
             return
@@ -288,12 +266,11 @@ class Moderation(commands.Cog):
 
     @commands.command(aliases=["dm"])
     @commands.cooldown(1, 900, commands.BucketType.guild)
-    @commands.has_permissions(administrator=True)
+    @commands.has_guild_permissions(administrator=True)
     async def dm_members(self, ctx, role: discord.Role, *, message: str):
         """
         DMs all member that have a certain role.
         Failed members are printed to log.
-
         """
         members = (member for member in role.members if not member.bot)
         failed = []
@@ -320,7 +297,7 @@ class Moderation(commands.Cog):
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command()
-    @commands.has_permissions(manage_messages=True)
+    @commands.has_guild_permissions(manage_messages=True)
     async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
         """Send message to channel"""
         if channel is None:

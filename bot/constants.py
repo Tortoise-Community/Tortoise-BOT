@@ -156,7 +156,6 @@ class SuggestionStatus(Enum):
 blackjack_player_limit = 4
 
 spade_emotes = {
-
     "A": "<:sA:755697555505020928>",
     "2": "<:s2:755697541823201292>",
     "3": "<:s3:755697544671133796>",
@@ -173,7 +172,6 @@ spade_emotes = {
 }
 
 club_emotes = {
-
     "A": "<:cA:755697680797138954>",
     "2": "<:c2:755697675281760357>",
     "3": "<:c3:755697676095455342>",
@@ -230,9 +228,33 @@ card_emotes = {
     "diamond": diamond_emotes
 }
 
-banned_file_extensions = {
-    "py": "Python",
-    "js": "Javascript",
-    "exe": "Executable",
-    "txt": "Text",
-}
+# These are still not allowed but instead of deleting them we will upload them to pastebin and provide the link to paste
+extension_to_pastebin = (
+    "txt",
+    "py"
+)
+
+allowed_file_extensions = (
+    "3gp",
+    "3g2",
+    "avi",
+    "bmp",
+    "gif",
+    "h264",
+    "jpg",
+    "jpeg",
+    "mp3",
+    "m4v",
+    "mkv",
+    "mov",
+    "mp4",
+    "mpeg",
+    "mpg",
+    "ogg",
+    "png",
+    "svg",
+    "tiff",
+    "wmv",
+    "wav",
+    "webm"
+)
