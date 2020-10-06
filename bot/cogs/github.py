@@ -62,7 +62,7 @@ class Github(commands.Cog):
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
-        """GitHub repository"""
+        """GitHub stats"""
         embed = project_embed(self.projects, ctx.me)
         await ctx.send(embed=embed)
 
