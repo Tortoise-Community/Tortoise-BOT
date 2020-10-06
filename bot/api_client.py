@@ -249,10 +249,4 @@ class TortoiseAPI(APIClient):
         return await self.get("projects/")
 
     async def put_project_data(self, project_id, data):
-        stats_payload = {
-            "stars": data["starts"],
-            "forks": data["forks"],
-            "commits": data["commits"],
-            "contributors": data["contributors"],
-        }
-        await self.put(f"projects/{project_id}/", json=stats_payload)
+        await self.put(f"projects/{project_id}/", json=data)

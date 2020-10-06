@@ -132,3 +132,13 @@ def format_date(date: datetime.datetime) -> str:
         return f"{date.day} {date.strftime('%B')},{date.year}"
 
     return f"{date.day} {date.strftime('%B')}, {date.year}"
+
+
+class Project:
+    def __init__(self, project_data):
+        self.name = project_data["name"]
+        self.link = project_data["html_url"]
+        self.stars = project_data["stargazers_count"]
+        self.forks = project_data["forks_count"]
+        self.commits = project_data["commit_count"]
+        self.contributors = project_data["contributors_count"]

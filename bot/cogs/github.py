@@ -1,9 +1,14 @@
+import json
+import urllib
+import datetime
+
 import aiohttp
 
 from discord.ext import commands, tasks
 
 from bot.cogs.utils.embed_handler import info, project_embed
 from bot.constants import github_repo_link, github_repo_stats_endpoint
+from bot.cogs.utils.misc import Project
 
 
 class Github(commands.Cog):
@@ -13,37 +18,48 @@ class Github(commands.Cog):
         self.projects = {}
         self.update_github_stats.start()
 
-    async def get(self, endpoint: str):
+    async def get(self, endpoint: str, params=None):
         async with self.session.get(url=endpoint) as resp:
             return await resp.json()
 
     @staticmethod
-    async def get_project_name(project):
-        return project.rsplit("/")[-1]
+    def get_project_name(link):
+        return link.rsplit("/")[-1]
+
+    async def get_project_commits(self, name):
+        params = {
+            'sha': "master",
+            'per_page': 1,
+        }
+        async with self.session.get(url=github_repo_stats_endpoint+name+"/commits", params=params) as resp:
+            if (resp.status // 100) != 2:
+                raise Exception(f'invalid github response: {resp.text}')
+            commit_count = len(await resp.json())
+            last_page = resp.links.get('last')
+            if last_page:
+                # extract the query string from the last page url
+                qs = urllib.parse.urlparse(str(last_page['url'])).query
+                # extract the page number from the query string
+                commit_count = int(dict(urllib.parse.parse_qsl(qs))['page'])
+            return commit_count
 
     async def get_project_stats(self, name):
-        return await self.get(endpoint=(github_repo_stats_endpoint+name))
+        stats = await self.get(endpoint=(github_repo_stats_endpoint+name))
+        stats["commit_count"] = await self.get_project_commits(name)
+        contributors = await self.get(endpoint=(github_repo_stats_endpoint + name + "/contributors"))
+        stats["contributors_count"] = len(contributors)
+        return stats
 
-    async def get_total_commits(self, name):
-        endpoint = (github_repo_stats_endpoint + name + "/stats/participation")
-        commit_list = await self.get(endpoint=endpoint)
-        return sum(commit_list["all"])
-
-    @tasks.loop(hours=6)
+    @tasks.loop(hours=3)
     async def update_github_stats(self):
         project_list = await self.bot.api_client.get_projects_data()
         for project in project_list:
-            name = await self.get_project_name(project["github"])
-            project = await self.get_project_stats(name)
-            print(project)
-            self.projects[name] = {}
-            self.projects['repo_count'] = len([project_list])
-            self.projects[name]['name'] = name
-            self.projects[name]['issues'] = project["issues_url"]
-            self.projects[name]['link'] = project["html_url"]
-            self.projects[name]["stars"] = project["stargazers_count"]
-            self.projects[name]["commits"] = "N/A"
-            self.projects[name]["forks"] = project["forks_count"]
+            name = self.get_project_name(project["github"])
+            project_stats = await self.get_project_stats(name)
+            self.projects["last_updated"] = datetime.datetime.now()
+            item = Project(project_stats)
+            self.projects[name] = item
+            await self.bot.api_client.put_project_data(project["pk"], vars(item))
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
