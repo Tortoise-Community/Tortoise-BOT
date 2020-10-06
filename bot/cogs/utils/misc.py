@@ -138,7 +138,8 @@ class Project:
     def __init__(self, project_data):
         self.name = project_data["name"]
         self.link = project_data["html_url"]
-        self.stars = project_data["stargazers_count"]
+        self.web_url = project_data["web_link"]
         self.forks = project_data["forks_count"]
         self.commits = project_data["commit_count"]
+        self.stars = project_data["stargazers_count"]
         self.contributors = project_data["contributors_count"]

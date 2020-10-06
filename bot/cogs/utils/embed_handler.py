@@ -392,7 +392,7 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
 
 
 def project_embed(projects: dict, me):
-    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)}\n"
+    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,
                          color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
     embed.set_author(name="Github Stats",
@@ -403,9 +403,9 @@ def project_embed(projects: dict, me):
         if item == "last_updated":
             continue
         project = projects[item]
-        embed.add_field(name=f"{constants.git_repo_emoji} {project.name}",
-                        value=f"{constants.embed_space}\n"
-                              f"• [repository]({project.link})\n"
+        embed.add_field(name=f"\n{constants.embed_space}\n{constants.git_repo_emoji} {project.name}",
+                        value=f"• [repository]({project.link})\n"
+                              f"• [web]({project.web_url})\n"
                               f"• [issues]({project.link+'/issues'})",
                         inline=False)
         embed.add_field(name="Commits", value=f"{constants.git_commit_emoji} {project.commits}")
