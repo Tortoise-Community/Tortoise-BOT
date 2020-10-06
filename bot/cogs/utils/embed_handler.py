@@ -403,9 +403,9 @@ def project_embed(projects: dict, me):
         if item == "last_updated":
             continue
         project = projects[item]
-        embed.add_field(name=f"{constants.git_repo_emoji} {project.name}",
-                        value=f"{constants.embed_space}\n"
-                              f"• [repository]({project.link})\n"
+        embed.add_field(name=f"\n{constants.embed_space}\n{constants.git_repo_emoji} {project.name}",
+                        value=f"• [repository]({project.link})\n"
+                              f"• [web]({project.web_url})\n"
                               f"• [issues]({project.link+'/issues'})",
                         inline=False)
         embed.add_field(name="Commits", value=f"{constants.git_commit_emoji} {project.commits}")
