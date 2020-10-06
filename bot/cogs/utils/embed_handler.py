@@ -392,7 +392,7 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
 
 
 def project_embed(projects: dict, me):
-    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)}\n"
+    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,
                          color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
     embed.set_author(name="Github Stats",
