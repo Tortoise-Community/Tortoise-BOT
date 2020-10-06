@@ -1,4 +1,3 @@
-import json
 import urllib
 import datetime
 
@@ -6,8 +5,8 @@ import aiohttp
 
 from discord.ext import commands, tasks
 
-from bot.cogs.utils.embed_handler import info, project_embed
-from bot.constants import github_repo_link, github_repo_stats_endpoint
+from bot.cogs.utils.embed_handler import project_embed
+from bot.constants import github_repo_stats_endpoint
 from bot.cogs.utils.misc import Project
 
 
