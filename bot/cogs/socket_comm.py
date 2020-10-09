@@ -355,7 +355,9 @@ class SocketCommunication(commands.Cog):
                 logger.warning(f"One of necessary IDs was not found {none_checks}")
                 raise DiscordIDNotFound()
 
-        member = self.tortoise_guild.get_member(member_id)
+        # Attempt to fix bug with verification where sometimes member is not found in cache even if they are in guild
+        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        member = tortoise_guild.get_member(member_id)
 
         if member is None:
             logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
