@@ -229,12 +229,13 @@ card_emotes = {
     "diamond": diamond_emotes
 }
 
-# These are still not allowed but instead of deleting them we will upload them to pastebin and provide the link to paste
+# These are not allowed and will be auto-deleted but we will also upload them to pastebin and provide the link to paste
 extension_to_pastebin = (
     "txt",
     "py"
 )
 
+# These ones are allowed and will not get auto-deleted by bot.
 allowed_file_extensions = (
     "3gp",
     "3g2",
