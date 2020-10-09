@@ -92,7 +92,9 @@ class Security(commands.Cog):
             try:
                 extension = attachment.filename.rsplit('.')[1]
             except IndexError:
-                extension = None
+                extension = ""
+
+            extension = extension.lower()
 
             if extension not in allowed_file_extensions:
                 await message.delete()
