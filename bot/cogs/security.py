@@ -90,7 +90,7 @@ class Security(commands.Cog):
     async def _deal_with_attachments(self, message: Message):
         for attachment in message.attachments:
             try:
-                extension = attachment.filename.rsplit('.')[1]
+                extension = attachment.filename.rsplit('.', 1)[1]
             except IndexError:
                 extension = ""
 
