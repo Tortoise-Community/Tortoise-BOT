@@ -90,22 +90,29 @@ class Security(commands.Cog):
     async def _deal_with_attachments(self, message: Message):
         for attachment in message.attachments:
             try:
-                extension = attachment.filename.rsplit('.')[1]
+                extension = attachment.filename.rsplit('.', 1)[1]
             except IndexError:
-                extension = None
+                extension = ""
 
-            if extension not in allowed_file_extensions:
+            extension = extension.lower()
+
+            if extension in extension_to_pastebin:
+                file_content = await attachment.read()
+                url = await self.create_pastebin_link(file_content)
+                reply = (
+                    f"It looks like you tried to attach a {extension} file which is not allowed, "
+                    "however since it could be code related you can find the paste link here:\n"
+                    f"[**{attachment.filename}** {url}]"
+                )
+                await message.channel.send(f"Hey {message.author.mention}!", embed=warning(reply))
                 await message.delete()
+            elif extension not in allowed_file_extensions:
                 reply = (
                     f"It looks like you tried to attach a {extension} file which is not allowed, "
                     "as it could potentially contain malicious code."
                 )
-                if extension in extension_to_pastebin:
-                    file_content = await attachment.read()
-                    url = await self.create_pastebin_link(file_content)
-                    reply += f"\n\nYou can find the file paste here:\n[**{attachment.filename}** {url}]"
-
                 await message.channel.send(f"Hey {message.author.mention}!", embed=warning(reply))
+                await message.delete()
 
     async def create_pastebin_link(self, content: bytes) -> str:
         async with self.session.post(url=tortoise_paste_endpoint, data=content) as resp:
