@@ -1,4 +1,5 @@
 import logging
+from types import SimpleNamespace
 from typing import Iterable, Union
 
 import discord
@@ -292,7 +293,9 @@ class TortoiseServer(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
-        fake_payload = {"user_id":  ctx.author.id, "emoji": self.bot.get_emoji(constants.event_emoji_id)}
+        fake_payload = SimpleNamespace()
+        fake_payload.user_id = ctx.author.id
+        fake_payload.emoji = self.bot.get_emoji(constants.event_emoji_id)
         await self.bot.get_cog("TortoiseDM").on_raw_reaction_add_helper(fake_payload)
         await ctx.send(embed=info(
             "Check your DMs.\n"
