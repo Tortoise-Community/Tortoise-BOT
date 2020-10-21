@@ -1,5 +1,4 @@
 import logging
-from asyncio import TimeoutError
 from typing import Iterable, Union
 
 import discord
@@ -10,7 +9,7 @@ from bot import constants
 from bot.api_client import ResponseCodeError
 from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
 from bot.cogs.utils.embed_handler import (
-    success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
+    success, warning, failure, welcome, footer_embed, info, RemovableMessage
 )
 
 
@@ -290,31 +289,16 @@ class TortoiseServer(commands.Cog):
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
-        dm_msg = (
-            "Submitting process has begun.\n\n"
-            "Please reply with 1 message below that either contains your full code or, "
-            "if it's too long, contains a link to code (pastebin/hastebin..)\n"
-            "If using those services make sure to set code to private and "
-            "expiration date to at least 30 days."
+        fake_payload = {"user_id":  ctx.author.id, "emoji": self.bot.get_emoji(constants.event_emoji_id)}
+        await self.bot.get_cog("TortoiseDM").on_raw_reaction_add_helper(fake_payload)
+        await ctx.send(embed=info(
+            "Check your DMs.\n"
+            "Note: if you already have active DM option nothing will happen.",
+            ctx.me)
         )
-        await ctx.author.send(embed=authored(dm_msg, author=ctx.guild.me))
-
-        def check(msg):
-            return msg.author == ctx.author and msg.guild is None
-
-        try:
-            code_msg = await self.bot.wait_for("message", check=check, timeout=300)
-        except TimeoutError:
-            await ctx.send(embed=failure("You took too long to reply."))
-            return
-
-        title = f"Submission from {ctx.author}"
-        embed = discord.Embed(title=title, description=code_msg.content, color=ctx.me.top_role.color)
-        embed.set_thumbnail(url=ctx.author.avatar_url)
-
-        await self.code_submissions_channel.send(embed=embed)
 
 
 def setup(bot):
