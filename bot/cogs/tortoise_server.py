@@ -94,7 +94,7 @@ class TortoiseServer(commands.Cog):
             logger.critical(msg)
             await self.bot.log_error(msg)
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(minutes=60)
     async def update_member_count_channel(self):
         guild = self.member_count_channel.guild
         await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
