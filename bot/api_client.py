@@ -1,14 +1,15 @@
 import os
 import json
 import logging
-from typing import Optional, List, Union
+from asyncio import AbstractEventLoop
 from datetime import datetime, timezone
+from typing import Optional, List, Union
 
 import aiohttp
 from dotenv import load_dotenv
 from discord import Member, User, Message
 
-from bot.constants import SuggestionStatus, tortoise_guild_id
+from bot.constants import SuggestionStatus, tortoise_guild_id, github_repo_stats_endpoint
 
 
 load_dotenv()  # TODO why here also? in main too
@@ -33,17 +34,13 @@ class ResponseCodeError(ValueError):
         return f"Status: {self.status} Response: {response}"
 
 
-class APIClient:
-    def __init__(self, loop):
-        self.auth_header = {
-            "Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}",
-            "Content-Type": "application/json"
-        }
-        self.session = aiohttp.ClientSession(loop=loop, headers=self.auth_header)
+class BaseAPIClient:
+    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], headers: Optional[dict] = None):
+        self.base_api_url = base_api_url
+        self.session = aiohttp.ClientSession(loop=loop, headers=headers)
 
-    @staticmethod
-    def _url_for(endpoint: str) -> str:
-        return f"https://api.tortoisecommunity.com/private/{endpoint}"
+    def _url_for(self, endpoint: str) -> str:
+        return f"{self.base_api_url}{endpoint}"
 
     @classmethod
     async def raise_for_status(cls, response: aiohttp.ClientResponse) -> None:
@@ -85,9 +82,39 @@ class APIClient:
             return await resp.json()
 
 
-class TortoiseAPI(APIClient):
-    def __init__(self, loop):
-        super().__init__(loop)
+class GithubAPI(BaseAPIClient):
+    def __init__(self, *, loop: AbstractEventLoop):
+        super().__init__(github_repo_stats_endpoint, loop=loop)
+
+    async def get_project_commits(self, repository_name: str) -> int:
+        """
+        Github API does not support getting repository commit count.
+        It can only get each commit information, which would be expensive.
+        However if we tell API to get all commits and list only one commit information per page then
+        we can just get number of pages with which we will know total number of commits.
+        """
+        async with self.session.get(
+                url=f"{github_repo_stats_endpoint}{repository_name}/commits",
+                params={"sha": "master", "per_page": 1}
+        ) as response:
+            await self.raise_for_status(response)
+            last_page = response.links.get("last")
+            if last_page:
+                # we can get number of pages from url parameters
+                url_parameters = last_page["url"].query
+                # remember that number of commits = number of pages because 1 page = 1 commit
+                return int(url_parameters["page"])
+            else:
+                return 1
+
+
+class TortoiseAPI(BaseAPIClient):
+    def __init__(self, *, loop: AbstractEventLoop):
+        auth_header = {
+            "Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}",
+            "Content-Type": "application/json"
+        }
+        super().__init__("https://api.tortoisecommunity.com/private/", loop=loop, headers=auth_header)
 
     async def get_suggestions_under_review(self) -> List[dict]:
         # Gets all suggestion that are under-review
