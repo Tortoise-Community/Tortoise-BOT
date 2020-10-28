@@ -7,7 +7,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import info, failure
+from bot.utils.embed_handler import info, failure
 
 
 class Documentation(commands.Cog):

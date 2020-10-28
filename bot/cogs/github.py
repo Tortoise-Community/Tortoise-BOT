@@ -2,10 +2,10 @@ import datetime
 
 from discord.ext import commands, tasks
 
+from bot.utils.misc import Project
 from bot.api_client import GithubAPI
-from bot.cogs.utils.misc import Project
-from bot.cogs.utils.embed_handler import project_embed
 from bot.constants import project_url
+from bot.utils.embed_handler import project_embed
 
 
 class Github(commands.Cog):

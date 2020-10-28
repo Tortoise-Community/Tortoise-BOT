@@ -6,9 +6,9 @@ import discord
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.cogs.utils.converters import GetFetchUser
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
+from bot.utils.converters import GetFetchUser
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 
 
 logger = logging.getLogger(__name__)

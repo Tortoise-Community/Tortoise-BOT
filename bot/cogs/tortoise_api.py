@@ -6,9 +6,9 @@ from discord import Member, Embed, Message, Color, Forbidden
 from bot import constants
 from bot.bot import Bot
 from bot.api_client import ResponseCodeError
-from bot.cogs.utils.converters import DatabaseMember
-from bot.cogs.utils.embed_handler import failure, success, goodbye, info, thumbnail
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from bot.utils.converters import DatabaseMember
+from bot.utils.embed_handler import failure, success, goodbye, info, thumbnail
+from bot.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 
 
 logger = logging.getLogger(__name__)

@@ -9,10 +9,10 @@ from discord.ext import commands
 from discord import HTTPException, Forbidden
 
 from bot import constants
-from bot.cogs.utils.embed_handler import info, thumbnail, success
-from bot.cogs.utils.members import get_member_activity, get_member_status
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
-from bot.cogs.utils.exceptions import (
+from bot.utils.embed_handler import info, thumbnail, success
+from bot.utils.members import get_member_activity, get_member_status
+from bot.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from bot.utils.exceptions import (
     EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess, InternalServerError, DiscordIDNotFound
 )
 

@@ -3,8 +3,8 @@ from pathlib import Path
 
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import success, failure
-from bot.cogs.utils.checks import tortoise_bot_developer_only
+from bot.utils.embed_handler import success, failure
+from bot.utils.checks import tortoise_bot_developer_only
 
 
 logger = logging.getLogger(__name__)

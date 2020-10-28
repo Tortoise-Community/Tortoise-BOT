@@ -7,7 +7,7 @@ from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
-from bot.cogs.utils.misc import (
+from bot.utils.misc import (
     get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
 )
 

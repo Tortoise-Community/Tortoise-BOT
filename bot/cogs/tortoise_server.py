@@ -8,8 +8,8 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.api_client import ResponseCodeError
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import (
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import (
     success, warning, failure, welcome, footer_embed, info, RemovableMessage
 )
 
