@@ -22,7 +22,7 @@ class Bot(commands.Bot):
     banned_extensions = ()
 
     def __init__(self, prefix="t.", *args, **kwargs):
-        super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
+        super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
         self.api_client: TortoiseAPI = TortoiseAPI(loop=self.loop)
         self._was_ready_once = False
         self.tortoise_meta_cache = {
