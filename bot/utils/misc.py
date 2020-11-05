@@ -134,6 +134,37 @@ def format_date(date: datetime.datetime) -> str:
     return f"{date.day} {date.strftime('%B')}, {date.year}"
 
 
+def format_timedelta(time_delta: datetime.timedelta) -> str:
+    total_seconds = int(time_delta.total_seconds())
+    hours, remainder = divmod(total_seconds, 60 * 60)
+    minutes, seconds = divmod(remainder, 60)
+    return f"{hours}h {minutes}m and {seconds}seconds"
+
+
+def get_utc0_time_until(year: int, month: int, day: int, hour: int, minute: int, second: int) -> str:
+    """
+    Convenience function get nicely formatted time left until param end_date.
+    Timezone is UTC-0
+
+    :param year: int year for end date
+    :param month:  int month for end date
+    :param day:  int day for end date
+    :param hour:  int hour for end date
+    :param minute:  int minute for end date
+    :param second: int second for end date
+    :return: str human readable time left until end date
+    :raises: ValueError if passed date is in the past.
+    """
+    utc0 = datetime.timezone(offset=datetime.timedelta(hours=0))
+    now = datetime.datetime.now(tz=utc0)
+    end_date = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=utc0)
+    difference = end_date - now
+    if difference.total_seconds() <= 0:
+        raise ValueError("That date has already passed.")
+    else:
+        return format_timedelta(difference)
+
+
 class Project:
     def __init__(self, project_data):
         self.name = project_data["name"]
