@@ -5,8 +5,8 @@ import logging
 import asyncio
 from typing import List
 
-from discord.ext import commands
 from discord import Forbidden
+from discord.ext import commands
 
 from bot import constants
 from bot.utils.embed_handler import info, thumbnail, success
@@ -365,15 +365,15 @@ class SocketCommunication(commands.Cog):
             raise DiscordIDNotFound()
 
         await member.add_roles(self.verified_role, self.new_member_role, reason="Completed Oauth2 Verification")
-        await self.successful_verifications_channel.send(embed=info(
-            f"{member} is now verified.", member.guild.me, title="")
+        await self.successful_verifications_channel.send(
+            embed=info(f"{member} is now verified.", member.guild.me, title="")
         )
         msg = (
             f"You are now verified {self.verified_emoji}\n\n"
             f"Make sure to read {self.welcome_channel.mention}"
         )
-        await self.general_channel.send(member.mention, embed=info(
-            f"Say hi to our newest member {member.mention}", member.guild.me, title="")
+        await self.general_channel.send(
+            member.mention, embed=info(f"Say hi to our newest member {member.mention}", member.guild.me, title="")
         )
         await member.send(embed=success(msg))
 

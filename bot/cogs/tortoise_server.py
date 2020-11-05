@@ -102,13 +102,17 @@ class TortoiseServer(commands.Cog):
 
     @tasks.loop(hours=24)
     async def remove_new_member_role(self):
+        utc0 = datetime.timezone(offset=datetime.timedelta(hours=0))
         for member in self.new_member_role.members:
-            no_of_days = abs(datetime.datetime.now().date() - member.joined_at.date())
-            if no_of_days == 10:
+            if member.joined_at is None:
+                continue
+
+            num_of_days = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
+            if num_of_days >= 10:
                 try:
                     await member.remove_roles(self.new_member_role)
                 except HTTPException:
-                    logger.warning(f"Bot could't remove unverified role {self.new_member_role}")
+                    logger.warning(f"Bot could't remove new member role from {member} {member.id}")
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)

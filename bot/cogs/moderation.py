@@ -20,7 +20,6 @@ class Moderation(commands.Cog):
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.muted_role = self.tortoise_guild.get_role(constants.muted_role_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
 
     @commands.command()
