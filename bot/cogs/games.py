@@ -3,8 +3,8 @@ import logging
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.gambling_backend import Game, Player
-from bot.cogs.utils.embed_handler import simple_embed, black_jack_embed
+from bot.utils.gambling_backend import Game, Player
+from bot.utils.embed_handler import simple_embed, black_jack_embed
 from bot.constants import hit_emoji_id, stay_emoji_id, double_emoji_id, blackjack_player_limit
 
 

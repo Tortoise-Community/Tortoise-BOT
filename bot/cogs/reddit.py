@@ -4,7 +4,7 @@ import random
 
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import reddit_embed
+from bot.utils.embed_handler import reddit_embed
 
 
 class Reddit(commands.Cog):
