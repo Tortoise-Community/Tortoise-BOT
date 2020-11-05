@@ -6,7 +6,7 @@ import asyncio
 from typing import List
 
 from discord.ext import commands
-from discord import HTTPException, Forbidden
+from discord import Forbidden
 
 from bot import constants
 from bot.utils.embed_handler import info, thumbnail, success
@@ -77,8 +77,9 @@ class SocketCommunication(commands.Cog):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
+        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
         self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
+        self.general_channel = bot.get_channel(constants.general_channel_id)
         self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
         self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
         self.verified_clients = set()
@@ -346,7 +347,7 @@ class SocketCommunication(commands.Cog):
             raise EndpointBadArguments()
 
         none_checks = (
-            self.tortoise_guild, self.verified_role, self.unverified_role,
+            self.tortoise_guild, self.verified_role, self.new_member_role,
             self.successful_verifications_channel, self.welcome_channel
         )
 
@@ -363,19 +364,16 @@ class SocketCommunication(commands.Cog):
             logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
             raise DiscordIDNotFound()
 
-        try:
-            await member.remove_roles(self.unverified_role)
-        except HTTPException:
-            logger.warning(f"Bot could't remove unverified role {self.unverified_role}")
-
-        await member.add_roles(self.verified_role)
+        await member.add_roles(self.verified_role, self.new_member_role, reason="Completed Oauth2 Verification")
         await self.successful_verifications_channel.send(embed=info(
             f"{member} is now verified.", member.guild.me, title="")
         )
-
         msg = (
             f"You are now verified {self.verified_emoji}\n\n"
             f"Make sure to read {self.welcome_channel.mention}"
+        )
+        await self.general_channel.send(member.mention, embed=info(
+            f"Say hi to our newest member {member.mention}", member.guild.me, title="")
         )
         await member.send(embed=success(msg))
 
