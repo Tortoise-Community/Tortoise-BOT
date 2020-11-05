@@ -1,52 +1,29 @@
-import urllib
 import datetime
-
-import aiohttp
 
 from discord.ext import commands, tasks
 
-from bot.cogs.utils.embed_handler import project_embed
-from bot.constants import github_repo_stats_endpoint, project_url
-from bot.cogs.utils.misc import Project
+from bot.utils.misc import Project
+from bot.api_client import GithubAPI
+from bot.constants import project_url
+from bot.utils.embed_handler import project_embed
 
 
 class Github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
+        self.github_client = GithubAPI(loop=self.bot.loop)
         self.projects = {}
         self.update_github_stats.start()
-
-    async def get(self, endpoint: str, params=None):
-        async with self.session.get(url=endpoint) as resp:
-            return await resp.json()
 
     @staticmethod
     def get_project_name(link):
         return link.rsplit("/")[-1]
 
-    async def get_project_commits(self, name):
-        params = {
-            'sha': "master",
-            'per_page': 1,
-        }
-        async with self.session.get(url=github_repo_stats_endpoint+name+"/commits", params=params) as resp:
-            if (resp.status // 100) != 2:
-                raise Exception(f'invalid github response: {resp.text}')
-            commit_count = len(await resp.json())
-            last_page = resp.links.get('last')
-            if last_page:
-                # extract the query string from the last page url
-                qs = urllib.parse.urlparse(str(last_page['url'])).query
-                # extract the page number from the query string
-                commit_count = int(dict(urllib.parse.parse_qsl(qs))['page'])
-            return commit_count
-
     async def get_project_stats(self, project):
         name = self.get_project_name(project["github"])
-        stats = await self.get(endpoint=(github_repo_stats_endpoint+name))
-        stats["commit_count"] = await self.get_project_commits(name)
-        contributors = await self.get(endpoint=(github_repo_stats_endpoint + name + "/contributors"))
+        stats = await self.github_client.get(name)
+        stats["commit_count"] = await self.github_client.get_project_commits(name)
+        contributors = await self.github_client.get(f"{name}/contributors")
         stats["contributors_count"] = len(contributors)
         stats["web_link"] = f"{project_url}{project.get('pk')}"
         return stats
@@ -64,8 +41,7 @@ class Github(commands.Cog):
     @commands.command(aliases=["git"])
     async def github(self, ctx):
         """GitHub stats"""
-        embed = project_embed(self.projects, ctx.me)
-        await ctx.send(embed=embed)
+        await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 
 def setup(bot):

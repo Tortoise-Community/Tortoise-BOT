@@ -6,9 +6,9 @@ import discord
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.cogs.utils.converters import GetFetchUser
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
+from bot.utils.converters import GetFetchUser
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,6 @@ class Moderation(commands.Cog):
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.muted_role = self.tortoise_guild.get_role(constants.muted_role_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
         self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
 
     @commands.command()

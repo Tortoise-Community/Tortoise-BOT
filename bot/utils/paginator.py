@@ -5,7 +5,7 @@ from discord.abc import Messageable
 from discord import ClientUser, User, Member, HTTPException
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import info
+from bot.utils.embed_handler import info
 
 
 class Paginator:

@@ -18,10 +18,10 @@ from discord.ext import commands
 from youtube_dl import YoutubeDL
 from async_timeout import timeout
 
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.exceptions import TortoiseGuildCheckFailure
+from bot.utils.embed_handler import success, failure, info
 from bot.constants import ytdl_format_options, ffmpeg_options
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.exceptions import TortoiseGuildCheckFailure
-from bot.cogs.utils.embed_handler import success, failure, info
 
 
 logger = logging.getLogger(__name__)

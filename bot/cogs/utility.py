@@ -6,7 +6,7 @@ from async_cse import Search
 from bs4 import BeautifulSoup
 from discord.ext import commands
 
-from bot.cogs.utils.paginator import ListPaginator
+from bot.utils.paginator import ListPaginator
 from bot.constants import upvote_emoji_id, google_icon, stackof_icon
 
 

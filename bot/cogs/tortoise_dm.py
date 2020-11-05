@@ -7,10 +7,10 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.cooldown import CoolDown
-from bot.cogs.utils.message_logger import MessageLogger
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
+from bot.utils.cooldown import CoolDown
+from bot.utils.message_logger import MessageLogger
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 
 
 logger = logging.getLogger(__name__)

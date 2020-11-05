@@ -23,7 +23,7 @@ class Bot(commands.Bot):
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, **kwargs)
-        self.api_client: TortoiseAPI = TortoiseAPI(self.loop)
+        self.api_client: TortoiseAPI = TortoiseAPI(loop=self.loop)
         self._was_ready_once = False
         self.tortoise_meta_cache = {
             "event_submission": False,

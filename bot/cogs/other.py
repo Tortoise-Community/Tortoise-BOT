@@ -6,9 +6,9 @@ import psutil
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
-from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
+from bot.utils.embed_handler import info, status_embed, RemovableMessage
 
 
 class Other(commands.Cog):

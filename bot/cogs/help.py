@@ -3,7 +3,7 @@ import logging
 from discord.ext import commands
 
 from bot.constants import embed_space
-from bot.cogs.utils.paginator import EmbedPaginator
+from bot.utils.paginator import EmbedPaginator
 
 
 logger = logging.getLogger(__name__)

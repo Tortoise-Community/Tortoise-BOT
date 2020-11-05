@@ -33,15 +33,16 @@ verification_channel_id = 602156675863937024
 website_log_channel_id = 649868379372388352
 bot_dev_channel_id = 692851221223964822
 error_log_channel_id = 690650346665803777
-member_count_channel = 723526255495872566
+member_count_channel_id = 723526255495872566
+general_channel_id = 577192344533598472
 
 # Roles
 muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
-unverified_role_id = 605808609195982864
 trusted_role_id = 703657957438652476
 moderator_role = 577368219875278849
 admin_role = 577196762691928065
+new_member_role = 743751537305845813
 
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed
