@@ -373,7 +373,8 @@ class SocketCommunication(commands.Cog):
             f"Make sure to read {self.welcome_channel.mention}"
         )
         await self.general_channel.send(
-            member.mention, embed=info(f"Say hi to our newest member {member.mention}", member.guild.me, title="")
+            member.mention, embed=info(f"Say hi to our newest member {member.mention}", member.guild.me, title=""),
+            delete_after=100
         )
         await member.send(embed=success(msg))
 

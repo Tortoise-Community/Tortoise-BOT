@@ -275,7 +275,7 @@ class TortoiseServer(commands.Cog):
             elif role is not None:
                 await member.add_roles(role)
                 embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
-                await member.send(embed=embed)
+                await member.send(embed=embed, delete_after=10)
 
         elif payload.channel_id == constants.suggestions_channel_id:
             if payload.emoji.id == constants.suggestions_emoji_id:
