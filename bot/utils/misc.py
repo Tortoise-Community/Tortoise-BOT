@@ -136,9 +136,10 @@ def format_date(date: datetime.datetime) -> str:
 
 def format_timedelta(time_delta: datetime.timedelta) -> str:
     total_seconds = int(time_delta.total_seconds())
-    hours, remainder = divmod(total_seconds, 60 * 60)
+    days, remainder = divmod(total_seconds, 60 * 60 * 24)
+    hours, remainder = divmod(remainder, 60 * 60)
     minutes, seconds = divmod(remainder, 60)
-    return f"{hours}h {minutes}m and {seconds}seconds"
+    return f"{days}d {hours}h {minutes}m and {seconds}s"
 
 
 def get_utc0_time_until(year: int, month: int, day: int, hour: int, minute: int, second: int) -> str:
