@@ -50,7 +50,7 @@ class Bot(commands.Bot):
         await self.change_presence(activity=discord.Game(name="DM me!"))
         await self.reload_tortoise_meta_cache()
         try:
-            version = subprocess.check_output(["git", "describe"]).strip()
+            version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
             bot_log_channel = self.get_channel(bot_log_channel_id)
             await bot_log_channel.send(info(f"Bot restarted. Image version {version}", self.user, ""))
         except Exception as e:
