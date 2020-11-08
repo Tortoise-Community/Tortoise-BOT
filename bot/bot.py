@@ -2,6 +2,7 @@ import sys
 import logging
 import asyncio
 import traceback
+import subprocess
 from pathlib import Path
 from typing import Generator
 
@@ -9,7 +10,8 @@ import discord
 from discord.ext import commands
 
 from bot.api_client import TortoiseAPI
-from bot.constants import error_log_channel_id
+from bot.constants import error_log_channel_id, bot_log_channel_id
+from bot.utils.embed_handler import info
 
 
 logger = logging.getLogger(__name__)
@@ -47,6 +49,12 @@ class Bot(commands.Bot):
         self.load_extensions()
         await self.change_presence(activity=discord.Game(name="DM me!"))
         await self.reload_tortoise_meta_cache()
+        try:
+            version = subprocess.check_output(["git", "describe"]).strip()
+            bot_log_channel = self.get_channel(bot_log_channel_id)
+            await bot_log_channel.send(info(f"Bot restarted. Image version {version}", self.user, ""))
+        except Exception as e:
+            logger.info("Git image version not found", e)
 
     async def reload_tortoise_meta_cache(self):
         # For some reason it takes some time to propagate change in API database so if we fetch right away

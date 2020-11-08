@@ -36,6 +36,7 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.remove_new_member_role.start()
         self.bot.loop.create_task(self.refresh_rules_helper())
         self.SUGGESTION_MESSAGE_CONTENT = "React to this message to add new suggestion"
 
