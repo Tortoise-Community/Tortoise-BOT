@@ -52,7 +52,7 @@ class Bot(commands.Bot):
         try:
             version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
             bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(info(f"Bot restarted. Image version `{version}`", self.user, ""))
+            await bot_log_channel.send(embed=info(f"Bot restarted. Image version `{version}`", self.user, ""))
         except Exception as e:
             logger.info("Git image version not found", e)
 
