@@ -96,7 +96,7 @@ class TortoiseServer(commands.Cog):
             logger.critical(msg)
             await self.bot.log_error(msg)
 
-    @tasks.loop(minutes=60)
+    @tasks.loop(hours=1)
     async def update_member_count_channel(self):
         guild = self.member_count_channel.guild
         await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
@@ -108,8 +108,8 @@ class TortoiseServer(commands.Cog):
             if member.joined_at is None:
                 continue
 
-            num_of_days = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
-            if num_of_days >= 10:
+            join_duration = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
+            if join_duration.days >= 10:
                 try:
                     await member.remove_roles(self.new_member_role)
                 except HTTPException:

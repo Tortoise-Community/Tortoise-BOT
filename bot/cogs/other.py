@@ -18,13 +18,6 @@ class Other(commands.Cog):
         self.countdown_started = False
 
     @commands.command()
-    async def say(self, ctx, *, message):
-        """Says something"""
-        await ctx.message.delete()
-        clean = await commands.clean_content().convert(ctx, message)
-        await ctx.send(clean)
-
-    @commands.command()
     async def members(self, ctx):
         """Returns the number of members in a server."""
         await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
