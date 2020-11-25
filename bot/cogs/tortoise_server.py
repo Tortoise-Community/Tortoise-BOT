@@ -108,8 +108,8 @@ class TortoiseServer(commands.Cog):
             if member.joined_at is None:
                 continue
 
-            num_of_days = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
-            if num_of_days >= 10:
+            join_duration = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
+            if join_duration.days >= 10:
                 try:
                     await member.remove_roles(self.new_member_role)
                 except HTTPException:
