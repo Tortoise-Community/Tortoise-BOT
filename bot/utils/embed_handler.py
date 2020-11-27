@@ -396,6 +396,7 @@ def project_embed(projects: dict, me):
     desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,
                          color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
+    embed.set_thumbnail(url=me.avatar_url)
     embed.set_author(name="Github Stats",
                      icon_url="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
     embed.set_footer(text="Last updated: ")
