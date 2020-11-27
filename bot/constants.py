@@ -101,6 +101,8 @@ git_start_emoji = "<:git_star:758616139646763064>"
 git_fork_emoji = "<:git_fork:758616130780004362>"
 git_commit_emoji = "<:git_commit:758616123590574090>"
 git_repo_emoji = "<:repo:758616137977561119>"
+success_emoji = "<:success:781891698590482442>"
+failure_emoji = "<:failure:781891692160090143>"
 
 # Icons
 google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/" \
