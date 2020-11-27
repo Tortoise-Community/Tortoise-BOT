@@ -119,7 +119,8 @@ def success(message: str, member: Union[Member, User] = None) -> Embed:
                    usually our bot member object from the specific guild.
     :return: Embed object
     """
-    return simple_embed(message, "Success", get_top_role_color(member, fallback_color=Color.green()))
+    return simple_embed(f"{constants.success_emoji}︱{message}", "",
+                        get_top_role_color(member, fallback_color=Color.green()))
 
 
 def warning(message: str) -> Embed:
@@ -128,7 +129,7 @@ def warning(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Warning", Color.dark_gold())
+    return simple_embed(f":warning:︱{message}", "", Color.dark_gold())
 
 
 def failure(message: str) -> Embed:
@@ -137,7 +138,7 @@ def failure(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Failure", Color.red())
+    return simple_embed(f"{constants.failure_emoji}︱{message}", "", Color.red())
 
 
 def authored(message: str, *, author: Union[Member, User]) -> Embed:
