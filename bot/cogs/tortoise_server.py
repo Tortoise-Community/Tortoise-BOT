@@ -1,9 +1,11 @@
 import logging
 import datetime
+import functools
 from types import SimpleNamespace
 from typing import Iterable, Union
 
 import discord
+from guesslang import Guess
 from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
@@ -23,6 +25,7 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
+        self.guess_language = Guess()
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
@@ -62,13 +65,17 @@ class TortoiseServer(commands.Cog):
 
         if not message.author.bot and len(message.content) > constants.max_message_length:
             # Below part is when someone sends too long message, bot will recommend them to use our pastebin
-            # TODO we are skipping message deletion for now until we implement system to check
-            #  if sent message is code or not
-            msg = (
-                "Your message is quite long.\n"
-                f"You should consider using our paste service {constants.tortoise_paste_service_link}"
+            # Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
+            # TODO we are skipping message deletion until below system is tested out in production
+            language = await self.bot.loop.run_in_executor(
+                None, functools.partial(self.guess_language.language_name, data={"source_code": message.content})
             )
-            await message.channel.send(embed=warning(msg))
+            if language:
+                msg = (
+                    f"Detected a long message containing {language} code.\n"
+                    f"You should consider using our paste service {constants.tortoise_paste_service_link}"
+                )
+                await message.channel.send(embed=warning(msg))
 
         if message.channel.id == constants.suggestions_channel_id:
             if (

@@ -18,6 +18,7 @@ aenum = "*"
 bs4 = "*"
 async-cse = "*"
 lxml = "*"
+guesslang = "*"
 
 [requires]
 python_version = "3.8"
