@@ -159,9 +159,25 @@ class TortoiseServer(commands.Cog):
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def rules(self, ctx):
+        """Shows all rules."""
+        rules_embed = self._get_rules_embed(ctx.guild)
+        message = await ctx.send(embed=rules_embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+
+    @commands.command()
+    @commands.has_guild_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def generate_rules(self, ctx, channel: discord.TextChannel = None):
+        """Sends all rules embed to selected channel (or current one).
+        Useful if rule embed needs updating.
         """
-        Shows all rules info.
-        """
+        if channel is None:
+            channel = ctx.channel
+
+        rules_embed = self._get_rules_embed(ctx.guild)
+        await channel.send(embed=rules_embed)
+
+    def _get_rules_embed(self, guild: discord.Guild) -> discord.Embed:
         embed_body = []
         for rule_dict in self._rules:
             rule_entry = (
@@ -171,12 +187,10 @@ class TortoiseServer(commands.Cog):
             )
             embed_body.append(rule_entry)
 
-        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, f"{ctx.guild.name} Rules")
+        rules_embed = info("\n\n".join(embed_body), guild.me, f"{guild.name} Rules")
         rules_embed.set_footer(text="Tortoise Community")
-        rules_embed.set_thumbnail(url=ctx.guild.icon_url)
-
-        message = await ctx.send(embed=rules_embed)
-        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+        rules_embed.set_thumbnail(url=guild.icon_url)
+        return rules_embed
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
