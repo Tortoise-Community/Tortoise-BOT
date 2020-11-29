@@ -75,6 +75,8 @@ class Moderation(commands.Cog):
 
         confirmation = await ReactionMessage.create_instance(self.bot, reaction_msg, ctx.author)
         if confirmation:
+            logger.info(f"{ctx.author} is timestamp banning: {', '.join(member.id for member in members_to_ban)}")
+
             for member in members_to_ban:
                 await self._ban_helper(ctx, member, reason)
             await ctx.send(embed=success(f"Successfully mass banned {len(members_to_ban)} members!"))
