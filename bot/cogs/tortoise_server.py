@@ -12,10 +12,9 @@ from discord.errors import HTTPException
 from bot import constants
 from bot.api_client import ResponseCodeError
 from bot.utils.misc import get_utc0_time_until
+from bot.utils.message_handler import RemovableMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
-from bot.utils.embed_handler import (
-    success, warning, failure, welcome, footer_embed, info, RemovableMessage
-)
+from bot.utils.embed_handler import (success, warning, failure, welcome, footer_embed, info)
 
 
 logger = logging.getLogger(__name__)

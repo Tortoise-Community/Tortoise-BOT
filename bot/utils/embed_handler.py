@@ -1,10 +1,7 @@
 import datetime
 from typing import Union
-from asyncio import TimeoutError
 
-from discord.errors import NotFound
-from discord.ext.commands import Bot
-from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
+from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
 from bot import constants
 from bot.utils.misc import (
@@ -265,46 +262,6 @@ def get_top_role_color(member: Union[Member, User], *, fallback_color) -> Color:
         return fallback_color
     else:
         return color
-
-
-class RemovableMessage:
-    emoji_remove = "❌"
-
-    @classmethod
-    async def create_instance(cls, bot: Bot,  message: Message, action_member: Member, *, timeout: int = 120):
-        self = RemovableMessage()
-
-        self.bot = bot
-        self.message = message
-        self.action_member = action_member
-        self.timeout = timeout
-
-        await self.message.add_reaction(cls.emoji_remove)
-        await self._listen()
-
-    def __init__(self):
-        self.bot = None
-        self.message = None
-        self.action_member = None
-        self.timeout = None
-
-    def _check(self, payload: RawReactionActionEvent):
-        return (
-            str(payload.emoji) == self.emoji_remove and
-            payload.message_id == self.message.id and
-            payload.user_id == self.action_member.id and
-            payload.user_id != self.bot.user.id
-        )
-
-    async def _listen(self):
-        try:
-            await self.bot.wait_for("raw_reaction_add", check=self._check, timeout=self.timeout)
-            await self.message.delete()
-        except TimeoutError:
-            try:
-                await self.message.remove_reaction(self.emoji_remove, self.bot.user)
-            except NotFound:
-                pass  # If the message got deleted by user in the meantime
 
 
 def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
