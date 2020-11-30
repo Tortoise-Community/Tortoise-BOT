@@ -277,3 +277,16 @@ class TortoiseAPI(BaseAPIClient):
 
     async def put_project_data(self, project_id, data):
         await self.put(f"projects/{project_id}/", json=data)
+
+
+class HataAPI(BaseAPIClient):
+    HATA_API_URL = "https://huyanematsu.pythonanywhere.com/docs/api"
+    HATA_API_VERSION = "v1"
+    HATA_API_ENDPOINT = f"{HATA_API_URL}/{HATA_API_VERSION}/"
+
+    def __init__(self, *, loop: AbstractEventLoop):
+        super().__init__(self.HATA_API_ENDPOINT, loop=loop)
+
+    async def search(self, search_for: str) -> List[dict]:
+        params = {"search_for": search_for}
+        return await self.get("search", params=params)

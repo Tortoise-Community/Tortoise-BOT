@@ -7,6 +7,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+from bot.api_client import HataAPI
 from bot.utils.embed_handler import info, failure
 
 
@@ -18,6 +19,7 @@ class Documentation(commands.Cog):
         self.bot = bot
         self._doc_cache = {}
         self.session = aiohttp.ClientSession()
+        self.hata_api = HataAPI(loop=self.bot.loop)
 
     @classmethod
     def parse_object_inv(cls, stream, url):
@@ -142,6 +144,25 @@ class Documentation(commands.Cog):
     async def python(self, ctx, *, obj: str = None):
         """Gives you a documentation link for a Python entity."""
         await self.fetch_doc_links(ctx, 'python', obj)
+
+    @commands.command()
+    async def hata(self, ctx, *, search_for: str):
+        """Shows hata docs based on search query."""
+
+        results = await self.hata_api.search(search_for)
+        if not results:
+            return await ctx.send(embed=failure(f"Could not find anything for {search_for}."))
+
+        docs_embed = discord.Embed()
+        for result in results[:8]:
+            name_with_link = f"[{result['name']}]({result['url']})"
+            docs_embed.add_field(
+                name=f"[{name_with_link} {result['type']}",
+                value=result.get("preview", ""),
+                inline=False
+            )
+
+        await ctx.send(embed=docs_embed)
 
 
 class SphinxObjectFileReader:
