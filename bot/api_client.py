@@ -35,9 +35,9 @@ class ResponseCodeError(ValueError):
 
 
 class BaseAPIClient:
-    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], headers: Optional[dict] = None):
+    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], **kwargs):
         self.base_api_url = base_api_url
-        self.session = aiohttp.ClientSession(loop=loop, headers=headers)
+        self.session = aiohttp.ClientSession(loop=loop, **kwargs)
 
     def _url_for(self, endpoint: str) -> str:
         return f"{self.base_api_url}{endpoint}"
@@ -290,3 +290,20 @@ class HataAPI(BaseAPIClient):
     async def search(self, search_for: str) -> List[dict]:
         params = {"search_for": search_for}
         return await self.get("search", params=params)
+
+
+class AdventOfCodeAPI(BaseAPIClient):
+    AOC_REQUEST_HEADER = {"user-agent": "Tortoise Discord Community AoC event bot"}
+    COOKIES = {"session": os.getenv("AOC_COOKIE")}
+    AOC_API_URL = "https://adventofcode.com/{year}/leaderboard/private/view/{leaderboard_id}"
+
+    def __init__(self, leaderboard_id: str, year: int = 2020, *, loop: AbstractEventLoop):
+        super().__init__(
+            self.AOC_API_URL.format(year=year, leaderboard_id=leaderboard_id),
+            loop=loop,
+            headers=self.AOC_REQUEST_HEADER,
+            cookies=self.COOKIES
+        )
+
+    async def get_leaderboard(self):
+        await super().get(endpoint=".json")
