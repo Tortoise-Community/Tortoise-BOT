@@ -67,7 +67,7 @@ class TortoiseServer(commands.Cog):
             # Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
             # TODO we are skipping message deletion until below system is tested out in production
             language = await self.bot.loop.run_in_executor(
-                None, functools.partial(self.guess_language.language_name, data={"source_code": message.content})
+                None, functools.partial(self.guess_language.language_name, source_code=message.content)
             )
             if language:
                 msg = (
