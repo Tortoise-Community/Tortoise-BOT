@@ -12,9 +12,7 @@ from bot.utils.embed_handler import info, failure
 
 
 class Documentation(commands.Cog):
-    """
-    Taken from Danny bot: https://github.com/Rapptz/RoboDanny
-    """
+    """Taken mostly from Danny bot: https://github.com/Rapptz/RoboDanny"""
     def __init__(self, bot):
         self.bot = bot
         self._doc_cache = {}
@@ -148,20 +146,20 @@ class Documentation(commands.Cog):
     @commands.command()
     async def hata(self, ctx, *, search_for: str):
         """Shows hata docs based on search query."""
+        hata_docs_website = "https://huyanematsu.pythonanywhere.com/docs/"
 
         results = await self.hata_api.search(search_for)
         if not results:
             return await ctx.send(embed=failure(f"Could not find anything for {search_for}."))
 
-        docs_embed = discord.Embed()
+        body = []
         for result in results[:8]:
-            name_with_link = f"[{result['name']}]({result['url']})"
-            docs_embed.add_field(
-                name=f"[{name_with_link} {result['type']}",
-                value=result.get("preview", ""),
-                inline=False
-            )
+            name_with_link = f"[{result['name']}]({hata_docs_website}{result['url']})"
+            body.append(f"{name_with_link} *{result['type']}*\n{result.get('preview', '')}")
 
+        description = "\n\n".join(body)
+        title = f"Showing {len(results)}" if len(results) < 8 else f"Showing 8/{len(results)}"
+        docs_embed = discord.Embed(title=title, description=description)
         await ctx.send(embed=docs_embed)
 
 
