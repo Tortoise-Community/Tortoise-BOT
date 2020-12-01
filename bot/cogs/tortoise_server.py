@@ -62,20 +62,25 @@ class TortoiseServer(commands.Cog):
         elif message.guild.id != constants.tortoise_guild_id:
             return
 
+        # Long code handler
+        # Below part is when someone sends too long message, bot will recommend them to use our pastebin
+        # Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
         if not message.author.bot and len(message.content) > constants.max_message_length:
-            # Below part is when someone sends too long message, bot will recommend them to use our pastebin
-            # Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
-            # TODO we are skipping message deletion until below system is tested out in production
             language = await self.bot.loop.run_in_executor(
                 None, functools.partial(self.guess_language.language_name, source_code=message.content)
             )
             if language:
+                tortoise_security_cog = self.bot.get_cog("Security")
+                pastebin_link = await tortoise_security_cog.create_pastebin_link(message.content.encode())
+
                 msg = (
                     f"Detected a long message containing {language} code.\n"
-                    f"You should consider using our paste service {constants.tortoise_paste_service_link}"
+                    f"To improve readability I've uploaded it to our pastebin: {pastebin_link}"
                 )
+                await message.delete()
                 await message.channel.send(embed=warning(msg))
 
+        # Suggestion message handler
         if message.channel.id == constants.suggestions_channel_id:
             if (
                 message.author == self.bot.user and
