@@ -60,7 +60,7 @@ class AdventOfCode(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def countdown(self, ctx):
+    async def aoc_countdown(self, ctx):
         """Time until next challenge starts."""
         utc_minus_5 = datetime.timezone(offset=datetime.timedelta(hours=-5))
         now = datetime.datetime.now(tz=utc_minus_5)
