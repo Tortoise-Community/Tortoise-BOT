@@ -54,9 +54,16 @@ class AdventOfCode(commands.Cog):
             if flag_counter > top_members:
                 break
 
-            leaderboard.append(f"{flag_counter}. {member_data['name']} {member_data['local_score']}")
+            leaderboard.append(
+                f"{flag_counter}. {member_data['name']}  {member_data['local_score']}  ★ {member_data['stars']}"
+            )
 
-        embed = info("\n".join(leaderboard), member=ctx.guild.me, title="Tortoise AoC leaderboard")
+        leaderboard_text = "\n".join(leaderboard)
+        embed = info(
+            f"{leaderboard_text}\n\nThe leaderboard is refreshed each 30 minutes.",
+            member=ctx.guild.me,
+            title="Tortoise AoC leaderboard"
+        )
         await ctx.send(embed=embed)
 
     @commands.command()
