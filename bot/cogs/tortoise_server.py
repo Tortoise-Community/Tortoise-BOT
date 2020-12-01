@@ -11,7 +11,7 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.api_client import ResponseCodeError
-from bot.utils.misc import get_utc0_time_until
+from bot.utils.misc import get_utc_time_until
 from bot.utils.message_handler import RemovableMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.utils.embed_handler import (success, warning, failure, welcome, footer_embed, info)
@@ -130,7 +130,7 @@ class TortoiseServer(commands.Cog):
     @commands.check(check_if_it_is_tortoise_guild)
     async def deadline(self, ctx):
         try:
-            time_until_string = get_utc0_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
+            time_until_string = get_utc_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
             await ctx.send(embed=info(time_until_string, ctx.me, title="Code Jam ends in:"))
         except ValueError:
             await ctx.send(embed=info("Code Jam is over!", member=ctx.me, title="Finished"))
