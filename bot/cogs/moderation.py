@@ -8,9 +8,9 @@ from discord import User, Member
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.utils.converters import GetFetchUser
 from bot.utils.message_handler import ReactionMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.converters import GetFetchUser, DatetimeConverter
 from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail
 
 
@@ -50,9 +50,23 @@ class Moderation(commands.Cog):
     @commands.has_guild_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
-            self, ctx, timestamp_start: datetime, timestamp_end: datetime, *, reason="Mass ban with timestamp."
+            self,
+            ctx,
+            timestamp_start: DatetimeConverter,
+            timestamp_end: DatetimeConverter,
+            *,
+            reason="Mass ban with timestamp."
     ):
-        """Bans  member from the guild if he joined at specific time."""
+        """Bans  member from the guild if he joined at specific time.
+
+        Both arguments need to be in this specific format:
+        %Y-%m-%d %H:%M
+
+        Example:
+        2020-09-25 23:50
+
+        All values need to be padded with 0.
+        """
         members_to_ban = []
 
         for member in self.tortoise_guild.members:
