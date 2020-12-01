@@ -45,8 +45,8 @@ class Moderation(commands.Cog):
         await member.send(embed=dm_embed)
 
     @commands.command()
-    @commands.bot_has_guild_permissions(ban_members=True)
-    @commands.has_guild_permissions(ban_members=True)
+    @commands.bot_has_guild_permissions(administrator=True)
+    @commands.has_guild_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
             self,
