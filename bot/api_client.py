@@ -306,4 +306,4 @@ class AdventOfCodeAPI(BaseAPIClient):
         )
 
     async def get_leaderboard(self):
-        await super().get(endpoint=".json")
+        return await super().get(endpoint=".json")
