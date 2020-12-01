@@ -24,6 +24,6 @@ guesslang = "*"
 python_version = "3.8"
 
 [scripts]
-start = 'python -m bot'
-lint = "python -m flake8"
+start = "python3 -m bot"
+lint = "python3 -m flake8"
 precommit = "pre-commit install"
