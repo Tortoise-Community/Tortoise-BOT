@@ -65,6 +65,7 @@ class Moderation(commands.Cog):
         t.ban_timestamp "2020-09-15 13:00" "2020-10-15 13:00"
 
         All values need to be padded with 0.
+        Timezones are not accounted for.
         """
         members_to_ban = []
 

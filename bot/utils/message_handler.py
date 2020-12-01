@@ -86,7 +86,7 @@ class RemovableMessage(ReactionMessage):
 
 
 class ConfirmationMessage(ReactionMessage):
-    EMOJIS: Tuple[PartialEmoji, ...] = (PartialEmoji(name="❌"), PartialEmoji(name="✅"))
+    EMOJIS: Tuple[PartialEmoji, ...] = (PartialEmoji(name="✅"), PartialEmoji(name="❌"))
 
     async def react_action(self, reacted_emoji: PartialEmoji) -> bool:
-        return reacted_emoji == self.EMOJIS[1]
+        return reacted_emoji == self.EMOJIS[0]
