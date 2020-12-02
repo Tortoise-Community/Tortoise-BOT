@@ -31,7 +31,7 @@ class AdventOfCode(commands.Cog):
         )
         await ctx.send(embed=invite_embed)
 
-    @commands.command()
+    @commands.command(aliases=["lb"])
     async def leaderboard(self, ctx):
         """
         Shows Tortoise leaderboard.
