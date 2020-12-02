@@ -42,7 +42,9 @@ class AdventOfCode(commands.Cog):
             return await ctx.send(embed=failure("Please try again in few seconds as cache is not yet loaded."))
 
         sorted_members = {
-            k: v for k, v in sorted(self._leaderboard_cache["members"].items(), key=lambda item: item[1]["local_score"])
+            k: v for k, v in sorted(
+                self._leaderboard_cache["members"].items(), key=lambda item: item[1]["local_score"], reverse=True
+            )
         }
 
         leaderboard = []
