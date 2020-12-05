@@ -7,8 +7,9 @@ from discord.ext.commands import Bot
 from discord import Embed, Color, Member, User, Status, Message, RawReactionActionEvent, TextChannel
 
 from bot import constants
-from bot.cogs.utils.misc import (get_badges, get_join_pos, has_verified_role,
-                                 format_activity, get_device_status, format_date)
+from bot.utils.misc import (
+    get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
+)
 
 
 def simple_embed(message: str, title: str, color: Color) -> Embed:
@@ -118,7 +119,8 @@ def success(message: str, member: Union[Member, User] = None) -> Embed:
                    usually our bot member object from the specific guild.
     :return: Embed object
     """
-    return simple_embed(message, "Success", get_top_role_color(member, fallback_color=Color.green()))
+    return simple_embed(f"{constants.success_emoji}︱{message}", "",
+                        get_top_role_color(member, fallback_color=Color.green()))
 
 
 def warning(message: str) -> Embed:
@@ -127,7 +129,7 @@ def warning(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Warning", Color.dark_gold())
+    return simple_embed(f":warning:︱{message}", "", Color.dark_gold())
 
 
 def failure(message: str) -> Embed:
@@ -136,7 +138,7 @@ def failure(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Failure", Color.red())
+    return simple_embed(f"{constants.failure_emoji}︱{message}", "", Color.red())
 
 
 def authored(message: str, *, author: Union[Member, User]) -> Embed:
@@ -308,7 +310,7 @@ class RemovableMessage:
 def suggestion_embed(author: User, suggestion: str, status: constants.SuggestionStatus) -> Embed:
     """
     Creates suggestion embed message with author thumbnail and suggestion status.
-    :param author: User discord user from which to get name and avatar
+    :param author: Discord User from which to get name and avatar
     :param suggestion: str actual suggestion text
     :param status: constants.SuggestionStatus status for suggestion
     :return: discord.Embed
@@ -320,7 +322,7 @@ def suggestion_embed(author: User, suggestion: str, status: constants.Suggestion
     )
     embed.set_thumbnail(url=str(author.avatar_url))
     embed.add_field(name="Status", value=status.value)
-    embed.set_footer(text="Powered by Tortoise Community.")
+    embed.set_footer(text=f"UID: {author.id} ◆ Powered by Tortoise Community.")
     return embed
 
 
@@ -387,4 +389,29 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
     elif outcome == "tie":
         embed.colour = Color.dark_grey()
         embed.description = "**Outcome:** It's a tie!"
+    return embed
+
+
+def project_embed(projects: dict, me):
+    desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
+    embed = simple_embed(title="Tortoise Community", message=desc,
+                         color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
+    embed.set_thumbnail(url=me.avatar_url)
+    embed.set_author(name="Github Stats",
+                     icon_url="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
+    embed.set_footer(text="Last updated: ")
+    embed.timestamp = projects["last_updated"]
+    for item in projects:
+        if item == "last_updated":
+            continue
+        project = projects[item]
+        embed.add_field(name=f"\n{constants.embed_space}\n{constants.git_repo_emoji} {project.name}",
+                        value=f"• [repository]({project.link})\n"
+                              f"• [web]({project.web_url})\n"
+                              f"• [issues]({project.link+'/issues'})",
+                        inline=False)
+        embed.add_field(name="Commits", value=f"{constants.git_commit_emoji} {project.commits}")
+        embed.add_field(name="Stars", value=f"{constants.git_start_emoji} {project.stars}")
+        embed.add_field(name="Forks", value=f"{constants.git_fork_emoji} {project.forks}")
+
     return embed

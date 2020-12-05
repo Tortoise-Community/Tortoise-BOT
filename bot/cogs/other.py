@@ -6,9 +6,9 @@ import psutil
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import info, status_embed, RemovableMessage
+from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
+from bot.utils.embed_handler import info, status_embed, RemovableMessage
 
 
 class Other(commands.Cog):
@@ -16,13 +16,6 @@ class Other(commands.Cog):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
         self.countdown_started = False
-
-    @commands.command()
-    async def say(self, ctx, *, message):
-        """Says something"""
-        await ctx.message.delete()
-        clean = await commands.clean_content().convert(ctx, message)
-        await ctx.send(clean)
 
     @commands.command()
     async def members(self, ctx):

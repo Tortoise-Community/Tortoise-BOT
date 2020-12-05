@@ -1,5 +1,6 @@
 import logging
-from asyncio import TimeoutError
+import datetime
+from types import SimpleNamespace
 from typing import Iterable, Union
 
 import discord
@@ -8,9 +9,10 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.api_client import ResponseCodeError
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import (
-    success, warning, failure, authored, welcome, footer_embed, info, RemovableMessage
+from bot.utils.misc import get_utc0_time_until
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import (
+    success, warning, failure, welcome, footer_embed, info, RemovableMessage
 )
 
 
@@ -21,11 +23,10 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
-
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
-        self.member_count_channel = bot.get_channel(constants.member_count_channel)
+        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
+        self.member_count_channel = bot.get_channel(constants.member_count_channel_id)
         self.log_channel = bot.get_channel(constants.system_log_channel_id)
         self.verification_channel = bot.get_channel(constants.verification_channel_id)
         self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
@@ -35,13 +36,14 @@ class TortoiseServer(commands.Cog):
         self._database_role_update_lock = False
         self._rules = None
         self.update_member_count_channel.start()
+        self.remove_new_member_role.start()
         self.bot.loop.create_task(self.refresh_rules_helper())
-        self.suggestion_msg_id = 0
+        self.SUGGESTION_MESSAGE_CONTENT = "React to this message to add new suggestion"
 
     async def create_new_suggestion_message(self) -> int:
         suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
         suggestion_embed = info(
-            "React to this message to add new suggestion",
+            self.SUGGESTION_MESSAGE_CONTENT,
             suggestions_channel.guild.me,
             "New suggestion"
         )
@@ -58,27 +60,8 @@ class TortoiseServer(commands.Cog):
         elif message.guild.id != constants.tortoise_guild_id:
             return
 
-        if message.channel.id == constants.suggestions_channel_id:
-            if not self.suggestion_msg_id:
-                self.suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
-
-            if self.suggestion_msg_id == message.id:
-                return
-
-            try:
-                old_message = await message.channel.fetch_message(self.suggestion_msg_id)
-            except discord.NotFound:
-                pass
-            else:
-                await old_message.delete()
-            self.suggestion_msg_id = await self.create_new_suggestion_message()
-            await self.bot.api_client.edit_suggestion_message_id(self.suggestion_msg_id)
-            return
-
-        if message.author.bot:
-            return
-        elif len(message.content) > constants.max_message_length:
-            # Below part is when someone sends too long message, bot will recomemend them to use our pastebin
+        if not message.author.bot and len(message.content) > constants.max_message_length:
+            # Below part is when someone sends too long message, bot will recommend them to use our pastebin
             # TODO we are skipping message deletion for now until we implement system to check
             #  if sent message is code or not
             msg = (
@@ -86,6 +69,24 @@ class TortoiseServer(commands.Cog):
                 f"You should consider using our paste service {constants.tortoise_paste_service_link}"
             )
             await message.channel.send(embed=warning(msg))
+
+        if message.channel.id == constants.suggestions_channel_id:
+            if (
+                message.author == self.bot.user and
+                message.embeds and
+                message.embeds[0].description == self.SUGGESTION_MESSAGE_CONTENT
+            ):
+                await self.bot.api_client.edit_suggestion_message_id(message.id)
+            else:
+                old_suggestion_msg_id = await self.bot.api_client.get_suggestion_message_id()
+                try:
+                    old_message = await message.channel.fetch_message(old_suggestion_msg_id)
+                except discord.NotFound:
+                    pass
+                else:
+                    await old_message.delete()
+
+                await self.create_new_suggestion_message()
 
     async def refresh_rules_helper(self):
         try:
@@ -95,10 +96,33 @@ class TortoiseServer(commands.Cog):
             logger.critical(msg)
             await self.bot.log_error(msg)
 
-    @tasks.loop(minutes=5)
+    @tasks.loop(hours=1)
     async def update_member_count_channel(self):
         guild = self.member_count_channel.guild
         await self.member_count_channel.edit(name=f"Member count {len(guild.members)}")
+
+    @tasks.loop(hours=24)
+    async def remove_new_member_role(self):
+        utc0 = datetime.timezone(offset=datetime.timedelta(hours=0))
+        for member in self.new_member_role.members:
+            if member.joined_at is None:
+                continue
+
+            join_duration = abs(datetime.datetime.now(tz=utc0).date() - member.joined_at.date())
+            if join_duration.days >= 10:
+                try:
+                    await member.remove_roles(self.new_member_role)
+                except HTTPException:
+                    logger.warning(f"Bot could't remove new member role from {member} {member.id}")
+
+    @commands.command()
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def deadline(self, ctx):
+        try:
+            time_until_string = get_utc0_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
+            await ctx.send(embed=info(time_until_string, ctx.me, title="Code Jam ends in:"))
+        except ValueError:
+            await ctx.send(embed=info("Code Jam is over!", member=ctx.me, title="Finished"))
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -165,7 +189,6 @@ class TortoiseServer(commands.Cog):
     async def _new_member_register_in_database(self, member: discord.Member):
         logger.info(f"New member {member} does not exist in database, adding now.")
         await self.bot.api_client.insert_new_member(member)
-        await member.add_roles(self.unverified_role)
         # Ghost ping the member so he takes note of verification channel where all info is
         await self.verification_channel.send(member.mention, delete_after=1)
         await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
@@ -203,7 +226,6 @@ class TortoiseServer(commands.Cog):
         else:
             logger.info(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
             await self.bot.api_client.member_rejoined(member)
-            await member.add_roles(self.unverified_role)
             await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
             # Ghost ping the member so he takes note of verification channel where all info is
             await self.verification_channel.send(member.mention, delete_after=1)
@@ -228,11 +250,6 @@ class TortoiseServer(commands.Cog):
         await self.bot.api_client.edit_member_roles(after, roles_ids)
 
     async def add_verified_roles_to_member(self, member: discord.Member, additional_roles: Iterable[int] = tuple()):
-        try:
-            await member.remove_roles(self.unverified_role)
-        except HTTPException:
-            logger.debug(f"Bot could't remove unverified role {self.unverified_role}")
-
         self._database_role_update_lock = True
         # In case additional_roles are fetched from database, they can be no longer existing due to not removing roles
         # that got deleted, so just catch Exception and ignore.
@@ -259,7 +276,7 @@ class TortoiseServer(commands.Cog):
             elif role is not None:
                 await member.add_roles(role)
                 embed = success(f"`{role.name}` has been assigned to you in the Tortoise community.")
-                await member.send(embed=embed)
+                await member.send(embed=embed, delete_after=10)
 
         elif payload.channel_id == constants.suggestions_channel_id:
             if payload.emoji.id == constants.suggestions_emoji_id:
@@ -291,31 +308,18 @@ class TortoiseServer(commands.Cog):
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def submit(self, ctx):
         """Initializes process of submitting code for event."""
-        dm_msg = (
-            "Submitting process has begun.\n\n"
-            "Please reply with 1 message below that either contains your full code or, "
-            "if it's too long, contains a link to code (pastebin/hastebin..)\n"
-            "If using those services make sure to set code to private and "
-            "expiration date to at least 30 days."
+        fake_payload = SimpleNamespace()
+        fake_payload.user_id = ctx.author.id
+        fake_payload.emoji = self.bot.get_emoji(constants.event_emoji_id)
+        await self.bot.get_cog("TortoiseDM").on_raw_reaction_add_helper(fake_payload)
+        await ctx.send(embed=info(
+            "Check your DMs.\n"
+            "Note: if you already have active DM option nothing will happen.",
+            ctx.me)
         )
-        await ctx.author.send(embed=authored(dm_msg, author=ctx.guild.me))
-
-        def check(msg):
-            return msg.author == ctx.author and msg.guild is None
-
-        try:
-            code_msg = await self.bot.wait_for("message", check=check, timeout=300)
-        except TimeoutError:
-            await ctx.send(embed=failure("You took too long to reply."))
-            return
-
-        title = f"Submission from {ctx.author}"
-        embed = discord.Embed(title=title, description=code_msg.content, color=ctx.me.top_role.color)
-        embed.set_thumbnail(url=ctx.author.avatar_url)
-
-        await self.code_submissions_channel.send(embed=embed)
 
 
 def setup(bot):

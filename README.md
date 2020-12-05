@@ -89,8 +89,6 @@ pipenv shell
 pipenv run precommit
 
 # Before we run the bot we need to create .env file where all secret keys will be (tokens etc)
-# it needs to be in /bot/.env
-cd bot
 
 # Create it
 touch .env

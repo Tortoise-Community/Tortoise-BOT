@@ -1,52 +1,47 @@
-import aiohttp
+import datetime
 
-import discord  # noqa
 from discord.ext import commands, tasks
 
-from bot.cogs.utils.embed_handler import info
-from bot.constants import github_repo_link, github_repo_stats_endpoint
-from bot.api_client import TortoiseAPI  # noqa
+from bot.utils.misc import Project
+from bot.api_client import GithubAPI
+from bot.constants import project_url
+from bot.utils.embed_handler import project_embed
 
 
 class Github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.session = aiohttp.ClientSession()
+        self.github_client = GithubAPI(loop=self.bot.loop)
         self.projects = {}
         self.update_github_stats.start()
 
-    async def get(self, endpoint: str):
-        async with self.session.get(url=endpoint) as resp:
-            return await resp.json()
-
     @staticmethod
-    async def get_project_name(project):
-        return project.rsplit("/")[-1]
+    def get_project_name(link):
+        return link.rsplit("/")[-1]
 
-    async def get_project_stats(self, name):
-        return await self.get(endpoint=(github_repo_stats_endpoint+name))
+    async def get_project_stats(self, project):
+        name = self.get_project_name(project["github"])
+        stats = await self.github_client.get(name)
+        stats["commit_count"] = await self.github_client.get_project_commits(name)
+        contributors = await self.github_client.get(f"{name}/contributors")
+        stats["contributors_count"] = len(contributors)
+        stats["web_link"] = f"{project_url}{project.get('pk')}"
+        return stats
 
-    async def get_total_commits(self, name):
-        endpoint = (github_repo_stats_endpoint + name + "/stats/participation")
-        commit_list = await self.get(endpoint=endpoint)
-        return sum(commit_list["all"])
-
-    @tasks.loop(hours=6)
+    @tasks.loop(hours=3)
     async def update_github_stats(self):
         project_list = await self.bot.api_client.get_projects_data()
         for project in project_list:
-            name = await self.get_project_name(project["github"])
-            project = await self.get_project_stats(name)
-            self.projects[name] = {}
-            self.projects[name]["stargazers_count"] = project["stargazers_count"]
-            self.projects[name]["commits"] = await self.get_total_commits(name)
-            print(self.projects)
+            project_stats = await self.get_project_stats(project)
+            item = Project(project_stats)
+            self.projects[item.name] = item
+            self.projects["last_updated"] = datetime.datetime.now()
+            await self.bot.api_client.put_project_data(project["pk"], vars(item))
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
-        """GitHub repository"""
-        embed = info(f"[Tortoise github repository]({github_repo_link})", ctx.me, "Github")
-        await ctx.send(embed=embed)
+        """GitHub stats"""
+        await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 
 def setup(bot):

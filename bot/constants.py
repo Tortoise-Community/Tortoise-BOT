@@ -12,6 +12,7 @@ tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
 tortoise_paste_endpoint = "https://paste.tortoisecommunity.com/documents/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
+project_url = "https://www.tortoisecommunity.com/pages/projects/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522
@@ -32,15 +33,16 @@ verification_channel_id = 602156675863937024
 website_log_channel_id = 649868379372388352
 bot_dev_channel_id = 692851221223964822
 error_log_channel_id = 690650346665803777
-member_count_channel = 723526255495872566
+member_count_channel_id = 723526255495872566
+general_channel_id = 577192344533598472
 
 # Roles
 muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
-unverified_role_id = 605808609195982864
 trusted_role_id = 703657957438652476
 moderator_role = 577368219875278849
 admin_role = 577196762691928065
+new_member_role = 743751537305845813
 
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed
@@ -55,7 +57,8 @@ self_assignable_roles = {
     723272019126255726: 589129070609039454,     # Java
     723276957810163731: 589129583375286415,     # R
     610825682070798359: 610834658267103262,     # events
-    583614910215356416: 603157798225838101      # announcements
+    583614910215356416: 603157798225838101,     # announcements
+    782187224195268629: 781210603997757471      # challenges
 }
 
 
@@ -91,11 +94,16 @@ online = "<:online:753999406562410536>"
 offline = "<:offline:753999424446922782>"
 dnd = "<:dnd:753999445728952503>"
 spotify_emoji = "<:spotify:754238046123196467>"
-tick_yes = "<:tickyes:753974760899084439>"
+tick_yes = "<:tickyes:758291659330420776>"
 tick_no = "<:tickno:753974818549923960>"
 pin_emoji = "<:pinunread:754233175244537976>"
 user_emoji = "<:user:754234411922227250>"
-
+git_start_emoji = "<:git_star:758616139646763064>"
+git_fork_emoji = "<:git_fork:758616130780004362>"
+git_commit_emoji = "<:git_commit:758616123590574090>"
+git_repo_emoji = "<:repo:758616137977561119>"
+success_emoji = "<:success:781891698590482442>"
+failure_emoji = "<:failure:781891692160090143>"
 
 # Icons
 google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/" \
@@ -153,7 +161,6 @@ class SuggestionStatus(Enum):
 blackjack_player_limit = 4
 
 spade_emotes = {
-
     "A": "<:sA:755697555505020928>",
     "2": "<:s2:755697541823201292>",
     "3": "<:s3:755697544671133796>",
@@ -170,7 +177,6 @@ spade_emotes = {
 }
 
 club_emotes = {
-
     "A": "<:cA:755697680797138954>",
     "2": "<:c2:755697675281760357>",
     "3": "<:c3:755697676095455342>",
@@ -227,9 +233,34 @@ card_emotes = {
     "diamond": diamond_emotes
 }
 
-banned_file_extensions = {
-    "py": "Python",
-    "js": "Javascript",
-    "exe": "Executable",
-    "txt": "Text",
-}
+# These are not allowed and will be auto-deleted but we will also upload them to pastebin and provide the link to paste
+extension_to_pastebin = (
+    "txt",
+    "py"
+)
+
+# These ones are allowed and will not get auto-deleted by bot.
+allowed_file_extensions = (
+    "3gp",
+    "3g2",
+    "avi",
+    "bmp",
+    "gif",
+    "h264",
+    "jpg",
+    "jpeg",
+    "mp3",
+    "m4v",
+    "mkv",
+    "mov",
+    "mp4",
+    "mpeg",
+    "mpg",
+    "ogg",
+    "png",
+    "svg",
+    "tiff",
+    "wmv",
+    "wav",
+    "webm"
+)

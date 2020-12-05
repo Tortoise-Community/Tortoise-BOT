@@ -5,7 +5,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from bot.cogs.utils.embed_handler import failure
+from bot.utils.embed_handler import failure
 
 
 logger = logging.getLogger(__name__)
@@ -28,21 +28,18 @@ class CommandErrorHandler(commands.Cog):
             pass
 
         elif isinstance(error, commands.BotMissingPermissions):
-            fmt = self._get_missing_permission(error)
-            _message = f"I need the **{fmt}** permission(s) to run this command."
+            missing_perms = self._get_missing_permission(error)
+            _message = f"I need the **{missing_perms}** permission(s) to run this command."
             await ctx.send(embed=failure(_message))
 
-        elif isinstance(error, commands.DisabledCommand):
-            await ctx.send(embed=failure("This command has been disabled."))
+        elif isinstance(error, commands.MissingPermissions):
+            missing_perms = self._get_missing_permission(error)
+            _message = f"You need the **{missing_perms}** permission(s) to use this command."
+            await ctx.send(embed=failure(_message))
 
         elif isinstance(error, commands.CommandOnCooldown):
             msg = f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s."
             await ctx.send(embed=failure(msg))
-
-        elif isinstance(error, commands.MissingPermissions):
-            fmt = self._get_missing_permission(error)
-            _message = f"You need the **{fmt}** permission(s) to use this command."
-            await ctx.send(embed=failure(_message))
 
         elif isinstance(error, commands.UserInputError):
             await ctx.send(embed=failure(f"Invalid command input: {error}"))
@@ -61,8 +58,8 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send(embed=failure("You do not have permission to use this command."))
 
         elif isinstance(error, discord.Forbidden):
-            # Conditional to check if it is a closed DM that raised Forbidden
             if error.code == 50007:
+                # Ignore this error if it's because user closed DMs
                 pass
             else:
                 await ctx.send(embed=failure(f"{error}"))
@@ -77,14 +74,14 @@ class CommandErrorHandler(commands.Cog):
 
     @classmethod
     def _get_missing_permission(cls, error) -> str:
-        missing = [perm.replace("_", " ").replace("guild", "server").title() for perm in error.missing_perms]
+        missing_perms = [perm.replace("_", " ").replace("guild", "server").title() for perm in error.missing_perms]
 
-        if len(missing) > 2:
-            fmt = f"{'**, **'.join(missing[:-1])}, and {missing[-1]}"
+        if len(missing_perms) > 2:
+            message = f"{'**, **'.join(missing_perms[:-1])}, and {missing_perms[-1]}"
         else:
-            fmt = " and ".join(missing)
+            message = " and ".join(missing_perms)
 
-        return fmt
+        return message
 
 
 def setup(bot):

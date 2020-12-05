@@ -1,5 +1,5 @@
 from bot.constants import tortoise_developers, tortoise_guild_id
-from bot.cogs.utils.exceptions import TortoiseGuildCheckFailure, TortoiseBotDeveloperCheckFailure
+from bot.utils.exceptions import TortoiseGuildCheckFailure, TortoiseBotDeveloperCheckFailure
 
 
 def check_if_it_is_tortoise_guild(ctx):
@@ -16,7 +16,7 @@ def check_if_it_is_tortoise_guild(ctx):
 
 def tortoise_bot_developer_only(ctx):
     """
-    Check for commands only usable by Tortoise bot developers..
+    Check for commands only usable by Tortoise bot developers.
     """
     if ctx.author.id in tortoise_developers:
         return True

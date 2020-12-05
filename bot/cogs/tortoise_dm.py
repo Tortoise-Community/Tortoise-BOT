@@ -7,10 +7,10 @@ import discord
 from discord.ext import commands
 
 from bot import constants
-from bot.cogs.utils.cooldown import CoolDown
-from bot.cogs.utils.message_logger import MessageLogger
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild
-from bot.cogs.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
+from bot.utils.cooldown import CoolDown
+from bot.utils.message_logger import MessageLogger
+from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.embed_handler import authored, failure, success, info, create_suggestion_msg
 
 
 logger = logging.getLogger(__name__)
@@ -342,8 +342,6 @@ class TortoiseDM(commands.Cog):
 
         user = self.bot.get_user(user_id)
         mod = ctx.author
-        # Keep a log of all messages in mod-mail
-        log = MessageLogger(mod.id, user.id)
 
         if user is None:
             await ctx.send(embed=failure("That user cannot be found or you entered incorrect ID."))
@@ -355,9 +353,21 @@ class TortoiseDM(commands.Cog):
             await ctx.send(embed=failure("You already have one of active sessions (reports/mod mail etc)."))
             return
 
-        self.pending_mod_mails.remove(user_id)
-        self.active_mod_mails[user_id] = mod.id
+        try:
+            await mod.send(
+                embed=success(
+                    f"You have accepted `{user}` mod mail request.\n"
+                    "Reply here in DMs to chat with them.\n"
+                    "This mod mail will be logged.\n"
+                    "Type `close` to close this mod mail."
+                )
+            )
+        except discord.HTTPException:
+            await ctx.send(embed=failure("Mod mail failed to initialize due to mod having closed DMs."))
+            return
 
+        # Unlike failing for mods due to closed DMs this cannot fail for user since user already did interact
+        # with bot in DMs as he needs to in order to even open mod-mail.
         await user.send(
             embed=authored(
                 (
@@ -369,20 +379,15 @@ class TortoiseDM(commands.Cog):
             )
         )
 
-        await mod.send(
-            embed=success(
-                f"You have accepted `{user}` mod mail request.\n"
-                "Reply here in DMs to chat with them.\n"
-                "This mod mail will be logged.\n"
-                "Type `close` to close this mod mail."
-            )
-        )
-        await ctx.send(embed=success("Mod mail initialized, check your DMs."), delete_after=10)
+        await ctx.send(embed=success("Mod mail initialized, check your DMs."))
+        self.pending_mod_mails.remove(user_id)
+        self.active_mod_mails[user_id] = mod.id
+        _timeout = first_timeout
+        # Keep a log of all messages in mod-mail
+        log = MessageLogger(mod.id, user.id)
 
         def mod_mail_check(msg):
             return msg.guild is None and msg.author.id in (user_id, mod.id)
-
-        _timeout = first_timeout
 
         while True:
             try:

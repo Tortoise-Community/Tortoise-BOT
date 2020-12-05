@@ -5,20 +5,20 @@ import logging
 import asyncio
 from typing import List
 
+from discord import Forbidden
 from discord.ext import commands
-from discord import HTTPException, Forbidden
 
 from bot import constants
-from bot.cogs.utils.embed_handler import info, thumbnail, success
-from bot.cogs.utils.members import get_member_activity, get_member_status
-from bot.cogs.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
-from bot.cogs.utils.exceptions import (
+from bot.utils.embed_handler import info, thumbnail, success
+from bot.utils.members import get_member_activity, get_member_status
+from bot.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
+from bot.utils.exceptions import (
     EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess, InternalServerError, DiscordIDNotFound
 )
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
 
 # Keys are endpoint names, values are their functions to be called.
 _endpoints_mapping = {}
@@ -77,8 +77,9 @@ class SocketCommunication(commands.Cog):
         self.bot = bot
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.unverified_role = self.tortoise_guild.get_role(constants.unverified_role_id)
+        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
         self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
+        self.general_channel = bot.get_channel(constants.general_channel_id)
         self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
         self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
         self.verified_clients = set()
@@ -104,7 +105,7 @@ class SocketCommunication(commands.Cog):
             # Not supported on Windows
             pass
 
-        logger.debug("Socket com unloaded.")
+        logger.info("Socket com unloaded.")
 
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -114,12 +115,12 @@ class SocketCommunication(commands.Cog):
 
     @staticmethod
     def create_server():
-        logger.debug("Starting socket comm server...")
+        logger.info("Starting socket comm server...")
         server = socket.socket()
         server.bind(("0.0.0.0", int(os.getenv("SOCKET_SERVER_PORT"))))
         server.listen(3)
         server.setblocking(False)
-        logger.debug("Socket comm server started.")
+        logger.info("Socket comm server started.")
         return server
 
     async def run_server(self, server: socket.socket):
@@ -139,7 +140,7 @@ class SocketCommunication(commands.Cog):
                     request += buffer
                 except ConnectionResetError:
                     # If the client disconnects without sending quit.
-                    logger.debug(f"{client_name} disconnected.")
+                    logger.info(f"{client_name} disconnected.")
                     return
 
                 if len(buffer) < buffer_size:
@@ -151,7 +152,7 @@ class SocketCommunication(commands.Cog):
                     return
 
             if not request:
-                logger.debug("Empty, closing.")
+                logger.info("Empty request, closing.")
                 break
 
             try:
@@ -346,34 +347,34 @@ class SocketCommunication(commands.Cog):
             raise EndpointBadArguments()
 
         none_checks = (
-            self.tortoise_guild, self.verified_role, self.unverified_role,
+            self.tortoise_guild, self.verified_role, self.new_member_role,
             self.successful_verifications_channel, self.welcome_channel
         )
 
         for check_none in none_checks:
             if check_none is None:
-                logger.info(f"One of necessary IDs was not found {none_checks}")
+                logger.warning(f"One of necessary IDs was not found {none_checks}")
                 raise DiscordIDNotFound()
 
-        member = self.tortoise_guild.get_member(member_id)
+        # Attempt to fix bug with verification where sometimes member is not found in cache even if they are in guild
+        tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        member = tortoise_guild.get_member(member_id)
 
         if member is None:
             logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
             raise DiscordIDNotFound()
 
-        try:
-            await member.remove_roles(self.unverified_role)
-        except HTTPException:
-            logger.warning(f"Bot could't remove unverified role {self.unverified_role}")
-
-        await member.add_roles(self.verified_role)
-        await self.successful_verifications_channel.send(embed=info(
-            f"{member} is now verified.", member.guild.me, title="")
+        await member.add_roles(self.verified_role, self.new_member_role, reason="Completed Oauth2 Verification")
+        await self.successful_verifications_channel.send(
+            embed=info(f"{member} is now verified.", member.guild.me, title="")
         )
-
         msg = (
             f"You are now verified {self.verified_emoji}\n\n"
             f"Make sure to read {self.welcome_channel.mention}"
+        )
+        await self.general_channel.send(
+            member.mention, embed=info(f"Say hi to our newest member {member.mention}", member.guild.me, title=""),
+            delete_after=100
         )
         await member.send(embed=success(msg))
 
