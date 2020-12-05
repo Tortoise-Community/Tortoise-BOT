@@ -4,12 +4,10 @@ import json
 
 import discord
 from async_cse import Search
-from bs4 import BeautifulSoup
 from discord.ext import commands
 
 from bot.utils.paginator import ListPaginator
-from bot.constants import upvote_emoji_id, google_icon, stackof_icon
-
+from bot.constants import upvote_emoji_id, google_icon, stackof_icon, stack_api_url
 
 
 class Question:
@@ -20,18 +18,18 @@ class Question:
         self.url = kwargs["url"]
 
     @staticmethod
-    def from_json(json_dict,limit= 10):
+    def from_json(json_dict, limit=10):
         json_dict = json.loads(json_dict)
         items = json_dict["items"]
         questions = []
 
         for item in items:
             if item["is_answered"]:
-               question = Question(votes=item["score"],
-                               answers=item["answer_count"],
-                               title = item["title"],url = item["link"])
-               questions.append(question)
-
+                question = Question(votes=item["score"],
+                                    answers=item["answer_count"],
+                                    title=item["title"],
+                                    url=item["link"])
+                questions.append(question)
 
         if len(questions) < limit:
             return questions
@@ -40,16 +38,16 @@ class Question:
 
 
 class StackOverFlow:
-    def __init__(self,num_questions = 10):
+    def __init__(self, num_questions=10):
         self.num_questions = num_questions
 
     async def search(self, keyword):
-        search_url = f"https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=activity&title={keyword}&site=stackoverflow"
+        search_url = f"{stack_api_url}?order=desc&sort=activity&title={keyword}&site=stackoverflow"
         async with aiohttp.ClientSession() as session:
             async with session.get(search_url) as resp:
-                self.resp_text = await resp.text()
+                resp_text = await resp.text()
 
-        results = Question.from_json(self.resp_text,limit= self.num_questions)
+        results = Question.from_json(resp_text, limit=self.num_questions)
         return results
 
 
