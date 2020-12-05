@@ -1,40 +1,54 @@
 import os
 import aiohttp
+import json
 
 import discord
 from async_cse import Search
-from bs4 import BeautifulSoup
 from discord.ext import commands
 
 from bot.utils.paginator import ListPaginator
-from bot.constants import upvote_emoji_id, google_icon, stackof_icon
+from bot.constants import upvote_emoji_id, google_icon, stackof_icon, stack_api_url
+
+
+class Question:
+    def __init__(self, **kwargs):
+        self.votes = kwargs["votes"]
+        self.answers = kwargs["answers"]
+        self.title = kwargs["title"]
+        self.url = kwargs["url"]
+
+    @staticmethod
+    def from_json(json_dict, limit=10):
+        json_dict = json.loads(json_dict)
+        items = json_dict["items"]
+        questions = []
+
+        for item in items:
+            if item["is_answered"]:
+                question = Question(votes=item["score"],
+                                    answers=item["answer_count"],
+                                    title=item["title"],
+                                    url=item["link"])
+                questions.append(question)
+
+        if len(questions) < limit:
+            return questions
+        else:
+            return questions[:limit]
 
 
 class StackOverFlow:
-    def __init__(self):
-        self.votes = None
-        self.answers = None
-        self.title = None
-        self.text = None
-        self.url = None
+    def __init__(self, num_questions=10):
+        self.num_questions = num_questions
 
-    def fit(self, soup):
-        summary = soup.find("div", class_="summary")
-        q_dict = summary.find("div", class_="result-link").h3.find('a').attrs
+    async def search(self, keyword):
+        search_url = f"{stack_api_url}?order=desc&sort=activity&title={keyword}&site=stackoverflow"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(search_url) as resp:
+                resp_text = await resp.text()
 
-        self.url = f"https://stackoverflow.com/{q_dict['href']}"
-        self.title = q_dict['title']
-        self.text = soup.find("div", class_="excerpt").get_text()
-        self.votes = soup.find("div", class_="votes").find("span").get_text()
-
-        if soup.find("div", class_="status answered"):
-            self.answers = soup.find("div", class_="status answered").find("strong").get_text()
-
-        elif soup.find("div", class_="status unanswered"):
-            self.answers = soup.find("div", class_="status unanswered").find("strong").get_text()
-
-        elif soup.find("div", class_="status answered-accepted"):
-            self.answers = soup.find("div", class_="status answered-accepted").find("strong").get_text()
+        results = Question.from_json(resp_text, limit=self.num_questions)
+        return results
 
 
 class Utility(commands.Cog):
@@ -77,33 +91,17 @@ class Utility(commands.Cog):
 
         msg = await ctx.send(f"Searching for `{query}`")
         upvote_emoji = self.bot.get_emoji(upvote_emoji_id)
-
-        limit = 10
-        search_url = f"https://stackoverflow.com/search?q={str(query).replace(' ', '+')}"
-        resp_text = ""
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(search_url) as resp:
-                resp_text = await resp.text()
-
-        soup = BeautifulSoup(resp_text, "lxml")
-        page_number = 1
+        stackof = StackOverFlow()
         page_list = []
+        results = await stackof.search(query)
 
-        for result in soup.find_all("div", class_="question-summary search-result")[:limit]:
-            sof = StackOverFlow()
-            sof.fit(result)
-
-            embed = discord.Embed(color=self.color, title=sof.title, url=sof.url)
-            embed.description = f"{sof.text}\n\n{upvote_emoji} {sof.votes}  ​​​​ ​💬 {sof.answers}"
+        for result in results:
+            embed = discord.Embed(color=self.color, title=result.title, url=result.url)
+            embed.description = f"{upvote_emoji} {result.votes}  ​​​​ ​💬 {result.answers}"
 
             embed.set_author(name="StackOverFlow", icon_url=stackof_icon)
-            embed.set_footer(
-                text=f"Page {page_number}/{len(soup.find_all('div', class_='question-summary search-result')[:limit])}"
-            )
-
+            embed.set_footer(text=f"Page {results.index(result)}/{len(results)}")
             page_list.append(embed)
-            page_number += 1
 
         paginator = ListPaginator(ctx, page_list)
         await msg.delete()

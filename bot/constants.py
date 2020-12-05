@@ -13,6 +13,7 @@ tortoise_paste_endpoint = "https://paste.tortoisecommunity.com/documents/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
 project_url = "https://www.tortoisecommunity.com/pages/projects/"
+stack_api_url = "https://api.stackexchange.com/2.2/search/advanced"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522
