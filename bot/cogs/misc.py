@@ -93,9 +93,7 @@ class Miscellaneous(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 10, commands.BucketType.guild)
     async def stats(self, ctx):
-        """
-        Show bot information (stats/links/etc).
-        """
+        """Show bot information (stats/links/etc)."""
         bot_ram_usage = self.process.memory_full_info().rss / 1024 ** 2
         bot_ram_usage = f"{bot_ram_usage:.2f} MB"
         bot_ram_usage_field = self.construct_load_bar_string(self.process.memory_percent(), bot_ram_usage)
@@ -211,8 +209,8 @@ class Miscellaneous(commands.Cog):
         content = (
             "Don't ask to ask just ask.\n\n"
             " • You will have much higher chances of getting an answer\n"
-            " • It saves time both for us and you as we can skip the whole process of actually getting the "
-            "question out of you\n\n"
+            " • We can skip the whole process of actually getting the question out of you thus you will get"
+            "answer faster\n\n"
             "For more info visit https://dontasktoask.com/"
         )
         embed = info(content, ctx.me, "")
