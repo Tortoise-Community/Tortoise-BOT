@@ -47,7 +47,7 @@ class AdventOfCode(commands.Cog):
             )
         }
 
-        leaderboard = []
+        leaderboard = ["```py"]
         top_members = 10
         flag_counter = 0
 
@@ -58,9 +58,10 @@ class AdventOfCode(commands.Cog):
 
             stars_pretty = f"{'★' + str(member_data['stars']):4}"
             leaderboard.append(
-                f"```py\n{flag_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}```"
+                f"\n{flag_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}"
             )
 
+        leaderboard.append("```")
         leaderboard_text = "\n".join(leaderboard)
         embed = info(
             f"{leaderboard_text}\n\nThe leaderboard is refreshed each 30 minutes.",
