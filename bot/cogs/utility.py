@@ -1,67 +1,24 @@
 import os
-import aiohttp
-import json
 
 import discord
 from async_cse import Search
 from discord.ext import commands
 
+from bot.api_client import StackAPI
 from bot.utils.paginator import ListPaginator
-from bot.constants import upvote_emoji_id, google_icon, stackof_icon, stack_api_url
-
-
-class Question:
-    def __init__(self, **kwargs):
-        self.votes = kwargs["votes"]
-        self.answers = kwargs["answers"]
-        self.title = kwargs["title"]
-        self.url = kwargs["url"]
-
-    @staticmethod
-    def from_json(json_dict, limit=10):
-        json_dict = json.loads(json_dict)
-        items = json_dict["items"]
-        questions = []
-
-        for item in items:
-            if item["is_answered"]:
-                question = Question(votes=item["score"],
-                                    answers=item["answer_count"],
-                                    title=item["title"],
-                                    url=item["link"])
-                questions.append(question)
-
-        if len(questions) < limit:
-            return questions
-        else:
-            return questions[:limit]
-
-
-class StackOverFlow:
-    def __init__(self, num_questions=10):
-        self.num_questions = num_questions
-
-    async def search(self, keyword):
-        search_url = f"{stack_api_url}?order=desc&sort=activity&title={keyword}&site=stackoverflow"
-        async with aiohttp.ClientSession() as session:
-            async with session.get(search_url) as resp:
-                resp_text = await resp.text()
-
-        results = Question.from_json(resp_text, limit=self.num_questions)
-        return results
+from bot.constants import upvote_emoji_id, google_icon, stack_overflow_icon
 
 
 class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.color = 0x3498d
-        self.google_api_key = os.getenv("GOOGLE_API_KEY")
-        self.google_client = Search(self.google_api_key)
+        self.utility_embed_color = 0x3498d
+        self.stack_api_client = StackAPI(loop=bot.loop)
+        self.google_client = Search(os.getenv("GOOGLE_API_KEY"))
 
     @commands.command(aliases=["g"])
     async def google(self, ctx, *, query):
-        """searches google for a query"""
-
+        """Searches Google for a query."""
         page_list = []
 
         loading_msg = await ctx.send(f"🔍 **Searching Google for:** `{query}`")
@@ -69,7 +26,7 @@ class Utility(commands.Cog):
         page_number = 1
 
         for result in results:
-            page_embed = discord.Embed(color=self.color)
+            page_embed = discord.Embed(color=self.utility_embed_color)
 
             page_embed.title = result.title
             page_embed.description = result.description
@@ -86,21 +43,26 @@ class Utility(commands.Cog):
         await paginator.start()
 
     @commands.command(aliases=["sof", "stack"])
-    async def stackoverflow(self, ctx, *, query):
-        """ Searches stackoverflow for a query"""
-
-        msg = await ctx.send(f"Searching for `{query}`")
+    async def stackoverflow(self, ctx, *, query: str):
+        """Searches StackOverflow for a query."""
         upvote_emoji = self.bot.get_emoji(upvote_emoji_id)
-        stackof = StackOverFlow()
         page_list = []
-        results = await stackof.search(query)
+        msg = await ctx.send(f"Searching for `{query}`")
+        results = await self.stack_api_client.search(query, site="stackoverflow")
 
-        for result in results:
-            embed = discord.Embed(color=self.color, title=result.title, url=result.url)
-            embed.description = f"{upvote_emoji} {result.votes}  ​​​​ ​💬 {result.answers}"
+        total_answered_count = sum(1 for question in results["items"] if question["is_answered"])
 
-            embed.set_author(name="StackOverFlow", icon_url=stackof_icon)
-            embed.set_footer(text=f"Page {results.index(result)}/{len(results)}")
+        questions_count = 0
+        for question in results["items"]:
+            if not question["is_answered"]:
+                continue
+
+            questions_count += 1
+            embed = discord.Embed(title=question['title'], color=self.utility_embed_color, url=question['link'])
+            embed.description = f"{upvote_emoji} {question['score']}  ​​​​ ​💬 {question['answer_count']}"
+
+            embed.set_author(name="StackOverFlow", icon_url=stack_overflow_icon)
+            embed.set_footer(text=f"Result {questions_count}/{total_answered_count}")
             page_list.append(embed)
 
         paginator = ListPaginator(ctx, page_list)

@@ -306,4 +306,32 @@ class AdventOfCodeAPI(BaseAPIClient):
         )
 
     async def get_leaderboard(self):
-        return await super().get(endpoint=".json")
+        return await self.get(endpoint=".json")
+
+
+class StackAPI(BaseAPIClient):
+    STACK_API_URL = "https://api.stackexchange.com"
+    STACK_API_VERSION = "2.2"
+
+    def __init__(self, *, loop: AbstractEventLoop):
+        super().__init__(f"{self.STACK_API_URL}/{self.STACK_API_VERSION}/", loop=loop)
+
+    async def search(
+            self,
+            keyword: str,
+            *,
+            site: str,
+            order: str = "desc",
+            sort: str = "activity",
+            limit: int = 10
+    ) -> dict:
+        params = {
+            "title": keyword,
+            "site": site,
+            "order": order,
+            "sort": sort,
+            "pagesize": limit
+        }
+        if limit < 0 or limit > 100:
+            raise ValueError("StackAPI pagesize has to be in 0-100 range.")
+        return await self.get("search/advanced", params=params)
