@@ -23,6 +23,7 @@ class AdventOfCode(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
+        """Shows invite to our Tortoise Advent of Code leaderboard."""
         invite_embed = info(
             f"Use this code to join Tortoise AoC leaderboard: **{self.TORTOISE_LEADERBOARD_INVITE}**\n\n"
             "To join you can go to the AoC website: https://adventofcode.com/2020/leaderboard",

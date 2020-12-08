@@ -126,9 +126,10 @@ class TortoiseServer(commands.Cog):
                 except HTTPException:
                     logger.warning(f"Bot could't remove new member role from {member} {member.id}")
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.check(check_if_it_is_tortoise_guild)
     async def deadline(self, ctx):
+        """Shows how much time until Code Jam is over."""
         try:
             time_until_string = get_utc_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
             await ctx.send(embed=info(time_until_string, ctx.me, title="Code Jam ends in:"))
@@ -138,9 +139,7 @@ class TortoiseServer(commands.Cog):
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def rule(self, ctx, alias: Union[int, str]):
-        """
-        Shows rule based on number order or alias.
-        """
+        """Shows rule based on number order or alias."""
         if isinstance(alias, int):
             rule_dict = self._get_rule_by_value(alias)
         else:
@@ -173,7 +172,9 @@ class TortoiseServer(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def generate_rules(self, ctx, channel: discord.TextChannel = None):
-        """Sends all rules embed to selected channel (or current one).
+        """
+        Sends all rules embed to selected channel (or current one).
+
         Useful if rule embed needs updating.
         """
         if channel is None:

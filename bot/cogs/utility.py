@@ -33,6 +33,7 @@ class Utility(commands.Cog):
             page_embed.url = result.url
 
             page_embed.set_thumbnail(url=result.image_url)
+            # TODO should be handled by paginator..
             page_embed.set_footer(text=f"Page {page_number}/{len(results)}", icon_url=google_icon)
 
             page_list.append(page_embed)

@@ -122,7 +122,7 @@ class Paginator:
         self._content.append(line)
 
     def _get_page_counter_message(self) -> str:
-        return f"\n\nPage[{self._page_index + 1:<2}/{len(self._pages):<2}]"
+        return f"\n\nPage {self._page_index + 1}/{len(self._pages)}"
 
     async def _add_all_reactions(self):
         for emoji in self.PAGINATION_EMOJIS:
