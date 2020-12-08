@@ -15,8 +15,8 @@ class Github(commands.Cog):
         self.projects = {}
         self.update_github_stats.start()
 
-    @staticmethod
-    def get_project_name(link):
+    @classmethod
+    def get_project_name(cls, link):
         return link.rsplit("/")[-1]
 
     async def get_project_stats(self, project):
@@ -40,7 +40,7 @@ class Github(commands.Cog):
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
-        """GitHub stats"""
+        """Show Tortoise GitHub projects stats."""
         await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 

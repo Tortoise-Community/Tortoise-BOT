@@ -49,17 +49,17 @@ class AdventOfCode(commands.Cog):
         }
 
         leaderboard = ["```py"]
-        top_members = 10
-        flag_counter = 0
+        num_of_members = 10
+        position_counter = 0
 
         for member_id, member_data in sorted_members.items():
-            flag_counter += 1
-            if flag_counter > top_members:
+            position_counter += 1
+            if position_counter > num_of_members:
                 break
 
             stars_pretty = f"{'★' + str(member_data['stars']):4}"
             leaderboard.append(
-                f"{flag_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}"
+                f"{position_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}"
             )
 
         leaderboard.append("```")
@@ -83,11 +83,8 @@ class AdventOfCode(commands.Cog):
         end_date = datetime.datetime(year=2020, month=12, day=current_day+1, tzinfo=utc_minus_5)
 
         difference = end_date - now
-        if difference.total_seconds() <= 0:
-            return await ctx.send(embed=failure("BrainDead did not code this well :pomf:"))
-        else:
-            ends_in = format_timedelta(difference)
-            await ctx.send(embed=info(f"Day {current_day} ends in {ends_in}", title="Countdown", member=ctx.guild.me))
+        ends_in = format_timedelta(difference)
+        await ctx.send(embed=info(f"Day {current_day} ends in {ends_in}", title="Countdown", member=ctx.guild.me))
 
 
 def setup(bot):
