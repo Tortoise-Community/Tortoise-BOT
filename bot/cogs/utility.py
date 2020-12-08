@@ -21,7 +21,7 @@ class Utility(commands.Cog):
         """Searches Google for a query."""
         page_list = []
 
-        loading_msg = await ctx.send(f"🔍 **Searching Google for:** `{query}`")
+        await ctx.trigger_typing()
         results = await self.google_client.search(query)
         page_number = 1
 
@@ -39,18 +39,17 @@ class Utility(commands.Cog):
             page_list.append(page_embed)
             page_number += 1
 
-        await loading_msg.delete()
         paginator = ListPaginator(ctx, page_list)
         await paginator.start()
 
     @commands.command(aliases=["sof", "stack"])
     async def stackoverflow(self, ctx, *, query: str):
         """Searches StackOverflow for a query."""
-        upvote_emoji = self.bot.get_emoji(upvote_emoji_id)
         page_list = []
-        msg = await ctx.send(f"Searching for `{query}`")
-        results = await self.stack_api_client.search(query, site="stackoverflow")
+        upvote_emoji = self.bot.get_emoji(upvote_emoji_id)
 
+        await ctx.trigger_typing()
+        results = await self.stack_api_client.search(query, site="stackoverflow")
         total_answered_count = sum(1 for question in results["items"] if question["is_answered"])
 
         questions_count = 0
@@ -67,7 +66,6 @@ class Utility(commands.Cog):
             page_list.append(embed)
 
         paginator = ListPaginator(ctx, page_list)
-        await msg.delete()
         await paginator.start()
 
 
