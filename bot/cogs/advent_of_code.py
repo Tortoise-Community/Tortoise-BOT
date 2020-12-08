@@ -58,7 +58,7 @@ class AdventOfCode(commands.Cog):
 
             stars_pretty = f"{'★' + str(member_data['stars']):4}"
             leaderboard.append(
-                f"{flag_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}"
+                f"```py\n{flag_counter}. {member_data['local_score']:4}p {stars_pretty} {member_data['name']}```"
             )
 
         leaderboard_text = "\n".join(leaderboard)
