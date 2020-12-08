@@ -1,11 +1,9 @@
 import logging
 import datetime
-import functools
 from types import SimpleNamespace
 from typing import Iterable, Union
 
 import discord
-from guesslang import Guess
 from discord.ext import commands, tasks
 from discord.errors import HTTPException
 
@@ -14,7 +12,7 @@ from bot.api_client import ResponseCodeError
 from bot.utils.misc import get_utc_time_until
 from bot.utils.message_handler import RemovableMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
-from bot.utils.embed_handler import (success, warning, failure, welcome, footer_embed, info)
+from bot.utils.embed_handler import success, failure, welcome, footer_embed, info
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +22,6 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
-        self.guess_language = Guess()
         self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
         self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
         self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
@@ -61,24 +58,6 @@ class TortoiseServer(commands.Cog):
             return
         elif message.guild.id != constants.tortoise_guild_id:
             return
-
-        # Long code handler
-        # Below part is when someone sends too long message, bot will recommend them to use our pastebin
-        # Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
-        if not message.author.bot and len(message.content) > constants.max_message_length:
-            language = await self.bot.loop.run_in_executor(
-                None, functools.partial(self.guess_language.language_name, source_code=message.content)
-            )
-            if language:
-                tortoise_security_cog = self.bot.get_cog("Security")
-                pastebin_link = await tortoise_security_cog.create_pastebin_link(message.content.encode())
-
-                msg = (
-                    f"Detected a long message containing {language} code.\n"
-                    f"To improve readability I've uploaded it to our pastebin: {pastebin_link}"
-                )
-                await message.delete()
-                await message.channel.send(embed=warning(msg))
 
         # Suggestion message handler
         if message.channel.id == constants.suggestions_channel_id:
