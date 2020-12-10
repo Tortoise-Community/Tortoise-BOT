@@ -9,7 +9,6 @@ pre-commit = "*"
 
 [packages]
 python-dotenv = "*"
-praw = "*"
 psutil = "*"
 youtube-dl = "*"
 python-dateutil = "*"
@@ -19,6 +18,7 @@ bs4 = "*"
 async-cse = "*"
 lxml = "*"
 guesslang = "*"
+asyncpraw = "*"
 
 [requires]
 python_version = "3.8"

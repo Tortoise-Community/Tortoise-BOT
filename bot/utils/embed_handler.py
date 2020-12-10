@@ -1,5 +1,6 @@
 import datetime
 from typing import Union
+from asyncpraw import models
 
 from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
@@ -67,30 +68,33 @@ async def nsfw_warning_embed(author: Member, additional_msg: str = "") -> Embed:
     return embed
 
 
-async def reddit_embed(ctx, post, color=0x3498d) -> Embed:
+async def reddit_embed(ctx, submission: models.Submission, color=0x3498d) -> Embed:
     """
     Embeds a reddit post
     :param ctx: The invocation context
-    :param post: The post to embed
+    :param submission: The submission to embed
     :param color: the color of the embed
     :return: Embed object
     """
 
-    if post.over_18:
+    if submission.over_18:
         return await nsfw_warning_embed(ctx.author)
 
-    subreddit = post.subreddit.display_name
+    await submission.subreddit.load()
+    await submission.author.load()
+
+    subreddit = submission.subreddit.display_name
     upvote_emoji = ctx.bot.get_emoji(constants.upvote_emoji_id)
-    embed = Embed(title=post.title, url=post.url, colour=color)
+    embed = Embed(title=submission.title, url=submission.url, colour=color)
 
     embed.description = (
-        f"{post.selftext}\n"
-        f"{upvote_emoji} {post.score}​​ ​​ ​​​​ ​💬 {len(post.comments)}"
+        f"{submission.selftext}\n"
+        f"{upvote_emoji} {submission.score}​​ ​​ ​​​​ ​💬 {submission.num_comments}"
     )
-    embed.set_image(url=post.url)
-    embed.set_author(name=f"r/{subreddit}", icon_url=post.subreddit.icon_img)
-    embed.set_footer(text=f"u/{post.author.name}", icon_url=post.author.icon_img)
-    embed.timestamp = datetime.datetime.fromtimestamp(post.created_utc)
+    embed.set_image(url=submission.url)
+    embed.set_author(name=f"r/{subreddit}", icon_url=submission.subreddit.icon_img)
+    embed.set_footer(text=f"u/{submission.author.name}", icon_url=submission.author.icon_img)
+    embed.timestamp = datetime.datetime.fromtimestamp(submission.created_utc)
     return embed
 
 
