@@ -1,14 +1,16 @@
 import logging
 import asyncio
-from datetime import datetime
+from typing import Union
 
 import discord
-from discord.ext import commands, tasks
+from discord import User, Member
+from discord.ext import commands
 
 from bot import constants
-from bot.utils.converters import GetFetchUser
+from bot.utils.message_handler import ConfirmationMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
-from bot.utils.embed_handler import success, failure, info, infraction_embed, thumbnail
+from bot.utils.converters import GetFetchUser, DatetimeConverter
+from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail
 
 
 logger = logging.getLogger(__name__)
@@ -43,23 +45,80 @@ class Moderation(commands.Cog):
         await member.send(embed=dm_embed)
 
     @commands.command()
+    @commands.bot_has_guild_permissions(administrator=True)
+    @commands.has_guild_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def ban_timestamp(
+            self,
+            ctx,
+            timestamp_start: DatetimeConverter,
+            timestamp_end: DatetimeConverter,
+            *,
+            reason="Mass ban with timestamp."
+    ):
+        """Bans  member from the guild if he joined at specific time.
+
+        Both arguments need to be in this specific format:
+        %Y-%m-%d %H:%M
+
+        Example:
+        t.ban_timestamp "2020-09-15 13:00" "2020-10-15 13:00"
+
+        All values need to be padded with 0.
+        Timezones are not accounted for.
+        """
+        members_to_ban = []
+
+        for member in self.tortoise_guild.members:
+            if member.joined_at is None:
+                continue
+
+            if timestamp_start < member.joined_at < timestamp_end:
+                members_to_ban.append(member)
+
+        if not members_to_ban:
+            return await ctx.send(embed=failure("Could not find any members, aborting.."))
+
+        reaction_msg = await ctx.send(
+            embed=warning(
+                f"This will ban {len(members_to_ban)} members, "
+                f"first one being {members_to_ban[0]} and last one being {members_to_ban[-1]}.\n"
+                f"Are you sure you want to continue?"
+            )
+        )
+
+        confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, ctx.author)
+        if confirmation:
+            logger.info(f"{ctx.author} is timestamp banning: {', '.join(member.id for member in members_to_ban)}")
+
+            for member in members_to_ban:
+                await self._ban_helper(ctx, member, reason)
+            await ctx.send(embed=success(f"Successfully mass banned {len(members_to_ban)} members!"))
+        else:
+            await ctx.send(embed=info("Aborting mass ban.", ctx.me))
+
+    @commands.command()
     @commands.bot_has_guild_permissions(ban_members=True)
     @commands.has_guild_permissions(ban_members=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
         """Bans  member from the guild."""
-        await ctx.guild.ban(user=user, reason=reason)
-        await ctx.send(embed=success(f"{user} successfully banned."), delete_after=5)
-        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
-        await self.deterrence_log_channel.send(embed=deterrence_embed)
+        await self._ban_helper(ctx, user, reason)
+        await ctx.send(embed=success(f"{user} successfully banned."), delete_after=10)
 
+    async def _ban_helper(self, ctx: commands.Context, member: Union[GetFetchUser, User, Member], reason: str):
+        await member.ban(reason=reason)
+        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
         dm_embed = deterrence_embed
         dm_embed.add_field(
             name="Repeal",
             value="If this happened by a mistake contact moderators."
         )
-
-        await user.send(embed=dm_embed)
+        try:
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            pass  # ignore closed DMs
 
     @commands.command()
     @commands.bot_has_guild_permissions(ban_members=True)
@@ -210,58 +269,6 @@ class Moderation(commands.Cog):
         await member.add_roles(self.verified_role, reason=reason)
 
         await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
-
-    @tasks.loop(hours=24)
-    async def scheduled_dm_unverified(self):
-        """
-        Dms all unverified members reminder that they need to verify.
-        Failed members are printed to log.
-        """
-        # TODO
-        return
-        """
-        date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
-        AttributeError: 'NoneType' object has no attribute 'split'
-        """
-        members = await self.bot.api_client.get_all_members()
-        failed = []
-        count = 0
-
-        # TODO filter is only temporary until API endpoint added
-        for user in filter(lambda m: not m['verified'], members):
-            date_joined = datetime.strptime(user['join_date'].split('T')[0], '%Y-%m-%d')
-            days_since_joined = (datetime.today() - date_joined).days
-
-            member = self.tortoise_guild.get_member(user['user_id'])
-
-            if not user['member']:
-                # Column is not deleted if member has left the guild, we just change field 'member' to False
-                # Also, VERY IMPORTANT, we have members in database from previous system that didn't verify but were
-                # let of the hook! Do not kick!
-                continue
-            elif member is None:
-                # If bot was offline for a moment and leave event was not registered
-                logger.warning(f"Member {member} found in database as member but not found in guild.")
-                continue
-
-            if days_since_joined % 5 == 0:
-                msg = (
-                    f"Hey {member.mention}!\n"
-                    f"You've been in our guild **{self.tortoise_guild.name}** for the past {days_since_joined} days.\n"
-                    f"We noticed you still haven't verified so please go to "
-                    f"{constants.verification_url} and verify.\n\n"
-                )
-
-                try:
-                    await member.send(msg)
-                except discord.Forbidden:
-                    failed.append(member.name)
-                else:
-                    count += 1
-
-        logger.info(f"Successfully messaged {count} unverified users.")
-        if failed:
-            logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @commands.command(aliases=["dm"])
     @commands.cooldown(1, 900, commands.BucketType.guild)

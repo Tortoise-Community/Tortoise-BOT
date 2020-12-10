@@ -46,6 +46,15 @@ class Duration(Converter):
         return now + delta
 
 
+class DatetimeConverter(Converter):
+
+    async def convert(self, ctx: Context, datetime_string: str) -> datetime:
+        try:
+            return datetime.strptime(datetime_string, "%Y-%m-%d %H:%M")
+        except Exception:
+            raise BadArgument(f"`{datetime_string}` is not properly formatted.")
+
+
 class DatabaseMember(MemberConverter):
     """
     Database deals with IDs only.

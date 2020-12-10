@@ -35,9 +35,9 @@ class ResponseCodeError(ValueError):
 
 
 class BaseAPIClient:
-    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], headers: Optional[dict] = None):
+    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], **kwargs):
         self.base_api_url = base_api_url
-        self.session = aiohttp.ClientSession(loop=loop, headers=headers)
+        self.session = aiohttp.ClientSession(loop=loop, **kwargs)
 
     def _url_for(self, endpoint: str) -> str:
         return f"{self.base_api_url}{endpoint}"
@@ -277,3 +277,61 @@ class TortoiseAPI(BaseAPIClient):
 
     async def put_project_data(self, project_id, data):
         await self.put(f"projects/{project_id}/", json=data)
+
+
+class HataAPI(BaseAPIClient):
+    HATA_API_URL = "https://huyanematsu.pythonanywhere.com/docs/api"
+    HATA_API_VERSION = "v1"
+    HATA_API_ENDPOINT = f"{HATA_API_URL}/{HATA_API_VERSION}/"
+
+    def __init__(self, *, loop: AbstractEventLoop):
+        super().__init__(self.HATA_API_ENDPOINT, loop=loop)
+
+    async def search(self, search_for: str) -> List[dict]:
+        params = {"search_for": search_for}
+        return await self.get("search", params=params)
+
+
+class AdventOfCodeAPI(BaseAPIClient):
+    AOC_REQUEST_HEADER = {"user-agent": "Tortoise Discord Community AoC event bot"}
+    COOKIES = {"session": os.getenv("AOC_COOKIE")}
+    AOC_API_URL = "https://adventofcode.com/{year}/leaderboard/private/view/{leaderboard_id}"
+
+    def __init__(self, leaderboard_id: str, year: int = 2020, *, loop: AbstractEventLoop):
+        super().__init__(
+            self.AOC_API_URL.format(year=year, leaderboard_id=leaderboard_id),
+            loop=loop,
+            headers=self.AOC_REQUEST_HEADER,
+            cookies=self.COOKIES
+        )
+
+    async def get_leaderboard(self):
+        return await self.get(endpoint=".json")
+
+
+class StackAPI(BaseAPIClient):
+    STACK_API_URL = "https://api.stackexchange.com"
+    STACK_API_VERSION = "2.2"
+
+    def __init__(self, *, loop: AbstractEventLoop):
+        super().__init__(f"{self.STACK_API_URL}/{self.STACK_API_VERSION}/", loop=loop)
+
+    async def search(
+            self,
+            keyword: str,
+            *,
+            site: str,
+            order: str = "desc",
+            sort: str = "activity",
+            limit: int = 10
+    ) -> dict:
+        params = {
+            "title": keyword,
+            "site": site,
+            "order": order,
+            "sort": sort,
+            "pagesize": limit
+        }
+        if limit < 0 or limit > 100:
+            raise ValueError("StackAPI pagesize has to be in 0-100 range.")
+        return await self.get("search/advanced", params=params)

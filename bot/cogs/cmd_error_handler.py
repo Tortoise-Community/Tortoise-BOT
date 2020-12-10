@@ -29,17 +29,17 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, commands.BotMissingPermissions):
             missing_perms = self._get_missing_permission(error)
-            _message = f"I need the **{missing_perms}** permission(s) to run this command."
-            await ctx.send(embed=failure(_message))
+            message = f"I need the **{missing_perms}** permission(s) to run this command."
+            await ctx.send(embed=failure(message))
 
         elif isinstance(error, commands.MissingPermissions):
             missing_perms = self._get_missing_permission(error)
-            _message = f"You need the **{missing_perms}** permission(s) to use this command."
-            await ctx.send(embed=failure(_message))
+            message = f"You need the **{missing_perms}** permission(s) to use this command."
+            await ctx.send(embed=failure(message))
 
         elif isinstance(error, commands.CommandOnCooldown):
-            msg = f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s."
-            await ctx.send(embed=failure(msg))
+            message = f"This command is on cooldown, please retry in {math.ceil(error.retry_after)}s."
+            await ctx.send(embed=failure(message))
 
         elif isinstance(error, commands.UserInputError):
             await ctx.send(embed=failure(f"Invalid command input: {error}"))
@@ -51,7 +51,7 @@ class CommandErrorHandler(commands.Cog):
                 pass
 
         elif isinstance(error, commands.CheckFailure):
-            """-.- All arguments including error message are eaten and pushed to .args"""
+            # All arguments including error message are eaten and pushed to .args
             if error.args:
                 await ctx.send(embed=failure(". ".join(error.args)))
             else:
@@ -59,6 +59,7 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, discord.Forbidden):
             if error.code == 50007:
+                # code 50007: Cannot send messages to this user.
                 # Ignore this error if it's because user closed DMs
                 pass
             else:

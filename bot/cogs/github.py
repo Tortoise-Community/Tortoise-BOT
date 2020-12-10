@@ -2,10 +2,20 @@ import datetime
 
 from discord.ext import commands, tasks
 
-from bot.utils.misc import Project
 from bot.api_client import GithubAPI
 from bot.constants import project_url
 from bot.utils.embed_handler import project_embed
+
+
+class Project:
+    def __init__(self, project_data: dict):
+        self.name = project_data["name"]
+        self.link = project_data["html_url"]
+        self.web_url = project_data["web_link"]
+        self.forks = project_data["forks_count"]
+        self.commits = project_data["commit_count"]
+        self.stars = project_data["stargazers_count"]
+        self.contributors = project_data["contributors_count"]
 
 
 class Github(commands.Cog):
@@ -15,8 +25,8 @@ class Github(commands.Cog):
         self.projects = {}
         self.update_github_stats.start()
 
-    @staticmethod
-    def get_project_name(link):
+    @classmethod
+    def get_project_name(cls, link):
         return link.rsplit("/")[-1]
 
     async def get_project_stats(self, project):
@@ -40,7 +50,7 @@ class Github(commands.Cog):
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
-        """GitHub stats"""
+        """Show Tortoise GitHub projects stats."""
         await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 

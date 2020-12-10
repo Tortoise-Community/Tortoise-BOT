@@ -9,11 +9,10 @@ from discord.errors import HTTPException
 
 from bot import constants
 from bot.api_client import ResponseCodeError
-from bot.utils.misc import get_utc0_time_until
+from bot.utils.misc import get_utc_time_until
+from bot.utils.message_handler import RemovableMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
-from bot.utils.embed_handler import (
-    success, warning, failure, welcome, footer_embed, info, RemovableMessage
-)
+from bot.utils.embed_handler import success, failure, welcome, footer_embed, info
 
 
 logger = logging.getLogger(__name__)
@@ -60,16 +59,7 @@ class TortoiseServer(commands.Cog):
         elif message.guild.id != constants.tortoise_guild_id:
             return
 
-        if not message.author.bot and len(message.content) > constants.max_message_length:
-            # Below part is when someone sends too long message, bot will recommend them to use our pastebin
-            # TODO we are skipping message deletion for now until we implement system to check
-            #  if sent message is code or not
-            msg = (
-                "Your message is quite long.\n"
-                f"You should consider using our paste service {constants.tortoise_paste_service_link}"
-            )
-            await message.channel.send(embed=warning(msg))
-
+        # Suggestion message handler
         if message.channel.id == constants.suggestions_channel_id:
             if (
                 message.author == self.bot.user and
@@ -115,11 +105,12 @@ class TortoiseServer(commands.Cog):
                 except HTTPException:
                     logger.warning(f"Bot could't remove new member role from {member} {member.id}")
 
-    @commands.command()
+    @commands.command(enabled=False)
     @commands.check(check_if_it_is_tortoise_guild)
     async def deadline(self, ctx):
+        """Shows how much time until Code Jam is over."""
         try:
-            time_until_string = get_utc0_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
+            time_until_string = get_utc_time_until(year=2020, month=11, day=17, hour=23, minute=59, second=59)
             await ctx.send(embed=info(time_until_string, ctx.me, title="Code Jam ends in:"))
         except ValueError:
             await ctx.send(embed=info("Code Jam is over!", member=ctx.me, title="Finished"))
@@ -127,9 +118,7 @@ class TortoiseServer(commands.Cog):
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def rule(self, ctx, alias: Union[int, str]):
-        """
-        Shows rule based on number order or alias.
-        """
+        """Shows rule based on number order or alias."""
         if isinstance(alias, int):
             rule_dict = self._get_rule_by_value(alias)
         else:
@@ -153,9 +142,27 @@ class TortoiseServer(commands.Cog):
     @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def rules(self, ctx):
+        """Shows all rules."""
+        rules_embed = self._get_rules_embed(ctx.guild)
+        message = await ctx.send(embed=rules_embed)
+        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+
+    @commands.command()
+    @commands.has_guild_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def generate_rules(self, ctx, channel: discord.TextChannel = None):
         """
-        Shows all rules info.
+        Sends all rules embed to selected channel (or current one).
+
+        Useful if rule embed needs updating.
         """
+        if channel is None:
+            channel = ctx.channel
+
+        rules_embed = self._get_rules_embed(ctx.guild)
+        await channel.send(embed=rules_embed)
+
+    def _get_rules_embed(self, guild: discord.Guild) -> discord.Embed:
         embed_body = []
         for rule_dict in self._rules:
             rule_entry = (
@@ -165,12 +172,10 @@ class TortoiseServer(commands.Cog):
             )
             embed_body.append(rule_entry)
 
-        rules_embed = info("\n\n".join(embed_body), ctx.guild.me, f"{ctx.guild.name} Rules")
+        rules_embed = info("\n\n".join(embed_body), guild.me, f"{guild.name} Rules")
         rules_embed.set_footer(text="Tortoise Community")
-        rules_embed.set_thumbnail(url=ctx.guild.icon_url)
-
-        message = await ctx.send(embed=rules_embed)
-        await RemovableMessage.create_instance(self.bot, message, ctx.author)
+        rules_embed.set_thumbnail(url=guild.icon_url)
+        return rules_embed
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)

@@ -108,7 +108,7 @@ failure_emoji = "<:failure:781891692160090143>"
 # Icons
 google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/" \
               "google-logo-png-google-icon-logo-png-transparent-svg-vector-bie-supply-14.png"
-stackof_icon = "https://cdn2.iconfinder.com/data/icons/social-icons-color/512/stackoverflow-512.png"
+stack_overflow_icon = "https://cdn2.iconfinder.com/data/icons/social-icons-color/512/stackoverflow-512.png"
 
 # Music Options
 # For all options see:

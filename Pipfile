@@ -9,7 +9,6 @@ pre-commit = "*"
 
 [packages]
 python-dotenv = "*"
-praw = "*"
 psutil = "*"
 youtube-dl = "*"
 python-dateutil = "*"
@@ -18,11 +17,13 @@ aenum = "*"
 bs4 = "*"
 async-cse = "*"
 lxml = "*"
+guesslang = "*"
+asyncpraw = "*"
 
 [requires]
 python_version = "3.8"
 
 [scripts]
-start = 'python -m bot'
+start = "python -m bot"
 lint = "python -m flake8"
 precommit = "pre-commit install"

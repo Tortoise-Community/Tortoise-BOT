@@ -142,10 +142,18 @@ def format_timedelta(time_delta: datetime.timedelta) -> str:
     return f"{days}d {hours}h {minutes}m and {seconds}s"
 
 
-def get_utc0_time_until(year: int, month: int, day: int, hour: int, minute: int, second: int) -> str:
+def get_utc_time_until(
+        year: int,
+        month: int,
+        day: int,
+        hour: int,
+        minute: int,
+        second: int,
+        timezone_offset: int = 0
+) -> str:
     """
     Convenience function get nicely formatted time left until param end_date.
-    Timezone is UTC-0
+    Timezone offset is by default 0 (UTC-0)
 
     :param year: int year for end date
     :param month:  int month for end date
@@ -153,25 +161,17 @@ def get_utc0_time_until(year: int, month: int, day: int, hour: int, minute: int,
     :param hour:  int hour for end date
     :param minute:  int minute for end date
     :param second: int second for end date
+    :param timezone_offset: int hours, in which timezone will we calculate
     :return: str human readable time left until end date
     :raises: ValueError if passed date is in the past.
     """
-    utc0 = datetime.timezone(offset=datetime.timedelta(hours=0))
-    now = datetime.datetime.now(tz=utc0)
-    end_date = datetime.datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=utc0)
+    utc_timezone = datetime.timezone(offset=datetime.timedelta(hours=timezone_offset))
+    now = datetime.datetime.now(tz=utc_timezone)
+    end_date = datetime.datetime(
+        year=year, month=month, day=day, hour=hour, minute=minute, second=second, tzinfo=utc_timezone
+    )
     difference = end_date - now
     if difference.total_seconds() <= 0:
         raise ValueError("That date has already passed.")
     else:
         return format_timedelta(difference)
-
-
-class Project:
-    def __init__(self, project_data):
-        self.name = project_data["name"]
-        self.link = project_data["html_url"]
-        self.web_url = project_data["web_link"]
-        self.forks = project_data["forks_count"]
-        self.commits = project_data["commit_count"]
-        self.stars = project_data["stargazers_count"]
-        self.contributors = project_data["contributors_count"]
