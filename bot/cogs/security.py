@@ -139,10 +139,11 @@ class Security(commands.Cog):
             extension = extension.lower()
 
             if extension in extension_to_pastebin:
-                if attachment.size > 4096:
+                # Maximum file size to upload to Pastebin is 4MB
+                if attachment.size > 4 * 1024 * 1024:
                     reply = (
                         f"It looks like you tried to attach a {extension} file which "
-                        f"could be code related but since it's too big in size I will not be uploading it "
+                        f"could be code related but since it's over 4MB in size I will not be uploading it "
                         f"to our pastebin for viewing."
                     )
                 else:
