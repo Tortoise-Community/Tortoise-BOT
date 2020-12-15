@@ -190,8 +190,7 @@ class Security(commands.Cog):
         pastebin_link = await self.create_pastebin_link(message.content.encode())
         await message.delete()
         msg = (
-            f"Detected a long message containing {language} code.\n"
-            f"To improve readability I've uploaded it to our pastebin: {pastebin_link}"
+            f"I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
         )
         await message.channel.send(embed=warning(msg))
         return True
