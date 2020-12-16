@@ -28,7 +28,11 @@ logger = logging.getLogger(__name__)
 ytdl = YoutubeDL(ytdl_format_options)
 
 
-class VoiceConnectionError(commands.CommandError):
+class MusicException(discord.ext.commands.CommandError):
+    """Base exception class for music cog."""
+
+
+class VoiceConnectionError(MusicException):
     """Custom Exception class for connection errors."""
 
 
@@ -36,7 +40,7 @@ class InvalidVoiceChannel(VoiceConnectionError):
     """Exception for cases of invalid Voice Channels."""
 
 
-class SourceError(commands.CommandError):
+class SourceError(MusicException):
     """Sometimes we get no results for our search for unknown reason."""
 
 
