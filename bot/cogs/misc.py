@@ -207,7 +207,7 @@ class Miscellaneous(commands.Cog):
     @commands.command()
     async def ask(self, ctx):
         content = (
-            "Don't ask to ask just ask.\n\n"
+            "Don't ask to ask, just ask.\n\n"
             " • You will have much higher chances of getting an answer\n"
             " • We can skip the whole process of actually getting the question out of you thus you will get "
             "answer faster\n\n"

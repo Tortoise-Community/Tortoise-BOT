@@ -190,9 +190,9 @@ class Security(commands.Cog):
         pastebin_link = await self.create_pastebin_link(message.content.encode())
         await message.delete()
         msg = (
-            f"I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
+            f"Hey {message.author}, I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
         )
-        await message.channel.send(embed=warning(msg))
+        await message.channel.send(embed=info(msg, message.guild.me, ""))
         return True
 
     async def create_pastebin_link(self, content: bytes) -> str:
