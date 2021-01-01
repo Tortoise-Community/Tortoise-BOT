@@ -302,7 +302,7 @@ class Moderation(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @commands.command()
+    @commands.command(aliases=["message"])
     @commands.has_guild_permissions(manage_messages=True)
     async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
         """Send message to channel"""
