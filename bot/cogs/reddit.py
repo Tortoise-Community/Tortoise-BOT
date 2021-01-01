@@ -109,6 +109,15 @@ class Reddit(commands.Cog):
 
         return self._cache.get_random_post(subreddit)
 
+    """
+    @BrainDead - 
+    Maybe for these commands below, you could add something that detects
+    whether the command is taking too long to run?
+    Like say maybe if the command output doesn't pop up in the channel for 10 or more seconds,
+    you could send a message that says something like 'Command took too long to run. Maybe try again? Or report this issue to the developers?'
+    """
+    
+    
     @commands.command()
     async def meme(self, ctx):
         """Sends you the dankest of the dank memes from reddit."""
