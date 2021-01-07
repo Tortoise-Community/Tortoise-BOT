@@ -122,13 +122,14 @@ class Security(commands.Cog):
 
     async def deal_with_attachments(self, message: Message) -> bool:
         """
-        Will delete message if it has attachment that we don't allow or if it is a
-        whitelisted attachment extension it will upload it's content to our pastebin
+        Will delete message if it has attachment that we don't allow.
+        If it's a whitelisted extension it will upload it's content to our pastebin instead
         and reply with link to it.
         :param message: message to check for attachments
         :return: bool, was the passed message deleted or not?
         """
         reply = None
+        delete_message_flag = False
 
         for attachment in message.attachments:
             try:
@@ -141,32 +142,33 @@ class Security(commands.Cog):
             if extension in extension_to_pastebin:
                 # Maximum file size to upload to Pastebin is 4MB
                 if attachment.size > 4 * 1024 * 1024:
+                    delete_message_flag = True
                     reply = (
-                        f"It looks like you tried to attach a {extension} file which "
-                        f"could be code related but since it's over 4MB in size I will not be uploading it "
-                        f"to our pastebin for viewing."
+                        f"Hey {message.author} , your {extension} file is over 4MB so I will be deleting it.\n\n"
+                        f"If you have a question please have a minimum reproducible code example."
                     )
                 else:
                     file_content = await attachment.read()
                     url = await self.create_pastebin_link(file_content)
                     reply = (
-                        f"It looks like you tried to attach a {extension} file which is not allowed, "
-                        "however since it could be code related you can find the paste link here:\n"
+                        f"Hey {message.author} , I've uploaded your file to our pastebin for easier viewing: "
                         f"[**{attachment.filename}** {url}]"
                     )
             elif extension not in allowed_file_extensions:
                 reply = (
-                    f"It looks like you tried to attach a {extension} file which is not allowed, "
-                    "as it could potentially contain malicious code."
+                    f"Hey {message.author}, {extension} file extension is not allowed here.\n "
+                    "If you believe this is a mistake please contact admins."
                 )
 
             if reply:
-                await message.channel.send(f"Hey {message.author.mention}!", embed=warning(reply))
-                await message.delete()
-                return True
+                delete_message_flag = True
+                await message.channel.send(f"{message.author.mention}!", embed=info(reply, message.guild.me))
 
-        # If we've come here we did not delete our message
-        return False
+        if delete_message_flag:
+            await message.delete()
+
+        # for return handler to know if og msg got deleted, so it doesn't run additional checks
+        return delete_message_flag
 
     async def deal_with_long_code(self, message: Message) -> bool:
         """
