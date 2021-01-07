@@ -24,9 +24,7 @@ class CommandErrorHandler(commands.Cog):
         if hasattr(ctx.command, "on_error"):
             pass
 
-        # If cog has local handler (cog_command_error) then ignore TODO any other way?
-        elif ctx.cog._get_overridden_method(ctx.cog.cog_command_error) is not None:
-            pass
+        # TODO Here it should ignore if cog has local handler (cog_command_error) to prevent duplicate messages
 
         elif isinstance(error, commands.CommandNotFound):
             pass
