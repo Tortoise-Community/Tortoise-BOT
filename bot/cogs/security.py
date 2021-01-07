@@ -188,7 +188,9 @@ class Security(commands.Cog):
             None, functools.partial(self.guess_language.language_name, source_code=message.content)
         )
 
-        if not language:
+        if not language or language == "Markdown":
+            # Markdown can be too similar to just regular Discord message so just ignore it.
+            # Also ignore if language could not be detected.
             return False
 
         pastebin_link = await self.create_pastebin_link(message.content.encode())
