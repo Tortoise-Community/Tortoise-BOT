@@ -183,8 +183,7 @@ class Moderation(commands.Cog):
             warnings_embed = thumbnail(warnings_msg, member, f"Warning #{count+1}")
             await ctx.send(embed=warnings_embed)
 
-    @commands.command(aliases=["warnings_count"])
-    @commands.has_guild_permissions(manage_messages=True)
+    @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def warning_count(self, ctx, member: discord.Member):
         """Shows count of all warnings from member."""

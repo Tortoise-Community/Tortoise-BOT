@@ -28,7 +28,6 @@ class TortoiseServer(commands.Cog):
         self.member_count_channel = bot.get_channel(constants.member_count_channel_id)
         self.log_channel = bot.get_channel(constants.system_log_channel_id)
         self.verification_channel = bot.get_channel(constants.verification_channel_id)
-        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
         self.announcements_channel = bot.get_channel(constants.announcements_channel_id)
         self.code_submissions_channel = bot.get_channel(constants.code_submissions_channel_id)
 
