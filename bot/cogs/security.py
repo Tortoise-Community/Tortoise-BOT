@@ -10,6 +10,7 @@ from discord import Member, Message, Guild
 from bot import constants
 from bot.config_handler import ConfigHandler
 from bot.utils.embed_handler import info, warning
+from bot.utils.message_handler import RemovableMessage
 from bot.constants import (
     extension_to_pastebin, allowed_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
 )
@@ -162,7 +163,8 @@ class Security(commands.Cog):
 
             if reply:
                 delete_message_flag = True
-                await message.channel.send(f"{message.author.mention}!", embed=info(reply, message.guild.me))
+                msg = await message.channel.send(f"{message.author.mention}!", embed=info(reply, message.guild.me))
+                self.bot.loop.create_task(RemovableMessage.create_instance(self.bot, msg, message.author))
 
         if delete_message_flag:
             await message.delete()
