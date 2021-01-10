@@ -22,6 +22,7 @@ console = logging.StreamHandler(stdout)
 console.setFormatter(formatter)
 console_logger.addHandler(console)
 
-console_logger.info("Loading and starting the bot..")
-load_dotenv()
-Bot().run(os.getenv("BOT_TOKEN"))
+if __name__ == '__main__':
+  console_logger.info("Loading and starting the bot..")
+  load_dotenv()
+  Bot().run(os.getenv("BOT_TOKEN"))
