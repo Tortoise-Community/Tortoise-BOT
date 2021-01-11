@@ -149,7 +149,33 @@ class Games(commands.Cog):
                     await self.reaction_options[payload.emoji.id](player)  # noqa
             except Exception as e:
                 logger.critical(e)
-
+                
+    @client.command(name="8ball")
+    async def eightball(ctx, *, question):
+        responses = (
+            'It is certain',
+            'It is decidedly so',
+            'Without a doubt',
+            'Yes - definitely',
+            'You may rely on it',
+            'As I see it, yes',
+            'Most likely',
+            'Outlook good',
+            'Yes',
+            'Signs point to yes',
+            'Ask again later',
+            'Cannot predict now',
+            'Concentrate and ask again',
+            'Don’t count on it',
+            'Outlook not so good',
+            'Reply hazy, try again',
+            'Very doubtful',
+            'My sources say no',
+            'My reply is no',
+            'Better not tell you now'
+        )
+        await ctx.send(random.choice(responses))
+            
 
 def setup(bot):
     bot.add_cog(Games(bot))
