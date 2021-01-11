@@ -1,6 +1,11 @@
 from discord.ext.commands import CheckFailure
 
 
+class MissingPermissionOrRole(CheckFailure):
+    def __init__(self):
+        super.__init__(message="You are not authorized to do that.")
+
+
 class TortoiseGuildCheckFailure(CheckFailure):
     def __init__(self):
         super().__init__(message="Can only be used in Tortoise guild.")
