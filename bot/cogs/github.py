@@ -48,7 +48,7 @@ class Github(commands.Cog):
             self.projects["last_updated"] = datetime.datetime.now()
             await self.bot.api_client.put_project_data(project["pk"], vars(item))
 
-    @commands.command(aliases=["git"])
+    @commands.command(aliases=["git", "gh"])
     async def github(self, ctx):
         """Show Tortoise GitHub projects stats."""
         await ctx.send(embed=project_embed(self.projects, ctx.me))
