@@ -1,4 +1,6 @@
-from cogs.imports import *
+
+from discord import *
+"""PLEASE PUT YOUR IMPORTS"""
 
 
 class Player:
