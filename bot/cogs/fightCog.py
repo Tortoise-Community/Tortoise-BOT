@@ -69,7 +69,7 @@ class Battle(commands.Cog):
     async def fight(self, ctx, opponent: discord.Member):
         if ctx.channel.id in self.occupied:
             await ctx.send("This battlefield is occupied")
-            return
+            return None
         else:
             self.occupied.append(ctx.channel.id)
         if opponent == ctx.message.author:
