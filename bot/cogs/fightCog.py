@@ -1,6 +1,7 @@
-
-from discord import *
-"""PLEASE PUT YOUR IMPORTS"""
+import discord
+import math
+import asyncio
+import random
 
 
 class Player:
