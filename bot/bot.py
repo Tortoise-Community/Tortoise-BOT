@@ -33,6 +33,16 @@ class Bot(commands.Bot):
             "bug_report": False,
             "suggestions": False
         }
+        
+    async def on_message(self, message):
+        bad_words = ("shit", "fuck", "bitch")
+        
+        if message in bad_words:
+            await message.channel.send("Please DON'T say that!")
+        
+        for x in bad_words:
+            if x in message:
+                await message.channel.send("Please do not use foul language!")
 
     async def on_ready(self):
         console_logger.info(
