@@ -2,10 +2,9 @@ from typing import Tuple, Any
 from asyncio import TimeoutError
 from abc import ABC, abstractmethod
 
-from discord import PartialEmoji
 from discord.errors import NotFound
 from discord.ext.commands import Bot
-from discord import Member, Message, RawReactionActionEvent
+from discord import PartialEmoji, Message, Member, RawReactionActionEvent
 
 
 class ReactionMessage(ABC):
@@ -22,7 +21,8 @@ class ReactionMessage(ABC):
             timeout: int = 120,
             silence_timeout_error: bool = True
     ) -> Any:
-        """You need to await this class method to successfully initialize this class,
+        """
+        You need to await this class method to successfully initialize this class,
         you cannot directly initialize it as usual.
 
         :param bot: instance of bot
@@ -32,7 +32,7 @@ class ReactionMessage(ABC):
         :param silence_timeout_error: Should TimeOutError be re-raised or silently ignored?
         :return: whatever is returned by method react_action which you need to implement.
         """
-        self = RemovableMessage()
+        self = cls()
 
         self.bot = bot
         self.message = message
@@ -47,16 +47,16 @@ class ReactionMessage(ABC):
 
     def _check(self, payload: RawReactionActionEvent) -> bool:
         return (
-            payload.emoji in self.EMOJIS and
+            payload.user_id != self.bot.user.id and
             payload.message_id == self.message.id and
             payload.user_id == self.action_member.id and
-            payload.user_id != self.bot.user.id
+            payload.emoji in self.EMOJIS
         )
 
     async def _listen(self) -> Any:
         try:
-            partial_emoji = await self.bot.wait_for("raw_reaction_add", check=self._check, timeout=self.timeout)
-            return await self.react_action(partial_emoji)
+            raw_reaction_event = await self.bot.wait_for("raw_reaction_add", check=self._check, timeout=self.timeout)
+            return await self.react_action(raw_reaction_event.emoji)
         except TimeoutError as timeout_error:
             for emoji in self.EMOJIS:
                 try:
@@ -69,7 +69,8 @@ class ReactionMessage(ABC):
 
     @abstractmethod
     async def react_action(self, reacted_emoji: PartialEmoji) -> Any:
-        """Implement what will happen when member reacts to message.
+        """
+        Implement what will happen when member reacts to message.
         This will get triggered if anyone reacted to this message with any of the emojis in EMOJIS.
 
         :param reacted_emoji: PartialEmoji that the member reacted with.
