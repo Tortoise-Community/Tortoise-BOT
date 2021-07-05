@@ -3,16 +3,16 @@ from aenum import Enum, NoAlias
 from discord import Color
 
 tortoise_guild_id = 577192344529404154
-website_url = "https://www.tortoisecommunity.com/"
-privacy_url = "https://www.tortoisecommunity.com/pages/privacy"
-rules_url = "https://www.tortoisecommunity.com/pages/rules"
-verification_url = "https://www.tortoisecommunity.com/verification/"
+website_url = "https://www.tortoisecommunity.org/"
+privacy_url = "https://www.tortoisecommunity.org/pages/privacy"
+rules_url = "https://www.tortoisecommunity.org/pages/rules"
+verification_url = "https://www.tortoisecommunity.org/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
-tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
-tortoise_paste_endpoint = "https://paste.tortoisecommunity.com/documents/"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.org/"
+tortoise_paste_endpoint = "https://paste.tortoisecommunity.org/documents/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
-project_url = "https://www.tortoisecommunity.com/pages/projects/"
+project_url = "https://www.tortoisecommunity.org/pages/projects/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522

@@ -114,7 +114,7 @@ class TortoiseAPI(BaseAPIClient):
             "Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}",
             "Content-Type": "application/json"
         }
-        super().__init__("https://api.tortoisecommunity.com/private/", loop=loop, headers=auth_header)
+        super().__init__("https://api.tortoisecommunity.org/private/", loop=loop, headers=auth_header)
 
     async def get_suggestions_under_review(self) -> List[dict]:
         # Gets all suggestion that are under-review
