@@ -10,6 +10,7 @@ from discord import Member, Message, Guild
 from bot import constants
 from bot.config_handler import ConfigHandler
 from bot.utils.embed_handler import info, warning
+from bot.utils.message_handler import RemovableMessage
 from bot.constants import (
     extension_to_pastebin, allowed_file_extensions, tortoise_paste_endpoint, tortoise_paste_service_link
 )
@@ -122,13 +123,14 @@ class Security(commands.Cog):
 
     async def deal_with_attachments(self, message: Message) -> bool:
         """
-        Will delete message if it has attachment that we don't allow or if it is a
-        whitelisted attachment extension it will upload it's content to our pastebin
+        Will delete message if it has attachment that we don't allow.
+        If it's a whitelisted extension it will upload it's content to our pastebin instead
         and reply with link to it.
         :param message: message to check for attachments
         :return: bool, was the passed message deleted or not?
         """
         reply = None
+        delete_message_flag = False
 
         for attachment in message.attachments:
             try:
@@ -139,33 +141,36 @@ class Security(commands.Cog):
             extension = extension.lower()
 
             if extension in extension_to_pastebin:
-                if attachment.size > 4096:
+                # Maximum file size to upload to Pastebin is 4MB
+                if attachment.size > 4 * 1024 * 1024:
+                    delete_message_flag = True
                     reply = (
-                        f"It looks like you tried to attach a {extension} file which "
-                        f"could be code related but since it's too big in size I will not be uploading it "
-                        f"to our pastebin for viewing."
+                        f"Hey {message.author} , your {extension} file is over 4MB so I will be deleting it.\n\n"
+                        f"If you have a question please have a minimum reproducible code example."
                     )
                 else:
                     file_content = await attachment.read()
                     url = await self.create_pastebin_link(file_content)
                     reply = (
-                        f"It looks like you tried to attach a {extension} file which is not allowed, "
-                        "however since it could be code related you can find the paste link here:\n"
+                        f"Hey {message.author} , I've uploaded your file to our pastebin for easier viewing: "
                         f"[**{attachment.filename}** {url}]"
                     )
             elif extension not in allowed_file_extensions:
                 reply = (
-                    f"It looks like you tried to attach a {extension} file which is not allowed, "
-                    "as it could potentially contain malicious code."
+                    f"Hey {message.author}, {extension} file extension is not allowed here.\n "
+                    "If you believe this is a mistake please contact admins."
                 )
 
             if reply:
-                await message.channel.send(f"Hey {message.author.mention}!", embed=warning(reply))
-                await message.delete()
-                return True
+                delete_message_flag = True
+                msg = await message.channel.send(f"{message.author.mention}!", embed=info(reply, message.guild.me))
+                self.bot.loop.create_task(RemovableMessage.create_instance(self.bot, msg, message.author))
 
-        # If we've come here we did not delete our message
-        return False
+        if delete_message_flag:
+            await message.delete()
+
+        # for return handler to know if og msg got deleted, so it doesn't run additional checks
+        return delete_message_flag
 
     async def deal_with_long_code(self, message: Message) -> bool:
         """
@@ -183,16 +188,17 @@ class Security(commands.Cog):
             None, functools.partial(self.guess_language.language_name, source_code=message.content)
         )
 
-        if not language:
+        if not language or language == "Markdown":
+            # Markdown can be too similar to just regular Discord message so just ignore it.
+            # Also ignore if language could not be detected.
             return False
 
         pastebin_link = await self.create_pastebin_link(message.content.encode())
         await message.delete()
         msg = (
-            f"Detected a long message containing {language} code.\n"
-            f"To improve readability I've uploaded it to our pastebin: {pastebin_link}"
+            f"Hey {message.author}, I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
         )
-        await message.channel.send(embed=warning(msg))
+        await message.channel.send(embed=info(msg, message.guild.me, ""))
         return True
 
     async def create_pastebin_link(self, content: bytes) -> str:
@@ -208,6 +214,8 @@ class Security(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, msg_before, msg_after):
         if msg_before.content == msg_after.content:
+            return
+        elif self.skip_security(msg_after):
             return
 
         # Log that the message was edited for security reasons
@@ -228,6 +236,8 @@ class Security(commands.Cog):
     async def on_message_delete(self, message):
         if message.content == "":
             return  # if it had only attachment for example
+        elif self.skip_security(message):
+            return
 
         msg = (
             f"**Message deleted in** {message.channel.mention}\n\n"

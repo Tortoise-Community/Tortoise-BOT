@@ -3,16 +3,16 @@ from aenum import Enum, NoAlias
 from discord import Color
 
 tortoise_guild_id = 577192344529404154
-website_url = "https://www.tortoisecommunity.com/"
-privacy_url = "https://www.tortoisecommunity.com/pages/privacy"
-rules_url = "https://www.tortoisecommunity.com/pages/rules"
-verification_url = "https://www.tortoisecommunity.com/verification/"
+website_url = "https://www.tortoisecommunity.org/"
+privacy_url = "https://www.tortoisecommunity.org/pages/privacy"
+rules_url = "https://www.tortoisecommunity.org/pages/rules"
+verification_url = "https://www.tortoisecommunity.org/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
-tortoise_paste_service_link = "https://paste.tortoisecommunity.com/"
-tortoise_paste_endpoint = "https://paste.tortoisecommunity.com/documents/"
+tortoise_paste_service_link = "https://paste.tortoisecommunity.org/"
+tortoise_paste_endpoint = "https://paste.tortoisecommunity.org/documents/"
 line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
-project_url = "https://www.tortoisecommunity.com/pages/projects/"
+project_url = "https://www.tortoisecommunity.org/pages/projects/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522
@@ -233,34 +233,74 @@ card_emotes = {
     "diamond": diamond_emotes
 }
 
-# These are not allowed and will be auto-deleted but we will also upload them to pastebin and provide the link to paste
+# These are allowed but will get deleted and bot will upload them to pastebin and provide the link to paste
+# The message will be deletable by the author by reacting to emoji (wrong code, token leak)
 extension_to_pastebin = (
-    "txt",
-    "py"
+    # Markdown/text based
+    "css", "less",
+    "csv",
+    "htm", "html", "xhtml",
+    "ini", "cfg",
+    "json", "json5", "yaml", "toml",
+    "log",
+    "txt", "md", "markdown",
+    "xml",
+    # Programming languages
+    "c", "cpp", "h",
+    "cs",
+    "go",
+    "hs",
+    "java",
+    "js", "ts", "coffee",
+    "kt",
+    "lisp",
+    "lua",
+    "php",
+    "pl",
+    "py", "pyx",
+    "r",
+    "rb",
+    "rs",
+    "swift",
+    "vb",
 )
 
-# These ones are allowed and will not get auto-deleted by bot.
+# These are allowed and will not get auto-deleted by bot nor will they get a paste link.
 allowed_file_extensions = (
-    "3gp",
-    "3g2",
-    "avi",
+    # Audio
+    "aif",
+    "mid", "midi",
+    "mp3",
+    "mpa",
+    "ogg",
+    "wav",
+    "wma",
+
+    # Images
     "bmp",
     "gif",
-    "h264",
-    "jpg",
-    "jpeg",
-    "mp3",
-    "m4v",
-    "mkv",
-    "mov",
-    "mp4",
-    "mpeg",
-    "mpg",
-    "ogg",
+    "jpg", "jpeg",
     "png",
     "svg",
-    "tiff",
+    "tif", "tiff",
+    "webp",
+
+    # Video
+    "3g2",
+    "3gp",
+    "avi",
+    "h264",
+    "mkv",
+    "mov", "qt",
+    "mp4", "m4v",
+    "mpg", "m2v", "mp2", "mpe", "mpeg", "mpv",
+    "ogv",
+    "webm",
     "wmv",
-    "wav",
-    "webm"
+
+    # Document/misc
+    "doc", "docx",
+    "odt",
+    "pdf",
+    "rtf",
 )

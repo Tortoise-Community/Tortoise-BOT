@@ -107,7 +107,7 @@ class Moderation(commands.Cog):
         await ctx.send(embed=success(f"{user} successfully banned."), delete_after=10)
 
     async def _ban_helper(self, ctx: commands.Context, member: Union[GetFetchUser, User, Member], reason: str):
-        await member.ban(reason=reason)
+        await ctx.guild.ban(member, reason=reason)
         deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
         dm_embed = deterrence_embed
@@ -183,8 +183,7 @@ class Moderation(commands.Cog):
             warnings_embed = thumbnail(warnings_msg, member, f"Warning #{count+1}")
             await ctx.send(embed=warnings_embed)
 
-    @commands.command(aliases=["warnings_count"])
-    @commands.has_guild_permissions(manage_messages=True)
+    @commands.command()
     @commands.check(check_if_it_is_tortoise_guild)
     async def warning_count(self, ctx, member: discord.Member):
         """Shows count of all warnings from member."""

@@ -24,6 +24,8 @@ class CommandErrorHandler(commands.Cog):
         if hasattr(ctx.command, "on_error"):
             pass
 
+        # TODO Here it should ignore if cog has local handler (cog_command_error) to prevent duplicate messages
+
         elif isinstance(error, commands.CommandNotFound):
             pass
 
