@@ -3,7 +3,7 @@ import logging
 import functools
 
 import aiohttp
-from guesslang import Guess
+# from guesslang import Guess
 from discord.ext import commands
 from discord import Member, Message, Guild
 
@@ -27,7 +27,7 @@ class Security(commands.Cog):
         self.banned_words = ConfigHandler("banned_words.json")
         self.trusted = self.guild.get_role(constants.trusted_role_id)
         self.log_channel = bot.get_channel(constants.bot_log_channel_id)
-        self.guess_language = Guess()
+        # self.guess_language = Guess()
 
     async def security_check(self, message: Message):
         """
@@ -45,10 +45,10 @@ class Security(commands.Cog):
             is_message_deleted = await self.deal_with_invites(message)
 
         if len(message.attachments) != 0 and not is_message_deleted:
-            is_message_deleted = await self.deal_with_attachments(message)
+            await self.deal_with_attachments(message)
 
-        if not is_message_deleted:
-            await self.deal_with_long_code(message)
+        # if not is_message_deleted:
+        #     await self.deal_with_long_code(message)
 
     def skip_security(self, message: Message) -> bool:
         """
@@ -172,34 +172,34 @@ class Security(commands.Cog):
         # for return handler to know if og msg got deleted, so it doesn't run additional checks
         return delete_message_flag
 
-    async def deal_with_long_code(self, message: Message) -> bool:
-        """
-        When someone sends long message containing code, bot will delete it and upload message content
-        to our pastebin and reply with it's link.
-        Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
-        :param message: message to check
-        :return: bool, was the passed message deleted or not?
-        """
-        if len(message.content) <= constants.max_message_length:
-            return False
-
-        await message.channel.trigger_typing()
-        language = await self.bot.loop.run_in_executor(
-            None, functools.partial(self.guess_language.language_name, source_code=message.content)
-        )
-
-        if not language or language == "Markdown":
-            # Markdown can be too similar to just regular Discord message so just ignore it.
-            # Also ignore if language could not be detected.
-            return False
-
-        pastebin_link = await self.create_pastebin_link(message.content.encode())
-        await message.delete()
-        msg = (
-            f"Hey {message.author}, I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
-        )
-        await message.channel.send(embed=info(msg, message.guild.me, ""))
-        return True
+    # async def deal_with_long_code(self, message: Message) -> bool:
+    #     """
+    #     When someone sends long message containing code, bot will delete it and upload message content
+    #     to our pastebin and reply with it's link.
+    #     Guessing is quite CPU intensive so be sure to check it only for long messages (not for each).
+    #     :param message: message to check
+    #     :return: bool, was the passed message deleted or not?
+    #     """
+    #     if len(message.content) <= constants.max_message_length:
+    #         return False
+    #
+    #     await message.channel.trigger_typing()
+    #     language = await self.bot.loop.run_in_executor(
+    #         None, functools.partial(self.guess_language.language_name, source_code=message.content)
+    #     )
+    #
+    #     if not language or language == "Markdown":
+    #         # Markdown can be too similar to just regular Discord message so just ignore it.
+    #         # Also ignore if language could not be detected.
+    #         return False
+    #
+    #     pastebin_link = await self.create_pastebin_link(message.content.encode())
+    #     await message.delete()
+    #     msg = (
+    #         f"Hey {message.author}, I've uploaded your long **{language}** code to our pastebin: {pastebin_link}"
+    #     )
+    #     await message.channel.send(embed=info(msg, message.guild.me, ""))
+    #     return True
 
     async def create_pastebin_link(self, content: bytes) -> str:
         """Creates link to our Pastebin with passed content."""
