@@ -17,7 +17,7 @@ aenum = "*"
 bs4 = "*"
 async-cse = "*"
 lxml = "*"
-guesslang = "*"
+guesslang = "2.0.1"
 asyncpraw = "*"
 
 [requires]
