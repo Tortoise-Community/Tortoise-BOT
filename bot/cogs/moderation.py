@@ -103,6 +103,8 @@ class Moderation(commands.Cog):
         if not members_to_ban:
             return await ctx.send(embed=failure("Could not find any members, aborting.."))
 
+        members_to_ban.sort(key=lambda m: m.joined_at)
+
         reaction_msg = await ctx.send(
             embed=warning(
                 f"This will ban {len(members_to_ban)} members, "
