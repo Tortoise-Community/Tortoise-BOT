@@ -21,7 +21,7 @@ console_logger = logging.getLogger("console")
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
     allowed_extensions = ()
-    banned_extensions = ()
+    banned_extensions = ("advent_of_code", "invite_tracker")
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
@@ -47,12 +47,12 @@ class Bot(commands.Bot):
 
     async def on_first_ready(self):
         self.load_extensions()
-        await self.change_presence(activity=discord.Game(name="DM me!"))
+        await self.change_presence(activity=discord.Game(name="DM to Contact Staff"))
         await self.reload_tortoise_meta_cache()
         try:
             version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
             bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(embed=info(f"Bot restarted. Image version `{version}`", self.user, ""))
+            await bot_log_channel.send(embed=info(f"Bot restarted. Build version `{version}`", self.user, ""))
         except Exception as e:
             logger.info("Git image version not found", e)
 

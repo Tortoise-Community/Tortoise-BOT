@@ -28,12 +28,20 @@ logger = logging.getLogger(__name__)
 ytdl = YoutubeDL(ytdl_format_options)
 
 
-class VoiceConnectionError(commands.CommandError):
+class MusicException(discord.ext.commands.CommandError):
+    """Base exception class for music cog."""
+
+
+class VoiceConnectionError(MusicException):
     """Custom Exception class for connection errors."""
 
 
 class InvalidVoiceChannel(VoiceConnectionError):
     """Exception for cases of invalid Voice Channels."""
+
+
+class SourceError(MusicException):
+    """Sometimes we get no results for our search for unknown reason."""
 
 
 class YTDLSource(discord.PCMVolumeTransformer):
@@ -60,10 +68,12 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         to_run = partial(ytdl.extract_info, url=search, download=download)
         data = await loop.run_in_executor(None, to_run)
-
         if "entries" in data:
-            # take first item from a playlist
-            data = data["entries"][0]
+            try:
+                # take first item from a playlist
+                data = data["entries"][0]
+            except IndexError:
+                raise SourceError("Sorry, couldn't find any results. Try with different query.")
 
         await ctx.send(embed=info(f"```ini\n[Added {data['title']} to the queue.]```", ctx.me, ""))
 
@@ -204,7 +214,7 @@ class Music(commands.Cog):
                     "Please make sure you are in a valid channel or provide me with one"
                 )
             )
-        elif isinstance(error, TortoiseGuildCheckFailure):
+        elif isinstance(error, (TortoiseGuildCheckFailure, SourceError)):
             await ctx.send(embed=failure(f"{error}"))
         else:
             traceback_msg = traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)
