@@ -49,6 +49,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.bot_has_guild_permissions(administrator=True)
     @commands.has_guild_permissions(administrator=True)
+    @commands.cooldown(1, 120, commands.BucketType.guild)
     @commands.check(check_if_it_is_tortoise_guild)
     async def mass_ban(
             self,
@@ -68,6 +69,7 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.bot_has_guild_permissions(administrator=True)
     @commands.has_guild_permissions(administrator=True)
+    @commands.cooldown(1, 120, commands.BucketType.guild)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
             self,
@@ -115,9 +117,23 @@ class Moderation(commands.Cog):
 
         confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, ctx.author)
         if confirmation:
+
+            one_tenth = len(members_to_ban) // 10
+            notify_interval = one_tenth if one_tenth > 50 else 50
+
+            await ctx.send(
+                embed=info(
+                    f"Starting the ban process, please be patient.\n"
+                    f"You will be notified for each {notify_interval} banned members.",
+                    ctx.author
+                )
+            )
             logger.info(f"{ctx.author} is timestamp banning: {', '.join(str(member.id) for member in members_to_ban)}")
 
-            for member in members_to_ban:
+            for count, member in enumerate(members_to_ban):
+                if count != 0 and count % notify_interval == 0:
+                    await ctx.send(embed=info(f"Banned {count} members..", ctx.author))
+
                 await ctx.guild.ban(member, reason=reason)
 
             message = f"Successfully mass banned {len(members_to_ban)} members!"
