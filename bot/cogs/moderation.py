@@ -1,3 +1,4 @@
+import copy
 import logging
 import asyncio
 from typing import Union
@@ -10,7 +11,7 @@ from bot import constants
 from bot.utils.message_handler import ConfirmationMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.utils.converters import GetFetchUser, DatetimeConverter
-from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail
+from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail, authored
 
 
 logger = logging.getLogger(__name__)
@@ -89,11 +90,14 @@ class Moderation(commands.Cog):
 
         confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, ctx.author)
         if confirmation:
-            logger.info(f"{ctx.author} is timestamp banning: {', '.join(member.id for member in members_to_ban)}")
+            logger.info(f"{ctx.author} is timestamp banning: {', '.join(str(member.id) for member in members_to_ban)}")
 
             for member in members_to_ban:
-                await self._ban_helper(ctx, member, reason)
-            await ctx.send(embed=success(f"Successfully mass banned {len(members_to_ban)} members!"))
+                await ctx.guild.ban(member, reason=reason)
+
+            message = f"Successfully mass banned {len(members_to_ban)} members!"
+            await ctx.send(embed=success(message))
+            await self.deterrence_log_channel.send(embed=authored(message, author=ctx.author))
         else:
             await ctx.send(embed=info("Aborting mass ban.", ctx.me))
 
@@ -106,19 +110,28 @@ class Moderation(commands.Cog):
         await self._ban_helper(ctx, user, reason)
         await ctx.send(embed=success(f"{user} successfully banned."), delete_after=10)
 
-    async def _ban_helper(self, ctx: commands.Context, member: Union[GetFetchUser, User, Member], reason: str):
-        await ctx.guild.ban(member, reason=reason)
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
-        await self.deterrence_log_channel.send(embed=deterrence_embed)
-        dm_embed = deterrence_embed
-        dm_embed.add_field(
-            name="Repeal",
-            value="If this happened by a mistake contact moderators."
-        )
-        try:
-            await member.send(embed=dm_embed)
-        except discord.Forbidden:
-            pass  # ignore closed DMs
+    async def _ban_helper(
+            self,
+            ctx: commands.Context,
+            user: Union[GetFetchUser, User, Member],
+            reason: str,
+            send_dm: bool = True,
+            log_deterrence: bool = True,
+    ):
+        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
+
+        if send_dm:
+            dm_embed = copy.copy(deterrence_embed)
+            dm_embed.add_field(name="Repeal", value="If this happened by a mistake contact moderators.")
+            try:
+                await user.send(embed=dm_embed)
+            except discord.Forbidden:
+                pass  # ignore closed DMs
+
+        await ctx.guild.ban(user, reason=reason)
+
+        if log_deterrence:
+            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
     @commands.command()
     @commands.bot_has_guild_permissions(ban_members=True)
