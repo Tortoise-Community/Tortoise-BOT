@@ -1,6 +1,6 @@
 import re
 import logging
-import functools
+# import functools
 
 import aiohttp
 # from guesslang import Guess
