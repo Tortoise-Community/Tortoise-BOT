@@ -2,6 +2,7 @@ import copy
 import logging
 import asyncio
 from typing import Union
+from datetime import datetime
 
 import discord
 from discord import User, Member
@@ -49,6 +50,25 @@ class Moderation(commands.Cog):
     @commands.bot_has_guild_permissions(administrator=True)
     @commands.has_guild_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
+    async def mass_ban(
+            self,
+            ctx,
+            message_start: discord.Message,
+            message_end: discord.Message,
+            *,
+            reason="Mass ban with message timestamp."
+    ):
+        """Bans  member from the guild if they joined at specific time.
+
+        This is the same thing as ban_timestamp except that instead of manualy passing
+        timestamps you pass start and end message from which the timestamps will be taken
+        """
+        await self._mass_ban_timestamp_helper(ctx, message_start.created_at, message_end.created_at, reason)
+
+    @commands.command()
+    @commands.bot_has_guild_permissions(administrator=True)
+    @commands.has_guild_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
             self,
             ctx,
@@ -57,7 +77,7 @@ class Moderation(commands.Cog):
             *,
             reason="Mass ban with timestamp."
     ):
-        """Bans  member from the guild if he joined at specific time.
+        """Bans  member from the guild if they joined at specific time.
 
         Both arguments need to be in this specific format:
         %Y-%m-%d %H:%M
@@ -68,6 +88,9 @@ class Moderation(commands.Cog):
         All values need to be padded with 0.
         Timezones are not accounted for.
         """
+        await self._mass_ban_timestamp_helper(ctx, timestamp_start, timestamp_end, reason)
+
+    async def _mass_ban_timestamp_helper(self, ctx, timestamp_start: datetime, timestamp_end: datetime, reason: str):
         members_to_ban = []
 
         for member in self.tortoise_guild.members:
