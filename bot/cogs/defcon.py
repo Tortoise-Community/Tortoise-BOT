@@ -6,13 +6,11 @@ import discord
 from discord.ext import commands, tasks
 
 from bot import constants
-from bot.utils.embed_handler import success
+from bot.utils.embed_handler import success, failure
 from bot.utils.checks import check_if_it_is_tortoise_guild
 
 
 logger = logging.getLogger(__name__)
-TIMESTAMP: datetime
-DISCORD_ID: int
 
 
 class Defcon(commands.Cog):
@@ -21,7 +19,7 @@ class Defcon(commands.Cog):
         self.defcon_active = False
         self._kicked_while_defcon_was_active: int = 0
         self.joins_per_min_trigger = 10
-        self._joins: Set[Tuple[TIMESTAMP, DISCORD_ID]] = set()
+        self._joins: Set[Tuple[datetime, int]] = set()
         self.staff_channel = bot.get_channel(constants.staff_channel_id)
 
     @commands.Cog.listener()
@@ -73,6 +71,16 @@ class Defcon(commands.Cog):
             )
         )
         self._kicked_while_defcon_was_active = 0
+
+    @commands.command()
+    @commands.has_guild_permissions(administrator=True)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def set_defcon_trigger(self, ctx, trigger: int):
+        if not 10 <= trigger <= 100:
+            return await ctx.send(embed=failure("Please use integer from 10 to 100."))
+
+        self.joins_per_min_trigger = trigger
+        await ctx.send(embed=success(f"Successfully changed DEFCON trigger to {trigger} users/min."))
 
 
 def setup(bot):
