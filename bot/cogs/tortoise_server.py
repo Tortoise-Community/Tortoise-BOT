@@ -176,30 +176,17 @@ class TortoiseServer(commands.Cog):
         rules_embed.set_thumbnail(url=guild.icon_url)
         return rules_embed
 
-    @commands.Cog.listener()
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def on_member_join(self, member: discord.Member):
-        logger.info(f"New member joined {member}")
-        try:
-            member_meta = await self.bot.api_client.get_member_meta(member.id)
-        except ResponseCodeError:
-            await self._new_member_register_in_database(member)
-        else:
-            if member_meta["leave_date"] is None and member_meta["verified"]:
-                pass
-            else:
-                await self._new_member_re_joined(member, member_meta["verified"])
-
     async def _new_member_register_in_database(self, member: discord.Member):
         logger.info(f"New member {member} does not exist in database, adding now.")
         await self.bot.api_client.insert_new_member(member)
-        # Ghost ping the member so he takes note of verification channel where all info is
-        await self.verification_channel.send(member.mention, delete_after=1)
+        await member.add_roles(self.new_member_role)
         await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
         dm_msg = (
-            "Welcome to Tortoise Community!\n"
-            "In order to proceed and join the community you will need to verify.\n\n"
-            f"Please head over to\n{constants.verification_url}"
+            "Welcome to Tortoise Community!\n\n"
+            f"By joining the server you agree to our [rules]({constants.rules_url}).\n"
+            f"You can read about our server from <#{constants.welcome_channel_id}> and "
+            f"add roles to yourself from <#{constants.react_for_roles_channel_id}>\n\n"
+            f"We hope you enjoy your stay!"
         )
         await member.send(embed=footer_embed(dm_msg, "Welcome"))
 
@@ -217,28 +204,17 @@ class TortoiseServer(commands.Cog):
 
     async def _new_member_re_joined(self, member: discord.Member, verified: bool):
         if verified:
+            # this factor will be removed in the next update
             logger.info(f"Member {member} re-joined and is verified in database, adding previous roles..")
-            previous_roles = await self.bot.api_client.get_member_roles(member.id)
-            await self.add_verified_roles_to_member(member, previous_roles)
-            await self.bot.api_client.member_rejoined(member)
-            await self.log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
-            msg = (
-                "Welcome back to Tortoise Community!\n\n"
-                "The roles you had last time will be restored and added back to you.\n"
-            )
-            await member.send(embed=footer_embed(msg, "Welcome"))
-        else:
-            logger.info(f"Member {member} re-joined but is not verified in database, waiting for him to verify.")
-            await self.bot.api_client.member_rejoined(member)
-            await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
-            # Ghost ping the member so he takes note of verification channel where all info is
-            await self.verification_channel.send(member.mention, delete_after=1)
-            msg = (
-                "Hi, welcome to Tortoise Community!\n"
-                "Seems like this is not your first time joining.\n\n"
-                f"Last time you didn't verify so please head over to {constants.verification_url}"
-            )
-            await member.send(embed=footer_embed(msg, "Welcome"))
+        previous_roles = await self.bot.api_client.get_member_roles(member.id)
+        await self.add_verified_roles_to_member(member, previous_roles)
+        await self.bot.api_client.member_rejoined(member)
+        await self.log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
+        msg = (
+            "Welcome back to Tortoise Community!\n\n"
+            "The roles you had last time will be restored and added back to you.\n"
+        )
+        await member.send(embed=footer_embed(msg, "Welcome"))
 
     @commands.Cog.listener()
     @commands.check(check_if_it_is_tortoise_guild)
@@ -246,6 +222,19 @@ class TortoiseServer(commands.Cog):
         """
         We save all roles from member so he can get those roles back if he re-joins.
         """
+        if before.pending is True and after.pending is False:
+
+            logger.info(f"New member joined {after}")
+            try:
+                member_meta = await self.bot.api_client.get_member_meta(after.id)
+            except ResponseCodeError:
+                await self._new_member_register_in_database(after)
+            else:
+                if member_meta["leave_date"] is None and member_meta["verified"]:
+                    pass
+                else:
+                    await self._new_member_re_joined(after, member_meta["verified"])
+
         if before.roles == after.roles or self._database_role_update_lock:
             return
 
