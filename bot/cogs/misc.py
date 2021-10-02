@@ -11,6 +11,8 @@ from bot.utils.embed_handler import info, status_embed
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
 
+from random import randint
+
 
 class Miscellaneous(commands.Cog):
     def __init__(self, bot):
@@ -268,6 +270,27 @@ class Miscellaneous(commands.Cog):
     @commands.command(aliases=['xkcd'])
     async def antigravity(self, ctx):
         await ctx.send(embed=info("https://xkcd.com/353/", ctx.me, title=""))
+
+    @commands.command(aliases=['toss'])
+    async def coin(self, ctx, times: int = 1):
+        """Tosses a coin"""
+        sample_space = ["Head", "Tail"]
+        if times == 1:
+            coin_toss = sample_space[randint(0, 1)]
+            await ctx.send(embed=info(f":coin: | Coin Toss | **{coin_toss}**", ctx.me, title=""))
+        else:
+            coin_toss = ", ".join([sample_space[randint(0, 1)] for i in range(times)])
+            await ctx.send(embed=info(f":coin: | Coin tossed {times} times | **{coin_toss}**", ctx.me, title=""))
+
+    @commands.command(aliases=['roll'])
+    async def dice(self, ctx, times: int = 1):
+        """Rolls a dice"""
+        if times == 1:
+            dice_roll = randint(1, 6)
+            await ctx.send(embed=info(f"🎲 | Dice Roll | **{dice_roll}**", ctx.me, title=""))
+        else:
+            dice_roll = ", ".join([str(randint(1, 6)) for i in range(times)])
+            await ctx.send(embed=info(f"🎲 | Dice Rolled {times} times | **{dice_roll}**", ctx.me, title=""))
 
 
 def setup(bot):
