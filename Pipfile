@@ -12,13 +12,12 @@ python-dotenv = "*"
 psutil = "*"
 youtube-dl = "*"
 python-dateutil = "*"
-discord-py = {extras = ["voice"],version = "~=1.5.1"}
 aenum = "*"
 bs4 = "*"
 async-cse = "*"
 lxml = "*"
-guesslang = "*"
 asyncpraw = "*"
+"discord.py" = {extras = ["voice"], version = "*"}
 
 [requires]
 python_version = "3.8"

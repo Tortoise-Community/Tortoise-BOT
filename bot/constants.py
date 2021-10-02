@@ -35,6 +35,7 @@ bot_dev_channel_id = 692851221223964822
 error_log_channel_id = 690650346665803777
 member_count_channel_id = 723526255495872566
 general_channel_id = 577192344533598472
+staff_channel_id = 580809054067097600
 
 # Roles
 muted_role_id = 707007421066772530

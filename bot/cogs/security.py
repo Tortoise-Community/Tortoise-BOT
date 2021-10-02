@@ -45,7 +45,7 @@ class Security(commands.Cog):
             is_message_deleted = await self.deal_with_invites(message)
 
         if len(message.attachments) != 0 and not is_message_deleted:
-            is_message_deleted = await self.deal_with_attachments(message)
+            await self.deal_with_attachments(message)
 
         if not is_message_deleted:
             await self.deal_with_long_code(message)

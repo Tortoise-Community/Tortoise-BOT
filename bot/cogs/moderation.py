@@ -1,6 +1,8 @@
+import copy
 import logging
 import asyncio
 from typing import Union
+from datetime import datetime
 
 import discord
 from discord import User, Member
@@ -10,7 +12,7 @@ from bot import constants
 from bot.utils.message_handler import ConfirmationMessage
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.utils.converters import GetFetchUser, DatetimeConverter
-from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail
+from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail, authored
 
 
 logger = logging.getLogger(__name__)
@@ -47,6 +49,27 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.bot_has_guild_permissions(administrator=True)
     @commands.has_guild_permissions(administrator=True)
+    @commands.cooldown(1, 120, commands.BucketType.guild)
+    @commands.check(check_if_it_is_tortoise_guild)
+    async def mass_ban(
+            self,
+            ctx,
+            message_start: discord.Message,
+            message_end: discord.Message,
+            *,
+            reason="Mass ban with message timestamp."
+    ):
+        """Bans  member from the guild if they joined at specific time.
+
+        This is the same thing as ban_timestamp except that instead of manualy passing
+        timestamps you pass start and end message from which the timestamps will be taken
+        """
+        await self._mass_ban_timestamp_helper(ctx, message_start.created_at, message_end.created_at, reason)
+
+    @commands.command()
+    @commands.bot_has_guild_permissions(administrator=True)
+    @commands.has_guild_permissions(administrator=True)
+    @commands.cooldown(1, 120, commands.BucketType.guild)
     @commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
             self,
@@ -56,7 +79,7 @@ class Moderation(commands.Cog):
             *,
             reason="Mass ban with timestamp."
     ):
-        """Bans  member from the guild if he joined at specific time.
+        """Bans  member from the guild if they joined at specific time.
 
         Both arguments need to be in this specific format:
         %Y-%m-%d %H:%M
@@ -67,6 +90,9 @@ class Moderation(commands.Cog):
         All values need to be padded with 0.
         Timezones are not accounted for.
         """
+        await self._mass_ban_timestamp_helper(ctx, timestamp_start, timestamp_end, reason)
+
+    async def _mass_ban_timestamp_helper(self, ctx, timestamp_start: datetime, timestamp_end: datetime, reason: str):
         members_to_ban = []
 
         for member in self.tortoise_guild.members:
@@ -79,6 +105,8 @@ class Moderation(commands.Cog):
         if not members_to_ban:
             return await ctx.send(embed=failure("Could not find any members, aborting.."))
 
+        members_to_ban.sort(key=lambda m: m.joined_at)
+
         reaction_msg = await ctx.send(
             embed=warning(
                 f"This will ban {len(members_to_ban)} members, "
@@ -89,11 +117,28 @@ class Moderation(commands.Cog):
 
         confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, ctx.author)
         if confirmation:
-            logger.info(f"{ctx.author} is timestamp banning: {', '.join(member.id for member in members_to_ban)}")
 
-            for member in members_to_ban:
-                await self._ban_helper(ctx, member, reason)
-            await ctx.send(embed=success(f"Successfully mass banned {len(members_to_ban)} members!"))
+            one_tenth = len(members_to_ban) // 10
+            notify_interval = one_tenth if one_tenth > 50 else 50
+
+            await ctx.send(
+                embed=info(
+                    f"Starting the ban process, please be patient.\n"
+                    f"You will be notified for each {notify_interval} banned members.",
+                    ctx.author
+                )
+            )
+            logger.info(f"{ctx.author} is timestamp banning: {', '.join(str(member.id) for member in members_to_ban)}")
+
+            for count, member in enumerate(members_to_ban):
+                if count != 0 and count % notify_interval == 0:
+                    await ctx.send(embed=info(f"Banned {count} members..", ctx.author))
+
+                await ctx.guild.ban(member, reason=reason)
+
+            message = f"Successfully mass banned {len(members_to_ban)} members!"
+            await ctx.send(embed=success(message))
+            await self.deterrence_log_channel.send(embed=authored(message, author=ctx.author))
         else:
             await ctx.send(embed=info("Aborting mass ban.", ctx.me))
 
@@ -106,19 +151,28 @@ class Moderation(commands.Cog):
         await self._ban_helper(ctx, user, reason)
         await ctx.send(embed=success(f"{user} successfully banned."), delete_after=10)
 
-    async def _ban_helper(self, ctx: commands.Context, member: Union[GetFetchUser, User, Member], reason: str):
-        await ctx.guild.ban(member, reason=reason)
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.ban, reason)
-        await self.deterrence_log_channel.send(embed=deterrence_embed)
-        dm_embed = deterrence_embed
-        dm_embed.add_field(
-            name="Repeal",
-            value="If this happened by a mistake contact moderators."
-        )
-        try:
-            await member.send(embed=dm_embed)
-        except discord.Forbidden:
-            pass  # ignore closed DMs
+    async def _ban_helper(
+            self,
+            ctx: commands.Context,
+            user: Union[GetFetchUser, User, Member],
+            reason: str,
+            send_dm: bool = True,
+            log_deterrence: bool = True,
+    ):
+        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
+
+        if send_dm:
+            dm_embed = copy.copy(deterrence_embed)
+            dm_embed.add_field(name="Repeal", value="If this happened by a mistake contact moderators.")
+            try:
+                await user.send(embed=dm_embed)
+            except discord.Forbidden:
+                pass  # ignore closed DMs
+
+        await ctx.guild.ban(user, reason=reason)
+
+        if log_deterrence:
+            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
     @commands.command()
     @commands.bot_has_guild_permissions(ban_members=True)
@@ -301,7 +355,7 @@ class Moderation(commands.Cog):
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @commands.command()
+    @commands.command(aliases=["message"])
     @commands.has_guild_permissions(manage_messages=True)
     async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
         """Send message to channel"""
