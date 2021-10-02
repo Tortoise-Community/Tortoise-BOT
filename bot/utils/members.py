@@ -8,7 +8,7 @@ def get_member_status(member: discord.Member) -> str:
     if member.status == discord.Status.dnd:
         return "DND"
     elif member.status == discord.Status.online:
-        return f"ONLINE"
+        return "ONLINE"
     elif member.status == discord.Status.idle:
         return "IDLE"
     elif member.status == discord.Status.offline:
