@@ -1,6 +1,7 @@
 import os
 import time
 import asyncio
+from random import randint
 
 import psutil
 import discord
@@ -10,8 +11,6 @@ from bot.utils.message_handler import RemovableMessage
 from bot.utils.embed_handler import info, status_embed
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
-
-from random import randint
 
 
 class Miscellaneous(commands.Cog):
@@ -271,10 +270,10 @@ class Miscellaneous(commands.Cog):
     async def antigravity(self, ctx):
         await ctx.send(embed=info("https://xkcd.com/353/", ctx.me, title=""))
 
-    @commands.command(aliases=['toss'])
+    @commands.command(aliases=["toss"])
     async def coin(self, ctx, times: int = 1):
         """Tosses a coin"""
-        sample_space = ["Head", "Tail"]
+        sample_space = ("Head", "Tail")
         if times == 1:
             coin_toss = sample_space[randint(0, 1)]
             await ctx.send(embed=info(f":coin: | Coin Toss | **{coin_toss}**", ctx.me, title=""))
@@ -282,7 +281,7 @@ class Miscellaneous(commands.Cog):
             coin_toss = ", ".join([sample_space[randint(0, 1)] for i in range(times)])
             await ctx.send(embed=info(f":coin: | Coin tossed {times} times | **{coin_toss}**", ctx.me, title=""))
 
-    @commands.command(aliases=['roll'])
+    @commands.command(aliases=["roll"])
     async def dice(self, ctx, times: int = 1):
         """Rolls a dice"""
         if times == 1:
