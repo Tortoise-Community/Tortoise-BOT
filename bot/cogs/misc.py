@@ -278,7 +278,7 @@ class Miscellaneous(commands.Cog):
             coin_toss = sample_space[randint(0, 1)]
             await ctx.send(embed=info(f":coin: | Coin Toss | **{coin_toss}**", ctx.me, title=""))
         elif times <= 25:
-            coin_toss = ", ".join([sample_space[randint(0, 1)] for _ in range(times)])
+            coin_toss = ", ".join(sample_space[randint(0, 1)] for _ in range(times))
             await ctx.send(embed=info(f":coin: | Coin tossed {times} times | **{coin_toss}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't toss that many times. Try a number less than 25",
