@@ -291,7 +291,7 @@ class Miscellaneous(commands.Cog):
             dice_roll = randint(1, 6)
             await ctx.send(embed=info(f"🎲 | Dice Roll | **{dice_roll}**", ctx.me, title=""))
         elif times <= 25:
-            dice_roll = ", ".join([str(randint(1, 6)) for _ in range(times)])
+            dice_roll = ", ".join(str(randint(1, 6)) for _ in range(times))
             await ctx.send(embed=info(f"🎲 | Dice Rolled {times} times | **{dice_roll}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't roll that many times. Try a number less than 25",
