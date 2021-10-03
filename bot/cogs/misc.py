@@ -303,8 +303,8 @@ class Miscellaneous(commands.Cog):
         """Displays a tortoise with text bubble"""
         tortoise = r'''
       \
-       \     ,-"""-.
-        oo._/ \___/ \
+       \      ,-"""-.
+         oo._/ \___/ \
         (____)_/___\__\_)
             /_//   \\_\ '''
         lines = wrap(" ".join(text), 40)
