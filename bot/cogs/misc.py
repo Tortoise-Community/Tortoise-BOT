@@ -1,6 +1,7 @@
 import os
 import time
 import asyncio
+from textwrap import wrap
 from random import randint
 
 import psutil
@@ -296,6 +297,29 @@ class Miscellaneous(commands.Cog):
         else:
             await ctx.send(embed=info("Oops! You can't roll that many times. Try a number less than 25",
                            ctx.me, title=""))
+
+    @commands.command()
+    async def speak(self, ctx, *text):
+        """Displays a tortoise with text bubble"""
+        tortoise = r'''
+        \
+         \     ,-"""-.
+          oo._/ \___/ \
+         (____)_/___\__\_)
+             /_//   \\_\ '''
+        lines = wrap(" ".join(text), 40)
+        width = max(map(len, lines))
+        bubble = ["  " + "-" * width]
+        if len(lines) == 1:
+            bubble.append("< " + lines[0] + " >")
+        else:
+            bubble.append("/ " + lines[0] + " " * (width - len(lines[0])) + " \\")
+            for line in lines[1:-1]:
+                bubble.append("| " + line + " " * (width - len(line)) + " |")
+            bubble.append("\\ " + lines[-1] + " " * (width - len(lines[-1])) + " /")
+        bubble.append("  " + "-" * width)
+        output = "\n".join(bubble) + tortoise
+        await ctx.send(f"```{output}```")
 
 
 def setup(bot):
