@@ -302,23 +302,22 @@ class Miscellaneous(commands.Cog):
     async def speak(self, ctx, *text):
         """Displays a tortoise with text bubble"""
         tortoise = r'''
-      \
-       \      ,-"""-.
-         oo._/ \___/ \
-        (____)_/___\__\_)
-            /_//   \\_\ '''
+        \
+         \     ,-"""-.
+          oo._/ \___/ \
+         (____)_/___\__\_)
+             /_//   \\_\ '''
         lines = wrap(" ".join(text), 40)
         width = max(map(len, lines))
-        bubble = []
-        bubble.append("  "+"-"*width)
+        bubble = ["  " + "-" * width]
         if len(lines) == 1:
-            bubble.append("< "+lines[0]+" >")
+            bubble.append("< " + lines[0] + " >")
         else:
-            bubble.append("/ "+lines[0]+" "*(width - len(lines[0]))+" \\")
+            bubble.append("/ " + lines[0] + " " * (width - len(lines[0])) + " \\")
             for line in lines[1:-1]:
-                bubble.append("| "+line+" "*(width - len(line))+" |")
-            bubble.append("\\ "+lines[-1]+" "*(width - len(lines[-1]))+" /")
-        bubble.append("  "+"-"*width)
+                bubble.append("| " + line + " " * (width - len(line)) + " |")
+            bubble.append("\\ " + lines[-1] + " " * (width - len(lines[-1])) + " /")
+        bubble.append("  " + "-" * width)
         output = "\n".join(bubble) + tortoise
         await ctx.send(f"```{output}```")
 
