@@ -1,8 +1,8 @@
 import os
 import time
 import asyncio
+import random
 from textwrap import wrap
-from random import randint
 
 import psutil
 import discord
@@ -276,10 +276,10 @@ class Miscellaneous(commands.Cog):
         """Tosses a coin"""
         sample_space = ("Head", "Tail")
         if times == 1:
-            coin_toss = sample_space[randint(0, 1)]
+            coin_toss = sample_space[random.randint(0, 1)]
             await ctx.send(embed=info(f":coin: | Coin Toss | **{coin_toss}**", ctx.me, title=""))
         elif times <= 25:
-            coin_toss = ", ".join(sample_space[randint(0, 1)] for _ in range(times))
+            coin_toss = ", ".join(sample_space[random.randint(0, 1)] for _ in range(times))
             await ctx.send(embed=info(f":coin: | Coin tossed {times} times | **{coin_toss}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't toss that many times. Try a number less than 25",
@@ -289,13 +289,47 @@ class Miscellaneous(commands.Cog):
     async def dice(self, ctx, times: int = 1):
         """Rolls a dice"""
         if times == 1:
-            dice_roll = randint(1, 6)
+            dice_roll = random.randint(1, 6)
             await ctx.send(embed=info(f"🎲 | Dice Roll | **{dice_roll}**", ctx.me, title=""))
         elif times <= 25:
-            dice_roll = ", ".join(str(randint(1, 6)) for _ in range(times))
+            dice_roll = ", ".join(str(random.randint(1, 6)) for _ in range(times))
             await ctx.send(embed=info(f"🎲 | Dice Rolled {times} times | **{dice_roll}**", ctx.me, title=""))
         else:
             await ctx.send(embed=info("Oops! You can't roll that many times. Try a number less than 25",
+                           ctx.me, title=""))
+
+    @commands.command(aliases=["random"])
+    async def randint(self, ctx, low: int = 1, high: int = 100, n: int = 1):
+        """Returns n random integer between low and high (both inclusive)"""
+        if low > high:
+            low, high = high, low
+
+        if (low < -1000000000 or high > 1000000000 or n > 100):
+            await ctx.send(embed=info("Oops! That was a lot, try with smaller arguments", ctx.me, title=""))
+        elif (n == 1):
+            output = random.randint(low, high)
+            await ctx.send(embed=info(f"🔢 | Random number between {low} & {high} | **{output}**",
+                           ctx.me, title=""))
+        else:
+            output = ", ".join(str(random.randint(low, high)) for _ in range(n))
+            await ctx.send(embed=info(f"🔢 | {n} Random numbers between {low} & {high} | **{output}**",
+                           ctx.me, title=""))
+
+    @commands.command(aliases=["choose"])
+    async def choice(self, ctx, *args):
+        """Returns a randomly chosen string from given arguments"""
+        choices = list(filter(None, [x.strip() for x in " ".join(args).split(",")]))
+        if len(choices):
+            choice = random.choice(choices)
+            await ctx.send(embed=info(f"🎰 | Random choice | **{choice}**", ctx.me, title=""))
+
+    @commands.command()
+    async def shuffle(self, ctx, *args):
+        """Returns a shuffled sequence of given arguments"""
+        choices = list(filter(None, [x.strip() for x in " ".join(args).split(",")]))
+        if len(choices):
+            random.shuffle(choices)
+            await ctx.send(embed=info(f"📃 | Random shuffle | **{', '.join(choices)}**",
                            ctx.me, title=""))
 
     @commands.command()
