@@ -224,7 +224,7 @@ class EmbedPaginator(Paginator):
 class ListPaginator:
     """Constructs a Paginator when provided a list of Embeds/Messages"""
     def __init__(
-            self, ctx: commands.Context, page_list,
+            self, ctx: commands.Context, page_list, footer,
             restart_button="⏮",
             back_button="◀",
             forward_button="⏭",
@@ -235,6 +235,7 @@ class ListPaginator:
         self.pages = page_list
         self.ctx = ctx
         self.bot = ctx.bot
+        self.footer = footer
 
         self.restart_button = restart_button
         self.back_button = back_button
@@ -266,6 +267,10 @@ class ListPaginator:
     async def start(self):
         pages = self.pages
         ctx = self.ctx
+
+        if self.footer:
+            for index, page in enumerate(pages):
+                page.set_footer(text=f"Page {index+1}/{len(pages)}")
 
         embed = pages[0]
 
