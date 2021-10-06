@@ -6,7 +6,7 @@ from bot.constants import card_emotes, blank_card_emoji
 
 
 class Player:
-    def __init__(self, user_id: int, bet_amount, game, message: discord.Message = None):
+    def __init__(self, user_id: int, bet_amount, game, message: discord.Message = None, is_dealer=False):
         self.user_id = user_id
         self.bet_amount = int(bet_amount)
         self.card_value = 0
@@ -14,8 +14,9 @@ class Player:
         self.game = game
         self.message = message
         self.stay = False
+        self.is_dealer = is_dealer
 
-    def calculate_card_value(self, dealer=False) -> int:
+    def calculate_card_value(self) -> int:
         value = 0
         a_count = 0
         for card in self.cards:
@@ -26,7 +27,7 @@ class Player:
             else:
                 value += int(card.name)
 
-        if not dealer:
+        if not self.is_dealer:
             if a_count != 0:
                 for _ in range(a_count):
                     if value + 11 > 21:
@@ -52,13 +53,12 @@ class Player:
         return f"{self.cards[0].emote} + {blank_card_emoji}\nvalue: ?"
 
 
-class Game(Player):
+class Game():
     def __init__(self, channel: discord.TextChannel):   # noqa
         self.channel = channel
         self.participants = {}
         self.deck = Deck()
-        self.cards = self.deck.get_random_cards(2)
-        self.card_value = self.calculate_card_value()
+        self.dealer = Player(0000, 0, game=self, is_dealer=True)
 
 
 class Card(object):

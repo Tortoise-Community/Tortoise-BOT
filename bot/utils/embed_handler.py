@@ -340,7 +340,7 @@ def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = Tru
     :return: discord.Embed
     """
     embed = black_jack_template(user, player, "", Color.gold())
-    embed.add_field(name="Dealer hand", value=player.game.get_emote_string(hidden=hidden))
+    embed.add_field(name="Dealer hand", value=player.game.dealer.get_emote_string(hidden=hidden))
     if outcome == "win":
         embed.colour = Color.dark_green()
         embed.description = "**Outcome:** You won!"
