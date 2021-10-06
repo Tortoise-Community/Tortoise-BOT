@@ -25,7 +25,7 @@ class Games(commands.Cog):
 
     async def evaluate_results(self, game):
         participants = game.participants
-        dealer_card_value = game.calculate_card_value()
+        dealer_card_value = game.dealer.calculate_card_value()
         for participant in list(participants):
             player = participants[participant]
             me = self.bot.get_user(player.user_id)
@@ -40,9 +40,9 @@ class Games(commands.Cog):
 
     async def dealers_play(self, game):
         while True:
-            card_value = game.calculate_card_value(dealer=True)
+            card_value = game.dealer.calculate_card_value()
             if card_value < 17:
-                game.cards.append(game.deck.get_random_card())
+                game.dealer.cards.append(game.deck.get_random_card())
             else:
                 break
         await self.evaluate_results(game)
@@ -105,6 +105,7 @@ class Games(commands.Cog):
             game = self.live_games[ctx.channel.id]
         else:
             game = Game(ctx.channel.id)
+            game.deck.give_random_card(game.dealer, 2)
             self.live_games[ctx.channel.id] = game
 
         if not len(game.participants) == blackjack_player_limit:
