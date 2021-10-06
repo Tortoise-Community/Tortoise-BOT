@@ -21,16 +21,16 @@ Backend:
 * Custom error handler, custom paginator.
 
 * Security system that block members posting other guild invites & monitors editing/deleting messages and 
-has basic support for detecting bad words
+has basic support for detecting bad words.
 
 * Custom socket API for website -> bot communication, this way the website can verify members, send custom messages, 
-get member data directly from the bot, signal cache updates etc
+get member data directly from the bot, signal cache updates etc.
 
 * Custom DM commands, message the bot and you will get option (depending if they are enabled, all of them can be disabled 
 on need) to make suggestion, event code submission, bug report or initialize  mod-mail.
 
 * Custom API communication for bot -> website API so we can debug verifications/member data or approve/deny/delete 
-suggestions, get rules etc
+suggestions, get rules etc.
 
 * Custom self-assignable roles upon reaction on message.
 
@@ -43,7 +43,7 @@ Commands:
 
 > Fun: slap, shoot, throw
 
-> Bow owner commands: load/unload cogs
+> Bot owner commands: load/unload cogs
 
 > Moderation kick, ban, unban, warnings (multiple commands, tied with API), promote, clear, mute, unmute, dm_members, send
 
@@ -52,7 +52,7 @@ Commands:
 > Reddit: meme, newpost, hotpost
 
 
-And more such as music commands, documentation commands for python/dpy docs etc
+And more such as music commands, documentation commands for python/dpy docs etc.
 
 ## Contributing
 
@@ -116,12 +116,12 @@ for info how to get them.
 
 `API_ACCESS_TOKEN` token to access our API. You don't need this but some features
 will be unavailable, we use this for example: checking if user is verified,
-verifying new users, putting new users, editing users(infractions, leave date) etc..
+verifying new users, putting new users, editing users(infractions, leave date) etc.
 
 `SOCKET_AUTH_TOKEN` token to connect to our bot socket. 
 This is so the API can communicate with the bot,
 for example when member verifies on website the bot receives this verification trough the socket
-and adds roles to members/send him message etc
+and adds roles to members/send him message etc.
 
 `SOCKET_SERVER_PORT` port on which the socket will listen.
 
