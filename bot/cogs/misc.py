@@ -316,17 +316,17 @@ class Miscellaneous(commands.Cog):
                            ctx.me, title=""))
 
     @commands.command(aliases=["choose"])
-    async def choice(self, ctx, *args):
+    async def choice(self, ctx, *, args):
         """Returns a randomly chosen string from given arguments"""
-        choices = list(args)
+        choices = args.split(",")
         if len(choices):
             choice = random.choice(choices)
-            await ctx.send(embed=info(f"🎰 | Random choice | **{choice}**", ctx.me, title=""))
+            await ctx.send(embed=info(f"🎰 | Random choice | **{choice.strip()}**", ctx.me, title=""))
 
     @commands.command()
-    async def shuffle(self, ctx, *args):
+    async def shuffle(self, ctx, *, args):
         """Returns a shuffled sequence of given arguments"""
-        choices = list(args)
+        choices = [word.strip() for word in args.split(",")]
         if len(choices):
             random.shuffle(choices)
             await ctx.send(embed=info(f"📃 | Random shuffle | **{', '.join(choices)}**", ctx.me, title=""))
