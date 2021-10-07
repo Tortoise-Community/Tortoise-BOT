@@ -318,7 +318,7 @@ class Miscellaneous(commands.Cog):
     @commands.command(aliases=["choose"])
     async def choice(self, ctx, *args):
         """Returns a randomly chosen string from given arguments"""
-        choices = list(filter(None, [x.strip() for x in " ".join(args).split(",")]))
+        choices = list(args)
         if len(choices):
             choice = random.choice(choices)
             await ctx.send(embed=info(f"🎰 | Random choice | **{choice}**", ctx.me, title=""))
@@ -326,11 +326,10 @@ class Miscellaneous(commands.Cog):
     @commands.command()
     async def shuffle(self, ctx, *args):
         """Returns a shuffled sequence of given arguments"""
-        choices = list(filter(None, [x.strip() for x in " ".join(args).split(",")]))
+        choices = list(args)
         if len(choices):
             random.shuffle(choices)
-            await ctx.send(embed=info(f"📃 | Random shuffle | **{', '.join(choices)}**",
-                           ctx.me, title=""))
+            await ctx.send(embed=info(f"📃 | Random shuffle | **{', '.join(choices)}**", ctx.me, title=""))
 
     @commands.command()
     async def speak(self, ctx, *text):
