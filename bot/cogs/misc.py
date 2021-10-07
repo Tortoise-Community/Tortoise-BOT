@@ -78,7 +78,7 @@ class Miscellaneous(commands.Cog):
             message = f"{member} avatar"
 
         embed = info(message, ctx.me)
-        embed.set_image(url=member.avatar_url_as(static_format=".png", size=4096))
+        embed.set_image(url=member.avatar_url_as(size=4096))
         await ctx.send(embed=embed)
 
     @commands.command()
