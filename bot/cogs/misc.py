@@ -353,6 +353,16 @@ class Miscellaneous(commands.Cog):
         bubble.append("  " + "-" * width)
         output = "\n".join(bubble) + tortoise
         await ctx.send(f"```{output}```")
+        
+    @commands.command(aliases=['pp'])
+    async def penis(self, ctx, *, user: discord.Member = None):
+        """Checkout who has the longest penis with the penis size machine"""
+        embed = discord.Embed(
+            title=f"{user.name or ctx.author.name}'s penis size",color=await ctx.embed_color()
+        )        
+        embed.description=f"8{'=' * random.randint(1, 30)}D"
+
+        await ctx.send(embed=embed)           
 
 
 def setup(bot):
