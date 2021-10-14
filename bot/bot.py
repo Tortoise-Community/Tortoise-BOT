@@ -20,8 +20,8 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ()
-    banned_extensions = ("advent_of_code", "invite_tracker")
+    allowed_extensions = ("invite_tracker",)
+    banned_extensions = ("advent_of_code",)
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
