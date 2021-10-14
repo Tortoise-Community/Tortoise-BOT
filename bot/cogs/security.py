@@ -35,7 +35,7 @@ class Security(commands.Cog):
         Some checks can delete the message, so no need to run additional checks if message got deleted.
         :param message: message to run checks on
         """
-        if self.skip_security(message):
+        if self.is_security_whitelisted(message):
             return
 
         is_message_deleted = False
@@ -50,7 +50,7 @@ class Security(commands.Cog):
         if not is_message_deleted:
             await self.deal_with_long_code(message)
 
-    def skip_security(self, message: Message) -> bool:
+    def is_security_whitelisted(self, message: Message) -> bool:
         """
         In which cases we will skip our security check for message.
         :param message: message on which we will potentially run security checks
@@ -110,9 +110,10 @@ class Security(commands.Cog):
         :param message: message to check for vulgar words
         :return: bool, was the passed message deleted or not?
         """
+        message_content = message.content.lower()
         for category, banned_words in self.banned_words.loaded.items():
             for banned_word in banned_words:
-                if banned_word in message.content.lower():
+                if banned_word in message_content:
                     embed = info(
                         f"Curse word **{banned_word}** detected from the category **{category}**",
                         message.guild.me,
@@ -215,7 +216,7 @@ class Security(commands.Cog):
     async def on_message_edit(self, msg_before, msg_after):
         if msg_before.content == msg_after.content:
             return
-        elif self.skip_security(msg_after):
+        elif self.is_security_whitelisted(msg_after):
             return
 
         # Log that the message was edited for security reasons
@@ -236,7 +237,7 @@ class Security(commands.Cog):
     async def on_message_delete(self, message):
         if message.content == "":
             return  # if it had only attachment for example
-        elif self.skip_security(message):
+        elif self.is_security_whitelisted(message):
             return
 
         msg = (
