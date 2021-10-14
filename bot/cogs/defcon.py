@@ -18,7 +18,7 @@ class Defcon(commands.Cog):
         self.bot = bot
         self.defcon_active = False
         self._kicked_while_defcon_was_active: int = 0
-        self.joins_per_min_trigger = 10
+        self.joins_per_min_trigger = 7
         self._joins: Set[Tuple[datetime, int]] = set()
         self.staff_channel = bot.get_channel(constants.staff_channel_id)
 
@@ -40,14 +40,10 @@ class Defcon(commands.Cog):
     @tasks.loop(minutes=1)
     async def mass_join_check(self):
         current_time = datetime.now()
-        expired_joins = set()
 
-        for join in self._joins:
+        for join in self._joins.copy():
             if (current_time - join[0]).seconds >= 60:
-                expired_joins.add(join)
-
-        for expired_join in expired_joins:
-            self._joins.remove(expired_join)
+                self._joins.remove(join)
 
         if len(self._joins) >= self.joins_per_min_trigger:
             if self.defcon_active:
@@ -76,8 +72,8 @@ class Defcon(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @commands.check(check_if_it_is_tortoise_guild)
     async def set_defcon_trigger(self, ctx, trigger: int):
-        if not 10 <= trigger <= 100:
-            return await ctx.send(embed=failure("Please use integer from 10 to 100."))
+        if not 7 <= trigger <= 100:
+            return await ctx.send(embed=failure("Please use integer from 7 to 100."))
 
         self.joins_per_min_trigger = trigger
         await ctx.send(embed=success(f"Successfully changed DEFCON trigger to {trigger} users/min."))
