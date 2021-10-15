@@ -190,22 +190,8 @@ class TortoiseServer(commands.Cog):
         )
         await member.send(embed=footer_embed(dm_msg, "Welcome"))
 
-    async def _new_member_direct_access(self, member: discord.Member):
-        logger.info(f"Member {member} joined directly from website, giving access to guild.")
-        await self.add_verified_roles_to_member(member)
-        await self.bot.api_client.member_rejoined(member)
-        await self.log_channel.send(embed=welcome(f"{member} has joined to Tortoise Community."))
-        msg = (
-            "Welcome to Tortoise Community!\n\n"
-            "We see you've come directly from our website after verification,\n"
-            "you've been given access to our server, enjoy your stay."
-        )
-        await member.send(embed=footer_embed(msg, "Welcome"))
-
-    async def _new_member_re_joined(self, member: discord.Member, verified: bool):
-        if verified:
-            # this factor will be removed in the next update
-            logger.info(f"Member {member} re-joined and is verified in database, adding previous roles..")
+    async def _member_re_joined(self, member: discord.Member):
+        logger.info(f"Member {member} re-joined and is verified in database, adding previous roles..")
         previous_roles = await self.bot.api_client.get_member_roles(member.id)
         await self.add_verified_roles_to_member(member, previous_roles)
         await self.bot.api_client.member_rejoined(member)
@@ -224,16 +210,17 @@ class TortoiseServer(commands.Cog):
         """
         if before.pending is True and after.pending is False:
 
-            logger.info(f"New member joined {after}")
+            logger.info(f"New member verified from discord {after}")
             try:
                 member_meta = await self.bot.api_client.get_member_meta(after.id)
             except ResponseCodeError:
                 await self._new_member_register_in_database(after)
             else:
                 if member_meta["leave_date"] is None and member_meta["verified"]:
+                    # Could be put to use for new website
                     pass
                 else:
-                    await self._new_member_re_joined(after, member_meta["verified"])
+                    await self._member_re_joined(after)
 
         if before.roles == after.roles or self._database_role_update_lock:
             return
