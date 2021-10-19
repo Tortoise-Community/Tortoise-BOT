@@ -29,6 +29,12 @@ class InviteTracker(commands.Cog):
                 member=member,
                 title=""
             ))
+        else:
+            await self.log_channel.send(embed=embed_handler.info(
+                f"New member {member} joined through discord Discovery",
+                member=member,
+                title=""
+            ))
 
 
 def setup(bot):
