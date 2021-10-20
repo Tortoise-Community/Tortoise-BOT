@@ -23,7 +23,6 @@ class Utility(commands.Cog):
 
         await ctx.trigger_typing()
         results = await self.google_client.search(query)
-        page_number = 1
 
         for result in results:
             page_embed = discord.Embed(color=self.utility_embed_color)
@@ -35,7 +34,6 @@ class Utility(commands.Cog):
             page_embed.set_thumbnail(url=result.image_url)
 
             page_list.append(page_embed)
-            page_number += 1
 
         paginator = ListPaginator(ctx, page_list, footer_icon=google_icon)
         await paginator.start()
