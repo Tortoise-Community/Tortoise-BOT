@@ -65,7 +65,6 @@ class Games(commands.Cog):
         await player.message.clear_reactions()
         player.game.participants.pop(player.user_id)
         self.reactable_messages.pop(player.message.id)
-        await self.check_active_session(player)
         del player
 
     async def hit(self, player):
@@ -76,18 +75,15 @@ class Games(commands.Cog):
         await self.check_active_session(player.game)
 
     async def check_active_session(self, player):
-        active_game_session = False
         participants = player.game.participants
         for person in participants:
-            if participants[person].stay is False:
-                active_game_session = True
-        if not active_game_session:
-            await self.dealers_play(player.game)
-        else:
-            me = self.bot.get_user(player.user_id)
-            embed = black_jack_embed(me, player)
-            embed.description = "**Status: **Waiting for other players..."
-            await player.message.edit(embed=embed)
+            if participants[person].stay:
+                me = self.bot.get_user(player.user_id)
+                embed = black_jack_embed(me, player)
+                embed.description = "**Status: **Waiting for other players..."
+                await player.message.edit(embed=embed)
+                return
+        await self.dealers_play(player.game)
 
     async def stay(self, player):
         player.stay = True
@@ -109,8 +105,8 @@ class Games(commands.Cog):
             self.live_games[ctx.channel.id] = game
 
         if not len(game.participants) == blackjack_player_limit:
-            player = Player(ctx.author.id, bet_amount, game)
             if ctx.author.id not in game.participants:
+                player = Player(ctx.author.id, bet_amount, game)
                 game.participants[ctx.author.id] = player
                 game.deck.give_random_card(player, 2)
                 embed = black_jack_embed(ctx.author, player)
@@ -143,13 +139,9 @@ class Games(commands.Cog):
             reaction = self.bot.get_emoji(payload.emoji.id)
             user = self.bot.get_user(payload.user_id)
             player = self.reactable_messages.get(payload.message_id)
-            if user is not self.bot.user:
+            if payload.user_id == player.user_id:
                 await player.message.remove_reaction(reaction, user)
-            try:
-                if payload.user_id == player.user_id:
-                    await self.reaction_options[payload.emoji.id](player)  # noqa
-            except Exception as e:
-                logger.critical(e)
+                await self.reaction_options[payload.emoji.id](player)  # noqa
 
 
 def setup(bot):
