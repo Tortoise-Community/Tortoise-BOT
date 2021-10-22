@@ -2,7 +2,7 @@ from typing import List, Union
 from asyncio import TimeoutError
 
 from discord.abc import Messageable
-from discord import ClientUser, User, Member, HTTPException
+from discord import ClientUser, User, Member, HTTPException, Embed
 from discord.ext import commands
 
 from bot.utils.embed_handler import info
@@ -224,7 +224,9 @@ class EmbedPaginator(Paginator):
 class ListPaginator:
     """Constructs a Paginator when provided a list of Embeds/Messages"""
     def __init__(
-            self, ctx: commands.Context, page_list, footer,
+            self, ctx: commands.Context, page_list,
+            footer: bool = True,
+            footer_icon=Embed.Empty,
             restart_button="⏮",
             back_button="◀",
             forward_button="⏭",
@@ -232,11 +234,15 @@ class ListPaginator:
             pause_button="⏸",
             stop_button="⏹"
     ):
+        """
+        :param footer: bool if paginator footer to be included.
+        :param footer_icon: string url for icon used in footer.
+        """
         self.pages = page_list
         self.ctx = ctx
         self.bot = ctx.bot
         self.footer = footer
-
+        self.footer_icon = footer_icon
         self.restart_button = restart_button
         self.back_button = back_button
         self.pause_button = pause_button
@@ -270,7 +276,7 @@ class ListPaginator:
 
         if self.footer:
             for index, page in enumerate(pages):
-                page.set_footer(text=f"Page {index+1}/{len(pages)}")
+                page.set_footer(text=f"Page {index+1}/{len(pages)}", icon_url=self.footer_icon)
 
         embed = pages[0]
 
