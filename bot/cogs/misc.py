@@ -64,26 +64,7 @@ class Miscellaneous(commands.Cog):
     @commands.command(aliases=["serverinfo", "si"])
     async def server(self, ctx):
         """Shows server info"""
-        server = ctx.guild
-
-        roles = str(len(server.roles))
-        emojis = str(len(server.emojis))
-        channels = str(len(server.channels))
-
-        server_embed = discord.Embed(title=server.name, description='Server Info', color=discord.Colour.blurple())
-        server_embed.set_thumbnail(url=server.icon_url)
-        server_embed.add_field(name="Created on:", value=server.created_at.strftime('%d %B %Y at %H:%M UTC+3'), inline=False)
-        server_embed.add_field(name="Server ID:", value=server.id, inline=False)
-        server_embed.add_field(name="Users on server:", value=server.member_count, inline=True)
-        server_embed.add_field(name="Server owner:", value=server.owner, inline=True)
-
-        server_embed.add_field(name="Server Region:", value=server.region, inline=True)
-        server_embed.add_field(name="Verification Level:", value=server.verification_level, inline=True)
-
-        server_embed.add_field(name="Role Count:", value=roles, inline=True)
-        server_embed.add_field(name="Emoji Count:", value=emojis, inline=True)
-        server_embed.add_field(name="Channel Count:", value=channels, inline=True)
-
+        server_embed = server_info(ctx.guild)
         await ctx.send(embed=server_embed)
 
     @commands.command(aliases=["userinfo", "ui"])
