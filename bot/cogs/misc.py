@@ -13,12 +13,43 @@ from bot.utils.embed_handler import info, status_embed, server_info
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
 
+EIGHT_BALL_RESPONSES = (
+    "It is certain.",
+    "It is decidedly so.",
+    "Without a doubt.",
+    "Yes definitely.",
+    "You may rely on it.",
+    "As I see it, yes.",
+    "Most likely.",
+    "Outlook good.",
+    "Yes.",
+    "Signs point to yes.",
+    "Reply hazy, try again.",
+    "Ask again later.",
+    "Better not tell you now.",
+    "Cannot predict now.",
+    "Concentrate and ask again.",
+    "Don't count on it.",
+    "My reply is no.",
+    "My sources say no.",
+    "Outlook not so good.",
+    "Very doubtful.",
+    "WeMayNeverKnow",
+)
+
 
 class Miscellaneous(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.process = psutil.Process(os.getpid())
         self.countdown_started = False
+
+    @commands.command(aliases=["8ball","8b"])
+    async def eight_ball(self, ctx, *, message):
+        """
+        Makes the bot reply with a reply a random 8ball response
+        """
+        await ctx.send(random.choice(EIGHT_BALL_RESPONSES))
 
     @commands.command()
     @commands.has_guild_permissions(manage_messages=True)
