@@ -47,7 +47,7 @@ class Miscellaneous(commands.Cog):
     @commands.command(aliases=["8ball","8b"])
     async def eight_ball(self, ctx, *, message):
         """
-        Makes the bot reply with a reply a random 8ball response
+        Makes the bot reply to your question
         """
         await ctx.send(random.choice(EIGHT_BALL_RESPONSES))
 
