@@ -44,8 +44,8 @@ class Miscellaneous(commands.Cog):
         self.process = psutil.Process(os.getpid())
         self.countdown_started = False
 
-    @commands.command(aliases=["8ball","8b"])
-    async def eight_ball(self, ctx, *, message):
+    @commands.command(aliases=["8ball", "8b"])
+    async def eight_ball(self, ctx):
         """
         Makes the bot reply to your question
         """
