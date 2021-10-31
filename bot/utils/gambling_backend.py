@@ -53,7 +53,7 @@ class Player:
         return f"{self.cards[0].emote} + {blank_card_emoji}\nvalue: ?"
 
 
-class Game():
+class Game:
     def __init__(self, channel: discord.TextChannel):   # noqa
         self.channel = channel
         self.participants = {}
