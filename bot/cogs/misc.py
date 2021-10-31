@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 from bot.utils.message_handler import RemovableMessage
-from bot.utils.embed_handler import info, status_embed
+from bot.utils.embed_handler import info, status_embed, server_info
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.constants import embed_space, tortoise_paste_service_link
 
@@ -60,6 +60,12 @@ class Miscellaneous(commands.Cog):
     async def members(self, ctx):
         """Returns the number of members in a server."""
         await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
+    
+    @commands.command(aliases=["serverinfo", "si"])
+    async def server(self, ctx):
+        """Shows server info"""
+        server_embed = server_info(ctx.guild)
+        await ctx.send(embed=server_embed)
 
     @commands.command(aliases=["userinfo", "ui"])
     async def status(self, ctx, member: discord.Member = None):
