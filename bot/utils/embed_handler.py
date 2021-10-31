@@ -1,4 +1,3 @@
-import datetime
 from typing import Union
 from asyncpraw import models
 from datetime import datetime
@@ -95,7 +94,7 @@ async def reddit_embed(ctx, submission: models.Submission, color=0x3498d) -> Emb
     embed.set_image(url=submission.url)
     embed.set_author(name=f"r/{subreddit}", icon_url=submission.subreddit.icon_img)
     embed.set_footer(text=f"u/{submission.author.name}", icon_url=submission.author.icon_img)
-    embed.timestamp = datetime.datetime.fromtimestamp(submission.created_utc)
+    embed.timestamp = datetime.fromtimestamp(submission.created_utc)
     return embed
 
 
@@ -110,18 +109,14 @@ def info(message: str, member: Union[Member, User], title: str = "Info") -> Embe
     """
     return Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
 
+
 def server_info(server) -> Embed:
     """
     Constructs embed with all basic information related to server
     :param server: ctx.guild
     """
-    
-    roles = str(len(server.roles))
-    emojis = str(len(server.emojis))
-    channels = str(len(server.channels))
+    embed = Embed(title=server.name, description='Server Info', color=Color.blurple())
 
-    embed = Embed(title=server.name, description='Server Info', color=discord.Colour.blurple())
-    
     embed.set_thumbnail(url=server.icon_url)
     embed.add_field(name="Created on:", value=server.created_at.strftime('%d %B %Y at %H:%M UTC+3'), inline=False)
     embed.add_field(name="Server ID:", value=server.id, inline=False)
@@ -131,11 +126,10 @@ def server_info(server) -> Embed:
     embed.add_field(name="Server Region:", value=server.region, inline=True)
     embed.add_field(name="Verification Level:", value=server.verification_level, inline=True)
 
-    embed.add_field(name="Role Count:", value=roles, inline=True)
-    embed.add_field(name="Emoji Count:", value=emojis, inline=True)
-    embed.add_field(name="Channel Count:", value=channels, inline=True)
+    embed.add_field(name="Role Count:", value=str(len(server.roles)), inline=True)
+    embed.add_field(name="Emoji Count:", value=str(len(server.emojis)), inline=True)
+    embed.add_field(name="Channel Count:", value=str(len(server.channels)), inline=True)
     return embed
-
 
 
 def success(message: str, member: Union[Member, User] = None) -> Embed:

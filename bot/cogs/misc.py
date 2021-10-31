@@ -60,7 +60,7 @@ class Miscellaneous(commands.Cog):
     async def members(self, ctx):
         """Returns the number of members in a server."""
         await ctx.send(embed=info(f"{ctx.guild.member_count}", ctx.me, "Member count"))
-    
+
     @commands.command(aliases=["serverinfo", "si"])
     async def server(self, ctx):
         """Shows server info"""
@@ -310,9 +310,9 @@ class Miscellaneous(commands.Cog):
         if low > high:
             low, high = high, low
 
-        if (low < -1000000000 or high > 1000000000 or n > 100):
+        if low < -1000000000 or high > 1000000000 or n > 100:
             await ctx.send(embed=info("Oops! That was a lot, try with smaller arguments", ctx.me, title=""))
-        elif (n == 1):
+        elif n == 1:
             output = random.randint(low, high)
             await ctx.send(embed=info(f"🔢 | Random number between {low} & {high} | **{output}**",
                            ctx.me, title=""))
