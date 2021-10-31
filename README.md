@@ -102,6 +102,7 @@ nano .env
 ```bash
 PRAW_CLIENT_ID=put_something_here
 PRAW_CLIENT_SECRET=put_something_here
+GOOGLE_API_KEY=put_something_here
 BOT_TOKEN=put_something_here
 API_ACCESS_TOKEN =put_something_here
 SOCKET_AUTH_TOKEN=put_something_here
@@ -111,6 +112,10 @@ SOCKET_SERVER_PORT=put_something_here
 `PRAW_CLIENT_ID` and `PRAW_CLIENT_SECRET`
 are for Reddit commands (memes etc), see [Reddit script app OAuth2](https://github.com/reddit-archive/reddit/wiki/OAuth2)
 for info how to get them.
+
+`GOOGLE_API_KEY`
+token used in the Google command to make Google searches, see [Setting up API keys](https://support.google.com/googleapi/answer/6158862?hl=en)
+to get one.
 
 `BOT_TOKEN` the most important one. You can get one by [creating a Discord bot](https://discordapp.com/developers/applications)
 
