@@ -17,10 +17,10 @@ bs4 = "*"
 async-cse = "*"
 lxml = "*"
 asyncpraw = "*"
-"discord.py" = {extras = ["voice"], version = "*"}
+"discord.py" = {extras = ["voice"], version = "==1.7.3"}
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
 
 [scripts]
 start = "python -m bot"
