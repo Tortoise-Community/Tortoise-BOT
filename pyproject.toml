@@ -28,4 +28,4 @@ flake8 = "*"
 pre-commit = "*"
 
 [tool.poetry.scripts]
-start = "python -m bot"
+start = "bot.__main__:main"
