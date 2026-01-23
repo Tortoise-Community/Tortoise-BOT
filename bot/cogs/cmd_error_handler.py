@@ -70,7 +70,7 @@ class CommandErrorHandler(commands.Cog):
         else:
             error_type = type(error)
             feedback_message = f"Uncaught {error_type} exception in command '{ctx.command}'"
-            traceback_message = traceback.format_exception(etype=error_type, value=error, tb=error.__traceback__)
+            traceback_message = traceback.format_exception(error_type, error, error.__traceback__)
             log_message = f"{feedback_message} {traceback_message}"
             logger.critical(log_message)
             await self.bot.log_error(log_message)
