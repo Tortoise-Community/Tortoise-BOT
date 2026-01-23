@@ -21,7 +21,7 @@ beautifulsoup4 = "*"
 async-cse = "*"
 lxml = "*"
 asyncpraw = "*"
-discord-py = {extras = ["voice"], version = "^1.7.3"}
+discord-py = {extras = ["voice"], version = "^2.0"}
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "*"
