@@ -25,7 +25,7 @@ class Bot(commands.Bot):
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
-        self.api_client: TortoiseAPI = TortoiseAPI(loop=self.loop)
+        self.api_client: TortoiseAPI = TortoiseAPI()
         self._was_ready_once = False
         self.tortoise_meta_cache = {
             "event_submission": False,
@@ -46,7 +46,7 @@ class Bot(commands.Bot):
             self._was_ready_once = True
 
     async def on_first_ready(self):
-        self.load_extensions()
+        await self.load_extensions()
         await self.change_presence(activity=discord.Game(name="DM to Contact Staff"))
         await self.reload_tortoise_meta_cache()
         try:
@@ -62,7 +62,7 @@ class Bot(commands.Bot):
         await asyncio.sleep(3)
         self.tortoise_meta_cache = await self.api_client.get_server_meta()
 
-    def load_extensions(self):
+    async def load_extensions(self):
         for extension_path in Path("bot/cogs").glob("*.py"):
             extension_name = extension_path.stem
 
@@ -74,7 +74,7 @@ class Bot(commands.Bot):
             dotted_path = f"bot.cogs.{extension_name}"
 
             try:
-                self.load_extension(dotted_path)
+                await self.load_extension(dotted_path)
                 console_logger.info(f"loaded {dotted_path}")
             except Exception as e:
                 traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)

@@ -417,5 +417,5 @@ class SocketCommunication(commands.Cog):
             raise EndpointError(503, "VPS online but Discord websocket closed.")
 
 
-def setup(bot):
-    bot.add_cog(SocketCommunication(bot))
+async def setup(bot):
+    await bot.add_cog(SocketCommunication(bot))

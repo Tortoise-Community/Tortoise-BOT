@@ -54,5 +54,5 @@ class Github(commands.Cog):
         await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 
-def setup(bot):
-    bot.add_cog(Github(bot))
+async def setup(bot):
+    await bot.add_cog(Github(bot))

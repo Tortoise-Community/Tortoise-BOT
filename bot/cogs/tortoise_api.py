@@ -141,5 +141,5 @@ class TortoiseAPI(commands.Cog):
         await ctx.send(embed=success("Suggestion successfully deleted."), delete_after=5)
 
 
-def setup(bot):
-    bot.add_cog(TortoiseAPI(bot))
+async def setup(bot):
+    await bot.add_cog(TortoiseAPI(bot))

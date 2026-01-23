@@ -439,5 +439,5 @@ class TortoiseDM(commands.Cog):
         return f"\nAttachments:\n{urls}"
 
 
-def setup(bot):
-    bot.add_cog(TortoiseDM(bot))
+async def setup(bot):
+    await bot.add_cog(TortoiseDM(bot))

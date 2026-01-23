@@ -1,4 +1,5 @@
 import os
+import asyncio
 import json
 import logging
 from asyncio import AbstractEventLoop
@@ -35,9 +36,9 @@ class ResponseCodeError(ValueError):
 
 
 class BaseAPIClient:
-    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop], **kwargs):
+    def __init__(self, base_api_url: str, *, loop: Optional[AbstractEventLoop] = None, **kwargs):
         self.base_api_url = base_api_url
-        self.session = aiohttp.ClientSession(loop=loop, **kwargs)
+        self.session = aiohttp.ClientSession(loop=asyncio.new_event_loop(), **kwargs)
 
     def _url_for(self, endpoint: str) -> str:
         return f"{self.base_api_url}{endpoint}"
@@ -109,12 +110,12 @@ class GithubAPI(BaseAPIClient):
 
 
 class TortoiseAPI(BaseAPIClient):
-    def __init__(self, *, loop: AbstractEventLoop):
+    def __init__(self, *, loop: Optional[AbstractEventLoop] = None):
         auth_header = {
             "Authorization": f"Token {os.getenv('API_ACCESS_TOKEN')}",
             "Content-Type": "application/json"
         }
-        super().__init__("https://api.tortoisecommunity.org/private/", loop=loop, headers=auth_header)
+        super().__init__("https://api.tortoisecommunity.org/private/", headers=auth_header)
 
     async def get_suggestions_under_review(self) -> List[dict]:
         # Gets all suggestion that are under-review

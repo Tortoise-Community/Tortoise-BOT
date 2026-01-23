@@ -220,5 +220,5 @@ class Fuzzy:
             return [z for _, _, z in sorted(suggestions, key=sort_key)]
 
 
-def setup(bot):
-    bot.add_cog(Documentation(bot))
+async def setup(bot):
+    await bot.add_cog(Documentation(bot))

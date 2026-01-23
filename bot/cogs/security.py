@@ -261,5 +261,5 @@ class Security(commands.Cog):
         return string.split("/")[-1]
 
 
-def setup(bot):
-    bot.add_cog(Security(bot))
+async def setup(bot):
+    await bot.add_cog(Security(bot))

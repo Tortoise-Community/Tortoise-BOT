@@ -87,5 +87,5 @@ class CommandErrorHandler(commands.Cog):
         return message
 
 
-def setup(bot):
-    bot.add_cog(CommandErrorHandler(bot))
+async def setup(bot):
+    await bot.add_cog(CommandErrorHandler(bot))
