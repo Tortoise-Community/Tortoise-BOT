@@ -83,7 +83,7 @@ poetry install
 poetry shell
 
 # [developer only] Install pre-commit hook
-poetry run precommit
+poetry run pre-commit install
 
 # Before we run the bot we need to create .env file where all secret keys will be (tokens etc)
 

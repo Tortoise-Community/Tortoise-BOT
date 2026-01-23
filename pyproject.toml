@@ -29,5 +29,3 @@ pre-commit = "*"
 
 [tool.poetry.scripts]
 start = "python -m bot"
-lint = "python -m flake8"
-precommit = "pre-commit install"
