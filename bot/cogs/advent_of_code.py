@@ -13,7 +13,7 @@ class AdventOfCode(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.aoc_api = AdventOfCodeAPI(self.TORTOISE_LEADERBOARD_ID, loop=self.bot.loop)
+        self.aoc_api = AdventOfCodeAPI(self.TORTOISE_LEADERBOARD_ID)
         self._leaderboard_cache = None
         self.update_leaderboard_cache.start()
 

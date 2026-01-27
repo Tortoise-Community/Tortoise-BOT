@@ -17,7 +17,7 @@ class Documentation(commands.Cog):
         self.bot = bot
         self._doc_cache = {}
         self.session = aiohttp.ClientSession()
-        self.hata_api = HataAPI(loop=self.bot.loop)
+        self.hata_api = HataAPI()
 
     @classmethod
     def parse_object_inv(cls, stream, url):

@@ -21,7 +21,7 @@ class Project:
 class Github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.github_client = GithubAPI(loop=self.bot.loop)
+        self.github_client = GithubAPI()
         self.projects = {}
         self.update_github_stats.start()
 
