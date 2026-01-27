@@ -25,8 +25,7 @@ class Bot(commands.Bot):
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
-        self.api_client: TortoiseAPI = TortoiseAPI()
-        self._was_ready_once = False
+        self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
             "event_submission": False,
             "mod_mail": False,
@@ -41,11 +40,8 @@ class Bot(commands.Bot):
             "Further logging output will go to log file.."
         )
 
-        if not self._was_ready_once:
-            await self.on_first_ready()
-            self._was_ready_once = True
-
-    async def on_first_ready(self):
+    async def setup_hook(self):
+        self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
         await self.change_presence(activity=discord.Game(name="DM to Contact Staff"))
         await self.reload_tortoise_meta_cache()
