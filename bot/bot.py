@@ -73,7 +73,7 @@ class Bot(commands.Bot):
                 await self.load_extension(dotted_path)
                 console_logger.info(f"loaded {dotted_path}")
             except Exception as e:
-                traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
+                traceback_msg = traceback.format_exception(type(e), e, e.__traceback__)
                 console_logger.info(f"Failed to load cog {dotted_path} - traceback:{traceback_msg}")
 
     @staticmethod
