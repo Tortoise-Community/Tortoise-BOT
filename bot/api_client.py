@@ -137,7 +137,7 @@ class TortoiseAPI(BaseAPIClient):
             "author_id": author.id,
             "author_name": author.display_name,
             "brief": suggestion,
-            "avatar": str(author.avatar_url),
+            "avatar": str(author.avatar.url),
             "link": message.jump_url,
             "date": datetime.now(timezone.utc).isoformat()
         }

@@ -112,7 +112,7 @@ class Security(commands.Cog):
             f"[jump]({msg_after.jump_url})"
         )
         embed = info(msg, msg_before.guild.me)
-        embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar_url)
+        embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar.url)
         await self.log_channel.send(embed=embed)
 
         # Check if the new message violates our security
@@ -130,7 +130,7 @@ class Security(commands.Cog):
             f"**Message: **{message.content}"
         )
         embed = info(msg, message.guild.me, "")
-        embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar_url)
+        embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar.url)
         await self.log_channel.send(embed=embed)
 
 

@@ -64,7 +64,7 @@ async def nsfw_warning_embed(author: Member, additional_msg: str = "") -> Embed:
         description=f"**NSFW** posts are not allowed inside the tortoise community\n{additional_msg}",
         colour=Color.red()
     )
-    embed.set_author(name=f"{author}", icon_url=author.avatar_url)
+    embed.set_author(name=f"{author}", icon_url=author.avatar.url)
     return embed
 
 
@@ -151,7 +151,7 @@ def authored(message: str, *, author: Union[Member, User]) -> Embed:
     :return: discord.Embed
     """
     embed = Embed(description=message, color=get_top_role_color(author, fallback_color=Color.green()))
-    embed.set_author(name=author.name, icon_url=author.avatar_url)
+    embed.set_author(name=author.name, icon_url=author.avatar.url)
     return embed
 
 
@@ -165,7 +165,7 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
     :return: discord.Embed
     """
     embed = Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
-    embed.set_thumbnail(url=str(member.avatar_url))
+    embed.set_thumbnail(url=str(member.avatar.url))
     return embed
 
 
@@ -187,7 +187,7 @@ def status_embed(ctx, member: Member) -> Embed:
 
     embed = Embed(title=str(member), color=color_dict[member.status])
     embed.description = get_badges(member)
-    embed.set_thumbnail(url=member.avatar_url)
+    embed.set_thumbnail(url=member.avatar.url)
 
     bot = constants.tick_no
     nick = member.nick
@@ -239,7 +239,7 @@ def infraction_embed(
     """
 
     embed = Embed(title="**Infraction information**", color=infraction_type.value)
-    embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar_url)
+    embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar.url)
 
     embed.add_field(name="**Member**", value=f"{infracted_member}", inline=False)
     embed.add_field(name="**Type**", value=infraction_type.name, inline=False)
@@ -281,7 +281,7 @@ def suggestion_embed(author: User, suggestion: str, status: constants.Suggestion
         description=suggestion,
         color=Color.gold()
     )
-    embed.set_thumbnail(url=str(author.avatar_url))
+    embed.set_thumbnail(url=str(author.avatar.url))
     embed.add_field(name="Status", value=status.value)
     embed.set_footer(text=f"UID: {author.id} ◆ Powered by Tortoise Community.")
     return embed
@@ -357,7 +357,7 @@ def project_embed(projects: dict, me):
     desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,
                          color=get_top_role_color(member=me, fallback_color=Color.light_grey()))
-    embed.set_thumbnail(url=me.avatar_url)
+    embed.set_thumbnail(url=me.avatar.url)
     embed.set_author(name="Github Stats",
                      icon_url="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png")
     embed.set_footer(text="Last updated: ")

@@ -87,5 +87,5 @@ class AdventOfCode(commands.Cog):
         await ctx.send(embed=info(f"Day {current_day} ends in {ends_in}", title="Countdown", member=ctx.guild.me))
 
 
-def setup(bot):
-    bot.add_cog(AdventOfCode(bot))
+async def setup(bot):
+    await bot.add_cog(AdventOfCode(bot))
