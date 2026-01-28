@@ -1,6 +1,7 @@
 import os
 import random
 import datetime
+import logging
 from typing import List, AsyncGenerator
 
 import asyncpraw
@@ -8,6 +9,9 @@ from discord.ext import commands
 from asyncpraw.models import Subreddit, Submission
 
 from bot.utils.embed_handler import reddit_embed
+from bot.utils.embed_handler import failure
+
+logger = logging.getLogger(__name__)
 
 
 class RedditPostsCache:
@@ -77,12 +81,35 @@ class RedditPostsCache:
 class Reddit(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.reddit = asyncpraw.Reddit(
-            client_id=os.getenv("PRAW_CLIENT_ID"),
-            client_secret=os.getenv("PRAW_CLIENT_SECRET"),
-            user_agent="Tortoise Discord Bot",
-        )
+        self.reddit = None
         self._cache = RedditPostsCache()
+        self._init_reddit()
+
+    def _init_reddit(self):
+        """Initialize Reddit client with error handling."""
+        client_id = os.getenv("PRAW_CLIENT_ID")
+        client_secret = os.getenv("PRAW_CLIENT_SECRET")
+        
+        if not client_id or not client_secret:
+            logger.warning("Reddit API credentials not found. Reddit commands will be disabled.")
+            return
+        
+        try:
+            self.reddit = asyncpraw.Reddit(
+                client_id=client_id,
+                client_secret=client_secret,
+                user_agent="Tortoise Discord Bot",
+            )
+        except Exception as e:
+            logger.error(f"Failed to initialize Reddit client: {e}")
+            self.reddit = None
+
+    async def _check_reddit_available(self, ctx):
+        """Check if Reddit is available and inform user if not."""
+        if self.reddit is None:
+            await ctx.send(embed=failure("Reddit functionality is currently disabled. Missing API credentials."))
+            return False
+        return True
 
     async def _post_cache_helper(
             self,
@@ -111,40 +138,50 @@ class Reddit(commands.Cog):
 
     @commands.command()
     async def meme(self, ctx):
-        """Sends you the dankest of the dank memes from reddit."""
+        """Sends you dankest of the dank memes from reddit."""
+        if not await self._check_reddit_available(ctx):
+            return
         subreddit = await self.reddit.subreddit("dankmemes")
         rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.hot())
         embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def newpost(self, ctx, subreddit: str):
+    async def newpost(self, ctx, subreddit_name: str):
         """Sends you new posts from a subreddit."""
-        subreddit = await self.reddit.subreddit(subreddit)
+        if not await self._check_reddit_available(ctx):
+            return
+        subreddit = await self.reddit.subreddit(subreddit_name)
         rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.new(), 1)
         embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def hotpost(self, ctx, subreddit: str):
+    async def hotpost(self, ctx, subreddit_name: str):
         """Sends you hot posts from a subreddit."""
-        subreddit = await self.reddit.subreddit(subreddit)
-        rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.new())
+        if not await self._check_reddit_available(ctx):
+            return
+        subreddit = await self.reddit.subreddit(subreddit_name)
+        rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.hot())
         embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def toppost(self, ctx, subreddit: str):
+    async def toppost(self, ctx, subreddit_name: str):
         """Sends you top posts of all time from a subreddit."""
-        subreddit = await self.reddit.subreddit(subreddit)
+        if not await self._check_reddit_available(ctx):
+            return
+        subreddit = await self.reddit.subreddit(subreddit_name)
         rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.top())
         embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def controversialpost(self, ctx, subreddit: str):
+    async def controversialpost(self, ctx, subreddit_name: str):
         """sends you controversial posts from a subreddit."""
-        subreddit = await self.reddit.subreddit(subreddit)
+        if not await self._check_reddit_available(ctx):
+            return
+        subreddit = await self.reddit.subreddit(subreddit_name)
         rand_post = await self._post_cache_helper(ctx, subreddit, subreddit.controversial())
         embed = await reddit_embed(ctx, rand_post)
         await ctx.send(embed=embed)

@@ -75,13 +75,55 @@ class SocketCommunication(commands.Cog):
     """
     def __init__(self, bot):
         self.bot = bot
-        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
-        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
-        self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
-        self.general_channel = bot.get_channel(constants.general_channel_id)
-        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
-        self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
+        self._tortoise_guild = None
+        self._verified_role = None
+        self._new_member_role = None
+        self._successful_verifications_channel = None
+        self._general_channel = None
+        self._welcome_channel = None
+        self._verified_emoji = None
+
+    @property
+    def tortoise_guild(self):
+        if self._tortoise_guild is None:
+            self._tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._tortoise_guild
+
+    @property
+    def verified_role(self):
+        if self._verified_role is None:
+            self._verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        return self._verified_role
+
+    @property
+    def new_member_role(self):
+        if self._new_member_role is None:
+            self._new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
+        return self._new_member_role
+
+    @property
+    def successful_verifications_channel(self):
+        if self._successful_verifications_channel is None:
+            self._successful_verifications_channel = self.bot.get_channel(constants.successful_verifications_channel_id)
+        return self._successful_verifications_channel
+
+    @property
+    def general_channel(self):
+        if self._general_channel is None:
+            self._general_channel = self.bot.get_channel(constants.general_channel_id)
+        return self._general_channel
+
+    @property
+    def welcome_channel(self):
+        if self._welcome_channel is None:
+            self._welcome_channel = self.bot.get_channel(constants.welcome_channel_id)
+        return self._welcome_channel
+
+    @property
+    def verified_emoji(self):
+        if self._verified_emoji is None:
+            self._verified_emoji = self.bot.get_emoji(constants.verified_emoji_id)
+        return self._verified_emoji
         self.verified_clients = set()
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self._socket_server = SocketCommunication.create_server()

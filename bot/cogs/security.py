@@ -16,9 +16,27 @@ logger = logging.getLogger(__name__)
 class Security(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = bot.get_guild(constants.tortoise_guild_id)
-        self.trusted = self.guild.get_role(constants.trusted_role_id)
-        self.log_channel = bot.get_channel(constants.bot_log_channel_id)
+        self._guild = None
+        self._trusted = None
+        self._log_channel = None
+
+    @property
+    def guild(self):
+        if self._guild is None:
+            self._guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._guild
+
+    @property
+    def trusted(self):
+        if self._trusted is None:
+            self._trusted = self.guild.get_role(constants.trusted_role_id)
+        return self._trusted
+
+    @property
+    def log_channel(self):
+        if self._log_channel is None:
+            self._log_channel = self.bot.get_channel(constants.bot_log_channel_id)
+        return self._log_channel
 
     async def security_check(self, message: Message):
         """

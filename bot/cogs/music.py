@@ -16,7 +16,12 @@ from functools import partial
 import discord
 from discord.ext import commands
 from youtube_dl import YoutubeDL
-from async_timeout import timeout
+try:
+    from async_timeout import timeout
+except ImportError:
+    # Fallback for newer Python versions or if async_timeout is not available
+    import asyncio
+    timeout = asyncio.wait_for
 
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.utils.exceptions import TortoiseGuildCheckFailure

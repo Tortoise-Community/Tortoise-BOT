@@ -22,14 +22,62 @@ class TortoiseServer(commands.Cog):
     """These commands will only work in the tortoise discord server."""
     def __init__(self, bot):
         self.bot = bot
-        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
-        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
-        self.member_count_channel = bot.get_channel(constants.member_count_channel_id)
-        self.log_channel = bot.get_channel(constants.system_log_channel_id)
-        self.verification_channel = bot.get_channel(constants.verification_channel_id)
-        self.announcements_channel = bot.get_channel(constants.announcements_channel_id)
-        self.code_submissions_channel = bot.get_channel(constants.code_submissions_channel_id)
+        self._tortoise_guild = None
+        self._verified_role = None
+        self._new_member_role = None
+        self._member_count_channel = None
+        self._log_channel = None
+        self._verification_channel = None
+        self._announcements_channel = None
+        self._code_submissions_channel = None
+
+    @property
+    def tortoise_guild(self):
+        if self._tortoise_guild is None:
+            self._tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._tortoise_guild
+
+    @property
+    def verified_role(self):
+        if self._verified_role is None:
+            self._verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        return self._verified_role
+
+    @property
+    def new_member_role(self):
+        if self._new_member_role is None:
+            self._new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
+        return self._new_member_role
+
+    @property
+    def member_count_channel(self):
+        if self._member_count_channel is None:
+            self._member_count_channel = self.bot.get_channel(constants.member_count_channel_id)
+        return self._member_count_channel
+
+    @property
+    def log_channel(self):
+        if self._log_channel is None:
+            self._log_channel = self.bot.get_channel(constants.system_log_channel_id)
+        return self._log_channel
+
+    @property
+    def verification_channel(self):
+        if self._verification_channel is None:
+            self._verification_channel = self.bot.get_channel(constants.verification_channel_id)
+        return self._verification_channel
+
+    @property
+    def announcements_channel(self):
+        if self._announcements_channel is None:
+            self._announcements_channel = self.bot.get_channel(constants.announcements_channel_id)
+        return self._announcements_channel
+
+    @property
+    def code_submissions_channel(self):
+        if self._code_submissions_channel is None:
+            self._code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
+        return self._code_submissions_channel
 
         self._database_role_update_lock = False
         self._rules = None

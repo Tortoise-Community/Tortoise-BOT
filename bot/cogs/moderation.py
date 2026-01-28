@@ -21,10 +21,34 @@ logger = logging.getLogger(__name__)
 class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
-        self.muted_role = self.tortoise_guild.get_role(constants.muted_role_id)
-        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.deterrence_log_channel = bot.get_channel(constants.deterrence_log_channel_id)
+        self._tortoise_guild = None
+        self._muted_role = None
+        self._verified_role = None
+        self._deterrence_log_channel = None
+
+    @property
+    def tortoise_guild(self):
+        if self._tortoise_guild is None:
+            self._tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._tortoise_guild
+
+    @property
+    def muted_role(self):
+        if self._muted_role is None:
+            self._muted_role = self.tortoise_guild.get_role(constants.muted_role_id)
+        return self._muted_role
+
+    @property
+    def verified_role(self):
+        if self._verified_role is None:
+            self._verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
+        return self._verified_role
+
+    @property
+    def deterrence_log_channel(self):
+        if self._deterrence_log_channel is None:
+            self._deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
+        return self._deterrence_log_channel
 
     @commands.command()
     @commands.bot_has_guild_permissions(kick_members=True)

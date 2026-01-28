@@ -24,6 +24,7 @@ class Bot(commands.Bot):
     banned_extensions = ("advent_of_code",)
 
     def __init__(self, prefix="t.", *args, **kwargs):
+        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
         super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
         self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
@@ -43,8 +44,13 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
-        await self.change_presence(activity=discord.Game(name="DM to Contact Staff"))
         await self.reload_tortoise_meta_cache()
+        try:
+            version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
+            bot_log_channel = self.get_channel(bot_log_channel_id)
+            await bot_log_channel.send(embed=info(f"Bot restarted. Build version `{version}`", self.user, ""))
+        except Exception as e:
+            logger.info("Git image version not found", e)
         try:
             version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
             bot_log_channel = self.get_channel(bot_log_channel_id)
