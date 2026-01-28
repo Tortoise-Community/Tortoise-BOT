@@ -8,7 +8,7 @@ from discord.ext import commands
 from discord import Member, Message
 
 from bot import constants
-from bot.utils.embed_handler import info, moderation_log_embed, simple_embed
+from bot.utils.embed_handler import info, moderation_log_embed
 from bot.utils.message_handler import RemovableMessage
 from bot.constants import allowed_file_extensions
 
@@ -115,11 +115,11 @@ class Security(commands.Cog):
 
         embed = moderation_log_embed(
             title=title,
-            user=f"{message.author} (`{message.author.id}`)",
             channel=message.channel.mention,
             content=f"{reason}\n\n{content}",
             color=discord.Color.red()
         )
+        embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar.url)
 
         await self.log_channel.send(embed=embed, files=files_to_log)
 
@@ -297,7 +297,7 @@ class Security(commands.Cog):
 
         # Log that the message was edited for security reasons
         msg = (
-            f"**Channel:** {msg_before.channel.mention}\n\n"
+            f"**Channel**\n{msg_before.channel.mention}\n"
             f"**Before:** {msg_before.content}\n"
             f"**After: **{msg_after.content}\n\n"
             f"[jump]({msg_after.jump_url})"
