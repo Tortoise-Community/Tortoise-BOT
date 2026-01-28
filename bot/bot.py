@@ -1,20 +1,19 @@
-import os
-import sys
-import logging
 import asyncio
-import traceback
+import logging
+import os
 import subprocess
+import sys
+import traceback
 from pathlib import Path
 from typing import Generator
 
+import aiohttp.client_exceptions
 import discord
 from discord.ext import commands
-import aiohttp.client_exceptions
 
 from bot.api_client import TortoiseAPI
-from bot.constants import error_log_channel_id, bot_log_channel_id, system_log_channel_id
-from bot.utils.embed_handler import info, simple_embed
-
+from bot.constants import error_log_channel_id, system_log_channel_id
+from bot.utils.embed_handler import simple_embed
 
 logger = logging.getLogger(__name__)
 console_logger = logging.getLogger("console")
@@ -22,12 +21,12 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ("tortoise_dm", "github", "health")
+    allowed_extensions = ("tortoise_dm", "github", "security", "health")
     banned_extensions = ("advent_of_code",)
     build_version = "mystery-build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
-        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
+        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff (Mod Mail)"))
         super(Bot, self).__init__(
             *args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs
         )
@@ -38,6 +37,7 @@ class Bot(commands.Bot):
             "bug_report": False,
             "suggestions": False,
         }
+        self.suppressed_deletes = set()
 
     async def on_ready(self):
         console_logger.info(
