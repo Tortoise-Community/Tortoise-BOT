@@ -67,8 +67,8 @@ Python 3.8 required
 
 ```bash
 
-# Your global Python installation needs to have pipenv
-pip install pipenv
+# Your global Python installation needs to have poetry
+pip install poetry
 
 # Clone the repo
 git clone https://github.com/Tortoise-Community/Tortoise-BOT.git
@@ -76,17 +76,14 @@ git clone https://github.com/Tortoise-Community/Tortoise-BOT.git
 # Change directories into the project
 cd Tortoise-BOT
 
-# [developer only] If you are developer you need to install dependencies for dev
-pipenv install --dev
+# Install dependencies (includes dev dependencies)
+poetry install
 
-# If you're not a developer just install required dependencies like this
-pipenv install
-
-# Activate the Pipenv shell (aka tell your terminal/whatever to use dependencies from the env in this project)
-pipenv shell
+# Activate the Poetry shell (aka tell your terminal/whatever to use dependencies from the env in this project)
+poetry shell
 
 # [developer only] Install pre-commit hook
-pipenv run precommit
+poetry run pre-commit install
 
 # Before we run the bot we need to create .env file where all secret keys will be (tokens etc)
 
@@ -144,7 +141,7 @@ You can safely ignore these errors as they will not stop the bot from functionin
 # Once you are in Tortoise-Bot/
 
 # Run the bot
-pipenv run start
+poetry run start
 ```
 
 # License

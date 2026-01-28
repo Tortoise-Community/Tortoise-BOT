@@ -13,7 +13,7 @@ class AdventOfCode(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.aoc_api = AdventOfCodeAPI(self.TORTOISE_LEADERBOARD_ID, loop=self.bot.loop)
+        self.aoc_api = AdventOfCodeAPI(self.TORTOISE_LEADERBOARD_ID)
         self._leaderboard_cache = None
         self.update_leaderboard_cache.start()
 
@@ -87,5 +87,5 @@ class AdventOfCode(commands.Cog):
         await ctx.send(embed=info(f"Day {current_day} ends in {ends_in}", title="Countdown", member=ctx.guild.me))
 
 
-def setup(bot):
-    bot.add_cog(AdventOfCode(bot))
+async def setup(bot):
+    await bot.add_cog(AdventOfCode(bot))

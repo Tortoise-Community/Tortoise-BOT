@@ -13,7 +13,12 @@ from bot.utils.embed_handler import info, thumbnail, success
 from bot.utils.members import get_member_activity, get_member_status
 from bot.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.utils.exceptions import (
-    EndpointNotFound, EndpointBadArguments, EndpointError, EndpointSuccess, InternalServerError, DiscordIDNotFound
+    EndpointNotFound,
+    EndpointBadArguments,
+    EndpointError,
+    EndpointSuccess,
+    InternalServerError,
+    DiscordIDNotFound,
 )
 
 
@@ -62,6 +67,7 @@ def endpoint_register(*, endpoint_key: str = None):
             loop.run_until_complete(async_function(*args, **kwargs))
 
         return wrapper
+
     return decorator
 
 
@@ -73,19 +79,68 @@ class SocketCommunication(commands.Cog):
         Just decorate it with @endpoint_register
         Read the docstring of that decorator to know what your endpoint should return/raise.
     """
+
     def __init__(self, bot):
         self.bot = bot
-        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
-        self.verified_role = self.tortoise_guild.get_role(constants.verified_role_id)
-        self.new_member_role = self.tortoise_guild.get_role(constants.new_member_role)
-        self.successful_verifications_channel = bot.get_channel(constants.successful_verifications_channel_id)
-        self.general_channel = bot.get_channel(constants.general_channel_id)
-        self.welcome_channel = bot.get_channel(constants.welcome_channel_id)
-        self.verified_emoji = bot.get_emoji(constants.verified_emoji_id)
+        self._tortoise_guild = None
+        self._verified_role = None
+        self._new_member_role = None
+        self._successful_verifications_channel = None
+        self._general_channel = None
+        self._welcome_channel = None
+        self._verified_emoji = None
         self.verified_clients = set()
         self.auth_token = os.getenv("SOCKET_AUTH_TOKEN")
         self._socket_server = SocketCommunication.create_server()
         self.task = self.bot.loop.create_task(self.run_server(self._socket_server))
+
+    @property
+    def tortoise_guild(self):
+        if self._tortoise_guild is None:
+            self._tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._tortoise_guild
+
+    @property
+    def verified_role(self):
+        if self._verified_role is None:
+            self._verified_role = self.tortoise_guild.get_role(
+                constants.verified_role_id
+            )
+        return self._verified_role
+
+    @property
+    def new_member_role(self):
+        if self._new_member_role is None:
+            self._new_member_role = self.tortoise_guild.get_role(
+                constants.new_member_role
+            )
+        return self._new_member_role
+
+    @property
+    def successful_verifications_channel(self):
+        if self._successful_verifications_channel is None:
+            self._successful_verifications_channel = self.bot.get_channel(
+                constants.successful_verifications_channel_id
+            )
+        return self._successful_verifications_channel
+
+    @property
+    def general_channel(self):
+        if self._general_channel is None:
+            self._general_channel = self.bot.get_channel(constants.general_channel_id)
+        return self._general_channel
+
+    @property
+    def welcome_channel(self):
+        if self._welcome_channel is None:
+            self._welcome_channel = self.bot.get_channel(constants.welcome_channel_id)
+        return self._welcome_channel
+
+    @property
+    def verified_emoji(self):
+        if self._verified_emoji is None:
+            self._verified_emoji = self.bot.get_emoji(constants.verified_emoji_id)
+        return self._verified_emoji
 
     def cog_unload(self):
         logger.debug("Unloading socket comm, closing connections.")
@@ -136,7 +191,9 @@ class SocketCommunication(commands.Cog):
 
             while True:  # buffer client request in case of long message
                 try:
-                    buffer = (await self.bot.loop.sock_recv(client, buffer_size)).decode("utf8")
+                    buffer = (
+                        await self.bot.loop.sock_recv(client, buffer_size)
+                    ).decode("utf8")
                     request += buffer
                 except ConnectionResetError:
                     # If the client disconnects without sending quit.
@@ -158,7 +215,9 @@ class SocketCommunication(commands.Cog):
             try:
                 request = json.loads(request)
             except json.JSONDecodeError:
-                response = EndpointError(400, "Not a valid JSON formatted request.").response
+                response = EndpointError(
+                    400, "Not a valid JSON formatted request."
+                ).response
                 await self.send_to_client(client, json.dumps(response))
                 logger.debug(f"{client_name}:{response}:{request}")
                 continue
@@ -178,7 +237,9 @@ class SocketCommunication(commands.Cog):
                     logger.info(f"{client_name} successfully authorized.")
                     continue
                 else:
-                    response = EndpointError(401, "Verification unsuccessful, closing conn..").response
+                    response = EndpointError(
+                        401, "Verification unsuccessful, closing conn.."
+                    ).response
                     await self.send_to_client(client, json.dumps(response))
                     logger.debug(f"{client_name}:{response}:{request}")
                     break
@@ -196,7 +257,9 @@ class SocketCommunication(commands.Cog):
         Send response message to specified client.
         """
         try:
-            await self.bot.loop.sock_sendall(client, bytes(msg.encode("unicode_escape")))
+            await self.bot.loop.sock_sendall(
+                client, bytes(msg.encode("unicode_escape"))
+            )
         except BrokenPipeError:
             # If the client closes the connection too quickly or just does't even bother listening to response we'll
             # get this, so just ignore
@@ -239,13 +302,17 @@ class SocketCommunication(commands.Cog):
             else:
                 endpoint_returned_data = await function(self, endpoint_data)
         except TypeError as e:
-            logger.critical(f"Bad arguments for endpoint {endpoint_key} {endpoint_data} {e}")
+            logger.critical(
+                f"Bad arguments for endpoint {endpoint_key} {endpoint_data} {e}"
+            )
             return EndpointBadArguments().response
         except EndpointError as e:
             # If endpoint function raises then return it's response
             return e.response
         except Exception as e:
-            logger.critical(f"Error processing socket endpoint: {endpoint_key} , data:{endpoint_data} {e}")
+            logger.critical(
+                f"Error processing socket endpoint: {endpoint_key} , data:{endpoint_data} {e}"
+            )
             return InternalServerError().response
 
         # If we've come all the way here then no errors occurred and endpoint function executed correctly.
@@ -293,7 +360,9 @@ class SocketCommunication(commands.Cog):
 
         if user is not None:
             try:
-                await user.send(embed=thumbnail(message, self.bot.user, "A message just for you!"))
+                await user.send(
+                    embed=thumbnail(message, self.bot.user, "A message just for you!")
+                )
             except Forbidden:
                 logger.info(f"Skipping send endpoint to {user} as he blocked DMs.")
 
@@ -347,8 +416,11 @@ class SocketCommunication(commands.Cog):
             raise EndpointBadArguments()
 
         none_checks = (
-            self.tortoise_guild, self.verified_role, self.new_member_role,
-            self.successful_verifications_channel, self.welcome_channel
+            self.tortoise_guild,
+            self.verified_role,
+            self.new_member_role,
+            self.successful_verifications_channel,
+            self.welcome_channel,
         )
 
         for check_none in none_checks:
@@ -361,10 +433,16 @@ class SocketCommunication(commands.Cog):
         member = tortoise_guild.get_member(member_id)
 
         if member is None:
-            logger.critical(f"Can't verify, member is not found in guild {member} {member_id}")
+            logger.critical(
+                f"Can't verify, member is not found in guild {member} {member_id}"
+            )
             raise DiscordIDNotFound()
 
-        await member.add_roles(self.verified_role, self.new_member_role, reason="Completed Oauth2 Verification")
+        await member.add_roles(
+            self.verified_role,
+            self.new_member_role,
+            reason="Completed Oauth2 Verification",
+        )
         await self.successful_verifications_channel.send(
             embed=info(f"{member} is now verified.", member.guild.me, title="")
         )
@@ -373,8 +451,13 @@ class SocketCommunication(commands.Cog):
             f"Make sure to read {self.welcome_channel.mention}"
         )
         await self.general_channel.send(
-            member.mention, embed=info(f"Say hi to our newest member {member.mention}", member.guild.me, title=""),
-            delete_after=100
+            member.mention,
+            embed=info(
+                f"Say hi to our newest member {member.mention}",
+                member.guild.me,
+                title="",
+            ),
+            delete_after=100,
         )
         await member.send(embed=success(msg))
 
@@ -417,5 +500,5 @@ class SocketCommunication(commands.Cog):
             raise EndpointError(503, "VPS online but Discord websocket closed.")
 
 
-def setup(bot):
-    bot.add_cog(SocketCommunication(bot))
+async def setup(bot):
+    await bot.add_cog(SocketCommunication(bot))

@@ -61,5 +61,5 @@ class BotOwnerCommands(commands.Cog):
         await ctx.send(embed=success(f"{extension_name} reloaded.", ctx.me))
 
 
-def setup(bot):
-    bot.add_cog(BotOwnerCommands(bot))
+async def setup(bot):
+    await bot.add_cog(BotOwnerCommands(bot))

@@ -80,7 +80,7 @@ class Miscellaneous(commands.Cog):
             message = f"{member} avatar"
 
         embed = info(message, ctx.me)
-        embed.set_image(url=member.avatar_url_as(size=4096))
+        embed.set_image(url=member.avatar.replace(size=4096))
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -131,7 +131,7 @@ class Miscellaneous(commands.Cog):
         )
 
         embed = info("", ctx.me, title="")
-        embed.set_author(name="Tortoise BOT", icon_url=ctx.me.avatar_url)
+        embed.set_author(name="Tortoise BOT", icon_url=ctx.me.avatar.url)
         embed.add_field(name="Bot Stats", value=field_content)
         embed.set_footer(text="Tortoise Community")
 
@@ -355,5 +355,5 @@ class Miscellaneous(commands.Cog):
         await ctx.send(f"```{output}```")
 
 
-def setup(bot):
-    bot.add_cog(Miscellaneous(bot))
+async def setup(bot):
+    await bot.add_cog(Miscellaneous(bot))

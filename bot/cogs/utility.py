@@ -13,7 +13,7 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.utility_embed_color = 0x3498d
-        self.stack_api_client = StackAPI(loop=bot.loop)
+        self.stack_api_client = StackAPI()
         self.google_client = Search(os.getenv("GOOGLE_API_KEY"))
 
     @commands.command(aliases=["g"])
@@ -65,5 +65,5 @@ class Utility(commands.Cog):
         await paginator.start()
 
 
-def setup(bot):
-    bot.add_cog(Utility(bot))
+async def setup(bot):
+    await bot.add_cog(Utility(bot))

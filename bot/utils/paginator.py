@@ -226,7 +226,7 @@ class ListPaginator:
     def __init__(
             self, ctx: commands.Context, page_list,
             footer: bool = True,
-            footer_icon=Embed.Empty,
+            footer_icon=None,
             restart_button="⏮",
             back_button="◀",
             forward_button="⏭",

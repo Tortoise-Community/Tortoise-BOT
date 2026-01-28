@@ -6,6 +6,7 @@ log.txt
 
 # VSCode
 .vscode
+*.code-workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -94,10 +95,11 @@ celerybeat-schedule
 .env
 .venv
 env/
-venv/
+*venv/
 ENV/
 env.bak/
 venv.bak/
+poetry.lock
 
 # Spyder project settings
 .spyderproject

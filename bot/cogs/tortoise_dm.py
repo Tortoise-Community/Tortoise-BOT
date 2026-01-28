@@ -27,10 +27,27 @@ class UnsupportedFileEncoding(ValueError):
 class TortoiseDM(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.tortoise_guild = bot.get_guild(constants.tortoise_guild_id)
+        self._tortoise_guild = None
+        self._admin_role = None
+        self._moderator_role = None
 
-        self.admin_role = self.tortoise_guild.get_role(constants.admin_role)
-        self.moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+    @property
+    def tortoise_guild(self):
+        if self._tortoise_guild is None:
+            self._tortoise_guild = self.bot.get_guild(constants.tortoise_guild_id)
+        return self._tortoise_guild
+
+    @property
+    def admin_role(self):
+        if self._admin_role is None:
+            self._admin_role = self.tortoise_guild.get_role(constants.admin_role)
+        return self._admin_role
+
+    @property
+    def moderator_role(self):
+        if self._moderator_role is None:
+            self._moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+        return self._moderator_role
 
         self.cool_down = CoolDown(seconds=120)
         self.bot.loop.create_task(self.cool_down.start())
@@ -439,5 +456,5 @@ class TortoiseDM(commands.Cog):
         return f"\nAttachments:\n{urls}"
 
 
-def setup(bot):
-    bot.add_cog(TortoiseDM(bot))
+async def setup(bot):
+    await bot.add_cog(TortoiseDM(bot))

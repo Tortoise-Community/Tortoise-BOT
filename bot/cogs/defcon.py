@@ -79,5 +79,5 @@ class Defcon(commands.Cog):
         await ctx.send(embed=success(f"Successfully changed DEFCON trigger to {trigger} users/min."))
 
 
-def setup(bot):
-    bot.add_cog(Defcon(bot))
+async def setup(bot):
+    await bot.add_cog(Defcon(bot))

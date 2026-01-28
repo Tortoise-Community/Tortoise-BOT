@@ -1,4 +1,6 @@
 import datetime
+import logging
+import aiohttp.client_exceptions
 
 from discord.ext import commands, tasks
 
@@ -21,7 +23,7 @@ class Project:
 class Github(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.github_client = GithubAPI(loop=self.bot.loop)
+        self.github_client = GithubAPI()
         self.projects = {}
         self.update_github_stats.start()
 
@@ -40,13 +42,18 @@ class Github(commands.Cog):
 
     @tasks.loop(hours=3)
     async def update_github_stats(self):
-        project_list = await self.bot.api_client.get_projects_data()
-        for project in project_list:
-            project_stats = await self.get_project_stats(project)
-            item = Project(project_stats)
-            self.projects[item.name] = item
-            self.projects["last_updated"] = datetime.datetime.now()
-            await self.bot.api_client.put_project_data(project["pk"], vars(item))
+        try:
+            project_list = await self.bot.api_client.get_projects_data()
+            for project in project_list:
+                project_stats = await self.get_project_stats(project)
+                item = Project(project_stats)
+                self.projects[item.name] = item
+                self.projects["last_updated"] = datetime.datetime.now()
+                await self.bot.api_client.put_project_data(project["pk"], vars(item))
+        except aiohttp.client_exceptions.ClientConnectorDNSError as e:
+            logging.error(f"DNS resolution failed in GitHub stats update: {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error in GitHub stats update: {e}")
 
     @commands.command(aliases=["git"])
     async def github(self, ctx):
@@ -54,5 +61,5 @@ class Github(commands.Cog):
         await ctx.send(embed=project_embed(self.projects, ctx.me))
 
 
-def setup(bot):
-    bot.add_cog(Github(bot))
+async def setup(bot):
+    await bot.add_cog(Github(bot))

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "tortoise-bot"
+version = "0.1.0"
+description = "Fully functional Bot for Discord coded in Discord.py"
+authors = ["Tortoise Community <your-email@example.com>"]
+readme = "README.md"
+packages = [{include = "bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+python-dotenv = "*"
+psutil = "*"
+youtube-dl = "*"
+python-dateutil = "*"
+aenum = "*"
+beautifulsoup4 = "*"
+async-cse = "*"
+lxml = "*"
+asyncpraw = "*"
+discord-py = {extras = ["voice"], version = "^2.0"}
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "*"
+pre-commit = "*"
+
+[tool.poetry.scripts]
+start = "bot.__main__:main"

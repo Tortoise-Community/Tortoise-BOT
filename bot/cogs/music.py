@@ -16,7 +16,12 @@ from functools import partial
 import discord
 from discord.ext import commands
 from youtube_dl import YoutubeDL
-from async_timeout import timeout
+try:
+    from async_timeout import timeout
+except ImportError:
+    # Fallback for newer Python versions or if async_timeout is not available
+    import asyncio
+    timeout = asyncio.wait_for
 
 from bot.utils.checks import check_if_it_is_tortoise_guild
 from bot.utils.exceptions import TortoiseGuildCheckFailure
@@ -217,7 +222,7 @@ class Music(commands.Cog):
         elif isinstance(error, (TortoiseGuildCheckFailure, SourceError)):
             await ctx.send(embed=failure(f"{error}"))
         else:
-            traceback_msg = traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)
+            traceback_msg = traceback.format_exception(type(error), error, error.__traceback__)
             logger.error(traceback_msg)
             await self.bot.log_error(traceback_msg)
 
@@ -417,5 +422,5 @@ class Music(commands.Cog):
         await self.cleanup(ctx.guild)
 
 
-def setup(bot):
-    bot.add_cog(Music(bot))
+async def setup(bot):
+    await bot.add_cog(Music(bot))

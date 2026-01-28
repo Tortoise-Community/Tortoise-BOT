@@ -8,6 +8,7 @@ from typing import Generator
 
 import discord
 from discord.ext import commands
+import aiohttp.client_exceptions
 
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, bot_log_channel_id
@@ -24,14 +25,16 @@ class Bot(commands.Bot):
     banned_extensions = ("advent_of_code",)
 
     def __init__(self, prefix="t.", *args, **kwargs):
-        super(Bot, self).__init__(*args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs)
-        self.api_client: TortoiseAPI = TortoiseAPI(loop=self.loop)
-        self._was_ready_once = False
+        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
+        super(Bot, self).__init__(
+            *args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs
+        )
+        self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
             "event_submission": False,
             "mod_mail": False,
             "bug_report": False,
-            "suggestions": False
+            "suggestions": False,
         }
 
     async def on_ready(self):
@@ -41,44 +44,70 @@ class Bot(commands.Bot):
             "Further logging output will go to log file.."
         )
 
-        if not self._was_ready_once:
-            await self.on_first_ready()
-            self._was_ready_once = True
-
-    async def on_first_ready(self):
-        self.load_extensions()
-        await self.change_presence(activity=discord.Game(name="DM to Contact Staff"))
+    async def setup_hook(self):
+        self.api_client: TortoiseAPI = TortoiseAPI()
+        await self.load_extensions()
         await self.reload_tortoise_meta_cache()
         try:
-            version = subprocess.check_output(["git", "describe", "--always"]).strip().decode("utf-8")
+            version = (
+                subprocess.check_output(["git", "describe", "--always"])
+                .strip()
+                .decode("utf-8")
+            )
             bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(embed=info(f"Bot restarted. Build version `{version}`", self.user, ""))
+            await bot_log_channel.send(
+                embed=info(f"Bot restarted. Build version `{version}`", self.user, "")
+            )
         except Exception as e:
-            logger.info("Git image version not found", e)
+            logger.exception("Git image version not found", exc_info=True)
+        try:
+            version = (
+                subprocess.check_output(["git", "describe", "--always"])
+                .strip()
+                .decode("utf-8")
+            )
+            bot_log_channel = self.get_channel(bot_log_channel_id)
+            await bot_log_channel.send(
+                embed=info(f"Bot restarted. Build version `{version}`", self.user, "")
+            )
+        except Exception as e:
+            logger.exception("Git image version not found", exc_info=True)
 
     async def reload_tortoise_meta_cache(self):
-        # For some reason it takes some time to propagate change in API database so if we fetch right away
-        # we will get old data.
-        await asyncio.sleep(3)
-        self.tortoise_meta_cache = await self.api_client.get_server_meta()
+        try:
+            # For some reason it takes some time to propagate change in API database so if we fetch right away
+            # we will get old data.
+            await asyncio.sleep(3)
+            self.tortoise_meta_cache = await self.api_client.get_server_meta()
+        except aiohttp.client_exceptions.ClientConnectorDNSError as e:
+            logging.error(f"DNS resolution failed for server meta: {e}")
+            self.tortoise_meta_cache = {}  # Set empty cache as fallback
+        except Exception as e:
+            logging.error(f"Unexpected error loading server meta: {e}")
+            self.tortoise_meta_cache = {}  # Set empty cache as fallback
 
-    def load_extensions(self):
+    async def load_extensions(self):
         for extension_path in Path("bot/cogs").glob("*.py"):
             extension_name = extension_path.stem
 
             if extension_name in self.banned_extensions:
                 continue
-            elif self.allowed_extensions and extension_name not in self.allowed_extensions:
+            elif (
+                self.allowed_extensions
+                and extension_name not in self.allowed_extensions
+            ):
                 continue
 
             dotted_path = f"bot.cogs.{extension_name}"
 
             try:
-                self.load_extension(dotted_path)
+                await self.load_extension(dotted_path)
                 console_logger.info(f"loaded {dotted_path}")
             except Exception as e:
-                traceback_msg = traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)
-                console_logger.info(f"Failed to load cog {dotted_path} - traceback:{traceback_msg}")
+                traceback_msg = traceback.format_exception(type(e), e, e.__traceback__)
+                console_logger.info(
+                    f"Failed to load cog {dotted_path} - traceback:{traceback_msg}"
+                )
 
     @staticmethod
     async def on_connect():
@@ -106,12 +135,18 @@ class Bot(commands.Bot):
 
         for count, message in enumerate(split_messages):
             if count < 5:
-                await error_log_channel.send(f"```Num {count+1}/{len(split_messages)}:\n{message}```")
+                await error_log_channel.send(
+                    f"```Num {count+1}/{len(split_messages)}:\n{message}```"
+                )
             else:
-                await error_log_channel.send("```Stopping spam, too many pages. See log for more info.```")
+                await error_log_channel.send(
+                    "```Stopping spam, too many pages. See log for more info.```"
+                )
                 break
 
     @staticmethod
-    def split_string_into_chunks(string: str, chunk_size: int) -> Generator[str, None, None]:
+    def split_string_into_chunks(
+        string: str, chunk_size: int
+    ) -> Generator[str, None, None]:
         for i in range(0, len(string), chunk_size):
-            yield string[i:i + chunk_size]
+            yield string[i : i + chunk_size]
