@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 import asyncio
@@ -11,8 +12,8 @@ from discord.ext import commands
 import aiohttp.client_exceptions
 
 from bot.api_client import TortoiseAPI
-from bot.constants import error_log_channel_id, bot_log_channel_id
-from bot.utils.embed_handler import info
+from bot.constants import error_log_channel_id, bot_log_channel_id, system_log_channel_id
+from bot.utils.embed_handler import info, simple_embed
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +24,7 @@ class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
     allowed_extensions = ("tortoise_dm", "health")
     banned_extensions = ("advent_of_code",)
-    build_version = "Mystery Build"
+    build_version = "mystery-build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
         kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
@@ -44,23 +45,37 @@ class Bot(commands.Bot):
             f"d.py version: {discord.__version__} \t"
             "Further logging output will go to log file.."
         )
+        await self.send_restart_message()
+
+    async def send_restart_message(self: commands.Bot):
+        try:
+            commit_hash = subprocess.check_output(
+                ["git", "rev-parse", "--short", "HEAD"],
+                stderr=subprocess.DEVNULL,
+            ).decode().strip()
+        except Exception:
+            commit_hash = os.getenv("BOT_BUILD_VERSION", "mystery-build")
+
+        channel = self.get_channel(system_log_channel_id)
+        self.build_version = commit_hash
+
+        if channel is None:
+            return
+
+        try:
+            embed = simple_embed(message=f"Build version: `{commit_hash}`", title="", color=discord.Color.dark_orange())
+            embed.set_footer(text=f"🔄 Bot Restarted")
+            await channel.send(
+                embed=embed,
+            )
+        except discord.Forbidden:
+            pass
 
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()
-        try:
-            version = (
-                subprocess.check_output(["git", "describe", "--always"])
-                .strip()
-                .decode("utf-8")
-            )
-            bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(
-                embed=info(f"Bot restarted. Build version `{version}`", self.user, "")
-            )
-        except Exception as e:
-            logger.exception("Git image version not found", exc_info=True)
+
 
     async def reload_tortoise_meta_cache(self):
         try:
