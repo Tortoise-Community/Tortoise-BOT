@@ -21,8 +21,9 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ()
+    allowed_extensions = ("tortoise_dm", "health")
     banned_extensions = ("advent_of_code",)
+    build_version = "Mystery Build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
         kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
@@ -32,7 +33,7 @@ class Bot(commands.Bot):
         self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
             "event_submission": False,
-            "mod_mail": False,
+            "mod_mail": True,
             "bug_report": False,
             "suggestions": False,
         }
@@ -47,19 +48,7 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
-        await self.reload_tortoise_meta_cache()
-        try:
-            version = (
-                subprocess.check_output(["git", "describe", "--always"])
-                .strip()
-                .decode("utf-8")
-            )
-            bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(
-                embed=info(f"Bot restarted. Build version `{version}`", self.user, "")
-            )
-        except Exception as e:
-            logger.exception("Git image version not found", exc_info=True)
+        # await self.reload_tortoise_meta_cache()
         try:
             version = (
                 subprocess.check_output(["git", "describe", "--always"])

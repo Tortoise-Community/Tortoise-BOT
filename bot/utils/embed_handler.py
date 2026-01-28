@@ -155,6 +155,19 @@ def authored(message: str, *, author: Union[Member, User]) -> Embed:
     return embed
 
 
+def authored_sm(message: str, *, author: Union[Member, User]) -> Embed:
+    """
+    Construct small authored embed and sets its author to passed param author.
+    Embed color is based on passed author top role color.
+    :param author: to whom the embed will be authored.
+    :param message: message to display in embed.
+    :return: discord.Embed
+    """
+    embed = Embed(description="", color=get_top_role_color(author, fallback_color=Color.green()))
+    embed.set_footer(text=message, icon_url=author.avatar.url)
+    return embed
+
+
 def thumbnail(message: str, member: Union[Member, User], title: str = None) -> Embed:
     """
     Construct embed and sets thumbnail based on passed param member avatar image..
