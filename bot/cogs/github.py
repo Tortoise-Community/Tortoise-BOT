@@ -9,6 +9,66 @@ from bot.constants import project_url
 from bot.utils.embed_handler import project_embed
 
 
+USE_STATIC = True
+
+STATIC_PROJECTS_DATA = [
+    {
+        "name": "Tortoise-Bot",
+        "html_url": "https://github.com/Tortoise-Community/Tortoise-Bot",
+        "web_link": "https://github.com/Tortoise-Community/Tortoise-Bot",
+        "forks_count": 21,
+        "commit_count": 732,
+        "stargazers_count": 57,
+        "contributors_count": 0,
+        "language": "Python",
+        "short_desc": "Fully functional Bot for Discord coded in Discord.py",
+    },
+    {
+        "name": "Snappy-Bot",
+        "html_url": "https://github.com/Tortoise-Community/Snappy-Bot",
+        "web_link": "https://github.com/Tortoise-Community/Snappy-Bot",
+        "forks_count": 1,
+        "commit_count": 25,
+        "stargazers_count": 1,
+        "contributors_count": 0,
+        "language": "Python",
+        "short_desc": "Snappy is a lightweight Discord bot built using discord.py v2+",
+    },
+    {
+        "name": "Backend",
+        "html_url": "https://github.com/Tortoise-Community/Backend",
+        "web_link": "https://github.com/Tortoise-Community/Backend",
+        "forks_count": 1,
+        "commit_count": 573,
+        "stargazers_count": 8,
+        "contributors_count": 0,
+        "language": "Python",
+        "short_desc": "Website build with django for the Tortoise Community discord server",
+    },
+    {
+        "name": "Frontend",
+        "html_url": "https://github.com/Tortoise-Community/Frontend",
+        "web_link": "https://github.com/Tortoise-Community/Frontend",
+        "forks_count": 1,
+        "commit_count": 119,
+        "stargazers_count": 1,
+        "contributors_count": 0,
+        "language": "React",
+        "short_desc": "Web frontend built with React for Tortoise Community discord server",
+    },
+    {
+        "name": "BladeList",
+        "html_url": "https://github.com/Bladelist",
+        "web_link": "https://github.com/Bladelist",
+        "forks_count": 7,
+        "commit_count": 290,
+        "stargazers_count": 9,
+        "contributors_count": 0,
+        "language": "Django",
+        "short_desc": "An open-source Discord Bot and Server Listing site built with Django.",
+    },
+]
+
 class Project:
     def __init__(self, project_data: dict):
         self.name = project_data["name"]
@@ -25,7 +85,24 @@ class Github(commands.Cog):
         self.bot = bot
         self.github_client = GithubAPI()
         self.projects = {}
-        self.update_github_stats.start()
+
+        if USE_STATIC:
+            self._load_static()
+        else:
+            self.update_github_stats.start()
+
+
+    def _load_static(self):
+        try:
+            for project_stats in STATIC_PROJECTS_DATA:
+                item = Project(project_stats)
+                self.projects[item.name] = item
+
+            self.projects["last_updated"] = datetime.datetime.now()
+
+        except Exception as e:
+            logging.error(f"Failed loading static GitHub data: {e}")
+
 
     @classmethod
     def get_project_name(cls, link):
