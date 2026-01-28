@@ -217,7 +217,7 @@ class Music(commands.Cog):
         elif isinstance(error, (TortoiseGuildCheckFailure, SourceError)):
             await ctx.send(embed=failure(f"{error}"))
         else:
-            traceback_msg = traceback.format_exception(etype=type(error), value=error, tb=error.__traceback__)
+            traceback_msg = traceback.format_exception(type(error), error, error.__traceback__)
             logger.error(traceback_msg)
             await self.bot.log_error(traceback_msg)
 
