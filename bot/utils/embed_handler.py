@@ -389,3 +389,17 @@ def project_embed(projects: dict, me):
         embed.add_field(name="Forks", value=f"{constants.git_fork_emoji} {project.forks}")
 
     return embed
+
+def moderation_log_embed(
+    *,
+    title: str,
+    user: str,
+    channel: str,
+    content: str,
+    color: Color
+) -> Embed:
+    embed = Embed(title=title, color=color)
+    embed.add_field(name="User", value=user, inline=False)
+    embed.add_field(name="Channel", value=channel, inline=False)
+    embed.add_field(name="Content", value=content[:1024], inline=False)
+    return embed
