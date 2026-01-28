@@ -292,8 +292,8 @@ class Security(commands.Cog):
     async def on_message_edit(self, msg_before, msg_after):
         if msg_before.content == msg_after.content:
             return
-        # elif self.is_security_whitelisted(msg_after):
-        #     return
+        elif self.is_security_whitelisted(msg_after):
+            return
 
         # Log that the message was edited for security reasons
         msg = (
