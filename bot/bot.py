@@ -21,7 +21,7 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ()
+    allowed_extensions = ("tortoise_dm",)
     banned_extensions = ("advent_of_code",)
 
     def __init__(self, prefix="t.", *args, **kwargs):
@@ -32,7 +32,7 @@ class Bot(commands.Bot):
         self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
             "event_submission": False,
-            "mod_mail": False,
+            "mod_mail": True,
             "bug_report": False,
             "suggestions": False,
         }
@@ -47,7 +47,7 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
-        await self.reload_tortoise_meta_cache()
+        # await self.reload_tortoise_meta_cache()
         try:
             version = (
                 subprocess.check_output(["git", "describe", "--always"])

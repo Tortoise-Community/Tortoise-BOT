@@ -25,14 +25,14 @@ code_submissions_channel_id = 610079185569841153
 suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
-system_log_channel_id = 593883395436838942
-deterrence_log_channel_id = 597119801701433357
-bot_log_channel_id = 693090079329091615
+system_log_channel_id = 1464188111050375297
+deterrence_log_channel_id = system_log_channel_id
+bot_log_channel_id = system_log_channel_id
 successful_verifications_channel_id = 581139962611892229
 verification_channel_id = 602156675863937024
 website_log_channel_id = 649868379372388352
 bot_dev_channel_id = 692851221223964822
-error_log_channel_id = 690650346665803777
+error_log_channel_id = system_log_channel_id
 member_count_channel_id = 723526255495872566
 general_channel_id = 577192344533598472
 staff_channel_id = 580809054067097600
