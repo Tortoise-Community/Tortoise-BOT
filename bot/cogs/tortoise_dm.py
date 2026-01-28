@@ -332,7 +332,7 @@ class TortoiseDM(commands.Cog):
         if user.id in self.pending_mod_mails:
             await user.send(embed=failure("You already have a pending mod mail, please be patient."))
             return
-        submission_embed = authored_sm(f"{user.name}` submitted for mod mail.", author=user)
+        submission_embed = authored_sm(f"{user.name} submitted for mod mail.", author=user)
         view = ModMailAcceptView(self, user.id)
 
         await self.staff_channel.send("@here", delete_after=30)

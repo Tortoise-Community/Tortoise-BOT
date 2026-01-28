@@ -180,7 +180,7 @@ class HealthCheck(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    host = os.getenv("HEALTH_HOST", "0.0.0.0")
-    port = os.getenv("HEALTH_PORT", "8080")
+    host = os.getenv("HOST", "0.0.0.0")
+    port = os.getenv("PORT", "8080")
 
     await bot.add_cog(HealthCheck(bot, host=host, port=port))
