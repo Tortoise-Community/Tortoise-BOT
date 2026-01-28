@@ -60,18 +60,6 @@ class Bot(commands.Bot):
             )
         except Exception as e:
             logger.exception("Git image version not found", exc_info=True)
-        try:
-            version = (
-                subprocess.check_output(["git", "describe", "--always"])
-                .strip()
-                .decode("utf-8")
-            )
-            bot_log_channel = self.get_channel(bot_log_channel_id)
-            await bot_log_channel.send(
-                embed=info(f"Bot restarted. Build version `{version}`", self.user, "")
-            )
-        except Exception as e:
-            logger.exception("Git image version not found", exc_info=True)
 
     async def reload_tortoise_meta_cache(self):
         try:

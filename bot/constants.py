@@ -19,13 +19,13 @@ welcome_channel_id = 738731842538176522
 announcements_channel_id = 578197131526144024
 react_for_roles_channel_id = 603651772950773761
 
-mod_mail_report_channel_id = 693790120712601610
+mod_mail_report_channel_id = 1461947577200148605
 bug_reports_channel_id = 693790120712601610
 code_submissions_channel_id = 610079185569841153
 suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
-system_log_channel_id = 1464188111050375297
+system_log_channel_id = 1461947577200148605
 deterrence_log_channel_id = system_log_channel_id
 bot_log_channel_id = system_log_channel_id
 successful_verifications_channel_id = 581139962611892229

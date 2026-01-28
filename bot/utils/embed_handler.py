@@ -164,7 +164,7 @@ def authored_sm(message: str, *, author: Union[Member, User]) -> Embed:
     :return: discord.Embed
     """
     embed = Embed(description="", color=get_top_role_color(author, fallback_color=Color.green()))
-    embed.set_footer(text=str, icon_url=author.avatar.url)
+    embed.set_footer(text=message, icon_url=author.avatar.url)
     return embed
 
 

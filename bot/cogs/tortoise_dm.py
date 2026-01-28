@@ -236,6 +236,7 @@ class TortoiseDM(commands.Cog):
         self.user_suggestions_channel = None
         self.mod_mail_report_channel = None
         self.code_submissions_channel = None
+        self.staff_channel = None
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -244,6 +245,7 @@ class TortoiseDM(commands.Cog):
         self.user_suggestions_channel = self.bot.get_channel(constants.suggestions_channel_id)
         self.mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
         self.code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
+        self.staff_channel = self.bot.get_channel(constants.staff_channel_id)
 
     @property
     def tortoise_guild(self):
@@ -333,8 +335,8 @@ class TortoiseDM(commands.Cog):
         submission_embed = authored_sm(f"{user.name}` submitted for mod mail.", author=user)
         view = ModMailAcceptView(self, user.id)
 
-        await self.mod_mail_report_channel.send("@here", delete_after=30)
-        await self.mod_mail_report_channel.send(
+        await self.staff_channel.send("@here", delete_after=30)
+        await self.staff_channel.send(
             embed=submission_embed,
             view=view
         )
