@@ -305,3 +305,5 @@ allowed_file_extensions = (
     "pdf",
     "rtf",
 )
+
+rate_limit_minutes = 10

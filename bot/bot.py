@@ -21,8 +21,9 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ("tortoise_dm",)
+    allowed_extensions = ("tortoise_dm", "health")
     banned_extensions = ("advent_of_code",)
+    build_version = "Mystery Build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
         kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff"))
