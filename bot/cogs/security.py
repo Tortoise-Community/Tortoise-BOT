@@ -213,7 +213,7 @@ class Security(commands.Cog):
         files_to_log = []
 
         for message in filtered:
-            if message.author is None:
+            if message.author is None or message.author.bot:
                 continue
 
             content = self.extract_content(message)
