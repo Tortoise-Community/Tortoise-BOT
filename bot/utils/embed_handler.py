@@ -401,3 +401,19 @@ def moderation_log_embed(
     embed.add_field(name="Channel", value=channel, inline=False)
     embed.add_field(name="Content", value=content[:1024], inline=False)
     return embed
+
+def code_eval_embed(language: str, output: str, *, edited: bool = False) -> Embed:
+    title = "Execution Result (edited)" if edited else "Execution Result"
+    color = Color.orange() if edited else Color.blurple()
+
+    if not output:
+        output = "(no output)"
+
+    if len(output) > 1900:
+        output = output[:1900] + "\n... (truncated)"
+
+    embed = Embed(title=title, color=color)
+    embed.add_field(name="Language", value=language, inline=True)
+    embed.add_field(name="Output", value=f"```{output}```", inline=False)
+    embed.set_footer(text="Powered by EKMC Piston")
+    return embed

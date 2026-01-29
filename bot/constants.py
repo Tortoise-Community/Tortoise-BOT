@@ -37,6 +37,14 @@ member_count_channel_id = 723526255495872566
 general_channel_id = 577192344533598472
 staff_channel_id = 580809054067097600
 
+#Tortoise Guild channels
+leetcode_channel_id = 726403782740541470
+bot_cmd_channel_id = 581726653710073858
+project_showcase_channel_id = 581156991557304330
+resources_channel_id = 577195878620725251
+challenge_submission_channel_id = 780842875901575228
+challenge_discussion_channel_id = 781129674860003336
+
 # Roles
 muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
@@ -307,3 +315,13 @@ allowed_file_extensions = (
 )
 
 rate_limit_minutes = 10
+
+defcon_lockable_channels = [
+    general_channel_id,
+    leetcode_channel_id,
+    bot_cmd_channel_id,
+    project_showcase_channel_id,
+    resources_channel_id,
+    challenge_discussion_channel_id,
+    challenge_submission_channel_id
+]
