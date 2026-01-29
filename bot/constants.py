@@ -10,7 +10,7 @@ verification_url = "https://www.tortoisecommunity.org/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
 tortoise_paste_service_link = "https://paste.tortoisecommunity.org/"
 tortoise_paste_endpoint = "https://paste.tortoisecommunity.org/documents/"
-line_img_url = "https://cdn.discordapp.com/attachments/649868379372388352/723173852796158062/animated-line.gif"
+line_img_url = "https://www.animatedimages.org/data/media/562/animated-line-image-0015.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
 project_url = "https://www.tortoisecommunity.org/pages/projects/"
 
@@ -44,6 +44,7 @@ project_showcase_channel_id = 581156991557304330
 resources_channel_id = 577195878620725251
 challenge_submission_channel_id = 780842875901575228
 challenge_discussion_channel_id = 781129674860003336
+challenges_channel_id = 780841435712716800
 
 # Roles
 muted_role_id = 707007421066772530

@@ -39,7 +39,7 @@ def welcome(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Welcome!", color=Color.dark_green())
+    return simple_embed(message, "Member Joined", color=Color.dark_green())
 
 
 def goodbye(message: str) -> Embed:
@@ -48,7 +48,7 @@ def goodbye(message: str) -> Embed:
     :param message: embed description
     :return: Embed object
     """
-    return simple_embed(message, "Goodbye", color=Color.dark_red())
+    return simple_embed(message, "Member Left", color=Color.dark_red())
 
 
 async def nsfw_warning_embed(author: Member, additional_msg: str = "") -> Embed:

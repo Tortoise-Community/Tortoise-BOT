@@ -297,9 +297,9 @@ class Security(commands.Cog):
 
         # Log that the message was edited for security reasons
         msg = (
-            f"**Channel**\n{msg_before.channel.mention}\n"
-            f"**Before:** {msg_before.content}\n"
-            f"**After: **{msg_after.content}\n\n"
+            f"**Channel**\n{msg_before.channel.mention}\n\n"
+            f"**Before**\n{msg_before.content}\n\n"
+            f"**After**\n{msg_after.content}\n\n"
             f"[jump]({msg_after.jump_url})"
         )
         embed = info(msg, msg_before.guild.me, title="Message edited")
