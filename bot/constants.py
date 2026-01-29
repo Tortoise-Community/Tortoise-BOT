@@ -4,15 +4,16 @@ from discord import Color
 
 tortoise_guild_id = 577192344529404154
 website_url = "https://www.tortoisecommunity.org/"
-privacy_url = "https://www.tortoisecommunity.org/pages/privacy"
-rules_url = "https://www.tortoisecommunity.org/pages/rules"
+privacy_url = "https://www.tortoisecommunity.org/privacy"
+rules_url = "https://www.tortoisecommunity.org/rules"
 verification_url = "https://www.tortoisecommunity.org/verification/"
 github_repo_link = "https://github.com/Tortoise-Community/Tortoise-BOT"
 tortoise_paste_service_link = "https://paste.tortoisecommunity.org/"
 tortoise_paste_endpoint = "https://paste.tortoisecommunity.org/documents/"
 line_img_url = "https://www.animatedimages.org/data/media/562/animated-line-image-0015.gif"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
-project_url = "https://www.tortoisecommunity.org/pages/projects/"
+project_url = "https://www.tortoisecommunity.org/projects/"
+events_url = "https://www.tortoisecommunity.org/events/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522

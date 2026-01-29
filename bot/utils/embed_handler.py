@@ -24,7 +24,7 @@ def footer_embed(message: str, title) -> Embed:
     """
     content_footer = (
         f"Links: [Website]({constants.website_url}) | "
-        f"[Privacy statement]({constants.privacy_url}) | "
+        f"[Events]({constants.events_url}) | "
         f"[Rules]({constants.rules_url})"
     )
     message = f"{message}\n\n{content_footer}"
