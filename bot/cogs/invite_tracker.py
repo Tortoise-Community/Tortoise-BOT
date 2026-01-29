@@ -47,13 +47,7 @@ class InviteTracker(commands.Cog):
                 f"**Account created:** {created_at}"
             )
 
-        await self.log_channel.send(
-            embed=embed_handler.info(
-                msg,
-                member=member,
-                title="Member Joined"
-            )
-        )
+        await self.log_channel.send(embed=embed_handler.welcome(msg))
 
 
     @commands.Cog.listener()
@@ -71,13 +65,7 @@ class InviteTracker(commands.Cog):
             f"**Joined at:** {joined_at}"
         )
 
-        await self.log_channel.send(
-            embed=embed_handler.info(
-                msg,
-                member=member,
-                title="Member Left"
-            )
-        )
+        await self.log_channel.send(embed=embed_handler.goodbye(msg))
 
 
 async def setup(bot):
