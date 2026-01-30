@@ -136,12 +136,11 @@ class AntiRaidSpam(commands.Cog):
         await self.send_dm_notice(member, guild)
 
         try:
-            # await guild.ban(
-            #     member,
-            #     reason=self.BAN_REASON,
-            #     delete_message_days=1,
-            # )
-            pass
+            await guild.ban(
+                member,
+                reason=self.BAN_REASON,
+                delete_message_days=1,
+            )
         except discord.Forbidden:
             return
 
