@@ -141,7 +141,6 @@ class AntiRaidSpam(commands.Cog):
                 reason=self.BAN_REASON,
                 delete_message_days=1,
             )
-            pass
         except discord.Forbidden:
             return
 
