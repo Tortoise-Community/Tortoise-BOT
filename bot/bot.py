@@ -21,7 +21,10 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = ("tortoise_dm", "github", "security", "health", "piston", "invite_tracker")
+    allowed_extensions = (
+        "tortoise_dm", "github", "security", "health", "piston",
+        "invite_tracker", "tortoise_server", "anti_raid"
+    )
     banned_extensions = ("advent_of_code",)
     build_version = "mystery-build"
 
@@ -75,7 +78,8 @@ class Bot(commands.Bot):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()
-
+        await self.tree.sync()
+        print("✅ Synced application commands")
 
     async def reload_tortoise_meta_cache(self):
         try:
