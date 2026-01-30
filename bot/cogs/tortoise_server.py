@@ -86,10 +86,8 @@ class TortoiseServer(commands.Cog):
         return self._code_submissions_channel
 
         self._database_role_update_lock = False
-        self._rules = None
         self.SUGGESTION_MESSAGE_CONTENT = "React to this message to add new suggestion"
 
-        self.remove_new_member_role.start()
 
     async def _new_member_register_in_database(self, member: discord.Member):
         logger.info(f"New member {member} does not exist in database, adding now.")
@@ -334,6 +332,11 @@ class TortoiseServer(commands.Cog):
         embed.description = "\n\n".join(blocks) + "\n\n"
         embed.set_footer(text="Tortoise Community")
         await interaction.response.send_message(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.remove_new_member_role.start()
+
 
 async def setup(bot):
     await bot.add_cog(TortoiseServer(bot))
