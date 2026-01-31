@@ -1,6 +1,7 @@
 import logging
 import datetime
 
+import discord
 from discord import Member, Activity, Game, Spotify, CustomActivity, Status
 
 from bot import constants
@@ -175,3 +176,7 @@ def get_utc_time_until(
         raise ValueError("That date has already passed.")
     else:
         return format_timedelta(difference)
+
+def get_user_avatar(user: discord.Member) -> str:
+    return user.avatar.url or constants.default_avatar_url
+

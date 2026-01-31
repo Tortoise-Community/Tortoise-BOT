@@ -1,12 +1,14 @@
 import datetime
 from typing import Union
+
+import discord
 from asyncpraw import models
 
 from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
 from bot import constants
 from bot.utils.misc import (
-    get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date
+    get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date, get_user_avatar
 )
 
 
@@ -33,23 +35,30 @@ def footer_embed(message: str, title) -> Embed:
     return embed
 
 
-def welcome(message: str) -> Embed:
+def welcome(member: discord.Member, message: str = None) -> Embed:
     """
     Constructs welcome embed with fixed title 'Welcome' and green color.
-    :param message: embed description
+    :param member: member object
+    :param message: embed description (Optional)
     :return: Embed object
     """
-    return simple_embed(message, "Member Joined", color=Color.dark_green())
+    message = message or f"{member} has joined {member.guild.name}!"
+    embed = simple_embed(message, "Member Joined", color=Color.dark_green())
+    embed.set_footer(text=f"ID: {member.id}", icon_url=get_user_avatar(member))
+    return embed
 
 
-def goodbye(message: str) -> Embed:
+def goodbye(member: discord.Member, message: str = None) -> Embed:
     """
     Constructs goodbye embed with fixed title 'Goodbye' and red color.
-    :param message: embed description
+    :param member: member object
+    :param message: embed description (Optional)
     :return: Embed object
     """
-    return simple_embed(message, "Member Left", color=Color.dark_red())
-
+    message = message or f"{member} has left {member.guild.name}."
+    embed =  simple_embed(message, "Member Left", color=Color.dark_red())
+    embed.set_footer(text=f"ID: {member.id}", icon_url=get_user_avatar(member))
+    return embed
 
 async def nsfw_warning_embed(author: Member, additional_msg: str = "") -> Embed:
     """

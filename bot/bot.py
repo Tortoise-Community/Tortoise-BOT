@@ -29,7 +29,7 @@ class Bot(commands.Bot):
     build_version = "mystery-build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
-        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff (Mod Mail)"))
+        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff!"))
         super(Bot, self).__init__(
             *args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs
         )
