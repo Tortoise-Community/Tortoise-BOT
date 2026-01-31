@@ -13,6 +13,7 @@ from aiohttp import web
 from discord import app_commands
 from bot.constants import rate_limit_minutes
 
+
 class HealthCheck(commands.Cog):
     """
     Exposes health endpoints for monitoring the bot.
@@ -47,13 +48,9 @@ class HealthCheck(commands.Cog):
 
         self.bot.loop.create_task(self._start_server())
 
-
     def _is_rate_limited(self, request: web.Request) -> bool:
         # Support reverse proxies
-        client_ip = (
-            request.headers.get("X-Forwarded-For", request.remote)
-            or "unknown"
-        )
+        client_ip = request.headers.get("X-Forwarded-For", request.remote) or "unknown"
         # If multiple IPs are present, take the first
         client_ip = client_ip.split(",")[0].strip()
 
@@ -71,7 +68,6 @@ class HealthCheck(commands.Cog):
         timestamps.append(now)
         self.client_requests[client_ip] = timestamps
         return False
-
 
     async def health(self, request: web.Request) -> web.Response:
         if self._is_rate_limited(request):
@@ -110,7 +106,6 @@ class HealthCheck(commands.Cog):
 
         return web.Response(text="NOT READY", status=503)
 
-
     async def _start_server(self):
         await self.bot.wait_until_ready()
 
@@ -130,8 +125,7 @@ class HealthCheck(commands.Cog):
 
     @app_commands.checks.cooldown(1, 60)
     @app_commands.command(
-        name="health",
-        description="Show bot health, status, and system statistics"
+        name="health", description="Show bot health, status, and system statistics"
     )
     async def health_command(self, interaction: discord.Interaction):
         process = psutil.Process(os.getpid())
@@ -139,14 +133,16 @@ class HealthCheck(commands.Cog):
         uptime = int(time.time() - self.start_time)
 
         embed = discord.Embed(
-            title="🫀 Snappy Bot Health Status",
+            title="🫀 Tortoise Bot Health Status",
             color=discord.Color.green(),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
         embed.add_field(name="Status", value="🟢 Healthy", inline=True)
         embed.add_field(name="Build", value=f"`{self.bot.build_version}`", inline=True)
-        embed.add_field(name="Latency", value=f"{round(self.bot.latency * 1000, 2)} ms", inline=True)
+        embed.add_field(
+            name="Latency", value=f"{round(self.bot.latency * 1000, 2)} ms", inline=True
+        )
 
         embed.add_field(name="Uptime", value=f"{uptime} seconds", inline=True)
         embed.add_field(name="Guilds", value=str(len(self.bot.guilds)), inline=True)
@@ -162,20 +158,18 @@ class HealthCheck(commands.Cog):
 
         embed.add_field(
             name="Website",
-            value="[snappy-bot.tortoisecommunity.org](https://snappy-bot.tortoisecommunity.org)",
+            value="[tortoise-bot.tortoisecommunity.org](https://tortoise-bot.tortoisecommunity.org)",
             inline=False,
         )
 
-        embed.set_footer(text="Snappy Bot • Health Monitor")
-
+        embed.set_footer(text="Tortoise Bot • Health Monitor")
         await interaction.response.send_message(embed=embed, ephemeral=False)
 
     @health_command.error
     async def health_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.CommandOnCooldown):
             await interaction.response.send_message(
-                f"⏳ Try again in {int(error.retry_after)} seconds.",
-                ephemeral=True
+                f"⏳ Try again in {int(error.retry_after)} seconds.", ephemeral=True
             )
 
 
