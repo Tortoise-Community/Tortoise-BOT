@@ -52,7 +52,7 @@ class TortoiseAPI(commands.Cog):
     async def on_member_remove(self, member: Member):
         logger.debug(f"Member {member} left, updating database accordingly.")
         await self.bot.api_client.member_left(member)
-        await self.system_log_channel.send(embed=goodbye(f"{member} has left the Tortoise Community."))
+        await self.system_log_channel.send(embed=goodbye(member))
 
     @commands.command()
     @commands.has_guild_permissions(administrator=True)

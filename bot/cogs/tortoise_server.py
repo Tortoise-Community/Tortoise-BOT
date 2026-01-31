@@ -93,7 +93,7 @@ class TortoiseServer(commands.Cog):
         logger.info(f"New member {member} does not exist in database, adding now.")
         await self.bot.api_client.insert_new_member(member)
         await member.add_roles(self.new_member_role)
-        await self.log_channel.send(embed=welcome(f"{member} has joined the Tortoise Community."))
+        await self.log_channel.send(embed=welcome(member))
         dm_msg = (
             "Welcome to Tortoise Community!\n\n"
             f"By joining the server you agree to our [rules]({constants.rules_url}).\n"
@@ -108,7 +108,7 @@ class TortoiseServer(commands.Cog):
         previous_roles = await self.bot.api_client.get_member_roles(member.id)
         await self.add_verified_roles_to_member(member, previous_roles)
         await self.bot.api_client.member_rejoined(member)
-        await self.log_channel.send(embed=welcome(f"{member} has returned to Tortoise Community."))
+        await self.log_channel.send(embed=welcome(member))
         msg = (
             "Welcome back to Tortoise Community!\n\n"
             "The roles you had last time will be restored and added back to you.\n"

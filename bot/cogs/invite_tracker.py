@@ -64,20 +64,20 @@ class InviteTracker(commands.Cog):
 
         if inviter:
             msg = (
-                f"**Member:** {member} (`{member.id}`)\n"
+                f"**Member:** {member}\n"
                 f"**Invited by:** {inviter}\n"
                 f"**Account created:** {created_at}"
             )
         else:
             msg = (
-                f"**Member:** {member} (`{member.id}`)\n"
+                f"**Member:** {member}\n"
                 f"**Invited by:** Discord Discovery / Vanity\n"
                 f"**Account created:** {created_at}"
             )
 
         await self._send_dm_message(member)
         await member.add_roles(self.welcome_role, reason="Welcome role added")
-        await self.log_channel.send(embed=embed_handler.welcome(msg))
+        await self.log_channel.send(embed=embed_handler.welcome(member, msg))
         await asyncio.sleep(60)
         await self.general_channel.send(
             content=f"Hi {member.mention}! Welcome to our server.",
@@ -101,7 +101,7 @@ class InviteTracker(commands.Cog):
             f"**Joined at:** {joined_at}"
         )
 
-        await self.log_channel.send(embed=embed_handler.goodbye(msg))
+        await self.log_channel.send(embed=embed_handler.goodbye(member, msg))
 
 
     @tasks.loop(time=dtime(hour=0, minute=0, tzinfo=timezone.utc))
