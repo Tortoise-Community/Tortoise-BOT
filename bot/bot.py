@@ -1,3 +1,4 @@
+import itertools
 import asyncio
 import logging
 import os
@@ -9,7 +10,7 @@ from typing import Generator
 
 import aiohttp.client_exceptions
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, system_log_channel_id
@@ -29,7 +30,6 @@ class Bot(commands.Bot):
     build_version = "mystery-build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
-        kwargs.setdefault("activity", discord.Game(name="DM to Contact Staff!"))
         super(Bot, self).__init__(
             *args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs
         )
@@ -41,6 +41,20 @@ class Bot(commands.Bot):
             "suggestions": False,
         }
         self.suppressed_deletes = set()
+        self._status_cycle = itertools.cycle([
+                "DM to Contact Staff ⛊",
+                "DM to Contact Staff ⛉",
+        ])
+
+
+    @tasks.loop(minutes=1)
+    async def rotate_status(self):
+        await self.change_presence(
+            activity=discord.Activity(
+                type=discord.ActivityType.listening,
+                name=next(self._status_cycle),
+            )
+        )
 
     async def on_ready(self):
         console_logger.info(
@@ -49,6 +63,8 @@ class Bot(commands.Bot):
             "Further logging output will go to log file.."
         )
         await self.send_restart_message()
+        if not self.rotate_status.is_running():
+            self.rotate_status.start()
 
     async def send_restart_message(self: commands.Bot):
         try:
