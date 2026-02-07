@@ -68,12 +68,16 @@ class AntiRaidSpam(commands.Cog):
 
 
         has_new_role = any(r.id == new_member_role for r in member.roles)
+        multi_attachments = len(message.attachments) > 1
 
-        if not has_new_role:
+        if not has_new_role and not multi_attachments:
             return
 
         logs = self.message_log[guild.id][member.id]
         content = self._extract_message_content(message)
+
+        if multi_attachments:
+            content = "[Multi-Attachment Message]"
 
         logs.append((now, message.channel.id, content, message.id))
 
