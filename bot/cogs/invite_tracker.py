@@ -57,7 +57,7 @@ class InviteTracker(commands.Cog):
     async def on_member_join(self, member: Member):
         if member.guild.id != constants.tortoise_guild_id:
             return
-        self.joins_today -= 1
+        self.joins_today += 1
 
         inviter = await self.tracker.track_invite()
         created_at = f"<t:{int(member.created_at.timestamp())}:R>"
