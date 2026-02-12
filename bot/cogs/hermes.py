@@ -87,7 +87,7 @@ class SandboxExec(commands.Cog):
     ):
         exit_code, output = self._build_output(result)
 
-        embed = code_eval_embed(language, output, edited=edited)
+        embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code)
         embed.set_footer(text="powered by Hermes Engine")
 
         if target_message:
@@ -99,7 +99,7 @@ class SandboxExec(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.bot:
+        if message.author.bot or not message.guild:
             return
 
         parsed = self._parse_block(message.content)
@@ -131,7 +131,7 @@ class SandboxExec(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if after.author.bot:
+        if after.author.bot or not after.guild:
             return
 
         meta = self.tracked.get(after.id)
