@@ -423,6 +423,6 @@ def code_eval_embed(language: str, output: str, *, edited: bool = False) -> Embe
 
     embed = Embed(title=title, color=color)
     embed.add_field(name="Language", value=language, inline=True)
-    embed.add_field(name="Output", value=f"```{output}```", inline=False)
+    embed.add_field(name="Output", value=f"```ex\n{output}```", inline=False)
     embed.set_footer(text="Powered by EMKC Piston")
     return embed
