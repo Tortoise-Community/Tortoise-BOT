@@ -97,7 +97,7 @@ class InviteTracker(commands.Cog):
         )
 
         msg = (
-            f"**Member:** {member} (`{member.id}`)\n"
+            f"**Member:** {member}\n"
             f"**Joined at:** {joined_at}"
         )
 
