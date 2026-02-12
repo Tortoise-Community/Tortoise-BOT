@@ -418,6 +418,32 @@ class Miscellaneous(commands.Cog):
         output = "\n".join(bubble) + tortoise
         await interaction.response.send_message(f"```{output}```")
 
+    @app_commands.command(name="run_help", description="Show how to run code with the execution bot")
+    async def run_help(self, interaction: discord.Interaction):
+        content = (
+            "Run code by sending a message that starts with `/run` followed by a fenced code block.\n\n"
+            "**Format:**\n"
+            "/run ```<language>\n"
+            "your code here\n"
+            "```\n\n"
+            "**Supported languages:** python, javascript (py,js also works)\n\n"
+            "**Examples**\n\n"
+            "Python:\n"
+            "/run ```python\n"
+            "print(1 + 1)\n"
+            "```\n\n"
+            "JavaScript:\n"
+            "/run ```javascript\n"
+            "console.log(1 + 1)\n"
+            "```\n\n"
+            "You can edit your message within 2 minutes to re-run the code automatically."
+        )
+
+        embed = info(content, interaction.guild.me, "How to Run Code")
+        await interaction.response.send_message(embed=embed)
+        message = await interaction.original_response()
+        await RemovableMessage.create_instance(self.bot, message, interaction.user)
+
 
 async def setup(bot):
     cog = Miscellaneous(bot)
