@@ -322,6 +322,7 @@ allowed_file_extensions = (
     "odt",
     "pdf",
     "rtf",
+    "txt",
 )
 
 rate_limit_minutes = 10
