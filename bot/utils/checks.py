@@ -16,11 +16,11 @@ def check_if_it_is_tortoise_guild(ctx):
         return True
 
 
-def tortoise_bot_developer_only(ctx):
+def tortoise_bot_developer_only(interaction: discord.Interaction):
     """
     Check for commands only usable by Tortoise bot developers.
     """
-    if ctx.user.id in tortoise_developers:
+    if interaction.user.id in tortoise_developers:
         return True
     else:
         raise TortoiseBotDeveloperCheckFailure()
