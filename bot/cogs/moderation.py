@@ -1,4 +1,3 @@
-import copy
 import logging
 from typing import Union
 from datetime import datetime, timedelta
@@ -54,11 +53,14 @@ class Moderation(commands.Cog):
     @app_commands.check(check_if_tortoise_staff)
     async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: str = "No specific reason"):
         """Kicks  member from the guild."""
+
         await interaction.response.defer()
         deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
+        dm_embed = deterrence_embed.copy()
+
+        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = deterrence_embed
         dm_embed.add_field(
             name="Comment",
             value="Rethink what you did before joining back."
@@ -184,18 +186,25 @@ class Moderation(commands.Cog):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
 
         if send_dm:
-            dm_embed = copy.copy(deterrence_embed)
-            dm_embed.add_field(name="Repeal", value="If this happened by a mistake join our Appeal Server")
-            dm_embed.add_field(name="Ban Appeal Server", value=f"[Click Here to Join]({constants.appeal_server_link})")
+            dm_embed = deterrence_embed.copy()
+            dm_embed.add_field(name="Repeal",
+                value="If this happened by a mistake join our Appeal Server",
+                inline=False
+            )
+            dm_embed.add_field(name="Ban Appeal Server",
+                value=f"[Click Here to Join]({constants.appeal_server_link})",
+                inline=False
+            )
             try:
                 await user.send(embed=dm_embed)
             except discord.Forbidden:
                 pass
 
-        await interaction.guild.ban(user, reason=reason)
-
         if log_deterrence:
+            deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
             await self.deterrence_log_channel.send(embed=deterrence_embed)
+
+        await interaction.guild.ban(user, reason=reason)
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(ban_members=True)
@@ -272,7 +281,6 @@ class Moderation(commands.Cog):
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_roles=True)
-    @app_commands.checks.has_permissions(manage_roles=True, manage_messages=True)
     @app_commands.check(check_if_tortoise_staff)
     async def promote(self, interaction: discord.Interaction, member: discord.Member, role: discord.Role):
         """Promote member to role."""
@@ -295,7 +303,7 @@ class Moderation(commands.Cog):
             "Congratulations!",
         )
 
-        dm_embed.set_footer(text="Tortoise Programming Community")
+        dm_embed.set_footer(text=f"Awarded by: {interaction.user} | Tortoise Programming Community")
         await member.send(embed=dm_embed)
         await interaction.followup.send(embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
 
@@ -338,13 +346,14 @@ class Moderation(commands.Cog):
             constants.Infraction.timeout,
             reason
         )
-
+        dm_embed = deterrence_embed.copy()
+        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = deterrence_embed.copy()
         dm_embed.add_field(
             name="Repeal",
-            value="If this happened by mistake, contact moderators."
+            value="If this happened by mistake, contact moderators.",
+            inline=False,
         )
 
         try:
