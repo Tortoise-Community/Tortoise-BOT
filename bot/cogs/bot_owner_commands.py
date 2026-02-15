@@ -40,7 +40,7 @@ class BotOwnerCommands(commands.Cog):
         """
         await interaction.response.defer()
         if extension_name == Path(__file__).stem:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 embed=failure("This cog is protected, cannot unload.")
             )
             return
@@ -63,7 +63,7 @@ class BotOwnerCommands(commands.Cog):
         """
         await interaction.response.defer()
         if extension_name == Path(__file__).stem:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 embed=failure("This cog is protected, cannot execute operation.")
             )
             return
