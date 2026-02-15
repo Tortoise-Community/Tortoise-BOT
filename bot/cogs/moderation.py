@@ -182,20 +182,25 @@ class Moderation(commands.Cog):
             log_deterrence: bool = True,
     ):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
+        if log_deterrence:
+            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         if send_dm:
             dm_embed = copy.copy(deterrence_embed)
-            dm_embed.add_field(name="Repeal", value="If this happened by a mistake join our Appeal Server")
-            dm_embed.add_field(name="Ban Appeal Server", value=f"[Click Here to Join]({constants.appeal_server_link})")
+            dm_embed.add_field(name="Repeal",
+                value="If this happened by a mistake join our Appeal Server",
+                inline=False
+            )
+            dm_embed.add_field(name="Ban Appeal Server",
+                value=f"[Click Here to Join]({constants.appeal_server_link})",
+                inline=False
+            )
             try:
                 await user.send(embed=dm_embed)
             except discord.Forbidden:
                 pass
 
         await interaction.guild.ban(user, reason=reason)
-
-        if log_deterrence:
-            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(ban_members=True)
@@ -344,7 +349,8 @@ class Moderation(commands.Cog):
         dm_embed = deterrence_embed.copy()
         dm_embed.add_field(
             name="Repeal",
-            value="If this happened by mistake, contact moderators."
+            value="If this happened by mistake, contact moderators.",
+            inline=False,
         )
 
         try:
