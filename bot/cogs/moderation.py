@@ -182,8 +182,6 @@ class Moderation(commands.Cog):
             log_deterrence: bool = True,
     ):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
-        if log_deterrence:
-            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         if send_dm:
             dm_embed = copy.copy(deterrence_embed)
@@ -199,6 +197,10 @@ class Moderation(commands.Cog):
                 await user.send(embed=dm_embed)
             except discord.Forbidden:
                 pass
+
+        if log_deterrence:
+            deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
+            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         await interaction.guild.ban(user, reason=reason)
 
