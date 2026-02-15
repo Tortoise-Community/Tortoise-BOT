@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import logging
 from typing import Union
@@ -314,7 +313,6 @@ class Moderation(commands.Cog):
             embed=success(f"Clearing {amount} messages..."),
             ephemeral=True
         )
-        await asyncio.sleep(3)
         def check(msg):
             return member is None or msg.author == member
         await interaction.channel.purge(limit=amount + 1, check=check)
