@@ -1,16 +1,15 @@
 import copy
 import logging
-import asyncio
 from typing import Union
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import discord
-from discord import User, Member
+from discord import User, Member, app_commands
 from discord.ext import commands
 
 from bot import constants
 from bot.utils.message_handler import ConfirmationMessage
-from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.checks import check_if_tortoise_staff
 from bot.utils.converters import GetFetchUser, DatetimeConverter
 from bot.utils.embed_handler import success, warning, failure, info, infraction_embed, thumbnail, authored
 
@@ -50,58 +49,55 @@ class Moderation(commands.Cog):
             self._deterrence_log_channel = self.bot.get_channel(constants.deterrence_log_channel_id)
         return self._deterrence_log_channel
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(kick_members=True)
-    @commands.has_guild_permissions(kick_members=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def kick(self, ctx, member: discord.Member, *, reason="No specific reason"):
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(kick_members=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: str = "No specific reason"):
         """Kicks  member from the guild."""
-        await member.kick(reason=reason)
-        await ctx.send(embed=success(f"{member.name} successfully kicked."), delete_after=5)
-
-        deterrence_embed = infraction_embed(ctx, member, constants.Infraction.kick, reason)
+        await interaction.response.defer()
+        deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         dm_embed = deterrence_embed
         dm_embed.add_field(
-            name="Repeal",
-            value="If this happened by a mistake contact moderators."
+            name="Comment",
+            value="Rethink what you did before joining back."
         )
-
         await member.send(embed=dm_embed)
+        await member.kick(reason=reason)
+        await interaction.followup.send(embed=success(f"{member.name} successfully kicked."), ephemeral=True)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(administrator=True)
-    @commands.has_guild_permissions(administrator=True)
-    @commands.cooldown(1, 120, commands.BucketType.guild)
-    @commands.check(check_if_it_is_tortoise_guild)
+
+    # @app_commands.command()
+    # @app_commands.checks.bot_has_permissions(administrator=True)
+    # @app_commands.checks.has_permissions(administrator=True)
+    # @app_commands.checks.cooldown(1, 120)
+    # @app_commands.check(check_if_it_is_tortoise_guild)
     async def mass_ban(
             self,
-            ctx,
+            interaction: discord.Interaction,
             message_start: discord.Message,
             message_end: discord.Message,
-            *,
-            reason="Mass ban with message timestamp."
+            reason: str = "Mass ban with message timestamp."
     ):
         """Bans  member from the guild if they joined at specific time.
 
         This is the same thing as ban_timestamp except that instead of manualy passing
         timestamps you pass start and end message from which the timestamps will be taken
         """
-        await self._mass_ban_timestamp_helper(ctx, message_start.created_at, message_end.created_at, reason)
+        await self._mass_ban_timestamp_helper(interaction, message_start.created_at, message_end.created_at, reason)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(administrator=True)
-    @commands.has_guild_permissions(administrator=True)
-    @commands.cooldown(1, 120, commands.BucketType.guild)
-    @commands.check(check_if_it_is_tortoise_guild)
+    # @app_commands.command()
+    # @app_commands.checks.bot_has_permissions(administrator=True)
+    # @app_commands.checks.has_permissions(administrator=True)
+    # @app_commands.checks.cooldown(1, 120)
+    # @app_commands.check(check_if_it_is_tortoise_guild)
     async def ban_timestamp(
             self,
-            ctx,
+            interaction: discord.Interaction,
             timestamp_start: DatetimeConverter,
             timestamp_end: DatetimeConverter,
-            *,
-            reason="Mass ban with timestamp."
+            reason: str = "Mass ban with timestamp."
     ):
         """Bans  member from the guild if they joined at specific time.
 
@@ -114,9 +110,9 @@ class Moderation(commands.Cog):
         All values need to be padded with 0.
         Timezones are not accounted for.
         """
-        await self._mass_ban_timestamp_helper(ctx, timestamp_start, timestamp_end, reason)
+        await self._mass_ban_timestamp_helper(interaction, timestamp_start, timestamp_end, reason)
 
-    async def _mass_ban_timestamp_helper(self, ctx, timestamp_start: datetime, timestamp_end: datetime, reason: str):
+    async def _mass_ban_timestamp_helper(self, interaction, timestamp_start: datetime, timestamp_end: datetime, reason: str):
         members_to_ban = []
 
         for member in self.tortoise_guild.members:
@@ -127,11 +123,11 @@ class Moderation(commands.Cog):
                 members_to_ban.append(member)
 
         if not members_to_ban:
-            return await ctx.send(embed=failure("Could not find any members, aborting.."))
+            return await interaction.response.send_message(embed=failure("Could not find any members, aborting.."), ephemeral=True)
 
         members_to_ban.sort(key=lambda m: m.joined_at)
 
-        reaction_msg = await ctx.send(
+        reaction_msg = await interaction.channel.send(
             embed=warning(
                 f"This will ban {len(members_to_ban)} members, "
                 f"first one being {members_to_ban[0]} and last one being {members_to_ban[-1]}.\n"
@@ -139,87 +135,92 @@ class Moderation(commands.Cog):
             )
         )
 
-        confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, ctx.author)
+        confirmation = await ConfirmationMessage.create_instance(self.bot, reaction_msg, interaction.user)
         if confirmation:
 
             one_tenth = len(members_to_ban) // 10
             notify_interval = one_tenth if one_tenth > 50 else 50
 
-            await ctx.send(
+            await interaction.followup.send(
                 embed=info(
                     f"Starting the ban process, please be patient.\n"
                     f"You will be notified for each {notify_interval} banned members.",
-                    ctx.author
+                    interaction.user
                 )
             )
-            logger.info(f"{ctx.author} is timestamp banning: {', '.join(str(member.id) for member in members_to_ban)}")
+            logger.info(f"{interaction.user} is timestamp banning: {', '.join(str(member.id) for member in members_to_ban)}")
 
             for count, member in enumerate(members_to_ban):
                 if count != 0 and count % notify_interval == 0:
-                    await ctx.send(embed=info(f"Banned {count} members..", ctx.author))
+                    await interaction.followup.send(embed=info(f"Banned {count} members..", interaction.user))
 
-                await ctx.guild.ban(member, reason=reason)
+                await interaction.guild.ban(member, reason=reason)
 
             message = f"Successfully mass banned {len(members_to_ban)} members!"
-            await ctx.send(embed=success(message))
-            await self.deterrence_log_channel.send(embed=authored(message, author=ctx.author))
+            await interaction.followup.send(embed=success(message))
+            await self.deterrence_log_channel.send(embed=authored(message, author=interaction.user))
         else:
-            await ctx.send(embed=info("Aborting mass ban.", ctx.me))
+            await interaction.followup.send(embed=info("Aborting mass ban.", interaction.client.user))
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(ban_members=True)
-    @commands.has_guild_permissions(ban_members=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def ban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
+
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(ban_members=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def ban(self, interaction: discord.Interaction, user: discord.Member, reason: str = "Reason not stated."):
         """Bans  member from the guild."""
-        await self._ban_helper(ctx, user, reason)
-        await ctx.send(embed=success(f"{user} successfully banned."), delete_after=10)
+        await interaction.response.defer()
+        await self._ban_helper(interaction, user, reason)
+        await interaction.followup.send(embed=success(f"{user} successfully banned."), ephemeral=True)
 
     async def _ban_helper(
             self,
-            ctx: commands.Context,
+            interaction: discord.Interaction,
             user: Union[GetFetchUser, User, Member],
             reason: str,
             send_dm: bool = True,
             log_deterrence: bool = True,
     ):
-        deterrence_embed = infraction_embed(ctx, user, constants.Infraction.ban, reason)
+        deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
 
         if send_dm:
             dm_embed = copy.copy(deterrence_embed)
-            dm_embed.add_field(name="Repeal", value="If this happened by a mistake contact moderators.")
+            dm_embed.add_field(name="Repeal", value="If this happened by a mistake join our Appeal Server")
+            dm_embed.add_field(name="Ban Appeal Server", value=f"[Click Here to Join]({constants.appeal_server_link})")
             try:
                 await user.send(embed=dm_embed)
             except discord.Forbidden:
-                pass  # ignore closed DMs
+                pass
 
-        await ctx.guild.ban(user, reason=reason)
+        await interaction.guild.ban(user, reason=reason)
 
         if log_deterrence:
             await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(ban_members=True)
-    @commands.has_guild_permissions(ban_members=True)
-    async def unban(self, ctx, user: GetFetchUser, *, reason="Reason not stated."):
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(ban_members=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def unban(self, interaction: discord.Interaction, user_id: int, reason: str = "Reason not stated."):
         """Unbans  member from the guild."""
-        await ctx.guild.unban(user=user, reason=reason)
-        await ctx.send(embed=success(f"{user} successfully unbanned."), delete_after=5)
+        await interaction.response.defer()
+        user = await self.bot.fetch_user(user_id)
+        await interaction.guild.unban(user=user, reason=reason)
+        await interaction.followup.send(embed=success(f"{user} successfully unbanned."), ephemeral=True)
 
-    @commands.command(aliases=["warning"])
-    @commands.bot_has_guild_permissions(manage_messages=True)
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def warn(self, ctx, member: discord.Member, *, reason):
+
+    # @app_commands.command(name="warn")
+    # @app_commands.checks.bot_has_permissions(manage_messages=True)
+    # @app_commands.checks.has_permissions(manage_messages=True)
+    # @app_commands.check(check_if_it_is_tortoise_guild)
+    async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str):
         """
         Warns a member.
         Reason length is maximum of 200 characters.
         """
         if len(reason) > 200:
-            await ctx.send(embed=failure("Please shorten the reason to 200 characters."), delete_after=3)
+            await interaction.response.send_message(embed=failure("Please shorten the reason to 200 characters."), ephemeral=True)
             return
 
-        embed = infraction_embed(ctx, member, constants.Infraction.warning, reason)
+        embed = infraction_embed(interaction, member, constants.Infraction.warning, reason)
         embed.add_field(
             name="**NOTE**",
             value=(
@@ -229,132 +230,112 @@ class Moderation(commands.Cog):
         )
 
         try:
-            await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
+            await self.bot.api_client.add_member_warning(interaction.user.id, member.id, reason)
         except Exception as e:
             msg = "Could not apply warning, problem with API."
             logger.info(f"{msg} {e}")
-            await ctx.send(embed=failure(f"{msg}\nInfraction member should not think he got away."))
+            await interaction.response.send_message(embed=failure(f"{msg}\nInfraction member should not think he got away."), ephemeral=True)
         else:
             await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
             await self.deterrence_log_channel.send(embed=embed)
-            await ctx.send(embed=success("Warning successfully applied.", ctx.me), delete_after=5)
-            await asyncio.sleep(5)
-            await ctx.message.delete()
+            await interaction.response.send_message(embed=success("Warning successfully applied.", interaction.client.user), ephemeral=True)
 
-    @commands.command()
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def show_warnings(self, ctx, member: discord.Member):
+    # @app_commands.command()
+    # @app_commands.checks.has_permissions(manage_messages=True)
+    # @app_commands.check(check_if_it_is_tortoise_guild)
+    async def show_warnings(self, interaction: discord.Interaction, member: discord.Member):
         """Shows all warnings of member."""
         warnings = await self.bot.api_client.get_member_warnings(member.id)
 
         if not warnings:
-            await ctx.send(embed=info("No warnings.", ctx.me))
+            await interaction.response.send_message(embed=info("No warnings.", interaction.client.user), ephemeral=True)
+            return
+
+        await interaction.response.defer(ephemeral=True)
 
         for count, sub_dict in enumerate(warnings):
             formatted_warnings = [f"{key}:{value}" for key, value in sub_dict.items()]
-
             warnings_msg = "\n".join(formatted_warnings)
-            # TODO temporal quick fix for possible too long message, to fix when embed navigation is done
             warnings_msg = warnings_msg[:1900]
 
             warnings_embed = thumbnail(warnings_msg, member, f"Warning #{count+1}")
-            await ctx.send(embed=warnings_embed)
+            await interaction.followup.send(embed=warnings_embed, ephemeral=True)
 
-    @commands.command()
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def warning_count(self, ctx, member: discord.Member):
+    # @app_commands.command()
+    # @app_commands.check(check_if_it_is_tortoise_guild)
+    async def warning_count(self, interaction: discord.Interaction, member: discord.Member):
         """Shows count of all warnings from member."""
         count = await self.bot.api_client.get_member_warnings_count(member.id)
         warnings_embed = thumbnail(f"Warnings: {count}", member, "Warning count")
-        await ctx.send(embed=warnings_embed)
+        await interaction.response.send_message(embed=warnings_embed, ephemeral=True)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.has_guild_permissions(manage_roles=True, manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def promote(self, ctx, member: discord.Member, role: discord.Role):
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(manage_roles=True)
+    @app_commands.checks.has_permissions(manage_roles=True, manage_messages=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def promote(self, interaction: discord.Interaction, member: discord.Member, role: discord.Role):
         """Promote member to role."""
-        if role >= ctx.author.top_role:
-            await ctx.send(embed=failure("Role needs to be below you in hierarchy."))
+        await interaction.response.defer()
+        if role >= interaction.user.top_role:
+            await interaction.followup.send(embed=failure("Role needs to be below you in hierarchy."), ephemeral=True)
             return
         elif role in member.roles:
-            await ctx.send(embed=failure(f"{member.mention} already has role {role.mention}!"))
+            await interaction.followup.send(embed=failure(f"{member.mention} already has role {role.mention}!"), ephemeral=True)
             return
 
         await member.add_roles(role)
 
-        await ctx.send(embed=success(f"{member.mention} is promoted to {role.mention}", ctx.me), delete_after=5)
-
         dm_embed = info(
             (
-                f"You are now promoted to role **{role.name}** in our community.\n"
-                f"`'With great power comes great responsibility'`\n"
-                f"Be active and keep the community safe."
+                f"You’ve been promoted to **{role.name}** role.\n"
+                f"Thanks for staying active and contributing to the server — keep it up."
             ),
-            ctx.me,
-            "Congratulations!"
+            interaction.client.user,
+            "Congratulations!",
         )
 
-        dm_embed.set_footer(text="Tortoise community")
+        dm_embed.set_footer(text="Tortoise Programming Community")
         await member.send(embed=dm_embed)
+        await interaction.followup.send(embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(manage_messages=True)
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.guild_only()
-    async def clear(self, ctx, amount: int, member: discord.Member = None):
+
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(manage_messages=True)
+    @app_commands.checks.has_permissions(manage_messages=True)
+    async def clear(self, interaction: discord.Interaction, amount: int, member: discord.Member = None):
         """
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
         """
+        await interaction.response.defer()
         def check(msg):
             return member is None or msg.author == member
 
-        await ctx.channel.purge(limit=amount + 1, check=check)
-        await ctx.send(embed=success(f"{amount} messages cleared."), delete_after=3)
+        await interaction.channel.purge(limit=amount + 1, check=check)
+        await interaction.followup.send(embed=success(f"{amount} messages cleared."), ephemeral=True)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def mute(self, ctx, member: discord.Member, *, reason="No reason stated."):
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(moderate_members=True)
+    @app_commands.checks.has_permissions(moderate_members=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def timeout(self, interaction: discord.Interaction, member: discord.Member, minutes: int, reason: str = "No reason stated."):
         """Mutes the member."""
-        if self.muted_role in member.roles:
-            await ctx.send(embed=failure("Cannot mute as member is already muted."))
-            return
+        await interaction.response.defer()
+        until = discord.utils.utcnow() + timedelta(minutes=minutes)
+        await member.timeout(until, reason=reason)
+        await interaction.followup.send(embed=success(f"{member} successfully timed out."), ephemeral=True)
+        # await self.bot.api_client.add_member_warning(interaction.user.id, member.id, f"Timeout: {reason}")
 
-        reason = f"Muting member. {reason}"
-        await member.add_roles(self.muted_role, reason=reason)
-        await member.remove_roles(self.verified_role, reason=reason)
-        await ctx.send(embed=success(f"{member} successfully muted."), delete_after=5)
-        await self.bot.api_client.add_member_warning(ctx.author.id, member.id, reason)
 
-    @commands.command()
-    @commands.bot_has_guild_permissions(manage_roles=True)
-    @commands.has_guild_permissions(manage_messages=True)
-    @commands.check(check_if_it_is_tortoise_guild)
-    async def unmute(self, ctx, member: discord.Member):
-        """Unmutes the member."""
-        if self.muted_role not in member.roles:
-            await ctx.send(embed=failure("Cannot unmute as member is not muted."))
-            return
-
-        reason = f"Unmuted by {ctx.author.id}"
-
-        await member.remove_roles(self.muted_role, reason=reason)
-        await member.add_roles(self.verified_role, reason=reason)
-
-        await ctx.send(embed=success(f"{member} successfully unmuted."), delete_after=5)
-
-    @commands.command(aliases=["dm"])
-    @commands.cooldown(1, 900, commands.BucketType.guild)
-    @commands.has_guild_permissions(administrator=True)
-    async def dm_members(self, ctx, role: discord.Role, *, message: str):
+    @app_commands.command(name="dm_members")
+    @app_commands.checks.cooldown(1, 900)
+    @app_commands.checks.has_permissions(administrator=True)
+    async def dm_members(self, interaction: discord.Interaction, role: discord.Role, message: str):
         """
         DMs all member that have a certain role.
         Failed members are printed to log.
         """
+        await interaction.response.defer()
         members = (member for member in role.members if not member.bot)
         failed = []
         count = 0
@@ -365,7 +346,7 @@ class Moderation(commands.Cog):
                 description=message,
                 color=role.color
             )
-            dm_embed.set_author(name=ctx.guild.name, icon_url=ctx.guild.icon_url)
+            dm_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
 
             try:
                 await member.send(embed=dm_embed)
@@ -374,19 +355,21 @@ class Moderation(commands.Cog):
             else:
                 count += 1
 
-        await ctx.send(embed=success(f"Successfully notified {count} users.", ctx.me))
+        await interaction.followup.send(embed=success(f"Successfully notified {count} users.", interaction.client.user), ephemeral=True)
 
         if failed:
             logger.info(f"dm_unverified called but failed to dm: {failed}")
 
-    @commands.command(aliases=["message"])
-    @commands.has_guild_permissions(manage_messages=True)
-    async def send(self, ctx, channel: discord.TextChannel = None, *, message: str):
+    @app_commands.command(name="send")
+    @app_commands.checks.has_permissions(manage_messages=True)
+    async def send(self, interaction: discord.Interaction, message: str, channel: discord.TextChannel = None):
         """Send message to channel"""
+        await interaction.response.defer()
         if channel is None:
-            channel = ctx.channel
+            channel = interaction.channel
 
         await channel.send(message)
+        await interaction.followup.send(embed=success("Sent."), ephemeral=True)
 
 
 async def setup(bot):
