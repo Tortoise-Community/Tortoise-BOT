@@ -24,7 +24,7 @@ class BotOwnerCommands(commands.Cog):
         :param extension_name: cog name without suffix
         """
         await interaction.response.defer()
-        self.bot.load_extension(f"bot.cogs.{extension_name}")
+        await self.bot.load_extension(f"bot.cogs.{extension_name}")
 
         msg = f"{extension_name} loaded."
         logger.info(f"{msg} by {interaction.user.id}")
@@ -45,7 +45,7 @@ class BotOwnerCommands(commands.Cog):
             )
             return
 
-        self.bot.unload_extension(f"bot.cogs.{extension_name}")
+        await self.bot.unload_extension(f"bot.cogs.{extension_name}")
 
         msg = f"{extension_name} unloaded."
         logger.info(f"{msg} by {interaction.user.id}")
@@ -68,7 +68,7 @@ class BotOwnerCommands(commands.Cog):
             )
             return
 
-        self.bot.reload_extension(f"bot.cogs.{extension_name}")
+        await self.bot.reload_extension(f"bot.cogs.{extension_name}")
         await interaction.followup.send(
             embed=success(f"{extension_name} reloaded.", interaction.client.user)
         )

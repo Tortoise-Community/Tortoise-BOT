@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import logging
 from typing import Union
@@ -307,12 +308,15 @@ class Moderation(commands.Cog):
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
         """
-        await interaction.response.defer()
+        await interaction.response.send_message(
+            embed=success(f"Clearing {amount} messages..."),
+            ephemeral=True
+        )
+        await asyncio.sleep(3)
         def check(msg):
             return member is None or msg.author == member
-
         await interaction.channel.purge(limit=amount + 1, check=check)
-        await interaction.followup.send(embed=success(f"{amount} messages cleared."), ephemeral=True)
+
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(moderate_members=True)

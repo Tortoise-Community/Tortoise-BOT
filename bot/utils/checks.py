@@ -1,3 +1,5 @@
+import discord
+
 from bot.constants import tortoise_developers, tortoise_guild_id, moderator_role, admin_role
 from bot.utils.exceptions import TortoiseGuildCheckFailure, TortoiseBotDeveloperCheckFailure, TortoiseStaffCheckFailure
 
@@ -24,11 +26,16 @@ def tortoise_bot_developer_only(ctx):
         raise TortoiseBotDeveloperCheckFailure()
 
 
-def check_if_tortoise_staff(ctx):
+async def check_if_tortoise_staff(interaction: discord.Interaction):
     """
     Check if member is tortoise staff.
     """
-    if moderator_role in ctx.user.roles or admin_role in ctx.user.roles:
-        return True
-    else:
+    if not isinstance(interaction.user, discord.Member):
         raise TortoiseStaffCheckFailure()
+
+    member = interaction.user
+
+    if moderator_role in member.roles or admin_role in member.roles:
+        return True
+
+    raise TortoiseStaffCheckFailure()
