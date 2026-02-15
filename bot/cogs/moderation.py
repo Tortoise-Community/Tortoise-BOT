@@ -184,7 +184,7 @@ class Moderation(commands.Cog):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
 
         if send_dm:
-            dm_embed = copy.copy(deterrence_embed)
+            dm_embed = copy.deepcopy(deterrence_embed)
             dm_embed.add_field(name="Repeal",
                 value="If this happened by a mistake join our Appeal Server",
                 inline=False
