@@ -310,7 +310,7 @@ class Moderation(commands.Cog):
         If member is passed it will clear last X messages from that member.
         """
         await interaction.response.send_message(
-            embed=success(f"Clearing {amount} messages..."),
+            embed=success(f"Cleared {amount} messages."),
             ephemeral=True
         )
         def check(msg):
