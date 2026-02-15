@@ -13,7 +13,7 @@ import discord
 from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
-from bot.constants import error_log_channel_id, system_log_channel_id
+from bot.constants import error_log_channel_id, system_log_channel_id, tortoise_guild_id
 from bot.utils.embed_handler import simple_embed
 
 logger = logging.getLogger(__name__)
@@ -95,7 +95,8 @@ class Bot(commands.Bot):
         self.api_client: TortoiseAPI = TortoiseAPI()
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()
-        await self.tree.sync()
+        guild = discord.Object(id=tortoise_guild_id)
+        await self.tree.sync(guild=guild)
         print("✅ Synced application commands")
 
     async def reload_tortoise_meta_cache(self):
