@@ -1,4 +1,3 @@
-import copy
 import logging
 from typing import Union
 from datetime import datetime, timedelta
@@ -57,7 +56,7 @@ class Moderation(commands.Cog):
 
         await interaction.response.defer()
         deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
-        dm_embed = copy.deepcopy(deterrence_embed)
+        dm_embed = deterrence_embed.copy()
 
         deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
@@ -187,7 +186,7 @@ class Moderation(commands.Cog):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
 
         if send_dm:
-            dm_embed = copy.deepcopy(deterrence_embed)
+            dm_embed = deterrence_embed.copy()
             dm_embed.add_field(name="Repeal",
                 value="If this happened by a mistake join our Appeal Server",
                 inline=False
@@ -347,10 +346,10 @@ class Moderation(commands.Cog):
             constants.Infraction.timeout,
             reason
         )
-
+        dm_embed = deterrence_embed.copy()
+        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = deterrence_embed.copy()
         dm_embed.add_field(
             name="Repeal",
             value="If this happened by mistake, contact moderators.",
