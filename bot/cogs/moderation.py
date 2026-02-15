@@ -301,7 +301,7 @@ class Moderation(commands.Cog):
             "Congratulations!",
         )
 
-        dm_embed.set_footer(text=f"Awarded by: {interaction.user} | Tortoise Programming Community")
+        dm_embed.set_footer(text=f"Awarded by: {interaction.user}  |  Tortoise Programming Community")
         await member.send(embed=dm_embed)
         await interaction.followup.send(embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
 
