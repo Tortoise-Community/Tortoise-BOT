@@ -277,7 +277,6 @@ class Moderation(commands.Cog):
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_roles=True)
-    @app_commands.checks.has_permissions(manage_roles=True, manage_messages=True)
     @app_commands.check(check_if_tortoise_staff)
     async def promote(self, interaction: discord.Interaction, member: discord.Member, role: discord.Role):
         """Promote member to role."""
