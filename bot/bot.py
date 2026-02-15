@@ -24,7 +24,8 @@ class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
     allowed_extensions = (
         "tortoise_dm", "github", "security", "health", "hermes",
-        "invite_tracker", "tortoise_server", "anti_raid", "misc"
+        "invite_tracker", "tortoise_server", "anti_raid", "misc", "moderation",
+        "bot_owner_commands"
     )
     banned_extensions = ("advent_of_code",)
     build_version = "mystery-build"

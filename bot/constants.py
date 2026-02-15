@@ -16,6 +16,7 @@ github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
 project_url = "https://www.tortoisecommunity.org/projects/"
 events_url = "https://www.tortoisecommunity.org/events/"
 default_avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
+appeal_server_link = "https://tortoisecommunity.org/appeal/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522
