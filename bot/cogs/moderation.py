@@ -167,6 +167,7 @@ class Moderation(commands.Cog):
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(ban_members=True)
     @app_commands.check(check_if_tortoise_staff)
+    @app_commands.checks.cooldown(1, 120)
     async def ban(self, interaction: discord.Interaction, user: discord.Member, reason: str = "Reason not stated."):
         """Bans  member from the guild."""
         await interaction.response.defer()
@@ -303,6 +304,7 @@ class Moderation(commands.Cog):
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_messages=True)
     @app_commands.checks.has_permissions(manage_messages=True)
+    @app_commands.checks.cooldown(1, 60)
     async def clear(self, interaction: discord.Interaction, amount: int, member: discord.Member = None):
         """
         Clears last X amount of messages.
