@@ -54,11 +54,14 @@ class Moderation(commands.Cog):
     @app_commands.check(check_if_tortoise_staff)
     async def kick(self, interaction: discord.Interaction, member: discord.Member, reason: str = "No specific reason"):
         """Kicks  member from the guild."""
+
         await interaction.response.defer()
         deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
+        dm_embed = copy.deepcopy(deterrence_embed)
+
+        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = deterrence_embed
         dm_embed.add_field(
             name="Comment",
             value="Rethink what you did before joining back."
