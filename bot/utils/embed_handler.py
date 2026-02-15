@@ -246,13 +246,13 @@ def status_embed(ctx, member: Member) -> Embed:
 
 
 def infraction_embed(
-        ctx,
+        interaction: discord.Interaction,
         infracted_member: Union[Member, User],
         infraction_type: constants.Infraction,
         reason: str
 ) -> Embed:
     """
-    :param ctx: context to get mod member from (the one who issued this infraction) and
+    :param interaction: interaction to get mod member from (the one who issued this infraction) and
                 bot so we can get it's image.
     :param infracted_member: member who got the infraction
     :param infraction_type: infraction type
@@ -261,7 +261,7 @@ def infraction_embed(
     """
 
     embed = Embed(title="**Infraction information**", color=infraction_type.value)
-    embed.set_author(name="Tortoise Community", icon_url=ctx.me.avatar.url)
+    embed.set_author(name="Tortoise Community", icon_url=interaction.client.user.avatar.url)
 
     embed.add_field(name="**Member**", value=f"{infracted_member}", inline=False)
     embed.add_field(name="**Type**", value=infraction_type.name, inline=False)

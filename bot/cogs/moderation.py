@@ -324,14 +324,44 @@ class Moderation(commands.Cog):
     @app_commands.checks.bot_has_permissions(moderate_members=True)
     @app_commands.checks.has_permissions(moderate_members=True)
     @app_commands.check(check_if_tortoise_staff)
-    async def timeout(self, interaction: discord.Interaction, member: discord.Member, minutes: int, reason: str = "No reason stated."):
-        """Mutes the member."""
+    async def timeout(
+            self,
+            interaction: discord.Interaction,
+            member: discord.Member,
+            minutes: int,
+            reason: str = "No reason stated."
+    ):
+        """Timeouts a member."""
         await interaction.response.defer()
+
+        deterrence_embed = infraction_embed(
+            interaction,
+            member,
+            constants.Infraction.timeout,
+            reason
+        )
+
+        await self.deterrence_log_channel.send(embed=deterrence_embed)
+
+        dm_embed = deterrence_embed.copy()
+        dm_embed.add_field(
+            name="Repeal",
+            value="If this happened by mistake, contact moderators."
+        )
+
+        try:
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            pass
+
         until = discord.utils.utcnow() + timedelta(minutes=minutes)
         await member.timeout(until, reason=reason)
-        await interaction.followup.send(embed=success(f"{member} successfully timed out."), ephemeral=True)
-        # await self.bot.api_client.add_member_warning(interaction.user.id, member.id, f"Timeout: {reason}")
 
+        await interaction.followup.send(
+            embed=success(f"{member} successfully timed out.", interaction.guild.me),
+            ephemeral=True
+        )
+        # await self.bot.api_client.add_member_warning(interaction.user.id, member.id, f"Timeout: {reason}")
 
     @app_commands.command(name="dm_members")
     @app_commands.checks.cooldown(1, 900)

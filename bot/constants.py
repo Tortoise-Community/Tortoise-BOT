@@ -170,6 +170,7 @@ class Infraction(Enum):
     warning = Color.gold()
     kick = Color.gold()
     ban = Color.red()
+    timeout = Color.orange()
 
 
 class SuggestionStatus(Enum):
