@@ -303,11 +303,11 @@ class Moderation(commands.Cog):
     @app_commands.checks.bot_has_permissions(manage_messages=True)
     @app_commands.checks.has_permissions(manage_messages=True)
     async def clear(self, interaction: discord.Interaction, amount: int, member: discord.Member = None):
-        await interaction.response.defer()
         """
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
         """
+        await interaction.response.defer()
         def check(msg):
             return member is None or msg.author == member
 

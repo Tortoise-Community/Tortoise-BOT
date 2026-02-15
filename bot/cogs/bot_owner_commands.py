@@ -19,11 +19,11 @@ class BotOwnerCommands(commands.Cog):
     @app_commands.command(name="load")
     @app_commands.check(tortoise_bot_developer_only)
     async def load(self, interaction: discord.Interaction, extension_name: str):
-        await interaction.response.defer()
         """
         Loads an extension.
         :param extension_name: cog name without suffix
         """
+        await interaction.response.defer()
         self.bot.load_extension(f"bot.cogs.{extension_name}")
 
         msg = f"{extension_name} loaded."
