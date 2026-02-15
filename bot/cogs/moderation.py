@@ -184,25 +184,23 @@ class Moderation(commands.Cog):
             log_deterrence: bool = True,
     ):
         deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
+        if log_deterrence:
+            deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
+            await self.deterrence_log_channel.send(embed=deterrence_embed)
 
         if send_dm:
             dm_embed = deterrence_embed.copy()
-            dm_embed.add_field(name="Repeal",
-                value="If this happened by a mistake join our Appeal Server",
-                inline=False
-            )
             dm_embed.add_field(name="Ban Appeal Server",
                 value=f"[Click Here to Join]({constants.appeal_server_link})",
                 inline=False
             )
+            dm_embed.set_footer(text="If this happened by a mistake join our Appeal Server")
             try:
                 await user.send(embed=dm_embed)
             except discord.Forbidden:
                 pass
-
-        if log_deterrence:
-            deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
-            await self.deterrence_log_channel.send(embed=deterrence_embed)
+            except discord.HTTPException:
+                pass
 
         await interaction.guild.ban(user, reason=reason)
 
@@ -350,15 +348,13 @@ class Moderation(commands.Cog):
         deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed.add_field(
-            name="Repeal",
-            value="If this happened by mistake, contact moderators.",
-            inline=False,
-        )
+        dm_embed.set_footer(text="If this happened by a mistake contact Moderators.")
 
         try:
             await member.send(embed=dm_embed)
         except discord.Forbidden:
+            pass
+        except discord.HTTPException:
             pass
 
         until = discord.utils.utcnow() + timedelta(minutes=minutes)
