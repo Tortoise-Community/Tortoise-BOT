@@ -361,6 +361,7 @@ class Moderation(commands.Cog):
             embed=success(f"{member} successfully timed out.", interaction.guild.me),
             ephemeral=True
         )
+        # await self.bot.api_client.add_member_warning(interaction.user.id, member.id, f"Timeout: {reason}")
 
     @app_commands.command(name="dm_members")
     @app_commands.checks.cooldown(1, 900)
