@@ -22,12 +22,20 @@ console_logger = logging.getLogger("console")
 
 class Bot(commands.Bot):
     # If not empty then only these will be loaded. Good for local debugging. If empty all found are loaded.
-    allowed_extensions = (
-        "tortoise_dm", "github", "security", "health", "hermes",
-        "invite_tracker", "tortoise_server", "anti_raid", "misc", "moderation",
-        "bot_owner_commands", "auto_role"
+    allowed_extensions = ()
+    banned_extensions = (
+        "advent_of_code",
+        "defcon"
+        "documentation",
+        "games",
+        "help",
+        "music",
+        "piston",
+        "reddit",
+        "socket_comm",
+        "tortoise_api",
+        "utility"
     )
-    banned_extensions = ("advent_of_code",)
     build_version = "mystery-build"
 
     def __init__(self, prefix="t.", *args, **kwargs):
