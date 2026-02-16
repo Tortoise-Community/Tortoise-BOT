@@ -171,15 +171,8 @@ class Security(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
-        if message.guild is None:
-            return
-        if message.guild.id != constants.tortoise_guild_id:
-            return
-        if message.author is None or message.author.bot:
-            return
 
-        if message.id in self.bot.suppressed_deletes:
-            self.bot.suppressed_deletes.discard(message.id)
+        if self.is_security_whitelisted(message):
             return
 
         await self.archive_and_delete_message(
