@@ -25,7 +25,7 @@ class Bot(commands.Bot):
     allowed_extensions = (
         "tortoise_dm", "github", "security", "health", "hermes",
         "invite_tracker", "tortoise_server", "anti_raid", "misc", "moderation",
-        "bot_owner_commands"
+        "bot_owner_commands", "auto_role"
     )
     banned_extensions = ("advent_of_code",)
     build_version = "mystery-build"
