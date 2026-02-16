@@ -25,7 +25,7 @@ class Bot(commands.Bot):
     allowed_extensions = ()
     banned_extensions = (
         "advent_of_code",
-        "defcon"
+        "defcon",
         "documentation",
         "games",
         "help",

@@ -2,7 +2,9 @@ import datetime
 import logging
 import aiohttp.client_exceptions
 
+import discord
 from discord.ext import commands, tasks
+from discord import app_commands
 
 from bot.api_client import GithubAPI
 from bot.constants import project_url
@@ -132,10 +134,19 @@ class Github(commands.Cog):
         except Exception as e:
             logging.error(f"Unexpected error in GitHub stats update: {e}")
 
-    @commands.command(aliases=["git"])
-    async def github(self, ctx):
-        """Show Tortoise GitHub projects stats."""
-        await ctx.send(embed=project_embed(self.projects, ctx.me))
+    async def _github_handler(self, interaction: discord.Interaction):
+        await interaction.response.send_message(
+            embed=project_embed(self.projects, interaction.client.user)
+        )
+
+    @app_commands.command(name="github", description="Show Tortoise GitHub projects stats.")
+    async def github(self, interaction: discord.Interaction):
+        await self._github_handler(interaction)
+
+    @app_commands.command(name="git", description="Alias for /github")
+    async def git(self, interaction: discord.Interaction):
+        await self._github_handler(interaction)
+
 
 
 async def setup(bot):
