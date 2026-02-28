@@ -13,6 +13,7 @@ LANG_ALIASES = {
     "python": "python",
     "js": "javascript",
     "javascript": "javascript",
+    "java": "java",
 }
 
 
@@ -66,7 +67,7 @@ class SandboxExec(commands.Cog):
         stderr = result.get("std_log", "") or ""
 
         combined = stdout
-        if stderr:
+        if exit_code != 0 and stderr:
             combined = combined + ("\n" if combined else "") + stderr
 
         if not combined:
@@ -111,7 +112,7 @@ class SandboxExec(commands.Cog):
 
         if not lang:
             await message.channel.send(
-                "Unsupported language. Use python or javascript in the code block header."
+                "Unsupported language. Use python, javascript or java in the code block header."
             )
             return
 
