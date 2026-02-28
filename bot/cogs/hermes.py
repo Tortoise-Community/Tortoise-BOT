@@ -116,19 +116,20 @@ class SandboxExec(commands.Cog):
             )
             return
 
-        try:
-            result = await self._execute(lang, code)
-        except Exception:
-            await message.channel.send("Execution request failed.")
-            return
+        async with message.channel.typing():
+            try:
+                result = await self._execute(lang, code)
+            except Exception:
+                await message.channel.send("Execution request failed.")
+                return
 
-        bot_msg = await self._send_result(message.channel, result, lang)
+            bot_msg = await self._send_result(message.channel, result, lang)
 
-        self.tracked[message.id] = {
-            "created": datetime.utcnow(),
-            "lang": lang,
-            "bot_msg_id": bot_msg.id,
-        }
+            self.tracked[message.id] = {
+                "created": datetime.utcnow(),
+                "lang": lang,
+                "bot_msg_id": bot_msg.id,
+            }
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
@@ -153,23 +154,23 @@ class SandboxExec(commands.Cog):
         if not lang:
             return
 
-        try:
-            result = await self._execute(lang, code)
-        except Exception:
-            return
+        async with after.channel.typing():
+            try:
+                result = await self._execute(lang, code)
+            except Exception:
+                return
+            try:
+                bot_msg = await after.channel.fetch_message(meta["bot_msg_id"])
+            except Exception:
+                return
 
-        try:
-            bot_msg = await after.channel.fetch_message(meta["bot_msg_id"])
-        except Exception:
-            return
-
-        await self._send_result(
-            after.channel,
-            result,
-            lang,
-            edited=True,
-            target_message=bot_msg,
-        )
+            await self._send_result(
+                after.channel,
+                result,
+                lang,
+                edited=True,
+                target_message=bot_msg,
+            )
 
 
 async def setup(bot: commands.Bot):
