@@ -418,8 +418,8 @@ def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_co
     if not output:
         output = "(no output)"
 
-    if len(output) > 1900:
-        output = output[:1900] + "\n... (truncated)"
+    if len(output) > 1850:
+        output = output[:1850] + "\n... (truncated)"
 
     embed = Embed(title=title, color=color)
     embed.add_field(name="Output", value=f"```ex\n{output}```", inline=False)
