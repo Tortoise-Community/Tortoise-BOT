@@ -88,7 +88,7 @@ class SandboxExec(commands.Cog):
     ):
         exit_code, output = self._build_output(result)
 
-        embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code)
+        embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code, disable_extras=True)
         embed.set_footer(text="powered by Hermes Engine")
 
         if target_message:

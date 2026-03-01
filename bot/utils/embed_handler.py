@@ -411,7 +411,7 @@ def moderation_log_embed(
     embed.add_field(name="Content", value=content[:1024], inline=False)
     return embed
 
-def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_code: int = -1) -> Embed:
+def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_code: int = -1, disable_extras=False) -> Embed:
     title = "Execution Result (edited)" if edited else "Execution Result"
     color = Color.orange() if edited else Color.blurple()
 
@@ -423,6 +423,7 @@ def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_co
 
     embed = Embed(title=title, color=color)
     embed.add_field(name="Output", value=f"```ex\n{output}```", inline=False)
-    embed.add_field(name="Language", value=f"```ex\n{language.capitalize()}```", inline=True)
-    embed.add_field(name="Exit code", value=f"```ex\n{exit_code}```", inline=True)
+    if not disable_extras:
+        embed.add_field(name="Language", value=f"```ex\n{language.capitalize()}```", inline=True)
+        embed.add_field(name="Exit code", value=f"```ex\n{exit_code}```", inline=True)
     return embed
