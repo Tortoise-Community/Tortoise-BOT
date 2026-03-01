@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from datetime import datetime, timedelta
 from typing import Dict
-from bot.utils.embed_handler import code_eval_embed
+from bot.utils.embed_handler import code_eval_embed, failure
 
 EXECUTE_URL = os.getenv("EXECUTION_API_URL")
 
@@ -58,6 +58,20 @@ class SandboxExec(commands.Cog):
         }
 
         async with self.session.post(EXECUTE_URL, json=payload, timeout=30) as resp:
+            if resp.status == 429:
+                return {
+                    "code": -1,
+                    "output": "",
+                    "std_log": "Rate limit exceeded. Please wait before executing again.",
+                    "rate_limited": True,
+                }
+
+            if resp.status >= 500:
+                return {
+                    "code": -1,
+                    "output": "",
+                    "std_log": "Execution engine temporarily unavailable.",
+                }
             return await resp.json()
 
 
@@ -88,8 +102,11 @@ class SandboxExec(commands.Cog):
     ):
         exit_code, output = self._build_output(result)
 
-        embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code, disable_extras=True)
-        embed.set_footer(text="powered by Hermes Engine")
+        if result.get("rate_limited"):
+            embed = failure("```Rate limit exceeded. Please slow down.```")
+        else:
+            embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code, disable_extras=True)
+            embed.set_footer(text="powered by Hermes Engine")
 
         if target_message:
             await target_message.edit(embed=embed)
