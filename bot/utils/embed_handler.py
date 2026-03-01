@@ -413,7 +413,7 @@ def moderation_log_embed(
 
 def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_code: int = -1, disable_extras=False) -> Embed:
     title = "Execution Result (edited)" if edited else "Execution Result"
-    color = Color.orange() if edited else Color.blurple()
+    color = (Color.dark_red() if exit_code != 0 else Color.green() if edited else Color.dark_green())
 
     if not output:
         output = "(no output)"
