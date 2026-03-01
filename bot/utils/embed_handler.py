@@ -418,11 +418,11 @@ def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_co
     if not output:
         output = "(no output)"
 
-    if len(output) > 1850:
-        output = output[:1850] + "\n... (truncated)"
+    if len(output) > 4000:
+        output = output[:4000] + "\n... (truncated)"
 
-    embed = Embed(title=title, color=color)
-    embed.add_field(name="Output", value=f"```ex\n{output}```", inline=False)
+    embed = Embed(title=title, description=f"```ex\n{output}```", color=color)
+
     if not disable_extras:
         embed.add_field(name="Language", value=f"```ex\n{language.capitalize()}```", inline=True)
         embed.add_field(name="Exit code", value=f"```ex\n{exit_code}```", inline=True)
