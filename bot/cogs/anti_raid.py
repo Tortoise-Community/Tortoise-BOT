@@ -202,9 +202,14 @@ class AntiRaidSpam(commands.Cog):
             ),
             inline=False,
         )
+        msg_content = "\n".join(lines)
+
+        if len(msg_content) > 1024:
+            msg_content = msg_content[:1021] + "..."
+
         embed.add_field(
             name="Messages",
-            value="\n".join(lines),
+            value=msg_content,
             inline=False,
         )
         embed.set_footer(text=self.BAN_REASON)
