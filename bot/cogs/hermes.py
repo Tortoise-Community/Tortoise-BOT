@@ -106,7 +106,7 @@ class SandboxExec(commands.Cog):
             embed = failure("```Rate limit exceeded. Please slow down.```")
         else:
             embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code, disable_extras=True)
-            embed.set_footer(text="powered by Hermes Engine")
+            embed.set_footer(text=f"Powered by Hermes Engine", icon_url=f"https://lairesit.sirv.com/Tortoise/{language}.png")
 
         if target_message:
             await target_message.edit(embed=embed)

@@ -421,7 +421,12 @@ def code_eval_embed(language: str, output: str, *, edited: bool = False, exit_co
     if len(output) > 4000:
         output = output[:4000] + "\n... (truncated)"
 
-    embed = Embed(title=title, description=f"```ex\n{output}```", color=color)
+    output = output.rstrip("\n")
+    lines = output.split("\n")
+    last_line = lines[-1] if lines else ""
+    space_req = max(0, 49 - len(last_line))
+    spacer = "\u2800" * space_req
+    embed = Embed(title=title, description=f"```ex\n{output}{spacer}```", color=color)
 
     if not disable_extras:
         embed.add_field(name="Language", value=f"```ex\n{language.capitalize()}```", inline=True)
