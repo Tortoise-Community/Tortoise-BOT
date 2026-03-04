@@ -51,8 +51,8 @@ class Bot(commands.Bot):
         }
         self.suppressed_deletes = set()
         self._status_cycle = itertools.cycle([
-                "DM to Contact Staff ⛊",
                 "DM to Contact Staff ⛉",
+                "DM Reports!",
         ])
 
 
