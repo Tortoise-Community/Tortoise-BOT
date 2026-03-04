@@ -65,13 +65,22 @@ class SandboxExec(commands.Cog):
                     "std_log": "Rate limit exceeded. Please wait before executing again.",
                     "rate_limited": True,
                 }
+            if resp.status == 503:
+                return {
+                    "code": -1,
+                    "output": "",
+                    "std_log": "Engine is currently under maintenance. Please try again later.",
+                    "maintenance": True,
+                }
 
             if resp.status >= 500:
                 return {
                     "code": -1,
                     "output": "",
                     "std_log": "Execution engine temporarily unavailable.",
+                    "unavailable": True,
                 }
+
             return await resp.json()
 
 
@@ -102,8 +111,8 @@ class SandboxExec(commands.Cog):
     ):
         exit_code, output = self._build_output(result)
 
-        if result.get("rate_limited"):
-            embed = failure("```Rate limit exceeded. Please slow down.```")
+        if result.get("rate_limited") or result.get("maintenance") or result.get("unavailable"):
+            embed = failure(result.get("std_log"))
         else:
             embed = code_eval_embed(language, output, edited=edited, exit_code=exit_code, disable_extras=True)
             embed.set_footer(text=f"Powered by Hermes Engine", icon_url=f"https://lairesit.sirv.com/Tortoise/{language}.png")
