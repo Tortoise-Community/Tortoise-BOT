@@ -37,6 +37,7 @@ class Bot(commands.Bot):
         "utility"
     )
     build_version = "mystery-build"
+    advanced_protection: bool = True
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(
@@ -54,6 +55,7 @@ class Bot(commands.Bot):
                 "DM to Contact Staff ⛉",
                 "DM Reports!",
         ])
+        self.advanced_protection = True
 
 
     @tasks.loop(minutes=1)

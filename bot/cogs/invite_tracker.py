@@ -57,6 +57,12 @@ class InviteTracker(commands.Cog):
     async def on_member_join(self, member: Member):
         if member.guild.id != constants.tortoise_guild_id:
             return
+
+        if member.bot and self.bot.advanced_protection:
+            await self.log_channel.send(embed=embed_handler.warning(f"{member.mention} bot was banned due to Advanced Protection™"))
+            await member.ban(reason="Advanced Protection™ enabled. Bot joins are prohibited.")
+            return
+
         self.joins_today += 1
 
         inviter = await self.tracker.track_invite()

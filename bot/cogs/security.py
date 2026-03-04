@@ -3,15 +3,16 @@ from __future__ import annotations
 import logging
 import discord
 import aiohttp
+import asyncio
 import io
 from discord.ext import commands
-from discord import Member, Message
+from discord import Member, Message, app_commands
 
 from bot import constants
-from bot.utils.embed_handler import info, moderation_log_embed
+from bot.utils.embed_handler import info, moderation_log_embed, warning, success
 from bot.utils.message_handler import RemovableMessage
 from bot.constants import allowed_file_extensions
-
+from bot.utils.checks import tortoise_bot_developer_only
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,12 @@ class Security(commands.Cog):
         if self._log_channel is None:
             self._log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         return self._log_channel
+
+    async def _enable_protection_after_delay(self):
+        await asyncio.sleep(600)
+        self.bot.advanced_protection = True
+        if self.log_channel:
+            await self.log_channel.send(embed=success("Advanced Protection™ Enabled."))
 
     async def security_check(self, message: Message):
         """
@@ -302,6 +309,24 @@ class Security(commands.Cog):
         # Check if the new message violates our security
         await self.security_check(msg_after)
 
+    @app_commands.command()
+    @app_commands.check(tortoise_bot_developer_only)
+    @app_commands.checks.cooldown(1, 600)
+    async def disable_advanced_protection(self, interaction: discord.Interaction):
+        """Temporarily disables Advanced Protection."""
+        await interaction.response.defer()
+        self.bot.advanced_protection = False
+        await interaction.followup.send(embed=warning(f"Advanced Protection™ Disabled for 10 minutes."), ephemeral=False)
+        self.bot.loop.create_task(self._enable_protection_after_delay())
+
+    @app_commands.command()
+    @app_commands.check(tortoise_bot_developer_only)
+    @app_commands.checks.cooldown(1, 120)
+    async def enable_advanced_protection(self, interaction: discord.Interaction):
+        """Enable Advanced Protection."""
+        await interaction.response.defer()
+        self.bot.advanced_protection = True
+        await interaction.followup.send(embed=success(f"Advanced Protection™ Enabled."), ephemeral=False)
 
 async def setup(bot):
     await bot.add_cog(Security(bot))
