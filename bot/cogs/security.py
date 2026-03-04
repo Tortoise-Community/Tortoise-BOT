@@ -43,7 +43,7 @@ class Security(commands.Cog):
         return self._log_channel
 
     async def _enable_protection_after_delay(self):
-        await asyncio.sleep(600)
+        await asyncio.sleep(300)
         self.bot.advanced_protection = True
         if self.log_channel:
             await self.log_channel.send(embed=success("Advanced Protection™ Enabled."))
@@ -316,7 +316,7 @@ class Security(commands.Cog):
         """Temporarily disables Advanced Protection."""
         await interaction.response.defer()
         self.bot.advanced_protection = False
-        await interaction.followup.send(embed=warning(f"Advanced Protection™ Disabled for 10 minutes."), ephemeral=False)
+        await interaction.followup.send(embed=warning(f"Advanced Protection™ Disabled for 5 minutes."), ephemeral=False)
         self.bot.loop.create_task(self._enable_protection_after_delay())
 
     @app_commands.command()

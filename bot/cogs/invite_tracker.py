@@ -41,17 +41,18 @@ class InviteTracker(commands.Cog):
 
     @staticmethod
     async def _send_dm_message(member: discord.Member):
-        dm_msg = (
-            f"Introduce yourself in <#{constants.general_channel_id}>\n\n"
-            f"Leetcode discussion <#{constants.leetcode_channel_id}>\n\n"
-            f"For **Leetcode challenges** checkout <#{constants.challenges_channel_id}>\n\n"
-            f"We hope you enjoy your stay!"
-        )
-        # User could have DMs disabled
-        try:
-            await member.send(embed=embed_handler.footer_embed(dm_msg, "Welcome to Tortoise Community!"))
-        except discord.Forbidden:
-            pass
+        if not member.bot:
+            dm_msg = (
+                f"Introduce yourself in <#{constants.general_channel_id}>\n\n"
+                f"Leetcode discussion <#{constants.leetcode_channel_id}>\n\n"
+                f"For **Leetcode challenges** checkout <#{constants.challenges_channel_id}>\n\n"
+                f"We hope you enjoy your stay!"
+            )
+            # User could have DMs disabled
+            try:
+                await member.send(embed=embed_handler.footer_embed(dm_msg, "Welcome to Tortoise Programming Community!"))
+            except discord.Forbidden:
+                pass
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
