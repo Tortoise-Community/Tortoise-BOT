@@ -1,10 +1,13 @@
 import os
 import aiohttp
 import discord
+from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timedelta
 from typing import Dict
-from bot.utils.embed_handler import code_eval_embed, failure
+
+from bot.utils.checks import tortoise_bot_developer_only
+from bot.utils.embed_handler import code_eval_embed, failure, success
 from bot.constants import tortoise_guild_id
 
 EXECUTE_URL = os.getenv("EXECUTION_API_URL")
@@ -32,6 +35,7 @@ class SandboxExec(commands.Cog):
         self.bot = bot
         self.session = aiohttp.ClientSession()
         self.tracked: Dict[int, dict] = {}
+        self.runtime_enabled = True
 
     def cog_unload(self):
         self.bot.loop.create_task(self.session.close())
@@ -135,7 +139,7 @@ class SandboxExec(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
-        if message.author.bot or not message.guild:
+        if not self.runtime_enabled or message.author.bot or not message.guild:
             return
 
         if message.guild.id != tortoise_guild_id:
@@ -171,7 +175,7 @@ class SandboxExec(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
-        if after.author.bot or not after.guild:
+        if not self.runtime_enabled or after.author.bot or not after.guild:
             return
 
         if after.guild.id != tortoise_guild_id:
@@ -212,6 +216,20 @@ class SandboxExec(commands.Cog):
             edited=True,
             target_message=bot_msg,
         )
+
+    @app_commands.command(description="Disable runtime execution in this guild")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def disable_runtime(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        self.runtime_enabled = False
+        await interaction.followup.send(embed=success("Runtime Disabled"))
+
+    @app_commands.command(description="Enable runtime execution in this guild")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def enable_runtime(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        self.runtime_enabled = True
+        await interaction.followup.send(embed=success("Runtime Enabled"))
 
 
 async def setup(bot: commands.Bot):
