@@ -5,6 +5,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from typing import Dict
 from bot.utils.embed_handler import code_eval_embed, failure
+from bot.constants import tortoise_guild_id
 
 EXECUTE_URL = os.getenv("EXECUTION_API_URL")
 
@@ -137,6 +138,9 @@ class SandboxExec(commands.Cog):
         if message.author.bot or not message.guild:
             return
 
+        if message.guild.id != tortoise_guild_id:
+            return
+
         parsed = self._parse_block(message.content)
         if not parsed:
             return
@@ -168,6 +172,9 @@ class SandboxExec(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         if after.author.bot or not after.guild:
+            return
+
+        if after.guild.id != tortoise_guild_id:
             return
 
         meta = self.tracked.get(after.id)
