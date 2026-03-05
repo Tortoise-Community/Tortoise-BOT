@@ -16,6 +16,14 @@ LANG_ALIASES = {
     "java": "java",
 }
 
+view = discord.ui.View()
+view.add_item(
+    discord.ui.Button(
+        label="Add to Server",
+        emoji=discord.PartialEmoji(name="invite", id=1479091984286224487),
+        url="https://discord.com/oauth2/authorize?client_id=780132667265122315",
+    )
+)
 
 class SandboxExec(commands.Cog):
 
@@ -118,10 +126,10 @@ class SandboxExec(commands.Cog):
             embed.set_footer(text=f"Powered by Hermes Engine", icon_url=f"https://lairesit.sirv.com/Tortoise/{language}.png")
 
         if target_message:
-            await target_message.edit(embed=embed)
+            await target_message.edit(embed=embed, view=view)
             return target_message
         else:
-            return await channel.send(embed=embed)
+            return await channel.send(embed=embed, view=view)
 
 
     @commands.Cog.listener()
