@@ -26,6 +26,17 @@ STATIC_PROJECTS_DATA = [
         "short_desc": "Fully functional Bot for Discord coded in Discord.py",
     },
     {
+        "name": "Runtime-Bot",
+        "html_url": "https://github.com/Tortoise-Community/Runtime-Bot",
+        "web_link": "https://github.com/Tortoise-Community/Runtime-Bot",
+        "forks_count": 1,
+        "commit_count": 4,
+        "stargazers_count": 1,
+        "contributors_count": 1,
+        "language": "Python",
+        "short_desc": "Discord bot for executing code directly in chat using the Hermes sandbox engine.",
+    },
+    {
         "name": "Snappy-Bot",
         "html_url": "https://github.com/Tortoise-Community/Snappy-Bot",
         "web_link": "https://github.com/Tortoise-Community/Snappy-Bot",
