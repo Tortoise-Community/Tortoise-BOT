@@ -394,6 +394,7 @@ class Miscellaneous(commands.Cog):
             )
 
     @app_commands.command(name="speak")
+    @app_commands.checks.has_permissions(manage_messages=True)
     async def speak(self, interaction: discord.Interaction, text: str):
         tortoise = r'''
         \

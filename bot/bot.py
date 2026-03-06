@@ -15,6 +15,7 @@ from discord.ext import commands, tasks
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, system_log_channel_id
 from bot.utils.embed_handler import simple_embed
+from bot.utils.error_handler import TortoiseCommandTree
 
 logger = logging.getLogger(__name__)
 console_logger = logging.getLogger("console")
@@ -41,7 +42,11 @@ class Bot(commands.Bot):
 
     def __init__(self, prefix="t.", *args, **kwargs):
         super(Bot, self).__init__(
-            *args, command_prefix=prefix, intents=discord.Intents.all(), **kwargs
+            *args,
+            command_prefix=prefix,
+            intents=discord.Intents.all(),
+            tree_cls=TortoiseCommandTree,
+            **kwargs
         )
         self.api_client: TortoiseAPI = None
         self.tortoise_meta_cache = {
