@@ -36,7 +36,7 @@ async def check_if_tortoise_staff(interaction: discord.Interaction):
     member = interaction.user
     role_ids = [role.id for role in member.roles]
 
-    if moderator_role in member.roles or admin_role in role_ids:
+    if moderator_role in role_ids or admin_role in role_ids:
         return True
 
     raise TortoiseStaffCheckFailure()
