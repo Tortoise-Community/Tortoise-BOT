@@ -349,7 +349,13 @@ class TortoiseDM(commands.Cog):
 
         self.pending_mod_mails.add(user.id)
         if source == "dm":
-            await user.send(embed=success("Mod mail was created, please wait for one of the mods to accept."))
+            embed = info("Mail is initialized and the moderators have been contacted.\n"
+                         "You'll be notified once someone from the team responds.",
+                         user, "ModMail Created!")
+            embed.set_footer(
+                text="NOTE: Response time may vary; No need to wait here."
+            )
+            await user.send(embed=embed)
 
     async def create_event_submission(self, user: discord.User):
         user_reply = await self._get_user_reply(self.active_event_submissions, user)
