@@ -423,10 +423,10 @@ class Miscellaneous(commands.Cog):
     async def run_help(self, interaction: discord.Interaction):
         content = (
             "Run code by sending a message that starts with `/run` followed by a fenced code block.\n\n"
-            "**Format:**\n"
-            "/run ```<language>\n"
-            "your code here\n"
-            "```\n"
+            "**Format:**\n\n"
+            "/run\n\\`\\`\\`<language>\n"
+            "print(1 + 1)\n"
+            "\\`\\`\\`\n\n"
             "Language support: **python**, **javascript**, **java** (**py**,**js** also works)\n\n"
             "### Examples\n"
             "**Python:**\n\n"

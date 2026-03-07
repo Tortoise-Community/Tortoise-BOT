@@ -328,11 +328,17 @@ class TortoiseDM(commands.Cog):
             )
         )
 
-    async def create_mod_mail(self, user: discord.User):
+    async def create_mod_mail(self, user: discord.User, source: str = "dm"):
         if user.id in self.pending_mod_mails:
             await user.send(embed=failure("You already have a pending mod mail, please be patient."))
             return
-        submission_embed = authored_sm(f"{user.name} submitted for mod mail.", author=user)
+
+        source_text = {
+            "dm": "submitted for mod mail.",
+            "panel": "created a ban appeal request."
+        }.get(source, source)
+
+        submission_embed = authored_sm(f"{user.name} {source_text}", author=user)
         view = ModMailAcceptView(self, user.id)
 
         await self.staff_channel.send("@here", delete_after=30)
@@ -342,7 +348,8 @@ class TortoiseDM(commands.Cog):
         )
 
         self.pending_mod_mails.add(user.id)
-        await user.send(embed=success("Mod mail was created, please wait for one of the mods to accept."))
+        if source == "dm":
+            await user.send(embed=success("Mod mail was created, please wait for one of the mods to accept."))
 
     async def create_event_submission(self, user: discord.User):
         user_reply = await self._get_user_reply(self.active_event_submissions, user)
