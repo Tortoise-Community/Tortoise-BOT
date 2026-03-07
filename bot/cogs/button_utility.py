@@ -10,12 +10,14 @@ from bot.utils.embed_handler import info, failure
 
 
 class ModMailStartView(discord.ui.View):
+    """Persistent button view for Mod mail ticket creation."""
+
     def __init__(self):
         super().__init__(timeout=None)
 
     @discord.ui.button(
         label="Create Ticket",
-        style=discord.ButtonStyle.premium,
+        style=discord.ButtonStyle.secondary,
         emoji="📩",
         custom_id="tortoise_modmail_panel",
     )
@@ -46,11 +48,14 @@ class ModMailStartView(discord.ui.View):
         )
 
         try:
-            await user.send(embed=info(
-                "Your ticket is created.\n"
-                "Please wait for moderator response.",
-                user
-            ))
+            embed = info(
+                "Your ban appeal request is logged.\n"
+                "Please wait for a moderator to respond.\n\n",
+                user,
+                "Ticket Created!"
+            )
+            embed.set_footer(text="NOTE: Please remain in this server until this ticket is closed.")
+            await user.send(embed=embed)
         except discord.HTTPException:
             await interaction.followup.send(
                 "I couldn't DM you. Please enable DMs.",
@@ -174,11 +179,11 @@ class ButtonUtility(commands.Cog):
 
         embed = discord.Embed(
             title="Ban appeal",
-            description="Press the button below to create a ticket.",
-            color=discord.Color.green()
+            description="Use the button below to create a ticket and submit a ban appeal.",
+            color=discord.Color.dark_green()
         )
 
-        embed.set_footer(text="This conversation will be logged.")
+        embed.set_footer(text="Tortoise Programming Community", icon_url=self.bot.user.avatar.url)
 
         await interaction.response.send_message(
             embed=embed,
