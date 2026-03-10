@@ -41,10 +41,14 @@ class Bot(commands.Bot):
     advanced_protection: bool = True
 
     def __init__(self, prefix="t.", *args, **kwargs):
+        intents = discord.Intents.default()
+        intents.members = True
+        intents.message_content = True
+
         super(Bot, self).__init__(
             *args,
             command_prefix=prefix,
-            intents=discord.Intents.all(),
+            intents=intents,
             tree_cls=TortoiseCommandTree,
             **kwargs
         )
@@ -98,7 +102,7 @@ class Bot(commands.Bot):
             return
 
         try:
-            embed = simple_embed(message=f"Build version: `{commit_hash}`", title="", color=discord.Color.dark_orange())
+            embed = simple_embed(message=f"Build version: `{commit_hash}`", title="")
             embed.set_footer(text=f"🔄 Bot Restarted")
             await channel.send(
                 embed=embed,

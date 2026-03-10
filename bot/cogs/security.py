@@ -13,6 +13,7 @@ from bot.utils.embed_handler import info, moderation_log_embed, warning, success
 from bot.utils.message_handler import RemovableMessage
 from bot.constants import allowed_file_extensions
 from bot.utils.checks import tortoise_bot_developer_only
+from bot.utils.misc import get_user_avatar
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +127,7 @@ class Security(commands.Cog):
             content=f"{reason}\n\n{content}",
             color=discord.Color.red()
         )
-        embed.set_footer(text=f"Author: {message.author}", icon_url=message.author.avatar.url)
+        embed.set_footer(text=f"Author: {message.author}", icon_url=get_user_avatar(message.author))
 
         await self.log_channel.send(embed=embed, files=files_to_log)
 
@@ -303,7 +304,7 @@ class Security(commands.Cog):
             f"[jump]({msg_after.jump_url})"
         )
         embed = info(msg, msg_before.guild.me, title="Message edited")
-        embed.set_footer(text=f"Author: {msg_before.author}", icon_url=msg_before.author.avatar.url)
+        embed.set_footer(text=f"Author: {msg_before.author}", icon_url=get_user_avatar(msg_before.author))
         await self.log_channel.send(embed=embed)
 
         # Check if the new message violates our security

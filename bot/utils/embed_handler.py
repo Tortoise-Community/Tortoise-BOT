@@ -12,7 +12,7 @@ from bot.utils.misc import (
 )
 
 
-def simple_embed(message: str, title: str, color: Color) -> Embed:
+def simple_embed(message: str, title: str, color: Union[Color, int] = constants.default_color) -> Embed:
     embed = Embed(title=title, description=message, color=color)
     return embed
 

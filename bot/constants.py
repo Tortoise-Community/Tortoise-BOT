@@ -164,6 +164,9 @@ here_mention = "@​here"
 # After this is exceeded the link to tortoise paste service should be sent
 max_message_length = 1000
 
+# Tortoise brand
+default_color = 0xffb101
+
 
 class Infraction(Enum):
     _settings_ = NoAlias
