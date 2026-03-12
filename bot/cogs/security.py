@@ -9,11 +9,13 @@ from discord.ext import commands
 from discord import Member, Message, app_commands
 
 from bot import constants
-from bot.utils.embed_handler import info, moderation_log_embed, warning, success
+from bot.utils.embed_handler import info, moderation_log_embed, warning, success, infraction_embed
 from bot.utils.message_handler import RemovableMessage
 from bot.constants import allowed_file_extensions
 from bot.utils.checks import tortoise_bot_developer_only
 from bot.utils.misc import get_user_avatar
+from bot.utils.custom_types import FakeInteraction
+
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +174,51 @@ class Security(commands.Cog):
 
         return False
 
+    @commands.Cog.listener()
+    async def on_automod_action(self, execution: discord.AutoModAction):
+
+        if execution.guild.id != constants.tortoise_guild_id:
+            return
+
+        member = execution.member
+
+        if member is None:
+            return
+
+        if execution.rule.name != "Racial and Homophobic slurs":
+            return
+
+        if member.guild_permissions.administrator:
+            return
+        if self.trusted and self.trusted in member.roles:
+            return
+
+
+        fake_interaction = FakeInteraction(self.bot)
+
+        embed = infraction_embed(
+            interaction=fake_interaction,
+            infracted_member=member,
+            infraction_type=constants.Infraction.ban,
+            reason="Racial and Homophobic slurs",
+            is_dm=True,
+            can_appeal=True
+        )
+        embed.set_footer("⚠️This was an automated action. If you'd like to appeal, join the appeal server.")
+        await member.send(embed=embed)
+
+        reason = f"AutoMod rule triggered: **{execution.rule.name}**\nContent: {execution.content}"
+
+        log_embed = infraction_embed(
+            interaction=fake_interaction,
+            infracted_member=member,
+            infraction_type=constants.Infraction.ban,
+            reason=reason
+        )
+
+        await self.log_channel.send(embed=log_embed)
+
+        await member.ban(reason=f"AutoMod racial and homophobic slur rule triggered")
 
     @commands.Cog.listener()
     async def on_message(self, message):

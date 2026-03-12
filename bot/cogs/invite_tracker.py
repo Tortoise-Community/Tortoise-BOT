@@ -66,18 +66,19 @@ class InviteTracker(commands.Cog):
 
         self.joins_today += 1
 
-        inviter = await self.tracker.track_invite()
+        inviter, code = await self.tracker.track_inviter_and_code()
         created_at = f"<t:{int(member.created_at.timestamp())}:R>"
 
         if inviter:
             msg = (
-                f"**Member:** {member}\n"
+                f"**Username:** {member}\n"
                 f"**Invited by:** {inviter}\n"
+                f"**Invite Code:** `{code}`\n"
                 f"**Account created:** {created_at}"
             )
         else:
             msg = (
-                f"**Member:** {member}\n"
+                f"**Username:** {member}\n"
                 f"**Invited by:** Discord Discovery / Vanity\n"
                 f"**Account created:** {created_at}"
             )
