@@ -90,6 +90,9 @@ stay_emoji_id = 755717238732095562
 double_emoji_id = 755715816657518622
 blank_card_emoji = "<:card:755715225642336287>"
 
+# Auto mod rulesets
+racial_and_transphobic_rule_id = 1461221874540347577
+
 # Badges
 partner = "<:partner:753957703155449916>"
 staff = "<:staff:753957681336942673>"
