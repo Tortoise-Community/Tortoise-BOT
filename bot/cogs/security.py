@@ -185,7 +185,7 @@ class Security(commands.Cog):
         if member is None:
             return
 
-        if execution.rule.name != "Racial and Homophobic slurs":
+        if execution.rule_id != constants.racial_and_transphobic_rule_id:
             return
 
         if member.guild_permissions.administrator:
