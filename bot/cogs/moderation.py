@@ -55,17 +55,13 @@ class Moderation(commands.Cog):
         """Kicks  member from the guild."""
 
         await interaction.response.defer()
-        deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
-        dm_embed = deterrence_embed.copy()
 
-        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
+        deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed.add_field(
-            name="Comment",
-            value="Rethink what you did before joining back."
-        )
+        dm_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason, True, True)
         await member.send(embed=dm_embed)
+
         await member.kick(reason=reason)
         await interaction.followup.send(embed=success(f"{member.name} successfully kicked."), ephemeral=True)
 
@@ -183,20 +179,15 @@ class Moderation(commands.Cog):
             send_dm: bool = True,
             log_deterrence: bool = True,
     ):
-        deterrence_embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
+        embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
+
         if log_deterrence:
-            deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
-            await self.deterrence_log_channel.send(embed=deterrence_embed)
+            await self.deterrence_log_channel.send(embed=embed)
 
         if send_dm:
-            dm_embed = deterrence_embed.copy()
-            dm_embed.add_field(name="Ban Appeal Server",
-                value=f"[Click Here to Join]({constants.appeal_server_link})",
-                inline=False
-            )
-            dm_embed.set_footer(text="If this happened by a mistake join our Appeal Server")
+            embed = infraction_embed(interaction, user, constants.Infraction.ban, reason, True, True)
             try:
-                await user.send(embed=dm_embed)
+                await user.send(embed=embed)
             except discord.Forbidden:
                 pass
             except discord.HTTPException:
@@ -228,7 +219,7 @@ class Moderation(commands.Cog):
             await interaction.response.send_message(embed=failure("Please shorten the reason to 200 characters."), ephemeral=True)
             return
 
-        embed = infraction_embed(interaction, member, constants.Infraction.warning, reason)
+        embed = infraction_embed(interaction, member, constants.Infraction.warning, reason, True)
         embed.add_field(
             name="**NOTE**",
             value=(
@@ -344,11 +335,16 @@ class Moderation(commands.Cog):
             constants.Infraction.timeout,
             reason
         )
-        dm_embed = deterrence_embed.copy()
-        deterrence_embed.add_field(name="Mod", value=interaction.user.mention, inline=False)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed.set_footer(text="If this happened by a mistake contact Moderators.")
+        dm_embed = infraction_embed(
+            interaction,
+            member,
+            constants.Infraction.timeout,
+            reason,
+            True
+        )
+        dm_embed.set_footer(text="If this happened by a mistake raise a Mod Mail.")
 
         try:
             await member.send(embed=dm_embed)

@@ -7,6 +7,7 @@ from asyncpraw import models
 from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
 from bot import constants
+from bot.utils.custom_types import FakeInteraction
 from bot.utils.misc import (
     get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date, get_user_avatar
 )
@@ -246,10 +247,12 @@ def status_embed(ctx, member: Member) -> Embed:
 
 
 def infraction_embed(
-        interaction: discord.Interaction,
+        interaction: Union[discord.Interaction, FakeInteraction],
         infracted_member: Union[Member, User],
         infraction_type: constants.Infraction,
-        reason: str
+        reason: str,
+        is_dm: bool = False,
+        can_appeal: bool = False,
 ) -> Embed:
     """
     :param interaction: interaction to get mod member from (the one who issued this infraction) and
@@ -257,6 +260,8 @@ def infraction_embed(
     :param infracted_member: member who got the infraction
     :param infraction_type: infraction type
     :param reason: str reason for infraction
+    :param is_dm: bool indicate if embed is DM embed or not
+    :param can_appeal: bool indicate if member can appeal
     :return: discord Embed
     """
 
@@ -266,6 +271,17 @@ def infraction_embed(
     embed.add_field(name="**Member**", value=f"{infracted_member}", inline=False)
     embed.add_field(name="**Type**", value=infraction_type.name, inline=False)
     embed.add_field(name="**Reason**", value=reason, inline=False)
+
+    if not is_dm:
+        embed.add_field(name="**Mod**", value=interaction.user.mention, inline=False)
+
+    if can_appeal:
+        embed.add_field(name="Ban Appeal Server",
+                           value=f"[Click Here to Join]({constants.appeal_server_link})",
+                           inline=False
+                           )
+        embed.set_footer(text="If you think this happened by a mistake join our Appeal Server.")
+
     return embed
 
 

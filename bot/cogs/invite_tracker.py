@@ -73,7 +73,7 @@ class InviteTracker(commands.Cog):
             msg = (
                 f"**Username:** {member}\n"
                 f"**Invited by:** {inviter}\n"
-                f"**Invite Code: ** `{code}`\n"
+                f"**Invite Code:** `{code}`\n"
                 f"**Account created:** {created_at}"
             )
         else:
