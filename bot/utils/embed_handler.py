@@ -43,7 +43,7 @@ def welcome(member: discord.Member, message: str = None) -> Embed:
     :return: Embed object
     """
     message = message or f"{member} has joined {member.guild.name}!"
-    embed = simple_embed(message, "Member Joined", color=Color.dark_green())
+    embed = simple_embed(message, "Member Joined ➕", color=Color.dark_green())
     embed.set_footer(text=f"ID: {member.id}", icon_url=get_user_avatar(member))
     return embed
 
@@ -56,7 +56,7 @@ def goodbye(member: discord.Member, message: str = None) -> Embed:
     :return: Embed object
     """
     message = message or f"{member} has left {member.guild.name}."
-    embed =  simple_embed(message, "Member Left", color=Color.dark_red())
+    embed =  simple_embed(message, "Member Left ➖", color=Color.dark_red())
     embed.set_footer(text=f"ID: {member.id}", icon_url=get_user_avatar(member))
     return embed
 
