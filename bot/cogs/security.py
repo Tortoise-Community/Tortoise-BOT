@@ -188,13 +188,16 @@ class Security(commands.Cog):
         if execution.rule_id != constants.racial_and_transphobic_rule_id:
             return
 
+        if execution.action.type != discord.AutoModRuleActionType.block_message:
+            return
+
         if member.guild_permissions.administrator:
             return
         if self.trusted and self.trusted in member.roles:
             return
 
 
-        fake_interaction = FakeInteraction(self.bot)
+        fake_interaction = FakeInteraction(self.bot, self.bot.user)
 
         reason = "Racial and Homophobic slurs"
 

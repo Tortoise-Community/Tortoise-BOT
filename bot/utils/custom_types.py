@@ -1,6 +1,6 @@
 
 
 class FakeInteraction:
-    def __init__(self, client):
+    def __init__(self, client, user):
         self.client = client
-        self.user = client
+        self.user = user
