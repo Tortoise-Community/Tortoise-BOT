@@ -209,10 +209,10 @@ class Security(commands.Cog):
             is_dm=True,
             can_appeal=True
         )
-        embed.set_footer(text="⚠️This was an automated action. If you'd like to appeal, join the appeal server.")
+        embed.set_footer(text="⚠️ This was an automated action. If you'd like to appeal, join the appeal server.")
         await member.send(embed=embed)
 
-        reason += f"**\nContent:** {execution.content}"
+        reason += f"**\n\nContent:** {execution.content}\n"
 
         log_embed = infraction_embed(
             interaction=fake_interaction,
@@ -220,7 +220,7 @@ class Security(commands.Cog):
             infraction_type=constants.Infraction.ban,
             reason=reason
         )
-        log_embed.set_footer(text="⚠️This was an automated action.")
+        log_embed.set_footer(text="⚠️ This was an automated action.")
 
         await self.log_channel.send(embed=log_embed)
 
