@@ -32,6 +32,7 @@ class GuildInviteTracker:
             if data["uses"] > self._cache.get(code)["uses"]:
                 self._cache = new_invites
                 return await self.get_inviter(code), code
+        return None, None
 
     async def get_all_invites(self) -> dict:
         try:

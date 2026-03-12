@@ -196,18 +196,20 @@ class Security(commands.Cog):
 
         fake_interaction = FakeInteraction(self.bot)
 
+        reason = "Racial and Homophobic slurs"
+
         embed = infraction_embed(
             interaction=fake_interaction,
             infracted_member=member,
             infraction_type=constants.Infraction.ban,
-            reason="Racial and Homophobic slurs",
+            reason=reason,
             is_dm=True,
             can_appeal=True
         )
-        embed.set_footer("⚠️This was an automated action. If you'd like to appeal, join the appeal server.")
+        embed.set_footer(text="⚠️This was an automated action. If you'd like to appeal, join the appeal server.")
         await member.send(embed=embed)
 
-        reason = f"AutoMod rule triggered: **{execution.rule.name}**\nContent: {execution.content}"
+        reason += f"**\nContent:** {execution.content}"
 
         log_embed = infraction_embed(
             interaction=fake_interaction,
@@ -215,6 +217,7 @@ class Security(commands.Cog):
             infraction_type=constants.Infraction.ban,
             reason=reason
         )
+        log_embed.set_footer(text="⚠️This was an automated action.")
 
         await self.log_channel.send(embed=log_embed)
 

@@ -276,7 +276,7 @@ def infraction_embed(
         embed.add_field(name="**Mod**", value=interaction.user.mention, inline=False)
 
     if can_appeal:
-        embed.add_field(name="Ban Appeal Server",
+        embed.add_field(name="Appeal Server",
                            value=f"[Click Here to Join]({constants.appeal_server_link})",
                            inline=False
                            )
