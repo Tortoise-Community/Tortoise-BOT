@@ -312,7 +312,7 @@ class Moderation(commands.Cog):
         )
         def check(msg):
             return member is None or msg.author == member
-        await interaction.channel.purge(limit=amount + 1, check=check)
+        await interaction.channel.purge(limit=amount, check=check)
 
 
     @app_commands.command()
