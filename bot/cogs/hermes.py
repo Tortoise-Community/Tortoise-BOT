@@ -24,7 +24,7 @@ view = discord.ui.View()
 view.add_item(
     discord.ui.Button(
         label="Add to Server",
-        emoji=discord.PartialEmoji(name="invite", id=1479091984286224487),
+        emoji=discord.PartialEmoji(name="add", id=1481785944813342964),
         url="https://discord.com/oauth2/authorize?client_id=780132667265122315",
     )
 )
