@@ -296,9 +296,19 @@ class TortoiseDM(commands.Cog):
                 return
 
         self._typing_active.add(user.id)
+
         destination_user = self.bot.get_user(destination_id)
+
+        if destination_user is None:
+            destination_user = await self.bot.fetch_user(destination_id)
+
+        dm = destination_user.dm_channel
+
+        if dm is None:
+            dm = await destination_user.create_dm()
         # Per docs: Active for 10s or until first message
-        await destination_user.trigger_typing()
+        async with dm.typing():
+            pass
         self._typing_active.remove(user.id)
 
     def _get_dict_key_by_value(self, value: int) -> int:
