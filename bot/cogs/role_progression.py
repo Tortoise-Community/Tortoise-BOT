@@ -217,10 +217,9 @@ class RoleProgression(commands.Cog):
         except discord.Forbidden:
             pass
 
-        if self.log_channel:
-            await self.log_channel.send(
-                embed=success(f"{member.mention} promoted to **{role.name}**")
-            )
+        await self.log_channel.send(
+            embed=info(f"{member.mention} was promoted to **{role.mention}**", self.bot.user, "")
+        )
 
 
     @app_commands.command(name="nominate")
@@ -236,7 +235,7 @@ class RoleProgression(commands.Cog):
 
         if stage is None:
             await interaction.response.send_message(
-                embed=failure("User already has the highest role."),
+                embed=failure(f"{member.mention} already has the highest role."),
                 ephemeral=True
             )
             return
@@ -244,7 +243,7 @@ class RoleProgression(commands.Cog):
         if stage == "boot" and self.active not in member.roles:
             await interaction.response.send_message(
                 embed=failure(
-                    f"User must have {self.active.mention} role before they could be nominated for {self.boot.mention}."
+                    f"User must have {self.active.mention} role before they could be nominated."
                 ),
                 ephemeral=True
             )
@@ -254,10 +253,12 @@ class RoleProgression(commands.Cog):
 
         if role_used is None:
             await interaction.response.send_message(
-                embed=failure("You cannot nominate other users."),
+                embed=failure(f"You need to be an {self.apprentice.mention} or above to nominate."),
                 ephemeral=True
             )
             return
+
+        await interaction.response.defer()
 
         inserted = await self.db.add_nomination(
             member.id,
@@ -267,19 +268,21 @@ class RoleProgression(commands.Cog):
         )
 
         if not inserted:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 embed=failure(f"You already nominated {member.mention} for this stage."),
                 ephemeral=True
             )
             return
 
+        await self.log_channel.send(
+            embed=info(
+                f"{interaction.user} nominated {member.mention} for **{stage}**."
+            , self.bot.user, "")
+        )
+
         if await self.stage_passed(member, stage):
 
             await self.promote(member, stage)
-
-            await interaction.response.send_message(
-                embed=success(f"{member.mention} promoted to **{stage.capitalize()}**.")
-            )
 
         else:
 
@@ -310,17 +313,12 @@ class RoleProgression(commands.Cog):
             except discord.Forbidden:
                 pass
 
-            await interaction.response.send_message(
-                embed=success(f"You have successfully nominated {member.mention}."),
-                ephemeral=True
-            )
+        await interaction.followup.send(
+            embed=success(f"You have successfully nominated {member.mention}."),
+            ephemeral=True
+        )
 
-            if self.log_channel:
-                await self.log_channel.send(
-                    embed=info(
-                        f"{interaction.user} nominated {member.mention} for **{stage}**."
-                    , self.bot.user, "")
-                )
+
 
 
 async def setup(bot):
