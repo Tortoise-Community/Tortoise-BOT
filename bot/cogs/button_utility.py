@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.constants import challenger_role
+from bot.constants import challenger_role_id
 from bot.utils.checks import tortoise_bot_developer_only
 from bot.utils.embed_handler import info, failure
 
@@ -90,7 +90,7 @@ class NotifyButton(discord.ui.View):
             )
             return
 
-        role = interaction.guild.get_role(challenger_role)
+        role = interaction.guild.get_role(challenger_role_id)
         if role is None:
             await interaction.response.send_message(
                 "Notification role is not configured correctly.",
