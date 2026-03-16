@@ -5,7 +5,7 @@ from discord import app_commands
 
 from bot import constants
 from bot.utils.embed_handler import info, success, failure
-
+from bot.utils.checks import check_if_tortoise_staff
 
 class RoleProgression(commands.Cog):
 
@@ -197,7 +197,7 @@ class RoleProgression(commands.Cog):
         return False
 
 
-    async def promote(self, member, stage):
+    async def promote_user(self, member, stage):
 
         role = getattr(self, stage)
 
@@ -221,13 +221,78 @@ class RoleProgression(commands.Cog):
             embed=info(f"{member.mention} was promoted to **{role.mention}**", self.bot.user, "")
         )
 
+    @app_commands.command()
+    @app_commands.checks.bot_has_permissions(manage_roles=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def promote(self, interaction: discord.Interaction, member: discord.Member, role: discord.Role):
+        """Promote member to role."""
+        if role.id not in constants.promotable_roles:
+
+            if role.id in constants.roles_for_nomination:
+                await interaction.response.send_message(
+                    embed=failure(
+                        "Direct promotion is not allowed.\n"
+                        "Use `/nominate` to nominate this user instead."
+                    ),
+                    ephemeral=True
+                )
+                return
+
+            if role.id in constants.automatically_assigned_roles:
+                await interaction.response.send_message(
+                    embed=failure(
+                        "This role is assigned automatically and cannot be promoted manually."
+                    ),
+                    ephemeral=True
+                )
+                return
+
+            await interaction.response.send_message(
+                embed=failure("You cannot promote users to this role."),
+                ephemeral=True
+            )
+            return
+
+        if role >= interaction.user.top_role:
+            await interaction.response.send_message(
+                embed=failure("Role needs to be below you in hierarchy."),
+                ephemeral=True
+            )
+            return
+        elif role in member.roles:
+            await interaction.response.send_message(
+                embed=failure(f"{member.mention} already has role {role.mention}!"),
+                ephemeral=True
+            )
+            return
+
+        await interaction.response.defer()
+
+        await member.add_roles(role)
+
+        dm_embed = info(
+            (
+                    f"You’ve been promoted to **{role.name}** role.\n\n"
+                    + constants.promotable_roles[role.id]
+            ),
+            self.bot.user,
+            "You just got promoted!",
+            f"Given by: {interaction.user}  |  Tortoise Programming Community"
+        )
+        try:
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            pass
+        await interaction.followup.send(
+            embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
+
 
     @app_commands.command(name="nominate")
     async def nominate(self, interaction: discord.Interaction, member: discord.Member):
 
         if interaction.user.id == member.id:
             await interaction.response.send_message(
-                embed=failure("You cannot nominate yourself."),
+                embed=failure("You cannot nominate yourself <:pomf:766290682087735347>"),
                 ephemeral=True
             )
 
@@ -282,7 +347,7 @@ class RoleProgression(commands.Cog):
 
         if await self.stage_passed(member, stage):
 
-            await self.promote(member, stage)
+            await self.promote_user(member, stage)
 
         else:
 
