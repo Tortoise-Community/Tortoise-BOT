@@ -303,10 +303,10 @@ class RoleProgression(commands.Cog):
             try:
                 await member.send(
                     embed=info(
-                        f"You were nominated for **{stage.capitalize()}**.\n\n"
+                        f"You were nominated for **{stage.capitalize()}** role.\n\n"
                         f"{progress}\n",
                         self.bot.user,
-                        "You have received a message 📩",
+                        "Nominated 🎖️",
                         f"Nominated by **{interaction.user}**."
                     )
                 )
@@ -317,7 +317,68 @@ class RoleProgression(commands.Cog):
             embed=success(f"You have successfully nominated {member.mention}."),
             ephemeral=True
         )
+    @app_commands.command(name="progression", description="Learn about role progression and activity milestones.")
+    async def progression_info(self, interaction: discord.Interaction):
 
+        msg = (
+            "**Activity Roles**\n"
+            "Earn these automatically by being active in chat.\n\n"
+    
+            f"**{self.active.mention}**\n"
+            "This marks you as an active community member.\n\n"
+    
+            f"**{self.active_plus.mention}**\n"
+            "Shows consistent participation in discussions.\n\n"
+    
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
+    
+            "**Community Progression Roles**\n"
+            "These roles are awarded through **community nominations**.\n"
+            "Members vote for users who contribute meaningfully to the server.\n\n"
+    
+            f"**{self.boot.mention}**\n"
+            "Entry level progression role.\n\n"
+            "Requirements:\n"
+            f"• Must already have **{self.active.name}**\n"
+            "• Can be obtained through nominations from:\n"
+            "  • **2 Apprentices**, OR\n"
+            "  • **1 Fellow**, OR\n"
+            "  • **1 Moderator**\n\n"
+    
+            f"**{self.apprentice.mention}**\n"
+            "Represents trusted and helpful members.\n\n"
+            "Requirements:\n"
+            "• Must already have **Boot**\n"
+            "• Can be obtained through nominations from:\n"
+            "  • **2 Fellows**, OR\n"
+            "  • **1 Moderator**\n\n"
+    
+            f"**{self.fellow.mention}**\n"
+            "A respected member of the community.\n\n"
+            "Requirements:\n"
+            "• Must already have **Apprentice**\n"
+            "• Can be obtained through nominations from:\n"
+            "  • **2 Moderators**\n\n"
+    
+            "━━━━━━━━━━━━━━━━━━━━\n\n"
+    
+            "**How Nominations Work**\n"
+            "• Members nominate others using `/nominate`.\n"
+            "• Each person can nominate **once per stage per role level**.\n"
+            "• If someone gets promoted, previous nominations for that stage are cleared.\n"
+            "• When enough nominations are collected, the promotion happens automatically.\n\n"
+    
+            "**What Makes Someone Worthy of Nomination?**\n"
+            "• Helping other members\n"
+            "• Positive community engagement\n"
+            "• Sharing useful knowledge\n"
+            "• Being active and constructive\n\n"
+        )
+
+        await interaction.response.send_message(
+            embed=info(msg, self.bot.user, "Server Role Progression"),
+            ephemeral=False
+        )
 
 
 
