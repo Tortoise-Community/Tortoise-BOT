@@ -268,34 +268,6 @@ class Moderation(commands.Cog):
         warnings_embed = thumbnail(f"Warnings: {count}", member, "Warning count")
         await interaction.response.send_message(embed=warnings_embed, ephemeral=True)
 
-    @app_commands.command()
-    @app_commands.checks.bot_has_permissions(manage_roles=True)
-    @app_commands.check(check_if_tortoise_staff)
-    async def promote(self, interaction: discord.Interaction, member: discord.Member, role: discord.Role):
-        """Promote member to role."""
-        await interaction.response.defer()
-        if role >= interaction.user.top_role:
-            await interaction.followup.send(embed=failure("Role needs to be below you in hierarchy."), ephemeral=True)
-            return
-        elif role in member.roles:
-            await interaction.followup.send(embed=failure(f"{member.mention} already has role {role.mention}!"), ephemeral=True)
-            return
-
-        await member.add_roles(role)
-
-        dm_embed = info(
-            (
-                f"You’ve been promoted to **{role.name}** role.\n"
-                f"Thanks for staying active and contributing to the server — keep it up."
-            ),
-            interaction.client.user,
-            "Congratulations!",
-        )
-
-        dm_embed.set_footer(text=f"Awarded by: {interaction.user}  |  Tortoise Programming Community")
-        await member.send(embed=dm_embed)
-        await interaction.followup.send(embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
-
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_messages=True)
