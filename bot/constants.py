@@ -93,6 +93,33 @@ self_assignable_roles = {
     782187224195268629: 781210603997757471      # challenges
 }
 
+promotable_roles = {
+    1472794198053879809: "You are currently **#1 on the Challenges Leaderboard**, placing you at the top "
+                         "of the server's competitive coding ranks.\n\n"
+                         "This is the **highest non-staff role** and represents exceptional skill, "
+                         "consistency, and mastery in solving challenges.\n\n"
+                         "Keep pushing the limits and setting the bar for others!",
+
+    703657957438652476:  "This role is given to members who have been part of the community for a long "
+                         "time and have consistently shown they can be trusted.\n\n"
+                         "This is the **2nd highest non-staff role** and it's exempt from certain auto-mod restrictions.\n\n"
+                         "Thank you for being a reliable and respected member of the community.",
+
+    649630145304461312:  "This role recognizes members who actively contribute to our **GitHub repositories** "
+                         "through code, improvements, bug fixes, or other development efforts.\n\n"
+                         "Your work helps strengthen our projects and supports the wider **open-source community**.\n\n"
+                         "Thank you for contributing and helping move the project forward!"
+
+}
+
+roles_for_nomination = [
+    boot_role_id, apprentice_role_id, fellow_role_id
+]
+
+automatically_assigned_roles = [
+    active_role_id, active_plus_role_id
+]
+
 
 # Emoji IDs
 mod_mail_emoji_id = 706195614857297970
