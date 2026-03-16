@@ -29,7 +29,7 @@ code_submissions_channel_id = 610079185569841153
 suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
-system_log_channel_id = 1461947577200148605
+system_log_channel_id = 1482855659547394138
 deterrence_log_channel_id = system_log_channel_id
 bot_log_channel_id = system_log_channel_id
 successful_verifications_channel_id = 581139962611892229
@@ -59,6 +59,22 @@ moderator_role_id = 577368219875278849
 admin_role_id = 577196762691928065
 new_member_role_id = 1441848294828670978
 challenger_role_id = 781210603997757471
+
+# active_role_id = 1482843939978481889
+# active_plus_role_id = 1482844032488050921
+# boot_role_id = 1472793802740596839
+# apprentice_role_id = 1472725760723648522
+# fellow_role_id = 1472793939630358731
+
+active_role_id = 1482855148077187102
+active_plus_role_id = 1482855121649012758
+boot_role_id = 1482855103567495338
+apprentice_role_id = 1482855079022428180
+fellow_role_id = 1482855049729278104
+moderator_role_id = 1482855467800858704
+tortoise_guild_id = 1481782281143193703
+
+
 
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed
