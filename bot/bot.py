@@ -66,6 +66,7 @@ class Bot(commands.Bot):
         self._status_cycle = itertools.cycle([
                 "DM to Contact Staff ⛉",
                 "DM reports!",
+                "DM for Mod Mail ⛉",
         ])
         self.advanced_protection = True
         self.db = None

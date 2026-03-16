@@ -29,6 +29,8 @@ class ProgressionManager:
                 guild_id BIGINT NOT NULL,
                 user_id BIGINT NOT NULL,
                 messages INTEGER NOT NULL DEFAULT 0,
+                active BOOLEAN NOT NULL DEFAULT FALSE,
+                active_plus BOOLEAN NOT NULL DEFAULT FALSE,
                 PRIMARY KEY (guild_id, user_id)
             )
             """
@@ -68,6 +70,30 @@ class ProgressionManager:
                     amount
                 )
 
+
+    async def mark_active(self, guild_id: int, user_id: int):
+        await self.db.pool.execute(
+            """
+            UPDATE activity
+            SET active = TRUE
+            WHERE guild_id=$1 AND user_id=$2
+            """,
+            guild_id,
+            user_id
+        )
+
+    async def mark_active_plus(self, guild_id: int, user_id: int):
+        await self.db.pool.execute(
+            """
+            UPDATE activity
+            SET active_plus = TRUE
+            WHERE guild_id=$1 AND user_id=$2
+            """,
+            guild_id,
+            user_id
+        )
+
+
     async def get_messages(self, guild_id: int, user_id: int) -> int:
 
         return await self.db.pool.fetchval(
@@ -79,6 +105,32 @@ class ProgressionManager:
             guild_id,
             user_id
         ) or 0
+
+    async def get_non_active_users(self, guild_id: int) -> list[int]:
+        rows = await self.db.pool.fetch(
+            """
+            SELECT user_id
+            FROM activity
+            WHERE guild_id=$1
+            AND active=FALSE
+            AND messages >= 50
+            """,
+            guild_id
+        )
+        return [r["user_id"] for r in rows]
+
+    async def get_non_active_plus_users(self, guild_id: int) -> list[int]:
+         rows = await self.db.pool.fetch(
+            """
+            SELECT user_id
+            FROM activity
+            WHERE guild_id=$1
+            AND active_plus=FALSE
+            AND messages >= 500
+            """,
+            guild_id
+         )
+         return [r["user_id"] for r in rows]
 
 
     async def add_nomination(

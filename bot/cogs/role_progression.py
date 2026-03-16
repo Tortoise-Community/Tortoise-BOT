@@ -20,12 +20,15 @@ class RoleProgression(commands.Cog):
 
         # message tracking
         self.message_cache = defaultdict(int)
-        self.message_totals = defaultdict(int)
 
         self.flush_cache.start()
+        self.active_role_check.start()
+        self.active_plus_role_check.start()
 
     def cog_unload(self):
         self.flush_cache.cancel()
+        self.active_role_check.cancel()
+        self.active_plus_role_check.cancel()
 
 
     def role(self, role_id):
@@ -97,6 +100,67 @@ class RoleProgression(commands.Cog):
     async def before_flush(self):
         await self.bot.wait_until_ready()
 
+    @tasks.loop(hours=1)
+    async def active_role_check(self):
+
+        for user_id in await self.db.get_non_active_users(constants.tortoise_guild_id):
+
+            member = self.guild.get_member(user_id)
+
+            if member and self.active_role not in member.roles:
+                await member.add_roles(self.active_role)
+                await self.db.mark_active(constants.tortoise_guild_id, user_id)
+
+                try:
+                    await member.send(
+                        embed=info(
+                            "You have earned the **Active** badge.\n" + constants.automatically_assigned_roles[self.active_role.id],
+                             self.bot.user,
+                            "Achievement Unlocked ✨",
+                            "Issued only to the active members in the server!")
+                    )
+                except discord.Forbidden:
+                    pass
+
+                await self.log_channel.send(
+                    embed=info(f"{member.mention} reached **Active** milestone.", self.bot.user, "")
+                )
+
+
+    @tasks.loop(hours=12)
+    async def active_plus_role_check(self):
+
+        for user_id in await self.db.get_non_active_plus_users(constants.tortoise_guild_id):
+
+            member = self.guild.get_member(user_id)
+
+            if member and self.active_plus_role not in member.roles:
+                await member.add_roles(self.active_plus_role)
+                await self.db.mark_active_plus(constants.tortoise_guild_id, user_id)
+
+                try:
+                    await member.send(
+                        embed=info(
+                            "You have earned the **Active+** badge.\n" + constants.automatically_assigned_roles[
+                                self.active_plus_role.id],
+                            self.bot.user,
+                            "You Rock 🌟",
+                            "Issued only to the most active members!")
+                    )
+                except discord.Forbidden:
+                    pass
+
+                await self.log_channel.send(
+                    embed=info(f"{member.mention} reached **Active+** milestone.", self.bot.user, "")
+                )
+
+    @active_role_check.before_loop
+    async def before_active_check(self):
+        await self.bot.wait_until_ready()
+
+    @active_plus_role_check.before_loop
+    async def before_active_plus_check(self):
+        await self.bot.wait_until_ready()
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -118,48 +182,7 @@ class RoleProgression(commands.Cog):
 
         # increment caches
         self.message_cache[uid] += 1
-        self.message_totals[uid] += 1
 
-        total = self.message_totals[uid]
-
-
-        if total == 50 and self.active_role not in member.roles:
-
-            await member.add_roles(self.active_role)
-
-            try:
-                await member.send(
-                    embed=info(
-                        "You have earned the **Active** badge.\n" + constants.automatically_assigned_roles[self.active_role.id],
-                         self.bot.user,
-                        "Achievement Unlocked ✨",
-                        "Issued only to the active members in the server!")
-                )
-            except discord.Forbidden:
-                pass
-
-            await self.log_channel.send(
-                embed=info(f"{member.mention} reached **Active** milestone.", self.bot.user, "")
-            )
-
-        elif total == 500 and self.active_plus_role not in member.roles:
-
-            await member.add_roles(self.active_plus_role)
-
-            try:
-                await member.send(
-                    embed=info(
-                        "You have earned the **Active+** badge.\n" + constants.automatically_assigned_roles[self.active_plus_role.id],
-                         self.bot.user,
-                        "You Rock 🌟",
-                        "Issued only to the most active members!")
-                )
-            except discord.Forbidden:
-                pass
-
-            await self.log_channel.send(
-                embed=info(f"{member.mention} reached **Active+** milestone.", self.bot.user, "")
-            )
 
     def determine_stage(self, member: discord.Member):
 
@@ -225,7 +248,7 @@ class RoleProgression(commands.Cog):
 
     async def promote_user(self, member, stage):
 
-        role = getattr(self, stage)
+        role = getattr(self, f"{stage}_role")
 
         await member.add_roles(role)
 
@@ -254,7 +277,7 @@ class RoleProgression(commands.Cog):
         """Promote member to role."""
         if role.id not in constants.promotable_roles:
 
-            if role.id in constants.progression_roles.keys():
+            if role.id in constants.progression_roles:
                 await interaction.response.send_message(
                     embed=failure(
                         "Direct promotion is not allowed.\n"
@@ -264,7 +287,7 @@ class RoleProgression(commands.Cog):
                 )
                 return
 
-            if role.id in constants.automatically_assigned_roles.keys():
+            if role.id in constants.automatically_assigned_roles:
                 await interaction.response.send_message(
                     embed=failure(
                         "This role is assigned automatically and cannot be promoted manually."
@@ -322,6 +345,7 @@ class RoleProgression(commands.Cog):
                 embed=failure("You cannot nominate yourself <:pomf:766290682087735347>"),
                 ephemeral=True
             )
+            return
 
         stage = self.determine_stage(member)
 
