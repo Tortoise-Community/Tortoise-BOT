@@ -7,6 +7,7 @@ from bot import constants
 from bot.utils.embed_handler import info, success, failure
 from bot.utils.checks import check_if_tortoise_staff
 
+
 class RoleProgression(commands.Cog):
 
     def __init__(self, bot):
@@ -178,18 +179,35 @@ class RoleProgression(commands.Cog):
 
         return None
 
-    async def stage_passed(self, member, stage):
-
-        apprentices, fellows, mods = await self.db.get_stage_counts(
-            member.id,
-            stage
-        )
+    def can_nominate(self, role_used: str, stage: str):
 
         if stage == "boot":
-            return mods >= 1 or fellows >= 1 or apprentices >= 2
+            return role_used in {"apprentice", "fellow", "moderator"}
+        if stage == "apprentice":
+            return role_used in {"fellow", "moderator"}
+        if stage == "fellow":
+            return role_used == "moderator"
+        return False
+
+    async def stage_passed(self, member, stage):
+
+        apprentices, fellows, mods = await self.db.get_stage_counts(member.id, stage)
+
+        if stage == "boot":
+            if mods >= 1:
+                return True
+            if fellows >= 1:
+                return True
+            if apprentices >= 2:
+                return True
+            return False
 
         if stage == "apprentice":
-            return mods >= 1 or fellows >= 2
+            if mods >= 1:
+                return True
+            if fellows >= 2:
+                return True
+            return False
 
         if stage == "fellow":
             return mods >= 2
@@ -259,7 +277,8 @@ class RoleProgression(commands.Cog):
                 ephemeral=True
             )
             return
-        elif role in member.roles:
+
+        if role in member.roles:
             await interaction.response.send_message(
                 embed=failure(f"{member.mention} already has role {role.mention}!"),
                 ephemeral=True
@@ -272,8 +291,8 @@ class RoleProgression(commands.Cog):
 
         dm_embed = info(
             (
-                    f"You’ve been promoted to **{role.name}** role.\n\n"
-                    + constants.promotable_roles[role.id]
+                f"You’ve been promoted to **{role.name}** role.\n\n"
+                + constants.promotable_roles[role.id]
             ),
             self.bot.user,
             "You just got promoted!",
@@ -319,6 +338,13 @@ class RoleProgression(commands.Cog):
         if role_used is None:
             await interaction.response.send_message(
                 embed=failure(f"You need to be an {self.apprentice.mention} or above to nominate."),
+                ephemeral=True
+            )
+            return
+
+        if not self.can_nominate(role_used, stage):
+            await interaction.response.send_message(
+                embed=failure("You cannot nominate for this role level."),
                 ephemeral=True
             )
             return
@@ -382,6 +408,7 @@ class RoleProgression(commands.Cog):
             embed=success(f"You have successfully nominated {member.mention}."),
             ephemeral=True
         )
+
     @app_commands.command(name="progression", description="Learn about role progression and activity milestones.")
     async def progression_info(self, interaction: discord.Interaction):
 
