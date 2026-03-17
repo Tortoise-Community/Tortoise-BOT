@@ -14,11 +14,14 @@ from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, system_log_channel_id
+from bot.manager import Database, ProgressionManager
 from bot.utils.embed_handler import simple_embed
 from bot.utils.error_handler import TortoiseCommandTree
 
 logger = logging.getLogger(__name__)
 console_logger = logging.getLogger("console")
+
+DB_URL = os.getenv("DATABASE_URL")
 
 
 class Bot(commands.Bot):
@@ -63,9 +66,11 @@ class Bot(commands.Bot):
         self._status_cycle = itertools.cycle([
                 "DM to Contact Staff ⛉",
                 "DM reports!",
+                "DM for Mod Mail ⛉",
         ])
         self.advanced_protection = True
-
+        self.db = None
+        self.progression_manager = None
 
     @tasks.loop(minutes=1)
     async def rotate_status(self):
@@ -112,6 +117,11 @@ class Bot(commands.Bot):
 
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
+        self.db = Database(DB_URL)
+        await self.db.connect()
+        self.progression_manager = ProgressionManager(self.db)
+        await self.progression_manager.setup()
+
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()
         await self.tree.sync()

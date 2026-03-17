@@ -112,7 +112,7 @@ class SocketCommunication(commands.Cog):
     def new_member_role(self):
         if self._new_member_role is None:
             self._new_member_role = self.tortoise_guild.get_role(
-                constants.new_member_role
+                constants.new_member_role_id
             )
         return self._new_member_role
 

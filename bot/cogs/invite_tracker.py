@@ -25,7 +25,7 @@ class InviteTracker(commands.Cog):
         self.guild = self.bot.get_guild(constants.tortoise_guild_id)
         self.tracker = invite_help.GuildInviteTracker(self.guild)
         self.log_channel = self.bot.get_channel(constants.system_log_channel_id)
-        self.welcome_role = self.guild.get_role(constants.new_member_role)
+        self.welcome_role = self.guild.get_role(constants.new_member_role_id)
         self.general_channel = self.guild.get_channel(constants.general_channel_id)
 
         self.bot.loop.create_task(self.tracker.refresh_invite_cache())

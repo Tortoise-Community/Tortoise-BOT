@@ -7,7 +7,7 @@ import discord
 from discord.ext import commands
 
 from bot.constants import (
-    system_log_channel_id, bait_channel_id, new_member_role, tortoise_guild_id, here_mention,
+    system_log_channel_id, bait_channel_id, new_member_role_id, tortoise_guild_id, here_mention,
     everyone_mention, infraction_img_url
 )
 from bot.utils.embed_handler import simple_embed
@@ -67,7 +67,7 @@ class AntiRaidSpam(commands.Cog):
             return
 
 
-        has_new_role = any(r.id == new_member_role for r in member.roles)
+        has_new_role = any(r.id == new_member_role_id for r in member.roles)
         multi_attachments = len(message.attachments) > 1
 
         if not has_new_role and not multi_attachments:

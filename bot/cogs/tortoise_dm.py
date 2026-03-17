@@ -256,13 +256,13 @@ class TortoiseDM(commands.Cog):
     @property
     def admin_role(self):
         if self._admin_role is None:
-            self._admin_role = self.tortoise_guild.get_role(constants.admin_role)
+            self._admin_role = self.tortoise_guild.get_role(constants.admin_role_id)
         return self._admin_role
 
     @property
     def moderator_role(self):
         if self._moderator_role is None:
-            self._moderator_role = self.tortoise_guild.get_role(constants.moderator_role)
+            self._moderator_role = self.tortoise_guild.get_role(constants.moderator_role_id)
         return self._moderator_role
 
     @commands.Cog.listener()

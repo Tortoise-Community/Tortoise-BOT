@@ -108,16 +108,20 @@ async def reddit_embed(ctx, submission: models.Submission, color=0x3498d) -> Emb
     return embed
 
 
-def info(message: str, member: Union[Member, User], title: str = "Info") -> Embed:
+def info(message: str, member: Union[Member, User], title: str = "Info", footer_text = None) -> Embed:
     """
     Constructs success embed with custom title and description.
     Color depends on passed member top role color.
     :param message: embed description
     :param member: member object to get the color of it's top role from
     :param title: title of embed, defaults to "Info"
+    :param footer_text: footer text, defaults to None
     :return: Embed object
     """
-    return Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
+    embed =  Embed(title=title, description=message, color=get_top_role_color(member, fallback_color=Color.green()))
+    if footer_text:
+        embed.set_footer(text=footer_text)
+    return embed
 
 
 def success(message: str, member: Union[Member, User] = None) -> Embed:

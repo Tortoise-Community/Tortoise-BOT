@@ -29,7 +29,7 @@ code_submissions_channel_id = 610079185569841153
 suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
-system_log_channel_id = 1461947577200148605
+system_log_channel_id = 1482855659547394138
 deterrence_log_channel_id = system_log_channel_id
 bot_log_channel_id = system_log_channel_id
 successful_verifications_channel_id = 581139962611892229
@@ -55,10 +55,32 @@ bait_channel_id = 1461666781612740750
 muted_role_id = 707007421066772530
 verified_role_id = 599647985198039050
 trusted_role_id = 703657957438652476
-moderator_role = 577368219875278849
-admin_role = 577196762691928065
-new_member_role = 1441848294828670978
-challenger_role = 781210603997757471
+moderator_role_id = 577368219875278849
+admin_role_id = 577196762691928065
+new_member_role_id = 1441848294828670978
+challenger_role_id = 781210603997757471
+wizard_role_id = 1472794198053879809
+contributor_role_id = 649630145304461312
+
+active_role_id = 1482843939978481889
+active_plus_role_id = 1482844032488050921
+boot_role_id = 1472793802740596839
+apprentice_role_id = 1472725760723648522
+fellow_role_id = 1472793939630358731
+
+# Dev constants
+# active_role_id = 1482855148077187102
+# active_plus_role_id = 1482855121649012758
+# boot_role_id = 1482855103567495338
+# apprentice_role_id = 1482855079022428180
+# fellow_role_id = 1482855049729278104
+# moderator_role_id = 1482855467800858704
+# tortoise_guild_id = 1481782281143193703
+# trusted_role_id = 1482855079022428180
+# contributor_role_id = 1482855079022428180
+# wizard_role_id = 1482855079022428180
+
+
 
 # Keys are IDs of reaction emojis
 # Values are role IDs which will get added if that reaction gets added/removed
@@ -75,6 +97,61 @@ self_assignable_roles = {
     610825682070798359: 610834658267103262,     # events
     583614910215356416: 603157798225838101,     # announcements
     782187224195268629: 781210603997757471      # challenges
+}
+
+promotable_roles = {
+    wizard_role_id: "You are currently **#1 on the Challenges Leaderboard**, placing you at the top "
+                         "of the server's competitive coding ranks.\n\n"
+                         "This is the **highest non-staff role** and represents exceptional skill, "
+                         "consistency, and mastery in solving challenges.\n\n"
+                         "Keep pushing the limits and setting the bar for others!",
+
+    trusted_role_id:  "This role is given to members who have been part of the community for a long "
+                         "time and have consistently shown they can be trusted.\n\n"
+                         "This is the **2nd highest non-staff role** and it's exempt from certain auto-mod restrictions.\n\n"
+                         "Thank you for being a reliable and respected member of the community.",
+
+    contributor_role_id:  "This role recognizes members who actively contribute to our **GitHub repositories** "
+                         "through code, improvements, bug fixes, or other development efforts.\n\n"
+                         "Your work helps strengthen our projects and supports the wider **open-source community**.\n\n"
+                         "Thank you for contributing and helping move the project forward!"
+
+}
+
+progression_roles = {
+    boot_role_id: (
+        "This role marks the beginning of your progression in the community. "
+        "It is given to members who actively participate and are recognized "
+        "by others for their helpfulness and engagement.\n\n"
+        "Keep contributing, helping others, and sharing your knowledge to "
+        "continue progressing through the ranks."
+    ),
+
+    apprentice_role_id: (
+        "This role represents members who have demonstrated consistent "
+        "participation and a willingness to help others in the community.\n\n"
+        "Apprentices play an important role in maintaining a welcoming and "
+        "knowledge-sharing environment. Keep up the great work."
+    ),
+
+    fellow_role_id: (
+        "This role is given to members who have earned strong recognition "
+        "from the community for their knowledge, contributions, and support "
+        "for others.\n\n"
+        "Thank you for setting a positive example. Your presence helps guide "
+        "and improve the community."
+    )
+}
+
+automatically_assigned_roles = {
+    active_role_id: (
+        "Thank you for staying active and engaging in the server.\n\n"
+        "Next milestone: **Active+**"
+    ),
+    active_plus_role_id: (
+        "Your activity and engagement place you among the server's top contributors.\n"
+        "We appreciate the energy you bring to the community\n"
+    )
 }
 
 
