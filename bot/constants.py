@@ -29,7 +29,7 @@ code_submissions_channel_id = 610079185569841153
 suggestions_channel_id = 708734512296624239
 
 # Log Channel IDs
-system_log_channel_id = 1482855659547394138
+system_log_channel_id = 1461947577200148605
 deterrence_log_channel_id = system_log_channel_id
 bot_log_channel_id = system_log_channel_id
 successful_verifications_channel_id = 581139962611892229
