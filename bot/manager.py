@@ -70,6 +70,47 @@ class ProgressionManager:
                     amount
                 )
 
+    async def add_messages_bulkops(self, guild_id: int, cache: dict[int, int]):
+
+        if not cache:
+            return
+
+        rows = [(guild_id, user_id, amount) for user_id, amount in cache.items()]
+
+        async with self.db.pool.acquire() as conn:
+            await conn.executemany(
+                """
+                INSERT INTO activity (guild_id, user_id, messages)
+                VALUES ($1, $2, $3)
+                ON CONFLICT (guild_id, user_id)
+                DO UPDATE
+                SET messages = activity.messages + EXCLUDED.messages
+                """,
+                rows
+            )
+
+    async def add_messages_bulk_unnest(self, guild_id: int, cache: dict[int, int]):
+
+        if not cache:
+            return
+
+        user_ids = list(cache.keys())
+        amounts = list(cache.values())
+
+        await self.db.pool.execute(
+            """
+            INSERT INTO activity (guild_id, user_id, messages)
+            SELECT $1, u, m
+            FROM UNNEST($2::BIGINT[], $3::INT[]) AS t(u, m)
+            ON CONFLICT (guild_id, user_id)
+            DO UPDATE
+            SET messages = activity.messages + EXCLUDED.messages
+            """,
+            guild_id,
+            user_ids,
+            amounts
+        )
+
 
     async def mark_active(self, guild_id: int, user_id: int):
         await self.db.pool.execute(

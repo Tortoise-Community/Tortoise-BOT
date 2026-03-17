@@ -18,7 +18,6 @@ class RoleProgression(commands.Cog):
         self._guild = None
         self._log_channel = None
 
-        # message tracking
         self.message_cache = defaultdict(int)
 
         self.flush_cache.start()
@@ -89,7 +88,7 @@ class RoleProgression(commands.Cog):
         if not self.message_cache:
             return
 
-        await self.db.add_messages_bulk(
+        await self.db.add_messages_bulk_unnest(
             self.guild.id,
             dict(self.message_cache)
         )
@@ -145,7 +144,7 @@ class RoleProgression(commands.Cog):
                                 self.active_plus_role.id],
                             self.bot.user,
                             "You Rock 🌟",
-                            "Issued only to the most active members!")
+                            "This badge is issued only to the most active members!")
                     )
                 except discord.Forbidden:
                     pass
@@ -180,7 +179,6 @@ class RoleProgression(commands.Cog):
         member = message.author
         uid = member.id
 
-        # increment caches
         self.message_cache[uid] += 1
 
 
