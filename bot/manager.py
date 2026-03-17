@@ -226,6 +226,23 @@ class ProgressionManager:
 
         return apprentices, fellows, moderators
 
+    async def get_stage_counts_from_query(self, target_id: int, stage: str):
+
+        row = await self.db.pool.fetchrow(
+            """
+            SELECT
+            COUNT(*) FILTER (WHERE nominator_role='apprentice') AS apprentices,
+            COUNT(*) FILTER (WHERE nominator_role='fellow') AS fellows,
+            COUNT(*) FILTER (WHERE nominator_role='moderator') AS moderators
+            FROM nominations
+            WHERE target_id=$1 AND stage=$2
+            """,
+            target_id,
+            stage
+        )
+
+        return row["apprentices"], row["fellows"], row["moderators"]
+
     async def clear_stage(self, target_id: int, stage: str):
 
         await self.db.pool.execute(

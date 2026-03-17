@@ -1,3 +1,4 @@
+import asyncio
 from collections import defaultdict
 import discord
 from discord.ext import commands, tasks
@@ -82,18 +83,19 @@ class RoleProgression(commands.Cog):
         return self.role(constants.active_plus_role_id)
 
 
-    @tasks.loop(seconds=5)
+    @tasks.loop(minutes=5)
     async def flush_cache(self):
+
+        if not self.guild:
+            return
 
         if not self.message_cache:
             return
 
-        await self.db.add_messages_bulk_unnest(
-            self.guild.id,
-            dict(self.message_cache)
-        )
-
+        cache = dict(self.message_cache)
         self.message_cache.clear()
+
+        await self.db.add_messages_bulk_unnest(self.guild.id, cache)
 
     @flush_cache.before_loop
     async def before_flush(self):
@@ -101,14 +103,17 @@ class RoleProgression(commands.Cog):
 
     @tasks.loop(hours=1)
     async def active_role_check(self):
+        if not self.guild:
+            return
 
-        for user_id in await self.db.get_non_active_users(constants.tortoise_guild_id):
+        for user_id in await self.db.get_non_active_users(self.guild.id):
 
             member = self.guild.get_member(user_id)
 
             if member and self.active_role not in member.roles:
                 await member.add_roles(self.active_role)
-                await self.db.mark_active(constants.tortoise_guild_id, user_id)
+                await asyncio.sleep(0.5)
+                await self.db.mark_active(self.guild.id, user_id)
 
                 try:
                     await member.send(
@@ -129,13 +134,23 @@ class RoleProgression(commands.Cog):
     @tasks.loop(hours=12)
     async def active_plus_role_check(self):
 
-        for user_id in await self.db.get_non_active_plus_users(constants.tortoise_guild_id):
+        if not self.guild:
+            return
+
+        for user_id in await self.db.get_non_active_plus_users(self.guild.id):
 
             member = self.guild.get_member(user_id)
 
             if member and self.active_plus_role not in member.roles:
                 await member.add_roles(self.active_plus_role)
-                await self.db.mark_active_plus(constants.tortoise_guild_id, user_id)
+                await asyncio.sleep(0.5)
+
+                # Remove previous role
+                if self.active_role in member.roles:
+                    await member.remove_roles(self.active_role)
+                    await asyncio.sleep(0.5)
+
+                await self.db.mark_active_plus(self.guild.id, user_id)
 
                 try:
                     await member.send(
@@ -167,7 +182,7 @@ class RoleProgression(commands.Cog):
         if not message.guild:
             return
 
-        if message.guild.id != constants.tortoise_guild_id:
+        if message.guild.id != self.guild.id:
             return
 
         if message.author.bot:
@@ -220,7 +235,7 @@ class RoleProgression(commands.Cog):
 
     async def stage_passed(self, member, stage):
 
-        apprentices, fellows, mods = await self.db.get_stage_counts(member.id, stage)
+        apprentices, fellows, mods = await self.db.get_stage_counts_from_query(member.id, stage)
 
         if stage == "boot":
             if mods >= 1:
