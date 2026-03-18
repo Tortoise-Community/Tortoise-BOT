@@ -6,7 +6,7 @@ import aiohttp
 import asyncio
 import io
 from discord.ext import commands
-from discord import Member, Message, app_commands
+from discord import Member, Message, app_commands, Guild
 
 from bot import constants
 from bot.utils.embed_handler import info, moderation_log_embed, warning, success, infraction_embed
@@ -44,6 +44,18 @@ class Security(commands.Cog):
         if self._log_channel is None:
             self._log_channel = self.bot.get_channel(constants.bot_log_channel_id)
         return self._log_channel
+
+    @classmethod
+    def get_invite_link_code(cls, string: str):
+        return string.split("/")[-1]
+
+    @classmethod
+    async def check_if_invite_is_our_guild(cls, full_link: str, guild: Guild):
+        guild_invites = await guild.invites()
+        for invite in guild_invites:
+            if cls.get_invite_link_code(invite.url) == cls.get_invite_link_code(full_link):
+                return True
+        return False
 
     async def _enable_protection_after_delay(self):
         await asyncio.sleep(300)
@@ -185,22 +197,25 @@ class Security(commands.Cog):
         if member is None:
             return
 
-        if execution.rule_id != constants.racial_and_transphobic_rule_id:
-            return
-
         if execution.action.type != discord.AutoModRuleActionType.block_message:
             return
 
         if member.guild_permissions.administrator:
             return
+
         if self.trusted and self.trusted in member.roles:
             return
 
+        if execution.rule_id == constants.racial_and_transphobic_rule_id:
+            await self.take_action_ban(member, "Racial and Homophobic slurs")
 
+        if execution.rule_id == constants.discord_advertisement_rule_id:
+            if not await self.check_if_invite_is_our_guild(execution.content, self.guild):
+                await self.take_action_ban(member, "Discord advertisement")
+
+
+    async def take_action_ban(self, member, reason, content=None):
         fake_interaction = FakeInteraction(self.bot, self.bot.user)
-
-        reason = "Racial and Homophobic slurs"
-
         embed = infraction_embed(
             interaction=fake_interaction,
             infracted_member=member,
@@ -210,10 +225,13 @@ class Security(commands.Cog):
             can_appeal=True
         )
         embed.set_footer(text="⚠️ This was an automated action. If you'd like to appeal, join the appeal server.")
-        await member.send(embed=embed)
 
-        reason += f"**\n\nContent:** {execution.content}\n"
+        try:
+            await member.send(embed=embed)
+        except discord.Forbidden:
+            pass
 
+        reason += f"**\n\nContent: ** {content if content else 'N/A'}\n"
         log_embed = infraction_embed(
             interaction=fake_interaction,
             infracted_member=member,
@@ -221,9 +239,7 @@ class Security(commands.Cog):
             reason=reason
         )
         log_embed.set_footer(text="⚠️ This was an automated action.")
-
         await self.log_channel.send(embed=log_embed)
-
         await member.ban(reason=f"AutoMod racial and homophobic slur rule triggered")
 
     @commands.Cog.listener()
@@ -234,6 +250,10 @@ class Security(commands.Cog):
     async def on_message_delete(self, message: discord.Message):
 
         if self.is_security_whitelisted(message):
+            return
+
+        if message.id in self.bot.suppressed_deletes:
+            self.bot.suppressed_deletes.discard(message.id)
             return
 
         await self.archive_and_delete_message(

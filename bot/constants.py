@@ -169,6 +169,7 @@ blank_card_emoji = "<:card:755715225642336287>"
 
 # Auto mod rulesets
 racial_and_transphobic_rule_id = 1461221874540347577
+discord_advertisement_rule_id = 1443953991217057843
 
 # Badges
 partner = "<:partner:753957703155449916>"
