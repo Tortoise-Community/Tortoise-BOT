@@ -1,5 +1,5 @@
-![Python-Versions](https://img.shields.io/badge/python-3.7-blue?style=flat-square)
-![Discord.py-Version](https://img.shields.io/badge/discord.py-1.3.3-blue?style=flat-square)
+![Python-Versions](https://img.shields.io/badge/python-3.12-blue?style=flat-square)
+![Discord.py-Version](https://img.shields.io/badge/discord.py-2.0-blue?style=flat-square)
 
 # Tortoise-BOT
 **Fully functional Bot for Discord coded in Discord.py**
