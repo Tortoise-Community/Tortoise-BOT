@@ -166,6 +166,7 @@ hit_emoji_id = 755715814883196958
 stay_emoji_id = 755717238732095562
 double_emoji_id = 755715816657518622
 blank_card_emoji = "<:card:755715225642336287>"
+staff_application_emoji_id = 1485237285900386394
 
 # Auto mod rulesets
 racial_and_transphobic_rule_id = 1461221874540347577

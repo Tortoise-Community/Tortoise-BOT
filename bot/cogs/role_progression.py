@@ -346,6 +346,10 @@ class RoleProgression(commands.Cog):
             await member.send(embed=dm_embed)
         except discord.Forbidden:
             pass
+
+        await self.log_channel.send(embed=info(f"{member.mention} was promoted to **{role.mention}**",
+                                               self.bot.user, "",f"Given by: {interaction.user}"))
+
         await interaction.followup.send(
             embed=success(f"{member.mention} is promoted to {role.mention}", interaction.client.user), ephemeral=True)
 

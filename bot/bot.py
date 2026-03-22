@@ -61,6 +61,7 @@ class Bot(commands.Bot):
             "mod_mail": True,
             "bug_report": False,
             "suggestions": False,
+            "staff_application": True,
         }
         self.suppressed_deletes = set()
         self._status_cycle = itertools.cycle([

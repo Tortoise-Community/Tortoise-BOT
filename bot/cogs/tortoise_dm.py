@@ -202,6 +202,7 @@ class TortoiseDM(commands.Cog):
         self.active_event_submissions = set()
         self.active_bug_reports = set()
         self.active_suggestions = set()
+        self.staff_applications = set()
 
         # Keys are custom emoji IDs, sub-dict message is the message appearing in the bot DM,
         # callable is the method to call when that option is selected and check is callable that returns
@@ -217,6 +218,11 @@ class TortoiseDM(commands.Cog):
                 "message": "Event submission",
                 "callable": self.create_event_submission,
                 "check": lambda: self.bot.tortoise_meta_cache["event_submission"]
+            },
+            constants.staff_application_emoji_id: {
+                "message": "Staff Application",
+                "callable": self.create_staff_application,
+                "check": lambda: self.bot.tortoise_meta_cache["staff_application"]
             },
             constants.bug_emoji_id: {
                 "message": "Bug report",
@@ -236,6 +242,7 @@ class TortoiseDM(commands.Cog):
         self.user_suggestions_channel = None
         self.mod_mail_report_channel = None
         self.code_submissions_channel = None
+        self.staff_applications_channel= None
         self.staff_channel = None
 
     @commands.Cog.listener()
@@ -246,6 +253,7 @@ class TortoiseDM(commands.Cog):
         self.mod_mail_report_channel = self.bot.get_channel(constants.mod_mail_report_channel_id)
         self.code_submissions_channel = self.bot.get_channel(constants.code_submissions_channel_id)
         self.staff_channel = self.bot.get_channel(constants.staff_channel_id)
+        self.staff_applications_channel = self.bot.get_channel(constants.system_log_channel_id)
 
     @property
     def tortoise_guild(self):
@@ -379,6 +387,26 @@ class TortoiseDM(commands.Cog):
         await user.send(embed=success("Event submission successfully submitted."))
         self.active_event_submissions.remove(user.id)
 
+    async def create_staff_application(self, user: discord.User):
+        submission_format = """
+        `Name:` Your name.
+        `Role:` The role you are apply for.
+        `Timezone:` Your timezone.
+        `About:` Tell us a bit about yourself.
+        `Reason:` Why do you think you are suitable for this role?
+        `Other details: (Optional)` How long are you active on discord per day.\nWhen did you join discord. \nAny previous experience.
+        """
+        user_reply = await self._get_user_reply(self.staff_applications, user, submission_format)
+        if user_reply is None:
+            return
+
+        await self.staff_applications_channel.send(
+            f"User `{user}` ID:{user.id} submitted staff application: "
+            f"{user_reply}"
+        )
+        await user.send(embed=success("Staff application successfully submitted."))
+        self.staff_applications.remove(user.id)
+
     async def create_bug_report(self, user: discord.User):
         user_reply = await self._get_user_reply(self.active_bug_reports, user)
         if user_reply is None:
@@ -398,7 +426,7 @@ class TortoiseDM(commands.Cog):
         await user.send(embed=success("Suggestion successfully submitted, thank you."))
         self.active_suggestions.remove(user.id)
 
-    async def _get_user_reply(self, container: set, user: discord.User) -> Union[str, None]:
+    async def _get_user_reply(self, container: set, user: discord.User, sub_format=None) -> Union[str, None]:
         """
         Helper method to get user reply, only deals with errors.
         Uses self._wait_for method so it can get both the user message reply and text from attachment file.
@@ -406,7 +434,7 @@ class TortoiseDM(commands.Cog):
         :param user: Discord user to wait reply from
         :return: Union[str, None] string representing user reply, can be None representing invalid reply.
         """
-        user_reply = await self._wait_for(container, user)
+        user_reply = await self._wait_for(container, user, sub_format)
 
         if user_reply is None:
             return None
@@ -427,7 +455,7 @@ class TortoiseDM(commands.Cog):
         else:
             return user_reply_content
 
-    async def _wait_for(self, container: set, user: discord.User) -> Union[discord.Message, None]:
+    async def _wait_for(self, container: set, user: discord.User, sub_format = None) -> Union[discord.Message, None]:
         """
         Simple custom wait_for that waits for user reply for 5 minutes and has ability to cancel the wait,
         deal with errors and deal with containers (which mark users that are currently doing something aka
@@ -440,9 +468,14 @@ class TortoiseDM(commands.Cog):
             return msg.guild is None and msg.author == user
 
         container.add(user.id)
+
+        if sub_format is not None:
+            sub_format = "\n\n" + sub_format
+
         await user.send(embed=info(
-            "Reply with single message, link to paste service or uploading utf-8 `.txt` file.\n"
-            "You have 5m, type `cancel` to cancel right away.", user)
+            f"Reply with single message, link to paste service or uploading utf-8 `.txt` file.\n"
+            f"You have 5m, type `cancel` to cancel right away. "
+            f"\n{'**Format: **' + sub_format if sub_format else ''}", user)
         )
 
         try:
