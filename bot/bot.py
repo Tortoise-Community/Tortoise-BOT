@@ -13,7 +13,7 @@ import discord
 from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
-from bot.constants import error_log_channel_id, system_log_channel_id
+from bot.constants import error_log_channel_id, system_log_channel_id, github_repo_link
 from bot.manager import Database, ProgressionManager, AFKManager
 from bot.utils.embed_handler import simple_embed
 from bot.utils.error_handler import TortoiseCommandTree
@@ -109,7 +109,8 @@ class Bot(commands.Bot):
             return
 
         try:
-            embed = simple_embed(message=f"Build version: `{commit_hash}`", title="")
+            embed = simple_embed(message=f"Build version: [{commit_hash}]({github_repo_link}/commit/{commit_hash})",
+                                 title="")
             embed.set_footer(text=f"🔄 Bot Restarted")
             await channel.send(
                 embed=embed,
