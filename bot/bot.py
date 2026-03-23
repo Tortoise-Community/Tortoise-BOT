@@ -14,7 +14,7 @@ from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, system_log_channel_id
-from bot.manager import Database, ProgressionManager
+from bot.manager import Database, ProgressionManager, AFKManager
 from bot.utils.embed_handler import simple_embed
 from bot.utils.error_handler import TortoiseCommandTree
 
@@ -72,6 +72,7 @@ class Bot(commands.Bot):
         self.advanced_protection = True
         self.db = None
         self.progression_manager = None
+        self.afk_manager = None
 
     @tasks.loop(minutes=1)
     async def rotate_status(self):
@@ -121,7 +122,9 @@ class Bot(commands.Bot):
         self.db = Database(DB_URL)
         await self.db.connect()
         self.progression_manager = ProgressionManager(self.db)
+        self.afk_manager = AFKManager(self.db)
         await self.progression_manager.setup()
+        await self.afk_manager.setup()
 
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()

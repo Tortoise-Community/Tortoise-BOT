@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from datetime import datetime, timezone
 import asyncpg
 
 class Database:
@@ -253,3 +253,67 @@ class ProgressionManager:
             target_id,
             stage
         )
+
+
+class AFKManager:
+    def __init__(self, db: Database):
+        self.db = db
+        self.cache: dict[int, dict[int, dict]] = {}
+
+    async def setup(self):
+        await self.db.pool.execute("""
+            CREATE TABLE IF NOT EXISTS afk_status (
+                guild_id BIGINT NOT NULL,
+                user_id  BIGINT NOT NULL,
+                reason   TEXT,
+                until    TIMESTAMPTZ NOT NULL,
+                PRIMARY KEY (guild_id, user_id)
+            )
+        """)
+        await self._load_cache()
+
+    async def _load_cache(self):
+        rows = await self.db.pool.fetch("SELECT * FROM afk_status")
+        self.cache.clear()
+
+        for r in rows:
+            self.cache.setdefault(r["guild_id"], {})[r["user_id"]] = {
+                "reason": r["reason"],
+                "until": r["until"],
+            }
+
+    def get_afk(self, guild_id: int, user_id: int):
+        return self.cache.get(guild_id, {}).get(user_id)
+
+    def get_expired(self):
+        now = datetime.now(timezone.utc)
+        expired = []
+
+        for gid, users in self.cache.items():
+            for uid, data in users.items():
+                if data["until"] <= now:
+                    expired.append((gid, uid))
+
+        return expired
+
+    async def set_afk(self, guild_id: int, user_id: int, until: datetime, reason: str | None):
+        self.cache.setdefault(guild_id, {})[user_id] = {
+            "reason": reason,
+            "until": until,
+        }
+
+        await self.db.pool.execute("""
+            INSERT INTO afk_status (guild_id, user_id, reason, until)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (guild_id, user_id)
+            DO UPDATE SET reason = EXCLUDED.reason,
+                          until = EXCLUDED.until
+        """, guild_id, user_id, reason, until)
+
+    async def remove_afk(self, guild_id: int, user_id: int):
+        self.cache.get(guild_id, {}).pop(user_id, None)
+
+        await self.db.pool.execute("""
+            DELETE FROM afk_status
+            WHERE guild_id = $1 AND user_id = $2
+        """, guild_id, user_id)
