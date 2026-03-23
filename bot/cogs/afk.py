@@ -51,7 +51,7 @@ class AFK(commands.Cog):
             reason,
         )
 
-        embed = success(f"You are AFK for {total}.", interaction.user)
+        embed = success(f"You are AFK for {total}.")
 
         if reason:
             embed.add_field(name="Reason", value=reason, inline=False)
@@ -70,7 +70,7 @@ class AFK(commands.Cog):
         if afk:
             await self.manager.remove_afk(guild_id, user_id)
             await message.channel.send(
-                embed=success(f"{message.author.mention} is no longer AFK", message.author)
+                embed=success("You are no longer AFK")
             )
 
         mentioned_users = set(message.mentions)
@@ -111,12 +111,9 @@ class AFK(commands.Cog):
             embed = info(
                 f"{member.mention} is AFK for {' '.join(parts)}.",
                 member,
-                title="AFK"
+                title="",
+                footer_text=f"Reason: {data['reason']}" if data.get("reason") else None,
             )
-
-            if data["reason"]:
-                embed.add_field(name="Reason", value=data["reason"], inline=False)
-
             await message.channel.send(embed=embed)
 
     @tasks.loop(minutes=10)
