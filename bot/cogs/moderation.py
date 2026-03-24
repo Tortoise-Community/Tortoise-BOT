@@ -31,12 +31,13 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
 
     async def on_submit(self, interaction: discord.Interaction):
         members = (m for m in self.role.members if not m.bot)
-        failed = []
+        failed_logs = []
+        failed_mentions = []
         count = 0
 
         for member in members:
             embed = discord.Embed(
-                title=f"Message for role {self.role.name}",
+                title=f"Message for {self.role.name}",
                 description=self.message.value,
                 color=self.role.color
             )
@@ -51,15 +52,27 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
                 await member.send(embed=embed)
                 count += 1
             except discord.HTTPException:
-                failed.append(str(member))
+                failed_mentions.append(member.mention)
+                failed_logs.append(str(member))
 
         await interaction.response.send_message(
-            f"✅ Successfully notified {count} users.",
-            ephemeral=True
+            embed=success(f"Successfully notified {count} users.")
         )
 
-        if failed:
-            print(f"Failed to DM: {failed}")
+        if failed_logs:
+            failed_str = ", ".join(failed_mentions)
+
+            if len(failed_str) > 4000:
+                failed_str = failed_str[:4000] + "..."
+
+            fail_embed = warning("# Failed to notify users: \n\n" + failed_str)
+
+            await interaction.followup.send(
+                embed=fail_embed,
+                ephemeral=False
+            )
+
+            logger.info(f"Failed to DM: {failed_logs}")
 
 
 
