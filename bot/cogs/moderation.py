@@ -30,6 +30,7 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
     )
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         members = (m for m in self.role.members if not m.bot)
         failed_logs = []
         failed_mentions = []
@@ -55,7 +56,7 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
                 failed_mentions.append(member.mention)
                 failed_logs.append(str(member))
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=success(f"Successfully notified {count} users.")
         )
 
@@ -65,7 +66,7 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
             if len(failed_str) > 4000:
                 failed_str = failed_str[:4000] + "..."
 
-            fail_embed = warning("Failed to notify users: \n\n" + failed_str)
+            fail_embed = warning("Failed to notify users:\n\n" + failed_str)
 
             await interaction.followup.send(
                 embed=fail_embed,
