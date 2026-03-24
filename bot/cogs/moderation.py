@@ -15,6 +15,54 @@ from bot.utils.embed_handler import success, warning, failure, info, infraction_
 
 logger = logging.getLogger(__name__)
 
+class DMModal(discord.ui.Modal, title="Send DM to Role"):
+    def __init__(self, role: discord.Role, interaction: discord.Interaction):
+        super().__init__()
+        self.role = role
+        self.interaction = interaction
+
+    message = discord.ui.TextInput(
+        label="Message",
+        style=discord.TextStyle.paragraph,
+        placeholder="Type your message here...",
+        required=True,
+        max_length=2000
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        members = (m for m in self.role.members if not m.bot)
+        failed = []
+        count = 0
+
+        for member in members:
+            embed = discord.Embed(
+                title=f"Message for role {self.role.name}",
+                description=self.message.value,
+                color=self.role.color
+            )
+
+            if interaction.guild.icon:
+                embed.set_author(
+                    name=interaction.guild.name,
+                    icon_url=interaction.guild.icon.url
+                )
+
+            try:
+                await member.send(embed=embed)
+                count += 1
+            except discord.HTTPException:
+                failed.append(str(member))
+
+        await interaction.response.send_message(
+            f"✅ Successfully notified {count} users.",
+            ephemeral=True
+        )
+
+        if failed:
+            print(f"Failed to DM: {failed}")
+
+
+
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -334,38 +382,14 @@ class Moderation(commands.Cog):
         )
         # await self.bot.api_client.add_member_warning(interaction.user.id, member.id, f"Timeout: {reason}")
 
+
     @app_commands.command(name="dm_members")
     @app_commands.checks.cooldown(1, 900)
     @app_commands.checks.has_permissions(administrator=True)
-    async def dm_members(self, interaction: discord.Interaction, role: discord.Role, message: str):
-        """
-        DMs all member that have a certain role.
-        Failed members are printed to log.
-        """
-        await interaction.response.defer()
-        members = (member for member in role.members if not member.bot)
-        failed = []
-        count = 0
+    async def dm_members(self, interaction: discord.Interaction, role: discord.Role):
+        """Opens a modal to DM all members of a role"""
+        await interaction.response.send_modal(DMModal(role, interaction))
 
-        for member in members:
-            dm_embed = discord.Embed(
-                title=f"Message for role {role}",
-                description=message,
-                color=role.color
-            )
-            dm_embed.set_author(name=interaction.guild.name, icon_url=interaction.guild.icon.url)
-
-            try:
-                await member.send(embed=dm_embed)
-            except discord.HTTPException:
-                failed.append(str(member))
-            else:
-                count += 1
-
-        await interaction.followup.send(embed=success(f"Successfully notified {count} users.", interaction.client.user), ephemeral=True)
-
-        if failed:
-            logger.info(f"dm_unverified called but failed to dm: {failed}")
 
     @app_commands.command(name="send")
     @app_commands.checks.has_permissions(manage_messages=True)
