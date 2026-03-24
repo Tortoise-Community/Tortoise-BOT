@@ -59,13 +59,13 @@ class DMModal(discord.ui.Modal, title="Send DM to Role"):
             embed=success(f"Successfully notified {count} users.")
         )
 
-        if failed_logs:
-            failed_str = ", ".join(failed_mentions)
+        if failed_mentions:
+            failed_str = "\n".join(failed_mentions)
 
             if len(failed_str) > 4000:
                 failed_str = failed_str[:4000] + "..."
 
-            fail_embed = warning("# Failed to notify users: \n\n" + failed_str)
+            fail_embed = warning("Failed to notify users: \n\n" + failed_str)
 
             await interaction.followup.send(
                 embed=fail_embed,
