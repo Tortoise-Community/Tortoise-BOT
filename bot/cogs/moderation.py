@@ -118,14 +118,26 @@ class Moderation(commands.Cog):
 
         await interaction.response.defer()
 
+        try:
+            dm_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason, True, True)
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            pass
+
+        try:
+            await member.kick(reason=reason)
+        except Exception:
+            await interaction.followup.send(
+                embed=failure("Failed to kick member."),
+                ephemeral=True
+            )
+            return
+
         deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
 
-        dm_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason, True, True)
-        await member.send(embed=dm_embed)
 
-        await member.kick(reason=reason)
-        await interaction.followup.send(embed=success(f"{member.name} successfully kicked."), ephemeral=True)
+        await interaction.followup.send(embed=success(f"{member.name} successfully kicked."))
 
 
     # @app_commands.command()
