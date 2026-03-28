@@ -2,7 +2,7 @@ from datetime import time as dtime, timezone
 
 import discord
 import asyncio
-from discord import Invite, Member
+from discord import Invite, Member, Message
 from discord.ext import commands, tasks
 
 from bot.utils import invite_help, embed_handler
@@ -53,6 +53,24 @@ class InviteTracker(commands.Cog):
                 await member.send(embed=embed_handler.footer_embed(dm_msg, "Welcome to Tortoise Programming Community!"))
             except discord.Forbidden:
                 pass
+
+
+    @commands.Cog.listener()
+    async def on_message(self, message: Message):
+
+        if not message.guild or message.author.bot:
+            return
+
+        if message.guild.id != constants.tortoise_guild_id:
+            return
+
+        if message.channel.id != constants.introduction_channel_id:
+            return
+
+        try:
+            await message.add_reaction("👋")
+        except Exception:
+            pass
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
