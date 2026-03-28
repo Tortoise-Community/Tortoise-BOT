@@ -1,18 +1,18 @@
-from discord.ext.commands import CheckFailure
+from discord.app_commands import CheckFailure
 
 
 class TortoiseGuildCheckFailure(CheckFailure):
     def __init__(self):
-        super().__init__(message="Can only be used in Tortoise guild.")
+        super().__init__("Can only be used in Tortoise guild.")
 
 
 class TortoiseBotDeveloperCheckFailure(CheckFailure):
     def __init__(self):
-        super().__init__(message="Can only be used by Tortoise developers.")
+        super().__init__("Can only be used by Tortoise developers.")
 
 class TortoiseStaffCheckFailure(CheckFailure):
     def __init__(self):
-        super().__init__(message="Can only be used by Tortoise Staff.")
+        super().__init__("Can only be used by Tortoise Staff.")
 
 class EndpointResponse(Exception):
     def __init__(self, code: int, message: str):
