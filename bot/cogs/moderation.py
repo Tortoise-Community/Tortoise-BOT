@@ -350,7 +350,7 @@ class Moderation(commands.Cog):
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_messages=True)
-    @app_commands.checks.has_permissions(manage_messages=True)
+    @app_commands.check(check_if_tortoise_staff)
     @app_commands.checks.cooldown(3, 60)
     async def clear(self, interaction: discord.Interaction, amount: int, member: discord.Member = None):
         """
