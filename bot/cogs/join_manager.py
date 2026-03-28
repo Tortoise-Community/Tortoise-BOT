@@ -1,5 +1,5 @@
 from datetime import time as dtime, timezone
-
+import random
 import discord
 import asyncio
 from discord import Invite, Member, Message
@@ -86,6 +86,23 @@ class InviteTracker(commands.Cog):
 
             await member.kick(reason="Not banned from Tortoise Programming Community")
 
+    @staticmethod
+    def get_post_intro_message() -> str:
+        messages = [
+            "Nice introduction! Now head over to <#{constants.general_channel_id}> and start chatting with everyone.",
+            "Great intro 👋 Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
+            "Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
+            "Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
+            "Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
+            "Good intro 👍 Continue chatting and get involved in <#{constants.general_channel_id}>.",
+            "Welcome aboard! You can now join the discussion in <#{constants.general_channel_id}>.",
+            "Awesome intro! Head over to <#{constants.general_channel_id}> and start interacting.",
+            "Thanks for sharing! Now jump into <#{constants.general_channel_id}> and meet the community.",
+            "Nice introduction! Don’t stop here — continue the conversation in <#{constants.general_channel_id}>.",
+        ]
+
+        return random.choice(messages)
+
     @commands.Cog.listener()
     async def on_message(self, message: Message):
 
@@ -100,7 +117,16 @@ class InviteTracker(commands.Cog):
 
         try:
             await message.add_reaction("👋")
-        except Exception:
+            embed = embed_handler.info(
+                self.get_post_intro_message(),
+                self.bot.user,
+                ""
+            )
+            await message.channel.send(embed=embed, delete_after=45)
+
+        except discord.Forbidden:
+            pass
+        except discord.HTTPException:
             pass
 
     @commands.Cog.listener()
