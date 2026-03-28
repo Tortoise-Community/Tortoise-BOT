@@ -3,6 +3,7 @@ from aenum import Enum, NoAlias
 from discord import Color
 
 tortoise_guild_id = 577192344529404154
+ban_appeal_server_id = 1464188109364396169
 website_url = "https://www.tortoisecommunity.org/"
 privacy_url = "https://www.tortoisecommunity.org/privacy"
 rules_url = "https://www.tortoisecommunity.org/rules"
@@ -17,6 +18,8 @@ project_url = "https://www.tortoisecommunity.org/projects/"
 events_url = "https://www.tortoisecommunity.org/events/"
 default_avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
 appeal_server_link = "https://discord.com/invite/YxEzEqMNY8"
+server_link = "https://discord.com/invite/Ex8xeWD"
+
 
 # Channel IDs
 welcome_channel_id = 738731842538176522

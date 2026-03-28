@@ -1,5 +1,5 @@
 from datetime import time as dtime, timezone
-
+import random
 import discord
 import asyncio
 from discord import Invite, Member, Message
@@ -54,6 +54,54 @@ class InviteTracker(commands.Cog):
             except discord.Forbidden:
                 pass
 
+    async def handle_ban_appeal_server_join(self, member: Member):
+        try:
+            await member.guild.fetch_ban(discord.Object(id=member.id))
+            is_banned = True
+        except discord.NotFound:
+            is_banned = False
+        except discord.Forbidden:
+            return
+        except discord.HTTPException:
+            return
+
+        if not is_banned:
+            embed = embed_handler.info(
+                "You are not currently banned from the Tortoise Programming Community, "
+                "or your ban has been lifted.\nYou can rejoin using the link below.",
+                self.bot.user,
+                "Unban Notice!",
+                "Welcome back!"
+            )
+
+            embed.add_field(
+                name="Invite Link",
+                value=f"[Click here to join]({constants.server_link})"
+            )
+
+            try:
+                await member.send(embed=embed)
+            except discord.Forbidden:
+                pass
+
+            await member.kick(reason="Not banned from Tortoise Programming Community")
+
+    @staticmethod
+    def get_post_intro_message() -> str:
+        messages = [
+            "Nice introduction! Now head over to <#{constants.general_channel_id}> and start chatting with everyone.",
+            "Great intro 👋 Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
+            "Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
+            "Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
+            "Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
+            "Good intro 👍 Continue chatting and get involved in <#{constants.general_channel_id}>.",
+            "Welcome aboard! You can now join the discussion in <#{constants.general_channel_id}>.",
+            "Awesome intro! Head over to <#{constants.general_channel_id}> and start interacting.",
+            "Thanks for sharing! Now jump into <#{constants.general_channel_id}> and meet the community.",
+            "Nice introduction! Don’t stop here — continue the conversation in <#{constants.general_channel_id}>.",
+        ]
+
+        return random.choice(messages)
 
     @commands.Cog.listener()
     async def on_message(self, message: Message):
@@ -69,11 +117,25 @@ class InviteTracker(commands.Cog):
 
         try:
             await message.add_reaction("👋")
-        except Exception:
+            embed = embed_handler.info(
+                self.get_post_intro_message(),
+                self.bot.user,
+                ""
+            )
+            await message.channel.send(embed=embed, delete_after=45)
+
+        except discord.Forbidden:
+            pass
+        except discord.HTTPException:
             pass
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
+
+        if member.guild.id == constants.ban_appeal_server_id:
+            await self.handle_ban_appeal_server_join(member)
+            return
+
         if member.guild.id != constants.tortoise_guild_id:
             return
 
