@@ -50,6 +50,7 @@ challenge_submission_channel_id = 780842875901575228
 challenge_discussion_channel_id = 781129674860003336
 challenges_channel_id = 780841435712716800
 bait_channel_id = 1461666781612740750
+introduction_channel_id = 1487413734056923236
 
 # Roles
 muted_role_id = 707007421066772530
