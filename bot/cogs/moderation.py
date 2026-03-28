@@ -382,12 +382,14 @@ class Moderation(commands.Cog):
             )
             return
 
+        await interaction.response.defer(ephemeral=True)
+
         def check(msg):
             return member is None or msg.author == member
 
         deleted = await interaction.channel.purge(limit=amount, check=check)
 
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=success(f"Cleared {len(deleted)} messages."),
             ephemeral=True
         )

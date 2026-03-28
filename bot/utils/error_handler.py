@@ -37,6 +37,9 @@ class TortoiseCommandTree(app_commands.CommandTree):
             msg = "Unknown error occurred."
 
         try:
+            if interaction.is_expired():
+                return
+
             if interaction.response.is_done():
                 await interaction.followup.send(embed=failure(msg), ephemeral=True)
             else:
