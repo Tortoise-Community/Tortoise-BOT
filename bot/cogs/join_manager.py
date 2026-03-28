@@ -67,18 +67,13 @@ class InviteTracker(commands.Cog):
 
         if not is_banned:
             embed = embed_handler.info(
-                "You are not currently banned from the Tortoise Programming Community, "
-                "or your ban has been lifted.\nYou can rejoin using the link below.",
+                "You are not currently banned from Tortoise Community, "
+                "or your ban has been lifted.\n\nYou can rejoin using the link below.\n\n"
+                f"👉 [Invite Link]({constants.server_link}) 👈",
                 self.bot.user,
                 "Unban Notice!",
-                "Welcome back!"
+                "Welcome back to our server!"
             )
-
-            embed.add_field(
-                name="Invite Link",
-                value=f"[Click here to join]({constants.server_link})"
-            )
-
             try:
                 await member.send(embed=embed)
             except discord.Forbidden:
@@ -89,16 +84,16 @@ class InviteTracker(commands.Cog):
     @staticmethod
     def get_post_intro_message() -> str:
         messages = [
-            "Nice introduction! Now head over to <#{constants.general_channel_id}> and start chatting with everyone.",
-            "Great intro 👋 Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
-            "Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
-            "Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
-            "Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
-            "Good intro 👍 Continue chatting and get involved in <#{constants.general_channel_id}>.",
-            "Welcome aboard! You can now join the discussion in <#{constants.general_channel_id}>.",
-            "Awesome intro! Head over to <#{constants.general_channel_id}> and start interacting.",
-            "Thanks for sharing! Now jump into <#{constants.general_channel_id}> and meet the community.",
-            "Nice introduction! Don’t stop here — continue the conversation in <#{constants.general_channel_id}>.",
+            f"Nice introduction! Now head over to <#{constants.general_channel_id}> and start chatting with everyone.",
+            f"Great intro 👋 Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
+            f"Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
+            f"Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
+            f"Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
+            f"Good intro 👍 Continue chatting and get involved in <#{constants.general_channel_id}>.",
+            f"Welcome aboard! You can now join the discussion in <#{constants.general_channel_id}>.",
+            f"Awesome intro! Head over to <#{constants.general_channel_id}> and start interacting.",
+            f"Thanks for sharing! Now jump into <#{constants.general_channel_id}> and meet the community.",
+            f"Nice introduction! Don’t stop here — continue the conversation in <#{constants.general_channel_id}>.",
         ]
 
         return random.choice(messages)
@@ -122,7 +117,7 @@ class InviteTracker(commands.Cog):
                 self.bot.user,
                 ""
             )
-            await message.channel.send(embed=embed, delete_after=45)
+            await message.channel.send(embed=embed, delete_after=30)
 
         except discord.Forbidden:
             pass
