@@ -67,18 +67,13 @@ class InviteTracker(commands.Cog):
 
         if not is_banned:
             embed = embed_handler.info(
-                "You are not currently banned from the Tortoise Programming Community, "
-                "or your ban has been lifted.\nYou can rejoin using the link below.",
+                "You are not currently banned from Tortoise Community, "
+                "or your ban has been lifted.\n\nYou can rejoin using the link below.\n\n"
+                f"👉 [Invite Link]({constants.server_link}) 👈",
                 self.bot.user,
                 "Unban Notice!",
-                "Welcome back!"
+                "Welcome back to our server!"
             )
-
-            embed.add_field(
-                name="Invite Link",
-                value=f"[Click here to join]({constants.server_link})"
-            )
-
             try:
                 await member.send(embed=embed)
             except discord.Forbidden:
