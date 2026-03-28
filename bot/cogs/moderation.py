@@ -370,15 +370,15 @@ class Moderation(commands.Cog):
             )
             return
 
-        await interaction.response.send_message(
-            embed=success(f"Cleared {amount} messages."),
-            ephemeral=True
-        )
-
         def check(msg):
             return member is None or msg.author == member
 
-        await interaction.channel.purge(limit=amount, check=check)
+        deleted = await interaction.channel.purge(limit=amount, check=check)
+
+        await interaction.response.send_message(
+            embed=success(f"Cleared {len(deleted)} messages."),
+            ephemeral=True
+        )
 
 
     @app_commands.command()

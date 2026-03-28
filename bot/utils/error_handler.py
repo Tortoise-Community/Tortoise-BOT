@@ -18,9 +18,6 @@ class TortoiseCommandTree(app_commands.CommandTree):
         elif isinstance(error, app_commands.CommandOnCooldown):
             msg = f"Command on cooldown. Try again in {error.retry_after:.1f}s."
 
-        elif isinstance(error, app_commands.CheckFailure):
-            msg = "You cannot use this command."
-
         elif isinstance(error, TortoiseStaffCheckFailure):
             msg = "This command can only be used by tortoise staff."
 
@@ -29,6 +26,9 @@ class TortoiseCommandTree(app_commands.CommandTree):
 
         elif isinstance(error, TortoiseBotDeveloperCheckFailure):
             msg = "This command can only be used by tortoise bot developer."
+
+        elif isinstance(error, app_commands.CheckFailure):
+            msg = "You cannot use this command."
 
         elif isinstance(error, app_commands.CommandInvokeError):
             msg = "An unexpected error occurred while running the command."
