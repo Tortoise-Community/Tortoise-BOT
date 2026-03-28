@@ -268,38 +268,55 @@ class Moderation(commands.Cog):
         await interaction.followup.send(embed=success(f"{user} successfully unbanned."), ephemeral=True)
 
 
-    # @app_commands.command(name="warn")
-    # @app_commands.checks.bot_has_permissions(manage_messages=True)
-    # @app_commands.checks.has_permissions(manage_messages=True)
-    # @app_commands.check(check_if_it_is_tortoise_guild)
+    @app_commands.command(name="warn")
+    @app_commands.checks.bot_has_permissions(manage_messages=True)
+    @app_commands.check(check_if_tortoise_staff)
     async def warn(self, interaction: discord.Interaction, member: discord.Member, reason: str):
         """
         Warns a member.
         Reason length is maximum of 200 characters.
         """
         if len(reason) > 200:
-            await interaction.response.send_message(embed=failure("Please shorten the reason to 200 characters."), ephemeral=True)
+            await interaction.response.send_message(
+                embed=failure("Please shorten the reason to 200 characters."),
+                ephemeral=True
+            )
             return
 
-        embed = infraction_embed(interaction, member, constants.Infraction.warning, reason, True)
-        embed.add_field(
-            name="**NOTE**",
-            value=(
-                "If you are planning to repeat this again, "
-                "the mods may administer punishment for the action."
+        if member == interaction.user or member.bot:
+            await interaction.response.send_message(
+                embed=failure("Invalid member."),
+                ephemeral=True
             )
-        )
+            return
+
+        await interaction.response.defer(ephemeral=True)
 
         try:
-            await self.bot.api_client.add_member_warning(interaction.user.id, member.id, reason)
-        except Exception as e:
-            msg = "Could not apply warning, problem with API."
-            logger.info(f"{msg} {e}")
-            await interaction.response.send_message(embed=failure(f"{msg}\nInfraction member should not think he got away."), ephemeral=True)
-        else:
-            await self.deterrence_log_channel.send(f"{member.mention}", delete_after=0.5)
-            await self.deterrence_log_channel.send(embed=embed)
-            await interaction.response.send_message(embed=success("Warning successfully applied.", interaction.client.user), ephemeral=True)
+            dm_embed = infraction_embed(interaction, member, constants.Infraction.warning, reason, True)
+            dm_embed.set_footer(
+                text="If this behavior continues, moderators may take appropriate action."
+            )
+            await member.send(embed=dm_embed)
+        except discord.Forbidden:
+            pass
+
+        # try:
+        #     await self.bot.api_client.add_member_warning(interaction.user.id, member.id, reason)
+        # except Exception as e:
+        #     msg = "Could not apply warning, problem with API."
+        #     logger.info(f"{msg} {e}")
+        #     await interaction.response.send_message(embed=failure(f"{msg}\nInfraction member should not think he got away."), ephemeral=True)
+        # else:
+
+        await self.deterrence_log_channel.send(
+            embed=infraction_embed(interaction, member, constants.Infraction.warning, reason, False)
+        )
+
+        await interaction.followup.send(
+            embed=success("Warning successfully applied."),
+            ephemeral=True
+        )
 
     # @app_commands.command()
     # @app_commands.checks.has_permissions(manage_messages=True)
