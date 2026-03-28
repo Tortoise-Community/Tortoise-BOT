@@ -350,19 +350,34 @@ class Moderation(commands.Cog):
 
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(manage_messages=True)
-    @app_commands.checks.has_permissions(manage_messages=True)
-    @app_commands.checks.cooldown(1, 60)
+    @app_commands.check(check_if_tortoise_staff)
+    @app_commands.checks.cooldown(3, 60)
     async def clear(self, interaction: discord.Interaction, amount: int, member: discord.Member = None):
         """
         Clears last X amount of messages.
         If member is passed it will clear last X messages from that member.
         """
+        if amount < 1:
+            await interaction.response.send_message(
+                embed=failure("Amount should be greater than 1"),
+                ephemeral=True
+            )
+            return
+        if amount > 20:
+            await interaction.response.send_message(
+                embed=failure("Amount should be less than 20"),
+                ephemeral=True
+            )
+            return
+
         await interaction.response.send_message(
             embed=success(f"Cleared {amount} messages."),
             ephemeral=True
         )
+
         def check(msg):
             return member is None or msg.author == member
+
         await interaction.channel.purge(limit=amount, check=check)
 
 
