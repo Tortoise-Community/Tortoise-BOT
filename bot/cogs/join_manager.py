@@ -54,6 +54,37 @@ class InviteTracker(commands.Cog):
             except discord.Forbidden:
                 pass
 
+    async def handle_ban_appeal_server_join(self, member: Member):
+        try:
+            await member.guild.fetch_ban(discord.Object(id=member.id))
+            is_banned = True
+        except discord.NotFound:
+            is_banned = False
+        except discord.Forbidden:
+            return
+        except discord.HTTPException:
+            return
+
+        if not is_banned:
+            embed = embed_handler.info(
+                "You are not currently banned from the Tortoise Programming Community, "
+                "or your ban has been lifted.\nYou can rejoin using the link below.",
+                self.bot.user,
+                "Unban Notice!",
+                "Welcome back!"
+            )
+
+            embed.add_field(
+                name="Invite Link",
+                value=f"[Click here to join]({constants.server_link})"
+            )
+
+            try:
+                await member.send(embed=embed)
+            except discord.Forbidden:
+                pass
+
+            await member.kick(reason="Not banned from Tortoise Programming Community")
 
     @commands.Cog.listener()
     async def on_message(self, message: Message):
@@ -74,6 +105,11 @@ class InviteTracker(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
+
+        if member.guild.id == constants.ban_appeal_server_id:
+            await self.handle_ban_appeal_server_join(member)
+            return
+
         if member.guild.id != constants.tortoise_guild_id:
             return
 
