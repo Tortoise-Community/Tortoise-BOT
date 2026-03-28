@@ -16,7 +16,7 @@ class InviteTracker(commands.Cog):
         self.tracker = None
         self.log_channel = None
         self.welcome_role = None
-        self.general_channel = None
+        self.introduction_channel = None
         self.joins_today = 0
         self.leaves_today = 0
 
@@ -26,7 +26,7 @@ class InviteTracker(commands.Cog):
         self.tracker = invite_help.GuildInviteTracker(self.guild)
         self.log_channel = self.bot.get_channel(constants.system_log_channel_id)
         self.welcome_role = self.guild.get_role(constants.new_member_role_id)
-        self.general_channel = self.guild.get_channel(constants.general_channel_id)
+        self.introduction_channel = self.guild.get_channel(constants.introduction_channel_id)
 
         self.bot.loop.create_task(self.tracker.refresh_invite_cache())
         self.daily_retention_report.start()
@@ -43,7 +43,7 @@ class InviteTracker(commands.Cog):
     async def _send_dm_message(member: discord.Member):
         if not member.bot:
             dm_msg = (
-                f"Introduce yourself in <#{constants.general_channel_id}>\n\n"
+                f"Introduce yourself in <#{constants.introduction_channel_id}>\n\n"
                 f"Leetcode discussion <#{constants.leetcode_channel_id}>\n\n"
                 f"For **Leetcode challenges** checkout <#{constants.challenges_channel_id}>\n\n"
                 f"We hope you enjoy your stay!"
@@ -87,8 +87,9 @@ class InviteTracker(commands.Cog):
         await member.add_roles(self.welcome_role, reason="Welcome role added")
         await self.log_channel.send(embed=embed_handler.welcome(member, msg))
         await asyncio.sleep(60)
-        await self.general_channel.send(
-            content=f"Hi {member.mention}! Welcome to our server.",
+        await self.introduction_channel.send(
+            content=f"Hi {member.mention}! Welcome to our server.\n"
+                    f"Please introduce yourself here.",
             delete_after=60,
         )
 
