@@ -85,7 +85,7 @@ class InviteTracker(commands.Cog):
     def get_post_intro_message() -> str:
         messages = [
             f"Nice introduction! Now head over to <#{constants.general_channel_id}> and start chatting with everyone.",
-            f"Great intro 👋 Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
+            f"Great intro! Jump into <#{constants.general_channel_id}> and join the ongoing conversations.",
             f"Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
             f"Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
             f"Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
@@ -110,8 +110,20 @@ class InviteTracker(commands.Cog):
         if message.channel.id != constants.introduction_channel_id:
             return
 
+        if (message.author.get_role(constants.admin_role_id) or
+                message.author.get_role(constants.moderator_role_id)):
+            return
+
         try:
-            await message.add_reaction("👋")
+            await message.add_reaction(
+                random.choice(
+                    [
+                        "👋", "🔥", "👍", "😄", "😸",
+                        "🌟", "🫶", "🤝", "👌", "✌️",
+                        "<:upvote:741202481090002994>"
+                    ]
+                )
+            )
             embed = embed_handler.info(
                 self.get_post_intro_message(),
                 self.bot.user,
