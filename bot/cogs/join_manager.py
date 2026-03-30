@@ -176,7 +176,11 @@ class JoinManager(commands.Cog):
         await asyncio.sleep(60)
         await self.introduction_channel.send(
             content=f"Hi {member.mention}! Welcome to our server.\n"
-                    f"Please introduce yourself here.",
+                    f"Please introduce yourself here.\n\n"
+                    f"📌Suggested Format (copy-paste)\n"
+                    + constants.introduction_format
+                    + "\n> **Recommended**: Helps like-minded members find you easily."
+            ,
             delete_after=60,
         )
 

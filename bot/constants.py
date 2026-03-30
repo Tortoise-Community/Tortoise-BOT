@@ -490,3 +490,16 @@ RULES = {
         "aliases": ["dm", "nodm"],
     },
 }
+
+introduction_format = """
+```
+Name / Nickname:
+Location:
+What you do:
+Interests: 
+Hobbies:
+What you’re looking for here:
+Fun fact (optional):
+```
+"""
+
