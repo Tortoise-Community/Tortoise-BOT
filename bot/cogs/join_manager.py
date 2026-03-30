@@ -9,7 +9,7 @@ from bot.utils import invite_help, embed_handler
 from bot import constants
 
 
-class InviteTracker(commands.Cog):
+class JoinManager(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.guild = None
@@ -17,8 +17,8 @@ class InviteTracker(commands.Cog):
         self.log_channel = None
         self.welcome_role = None
         self.introduction_channel = None
-        self.joins_today = 0
-        self.leaves_today = 0
+        self.retention = bot.retention
+
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -151,7 +151,7 @@ class InviteTracker(commands.Cog):
             await member.ban(reason="Advanced Protection™ enabled. Bot joins are prohibited.")
             return
 
-        self.joins_today += 1
+        await self.retention.add_join(member.guild.id)
 
         inviter, code = await self.tracker.track_inviter_and_code()
         created_at = f"<t:{int(member.created_at.timestamp())}:R>"
@@ -185,7 +185,7 @@ class InviteTracker(commands.Cog):
         if member.guild.id != constants.tortoise_guild_id:
             return
 
-        self.leaves_today += 1
+        await self.retention.add_leave(member.guild.id)
 
         joined_at = (
             f"<t:{int(member.joined_at.timestamp())}:R>"
@@ -210,33 +210,31 @@ class InviteTracker(commands.Cog):
         if not channel:
             return
 
-        net_change = self.joins_today - self.leaves_today
+        joins, leaves = await self.retention.get_yesterday(guild.id)
+        net_change = joins - leaves
 
         if net_change > 0:
-            emoji = "📈"
+            emoji = constants.stonks_emoji
             value = f"+{net_change}"
         elif net_change < 0:
-            emoji = "📉"
+            emoji = constants.sadcat_emoji
             value = str(net_change)
         else:
-            emoji = "➖"
+            emoji = constants.poker_face_emoji
             value = "0"
 
         try:
             await channel.send(
                 content=(
                     f"{emoji} **Daily Member Retention**\n"
-                    f"Joins: **{self.joins_today}**\n"
-                    f"Leaves: **{self.leaves_today}**\n"
+                    f"Joins: **{joins}**\n"
+                    f"Leaves: **{leaves}**\n"
                     f"Net change: **{value}**"
                 )
             )
         except discord.Forbidden:
             pass
 
-        self.joins_today = 0
-        self.leaves_today = 0
-
 
 async def setup(bot):
-    await bot.add_cog(InviteTracker(bot))
+    await bot.add_cog(JoinManager(bot))
