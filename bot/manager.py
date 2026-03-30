@@ -442,7 +442,7 @@ class RetentionManager:
             SELECT joins, leaves
             FROM daily_retention
             WHERE guild_id = $1
-            AND date = CURRENT_DATE - INTERVAL '1 day'
+            AND date = (NOW() AT TIME ZONE 'UTC')::DATE - INTERVAL '1 day'
         """, guild_id)
 
         if not row:

@@ -17,7 +17,7 @@ class JoinManager(commands.Cog):
         self.log_channel = None
         self.welcome_role = None
         self.introduction_channel = None
-        self.retention = bot.retention
+        self.retention = bot.retention_manager
 
 
     @commands.Cog.listener()
