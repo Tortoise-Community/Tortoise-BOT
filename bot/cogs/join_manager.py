@@ -179,7 +179,7 @@ class JoinManager(commands.Cog):
                     f"Please introduce yourself here.\n\n"
                     f"📌Suggested Format (copy-paste)\n"
                     + constants.introduction_format
-                    + "\n> **Recommended**: Helps like-minded members find you easily."
+                    + "> **Recommended**: Helps like-minded members find you easily."
             ,
             delete_after=60,
         )
