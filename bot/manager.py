@@ -392,3 +392,61 @@ class PointsManager:
             limit,
         )
         return [(r["user_id"], r["points"]) for r in rows]
+
+
+class RetentionManager:
+    def __init__(self, db: Database):
+        self.db = db
+
+    async def setup(self):
+        await self.db.pool.execute("""
+            CREATE TABLE IF NOT EXISTS daily_retention (
+                guild_id BIGINT NOT NULL,
+                date DATE NOT NULL,
+                joins INTEGER NOT NULL DEFAULT 0,
+                leaves INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY (guild_id, date)
+            )
+        """)
+
+    async def add_join(self, guild_id: int):
+        await self.db.pool.execute("""
+            INSERT INTO daily_retention (guild_id, date, joins)
+            VALUES ($1, CURRENT_DATE, 1)
+            ON CONFLICT (guild_id, date)
+            DO UPDATE SET joins = daily_retention.joins + 1
+        """, guild_id)
+
+    async def add_leave(self, guild_id: int):
+        await self.db.pool.execute("""
+            INSERT INTO daily_retention (guild_id, date, leaves)
+            VALUES ($1, CURRENT_DATE, 1)
+            ON CONFLICT (guild_id, date)
+            DO UPDATE SET leaves = daily_retention.leaves + 1
+        """, guild_id)
+
+    async def get_today(self, guild_id: int):
+        row = await self.db.pool.fetchrow("""
+            SELECT joins, leaves
+            FROM daily_retention
+            WHERE guild_id=$1 AND date=CURRENT_DATE
+        """, guild_id)
+
+        if not row:
+            return 0, 0
+
+        return row["joins"], row["leaves"]
+
+    async def get_yesterday(self, guild_id: int):
+        row = await self.db.pool.fetchrow("""
+            SELECT joins, leaves
+            FROM daily_retention
+            WHERE guild_id = $1
+            AND date = (NOW() AT TIME ZONE 'UTC')::DATE - INTERVAL '1 day'
+        """, guild_id)
+
+        if not row:
+            return 0, 0
+
+        return row["joins"], row["leaves"]
+

@@ -206,6 +206,9 @@ git_commit_emoji = "<:git_commit:758616123590574090>"
 git_repo_emoji = "<:repo:758616137977561119>"
 success_emoji = "<:success:781891698590482442>"
 failure_emoji = "<:failure:781891692160090143>"
+poker_face_emoji = "<:pokerface:689918352512254035>"
+stonks_emoji = "<:stonks:689918347596660824>"
+sadcat_emoji = "<:sadcat:689913330516754584>"
 
 # Icons
 google_icon = "https://www.freepnglogos.com/uploads/google-logo-png/" \
@@ -487,3 +490,16 @@ RULES = {
         "aliases": ["dm", "nodm"],
     },
 }
+
+introduction_format = """
+```
+Name / Nickname:
+Location:
+What you do:
+Interests: 
+Hobbies:
+What you’re looking for here:
+Fun fact (optional):
+```
+"""
+
