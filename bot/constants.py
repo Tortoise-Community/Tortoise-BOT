@@ -65,6 +65,7 @@ new_member_role_id = 1441848294828670978
 challenger_role_id = 781210603997757471
 wizard_role_id = 1472794198053879809
 contributor_role_id = 649630145304461312
+accepting_team_invites_role_id = 1488893079053144184
 
 active_role_id = 1482843939978481889
 active_plus_role_id = 1482844032488050921

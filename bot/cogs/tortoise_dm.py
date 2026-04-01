@@ -104,7 +104,12 @@ class ModMailAcceptView(discord.ui.View):
             return
 
         self.clear_items()
-        await interaction.message.edit(view=self)
+        await self.cog.update_staff_embed_from_message(
+            interaction.message,
+            footer_append=f"☑️ Accepted by {mod.name}",
+            color=discord.Color.green(),
+            view=self
+        )
 
 
         try:
@@ -157,9 +162,18 @@ class ModMailAcceptView(discord.ui.View):
                 await mod.send(embed=timeout_embed)
                 await user.send(embed=timeout_embed)
                 del self.cog.active_mod_mails[user_id]
-                await self.cog.mod_mail_report_channel.send(
+                logs = await self.cog.mod_mail_report_channel.send(
                     file=discord.File(StringIO(str(log)), filename=log.filename)
                 )
+
+                await self.cog.update_staff_embed(
+                    user_id,
+                    description=logs.jump_url,
+                    footer_append="🕑 Closed due to inactivity.",
+                    color=discord.Color.dark_red()
+                )
+
+                del self.cog.modmail_messages[user_id]
                 break
 
             attachments = self.cog._get_attachments_as_urls(mail_msg)
@@ -178,9 +192,16 @@ class ModMailAcceptView(discord.ui.View):
                 await mod.send(embed=close_embed)
                 await user.send(embed=close_embed)
                 del self.cog.active_mod_mails[user_id]
-                await self.cog.mod_mail_report_channel.send(
+                logs = await self.cog.mod_mail_report_channel.send(
                     file=discord.File(StringIO(str(log)), filename=log.filename)
                 )
+                await self.cog.update_staff_embed(
+                    user_id,
+                    description=logs.jump_url,
+                    footer_append="✅ Session Completed",
+                    color=discord.Color.dark_grey()
+                )
+                del self.cog.modmail_messages[user_id]
                 break
 
             if mail_msg.author == user:
@@ -200,6 +221,7 @@ class TortoiseDM(commands.Cog):
 
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
+        self.modmail_messages = {}
         self.pending_mod_mails = set()
         self.active_event_submissions = set()
         self.active_bug_reports = set()
@@ -349,6 +371,73 @@ class TortoiseDM(commands.Cog):
             )
         )
 
+    def _apply_staff_embed_updates(
+            self,
+            embed: discord.Embed,
+            *,
+            footer_append=None,
+            description=None,
+            color=None
+    ):
+        if description is not None:
+            embed.description = description
+
+        if footer_append:
+            current = embed.footer.text if embed.footer else ""
+            embed.set_footer(
+                text=f"{current}\n\n{footer_append}" if current else footer_append
+            )
+
+        if color:
+            embed.color = color
+
+        return embed
+
+    async def update_staff_embed_from_message(
+            self,
+            message: discord.Message,
+            *,
+            footer_append=None,
+            description=None,
+            color=None,
+            view=None
+    ):
+        embed = message.embeds[0]
+
+        embed = self._apply_staff_embed_updates(
+            embed,
+            footer_append=footer_append,
+            description=description,
+            color=color
+        )
+
+        await message.edit(embed=embed, view=view)
+
+    async def update_staff_embed(
+            self,
+            user_id: int,
+            *,
+            footer_append=None,
+            description=None,
+            color=None
+    ):
+        message_id = self.modmail_messages.get(user_id)
+        if not message_id:
+            return
+
+        try:
+            msg = await self.staff_channel.fetch_message(message_id)
+
+            await self.update_staff_embed_from_message(
+                msg,
+                footer_append=footer_append,
+                description=description,
+                color=color
+            )
+
+        except Exception:
+            pass
+
     async def create_mod_mail(self, user: discord.User, source: str = "dm"):
         if user.id in self.pending_mod_mails:
             await user.send(embed=failure("You already have a pending mod mail, please be patient."))
@@ -363,11 +452,11 @@ class TortoiseDM(commands.Cog):
         view = ModMailAcceptView(self, user.id)
 
         await self.staff_channel.send("@here", delete_after=30)
-        await self.staff_channel.send(
+        msg = await self.staff_channel.send(
             embed=submission_embed,
             view=view
         )
-
+        self.modmail_messages[user.id] = msg.id
         self.pending_mod_mails.add(user.id)
         if source == "dm":
             embed = info("Mail is initialized and the moderators have been contacted.\n"
