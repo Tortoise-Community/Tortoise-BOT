@@ -11,7 +11,7 @@ from discord import app_commands
 
 from bot.utils.message_handler import RemovableMessage
 from bot.utils.embed_handler import info, status_embed
-from bot.utils.checks import check_if_it_is_tortoise_guild
+from bot.utils.checks import check_if_it_is_tortoise_guild, tortoise_bot_developer_only
 from bot.constants import embed_space, tortoise_paste_service_link
 
 
@@ -22,7 +22,7 @@ class Miscellaneous(commands.Cog):
         self.countdown_started = False
 
     @app_commands.command(name="say", description="Make the bot say a message")
-    @app_commands.checks.has_permissions(manage_messages=True)
+    @app_commands.check(tortoise_bot_developer_only)
     async def say(self, interaction: discord.Interaction, message: str):
         clean = await commands.clean_content().convert(interaction, message)
         await interaction.response.send_message(clean)

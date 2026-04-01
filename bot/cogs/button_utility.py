@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.constants import challenger_role_id
+from bot.constants import challenger_role_id, accepting_team_invites_role_id
 from bot.utils.checks import tortoise_bot_developer_only
 from bot.utils.embed_handler import info, failure
 
@@ -121,6 +121,47 @@ class NotifyButton(discord.ui.View):
             )
 
 
+class TeamInvitesButton(discord.ui.View):
+    """Persistent button view for team invite notifications."""
+
+    def __init__(self):
+        super().__init__(timeout=None)  # persistent
+
+    @discord.ui.button(
+        label="Team Invites",
+        style=discord.ButtonStyle.primary,
+        emoji="📨",
+        custom_id="team_invite_notify_button",
+    )
+    async def notify_me(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button,
+    ):
+
+        role = interaction.guild.get_role(accepting_team_invites_role_id)
+        member = interaction.user
+
+        if role in member.roles:
+            try:
+                await member.remove_roles(role, reason="Team Invites opt-out")
+            except discord.Forbidden:
+                await interaction.response.send_message("No permission | Contact Administrator", ephemeral=True)
+            await interaction.response.send_message(
+                "🔕 You will no longer receive team invites.",
+                ephemeral=True,
+            )
+        else:
+            try:
+                await member.add_roles(role, reason="Team Invites opt-in")
+            except discord.Forbidden:
+                await interaction.response.send_message("No permission | Contact Administrator", ephemeral=True)
+            await interaction.response.send_message(
+                "🔔 You will now receive team invites!",
+                ephemeral=True,
+            )
+
+
 class ButtonUtility(commands.Cog):
     """Cog for posting challenge notification opt-in messages."""
 
@@ -156,19 +197,6 @@ class ButtonUtility(commands.Cog):
             view=NotifyButton(),
         )
 
-    @post_challenge_notification.error
-    async def post_error(
-        self,
-        interaction: discord.Interaction,
-        error: app_commands.AppCommandError,
-    ):
-        if isinstance(error, app_commands.MissingPermissions):
-            await interaction.response.send_message(
-                "You don’t have permission to use this command.",
-                ephemeral=True,
-            )
-            return
-        raise error
 
     @app_commands.command(
         name="post_modmail_panel",
@@ -190,6 +218,31 @@ class ButtonUtility(commands.Cog):
             view=ModMailStartView()
         )
 
+    @app_commands.command(
+        name="post_team_invites_notification",
+        description="Post the team invites opt-in message.",
+    )
+    @app_commands.check(tortoise_bot_developer_only)
+    async def post_team_invites_notification(
+        self,
+        interaction: discord.Interaction,
+    ):
+        embed = discord.Embed(
+            title="Team Invites",
+            description=(
+                "Click here to receive team invites from team leads.\n"
+                "Teams are designed for focused DSA preparation with like-minded people, preferably in the same timezone.\n"
+                "Includes organized group calls, discussions, and structured collaboration."
+            ),
+            color=discord.Color.blurple(),
+        )
+
+        embed.set_footer(text="You can opt out anytime by clicking the button again.")
+
+        await interaction.response.send_message(
+            embed=embed,
+            view=TeamInvitesButton(),
+        )
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ButtonUtility(bot))
