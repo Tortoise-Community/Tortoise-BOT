@@ -635,3 +635,11 @@ class TeamManager:
             WHERE guild_id=$1 AND user_id=$2 AND status='pending'
             LIMIT 1
         """, guild_id, user_id)
+
+    async def get_all_teams(self, guild_id: int):
+        return await self.db.pool.fetch("""
+            SELECT *
+            FROM teams
+            WHERE guild_id=$1
+            ORDER BY team_id DESC
+        """, guild_id)
