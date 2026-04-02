@@ -24,10 +24,11 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         max_length=300
     )
 
-    def __init__(self, cog, guild_id):
+    def __init__(self, cog, guild_id, invite_id):
         super().__init__()
         self.cog = cog
         self.guild_id = guild_id
+        self.invite_id = invite_id
 
     async def on_submit(self, interaction: discord.Interaction):
 
@@ -105,6 +106,27 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
             return await interaction.followup.send(
                 embed=failure(f"Failed to create team.\n{e}")
             )
+
+        await self.cog.team.update_setup_invite(self.invite_id, "used")
+
+        try:
+            user = interaction.user
+            msg = await user.fetch_message(self.invite_id)
+
+            view = discord.ui.View(timeout=None)
+
+            view.add_item(discord.ui.Button(
+                label="Setup Completed",
+                style=discord.ButtonStyle.grey,
+                disabled=True
+            ))
+
+            await msg.edit(view=view)
+
+        except discord.Forbidden:
+            pass
+        except discord.NotFound:
+            pass
 
         await self.cog.log_channel.send(
             embed=info(
@@ -257,15 +279,8 @@ class TeamCog(commands.Cog):
             )
 
         await interaction.response.send_modal(
-            CreateTeamModal(self, guild.id)
+            CreateTeamModal(self, guild.id, invite_id)
         )
-
-        await self.team.update_setup_invite(invite_id, "used")
-
-        try:
-            await interaction.message.edit(view=None)
-        except discord.Forbidden:
-            pass
 
     @commands.Cog.listener()
     async def on_ready(self):
