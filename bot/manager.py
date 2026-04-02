@@ -450,3 +450,188 @@ class RetentionManager:
 
         return row["joins"], row["leaves"]
 
+
+class TeamManager:
+    def __init__(self, db):
+        self.db = db
+
+    async def setup(self):
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS teams (
+            team_id SERIAL PRIMARY KEY,
+            guild_id BIGINT NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            timezone TEXT,
+            role_id BIGINT NOT NULL,
+            category_id BIGINT NOT NULL,
+            text_channel_id BIGINT NOT NULL,
+            voice_channel_id BIGINT NOT NULL,
+            leader_id BIGINT NOT NULL
+        )
+        """)
+
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS team_invites (
+            invite_id BIGINT PRIMARY KEY,
+            team_id INT,
+            inviter_id BIGINT,
+            invitee_id BIGINT,
+            guild_id BIGINT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+        """)
+
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS team_members (
+            team_id INT NOT NULL,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            joined_at TIMESTAMPTZ DEFAULT NOW(),
+            PRIMARY KEY (team_id, user_id)
+        )
+        """)
+
+        await self.db.pool.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS one_team_per_user
+        ON team_members (guild_id, user_id)
+        """)
+
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS team_setup_invites (
+            invite_id BIGINT PRIMARY KEY,
+            guild_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMPTZ DEFAULT NOW()
+        )
+        """)
+
+    async def create_team(self, *args):
+        row = await self.db.pool.fetchrow("""
+            INSERT INTO teams (
+                guild_id, name, description, timezone,
+                role_id, category_id, text_channel_id,
+                voice_channel_id, leader_id
+            )
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+            RETURNING team_id
+        """, *args)
+
+        return row["team_id"]
+
+    async def get_team(self, team_id):
+        return await self.db.pool.fetchrow("""
+        SELECT * FROM teams
+        WHERE team_id=$1
+        """, team_id)
+
+    async def delete_team(self, guild_id, role_id):
+        return await self.db.pool.fetchrow("""
+        DELETE FROM teams
+        WHERE guild_id=$1 AND role_id=$2
+        RETURNING *
+        """, guild_id, role_id)
+
+    async def get_team_by_leader(self, guild_id, leader_id):
+        return await self.db.pool.fetchrow("""
+        SELECT * FROM teams
+        WHERE guild_id=$1 AND leader_id=$2
+        """, guild_id, leader_id)
+
+    async def can_invite(self, team_id, inviter_id):
+        count = await self.db.pool.fetchval("""
+        SELECT COUNT(*)
+        FROM team_invites
+        WHERE team_id=$1
+        AND inviter_id=$2
+        AND created_at >= (NOW() AT TIME ZONE 'UTC')::DATE
+        """, team_id, inviter_id)
+
+        return count < 3
+
+    async def create_invite(self, invite_id, team_id, inviter_id, invitee_id, guild_id):
+        await self.db.pool.execute("""
+        INSERT INTO team_invites (invite_id, team_id, inviter_id, invitee_id, guild_id)
+        VALUES ($1,$2,$3,$4,$5)
+        """, invite_id, team_id, inviter_id, invitee_id, guild_id)
+
+    async def get_invite(self, invite_id):
+        return await self.db.pool.fetchrow("""
+        SELECT * FROM team_invites WHERE invite_id=$1
+        """, invite_id)
+
+    async def update_invite_status(self, invite_id, status):
+        await self.db.pool.execute("""
+        UPDATE team_invites
+        SET status=$2
+        WHERE invite_id=$1
+        """, invite_id, status)
+
+    async def add_member(self, team_id: int, guild_id: int, user_id: int) -> bool:
+        try:
+            await self.db.pool.execute("""
+                INSERT INTO team_members (team_id, guild_id, user_id)
+                VALUES ($1,$2,$3)
+            """, team_id, guild_id, user_id)
+            return True
+        except Exception:
+            return False
+
+    async def remove_member(self, team_id: int, user_id: int):
+        await self.db.pool.execute("""
+            DELETE FROM team_members
+            WHERE team_id=$1 AND user_id=$2
+        """, team_id, user_id)
+
+    async def get_user_team(self, guild_id: int, user_id: int):
+        return await self.db.pool.fetchrow("""
+            SELECT * FROM team_members
+            WHERE guild_id=$1 AND user_id=$2
+        """, guild_id, user_id)
+
+    async def is_member(self, team_id: int, user_id: int):
+        return await self.db.pool.fetchval("""
+            SELECT 1 FROM team_members
+            WHERE team_id=$1 AND user_id=$2
+        """, team_id, user_id)
+
+    async def has_pending_invite_for_team(self, team_id: int, invitee_id: int) -> bool:
+        return await self.db.pool.fetchval("""
+            SELECT 1
+            FROM team_invites
+            WHERE team_id=$1
+            AND invitee_id=$2
+            AND status='pending'
+            LIMIT 1
+        """, team_id, invitee_id) is not None
+
+    async def leader_has_team(self, guild_id: int, leader_id: int) -> bool:
+        return await self.db.pool.fetchval("""
+            SELECT 1 FROM teams
+            WHERE guild_id=$1 AND leader_id=$2
+        """, guild_id, leader_id) is not None
+
+    async def create_setup_invite(self, invite_id, guild_id, user_id):
+        await self.db.pool.execute("""
+        INSERT INTO team_setup_invites (invite_id, guild_id, user_id)
+        VALUES ($1,$2,$3)
+        """, invite_id, guild_id, user_id)
+
+    async def get_setup_invite(self, invite_id):
+        return await self.db.pool.fetchrow("""
+        SELECT * FROM team_setup_invites WHERE invite_id=$1
+        """, invite_id)
+
+    async def update_setup_invite(self, invite_id, status):
+        await self.db.pool.execute("""
+        UPDATE team_setup_invites SET status=$2 WHERE invite_id=$1
+        """, invite_id, status)
+
+    async def get_setup_invite_by_user(self, guild_id: int, user_id: int):
+        return await self.db.pool.fetchrow("""
+            SELECT * FROM team_setup_invites
+            WHERE guild_id=$1 AND user_id=$2 AND status='pending'
+            LIMIT 1
+        """, guild_id, user_id)
