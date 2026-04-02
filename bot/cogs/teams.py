@@ -126,7 +126,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                        f"{success_emoji} Team Setup Complete!")
         )
 
-        await self.cog.update_dashboard(guild.id)
+        await self.cog.update_dashboard(guild)
         
         await interaction.followup.send(
             embed=success("Team setup complete!")
@@ -399,7 +399,7 @@ class TeamCog(commands.Cog):
         await self.log_channel.send(
             embed=info(f"Team **{team['name']}** was deleted by {interaction.user.mention}", self.bot.user, "")
         )
-        await self.update_dashboard(guild.id)
+        await self.update_dashboard(guild)
 
         await interaction.followup.send(embed=success("Team deleted successfully."), ephemeral=True)
 
