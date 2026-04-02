@@ -128,7 +128,7 @@ class TeamInvitesButton(discord.ui.View):
         super().__init__(timeout=None)  # persistent
 
     @discord.ui.button(
-        label="Team Invites",
+        label="Click Me",
         style=discord.ButtonStyle.primary,
         emoji="📨",
         custom_id="team_invite_notify_button",
@@ -228,11 +228,11 @@ class ButtonUtility(commands.Cog):
         interaction: discord.Interaction,
     ):
         embed = discord.Embed(
-            title="Team Invites",
+            title="Receive Team Invites",
             description=(
-                "Click here to receive team invites from team leads.\n"
+                "Click here to receive team invites from team leads.\n\n"
                 "Teams are designed for focused DSA preparation with like-minded people, preferably in the same timezone.\n"
-                "Includes organized group calls, discussions, and structured collaboration."
+                "This may include organized group calls, discussions, and collaboration."
             ),
             color=discord.Color.blurple(),
         )
