@@ -54,7 +54,7 @@ challenge_discussion_channel_id = 781129674860003336
 challenges_channel_id = 780841435712716800
 bait_channel_id = 1461666781612740750
 introduction_channel_id = 1487413734056923236
-join_a_team_channel_id = 1489254495522390186
+join_a_team_channel_id = 1489264049983197246
 
 # Message id
 teams_dashboard_message_id = 1489264468168016054
