@@ -125,6 +125,9 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                        self.cog.bot.user,
                        f"{success_emoji} Team Setup Complete!")
         )
+
+        await self.cog.update_dashboard(guild.id)
+        
         await interaction.followup.send(
             embed=success("Team setup complete!")
         )
@@ -396,6 +399,7 @@ class TeamCog(commands.Cog):
         await self.log_channel.send(
             embed=info(f"Team **{team['name']}** was deleted by {interaction.user.mention}", self.bot.user, "")
         )
+        await self.update_dashboard(guild.id)
 
         await interaction.followup.send(embed=success("Team deleted successfully."), ephemeral=True)
 
@@ -658,29 +662,24 @@ class TeamCog(commands.Cog):
 
         return info(desc, self.bot.user, "Teams Dashboard", "powered by Tortoise Programming Community")
 
-    @app_commands.command(name="update_team_dashboard")
-    @app_commands.check(tortoise_bot_developer_only)
-    async def update_team_dashboard(self, interaction: discord.Interaction):
+    async def update_dashboard(self, guild: discord.Guild):
 
         channel = self.bot.get_channel(join_a_team_channel_id)
         if not channel:
-            return await interaction.response.send_message(
-                embed=failure("Channel not found."),
-                ephemeral=True
-            )
+            return
 
         try:
             msg = await channel.fetch_message(teams_dashboard_message_id)
         except:
-            return await interaction.response.send_message(
-                embed=failure("Dashboard message not found."),
-                ephemeral=True
-            )
+            return
 
-        embed = await self._build_team_embed(interaction.guild)
-
+        embed = await self._build_team_embed(guild)
         await msg.edit(embed=embed)
 
+    @app_commands.command(name="update_team_dashboard")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def update_team_dashboard(self, interaction: discord.Interaction):
+        await self.update_dashboard(interaction.guild)
         await interaction.response.send_message(
             embed=success("Dashboard updated."),
             ephemeral=True

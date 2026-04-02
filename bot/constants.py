@@ -57,7 +57,7 @@ introduction_channel_id = 1487413734056923236
 join_a_team_channel_id = 1489254495522390186
 
 # Message id
-teams_dashboard_message_id = 1489259245282267208
+teams_dashboard_message_id = 1489264468168016054
 
 # Roles
 muted_role_id = 707007421066772530
