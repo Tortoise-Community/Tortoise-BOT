@@ -171,6 +171,7 @@ class ButtonUtility(commands.Cog):
         # Register persistent view on startup
         self.bot.add_view(NotifyButton())
         self.bot.add_view(ModMailStartView())
+        self.bot.add_view(TeamInvitesButton())
 
 
     @app_commands.command(
