@@ -19,7 +19,9 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
     description = discord.ui.TextInput(
         label="Description",
         placeholder="What does this team do? Goals, activities. \n\n"
-                    "NOTE: This will be sent when you invite members",
+                    "This will be sent when you invite members\n"
+                    "So write a well structured description of your team here\n"
+                    "Markdown is supported (`**`, `\``, `#`)",
         style=discord.TextStyle.paragraph,
         max_length=300
     )
@@ -250,6 +252,13 @@ class TeamCog(commands.Cog):
 
         return None
 
+    @staticmethod
+    async def _disable_interaction(interaction: discord.Interaction):
+        try:
+            await interaction.message.edit(view=None)
+        except discord.Forbidden:
+            pass
+
     async def _handle_team_setup(self, interaction: discord.Interaction, custom_id: str):
 
         _, invite_id = custom_id.split(":")
@@ -258,18 +267,21 @@ class TeamCog(commands.Cog):
         invite = await self.team.get_setup_invite(invite_id)
 
         if not invite:
+            await self._disable_interaction(interaction)
             return await interaction.response.send_message(
                 embed=failure("Invite not found."),
                 ephemeral=True
             )
 
         if invite["status"] != "pending":
+            await self._disable_interaction(interaction)
             return await interaction.response.send_message(
                 embed=warning("Invite already used."),
                 ephemeral=True
             )
 
         if interaction.user.id != invite["user_id"]:
+            await self._disable_interaction(interaction)
             return await interaction.response.send_message(
                 embed=failure("This invite is not for you."),
                 ephemeral=True
@@ -277,6 +289,7 @@ class TeamCog(commands.Cog):
 
         guild = self.bot.get_guild(invite["guild_id"])
         if not guild:
+            await self._disable_interaction(interaction)
             return await interaction.response.send_message(
                 embed=failure("Guild not found."),
                 ephemeral=True
