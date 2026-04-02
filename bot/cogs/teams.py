@@ -3,9 +3,13 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.constants import accepting_team_invites_role_id, system_log_channel_id, success_emoji
+from bot.constants import (
+    accepting_team_invites_role_id, system_log_channel_id, success_emoji,
+    teams_dashboard_message_id, join_a_team_channel_id
+)
 from bot.utils.embed_handler import success, failure, warning, info, authored_sm
 from bot.utils.checks import tortoise_bot_developer_only
+
 
 
 class CreateTeamModal(discord.ui.Modal, title="Create Team"):
@@ -51,7 +55,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         try:
 
             role = await guild.create_role(name=name)
-            category = await guild.create_category(f"TEAM - {name}")
+            category = await guild.create_category(f"Team - {name}")
 
             overwrites = {
                 guild.default_role: discord.PermissionOverwrite(
@@ -67,13 +71,13 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
             }
 
             text = await guild.create_text_channel(
-                name=name,
+                name="team-chat",
                 category=category,
                 overwrites=overwrites
             )
 
             voice = await guild.create_voice_channel(
-                name=name,
+                name="team-voice",
                 category=category,
                 overwrites=overwrites
             )
@@ -632,6 +636,55 @@ class TeamCog(commands.Cog):
             embed=success("You left the team.")
         )
 
+    async def _build_team_embed(self, guild: discord.Guild):
+
+        teams = await self.team.get_all_teams(guild.id)
+
+        if not teams:
+            return info("No teams created yet.", self.bot.user, "Teams Dashboard")
+
+        desc = ""
+
+        for team in teams:
+            leader = guild.get_member(team["leader_id"])
+            members = await self.team.get_team_members(team["team_id"])
+
+            desc += (
+                f"**{team['name']}**\n"
+                f"Lead: {leader.mention if leader else 'Unknown'}\n"
+                f"Timezone: `{team['timezone']}`\n"
+                f"Members: {len(members)}\n\n"
+            )
+
+        return info(desc, self.bot.user, "Teams Dashboard", "powered by Tortoise Programming Community")
+
+    @app_commands.command(name="update_team_dashboard")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def update_team_dashboard(self, interaction: discord.Interaction):
+
+        channel = self.bot.get_channel(join_a_team_channel_id)
+        if not channel:
+            return await interaction.response.send_message(
+                embed=failure("Channel not found."),
+                ephemeral=True
+            )
+
+        try:
+            msg = await channel.fetch_message(teams_dashboard_message_id)
+        except:
+            return await interaction.response.send_message(
+                embed=failure("Dashboard message not found."),
+                ephemeral=True
+            )
+
+        embed = await self._build_team_embed(interaction.guild)
+
+        await msg.edit(embed=embed)
+
+        await interaction.response.send_message(
+            embed=success("Dashboard updated."),
+            ephemeral=True
+        )
 
 async def setup(bot):
     await bot.add_cog(TeamCog(bot))
