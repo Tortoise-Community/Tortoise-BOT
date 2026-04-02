@@ -21,7 +21,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         placeholder="What does this team do? Goals, activities. \n\n"
                     "This will be sent when you invite members\n"
                     "So write a well structured description of your team here\n"
-                    "Markdown is supported (`**`, `\``, `#`)",
+                    "Markdown is supported (`**`, `#` etc)",
         style=discord.TextStyle.paragraph,
         max_length=300
     )
