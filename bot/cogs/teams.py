@@ -17,11 +17,10 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
     name = discord.ui.TextInput(label="Team Name", max_length=50)
     timezone = discord.ui.TextInput(label="Timezone (e.g. IST, EST)")
     description = discord.ui.TextInput(
-        label="Description",
-        placeholder="What does this team do? Goals, activities. \n\n"
-                    "This will be sent when you invite members\n"
-                    "So write a well structured description of your team here\n"
-                    "Markdown is supported (`**`, `#` etc)",
+        label="Description (Markdown supported)",
+        placeholder="Describe your team goals, activities.\n"
+                    "This will be sent with invite.\n"
+                    "Make it well structured.\n",
         style=discord.TextStyle.paragraph,
         max_length=300
     )
