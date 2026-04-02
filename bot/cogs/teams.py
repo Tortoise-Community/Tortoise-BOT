@@ -143,7 +143,11 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
             embed=info(f"**Lead: **{leader.mention}\n"
                        f"**Timezone:** {timezone}\n"
                        f"**Role:** {role.mention}\n\n"
-                       f"{description}\n",
+                       f"{description}\n\n"
+                       f"Commands available:\n"
+                       f"`/invite` - For inviting members to this team.\n"
+                       f"`/remove_member` - For removing members from this team.\n"
+                       f"`/leave` - For members to leave this team.\n",
                        self.cog.bot.user,
                        f"{success_emoji} Team Setup Complete!")
         )

@@ -643,3 +643,11 @@ class TeamManager:
             WHERE guild_id=$1
             ORDER BY team_id DESC
         """, guild_id)
+
+    async def get_team_members(self, team_id: int):
+        return await self.db.pool.fetch("""
+            SELECT user_id
+            FROM team_members
+            WHERE team_id=$1
+        """, team_id)
+
