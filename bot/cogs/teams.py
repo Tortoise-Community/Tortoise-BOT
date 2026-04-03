@@ -682,20 +682,21 @@ class TeamCog(commands.Cog):
         if not teams:
             return info("No teams created yet.", self.bot.user, "Teams Dashboard")
 
-        desc = ""
+        desc = "# Teams Dashboard\n\n"
 
         for team in teams:
             leader = guild.get_member(team["leader_id"])
             members = await self.team.get_team_members(team["team_id"])
 
             desc += (
-                f"**{team['name']}**\n"
-                f"Lead: {leader.mention if leader else 'Unknown'}\n"
+                f"## {team['name']}\n"
+                f"Lead: {leader.display_name if leader else 'Unknown'}\n"
                 f"Timezone: `{team['timezone']}`\n"
-                f"Members: {len(members)}\n\n"
+                f"Channel: <#{team['text_channel_id']}>\n"
+                f"Members: `{len(members)}`\n\n"
             )
 
-        return info(desc, self.bot.user, "Teams Dashboard", "powered by Tortoise Programming Community")
+        return info(desc, self.bot.user, "", "Powered by Tortoise Programming Community")
 
     async def update_dashboard(self, guild: discord.Guild):
 
