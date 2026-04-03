@@ -141,6 +141,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         )
 
         await text.send(
+            content=leader.mention,
             embed=info(f"**Lead: **{leader.mention}\n"
                        f"**Timezone:** {timezone}\n"
                        f"**Role:** {role.mention}\n\n"
@@ -150,7 +151,9 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                        f"`/remove_member` - For removing members from this team.\n"
                        f"`/leave` - For members to leave this team.\n",
                        self.cog.bot.user,
-                       f"{success_emoji} Team Setup Complete!")
+                       f"{success_emoji} Team Setup Complete!",
+                       "Enable “Show All Channels” in server settings to view this category, "
+                       "as Discord hides new channels by default.")
         )
 
         await self.cog.update_dashboard(guild)
@@ -229,6 +232,7 @@ class TeamCog(commands.Cog):
             await interaction.followup.send(embed=success("Invitation accepted."), ephemeral=True)
             if team_channel:
                 await team_channel.send(
+                    content=member.mention,
                     embed=authored_sm(f"{member} has joined the team.", author=member)
                 )
             await self.log_channel.send(
