@@ -16,20 +16,34 @@ class JoinManager(commands.Cog):
         self.tracker = None
         self.log_channel = None
         self.welcome_role = None
+        self.ban_appeal_guild = None
         self.introduction_channel = None
         self.retention = bot.retention_manager
+
+
+    def get_unbanned_embed(self):
+        return embed_handler.info(
+            "You are not currently banned from Tortoise Community, "
+            "or your ban has been lifted.\n\nYou can rejoin using the link below.\n\n"
+            f"👉 [Invite Link]({constants.server_link}) 👈",
+            self.bot.user,
+            "Unban Notice!",
+            "Welcome back to our server!"
+        )
 
 
     @commands.Cog.listener()
     async def on_ready(self):
         self.guild = self.bot.get_guild(constants.tortoise_guild_id)
+        self.ban_appeal_guild = self.bot.get_guild(constants.ban_appeal_server_id)
         self.tracker = invite_help.GuildInviteTracker(self.guild)
         self.log_channel = self.bot.get_channel(constants.system_log_channel_id)
         self.welcome_role = self.guild.get_role(constants.new_member_role_id)
         self.introduction_channel = self.guild.get_channel(constants.introduction_channel_id)
 
         self.bot.loop.create_task(self.tracker.refresh_invite_cache())
-        self.daily_retention_report.start()
+        if not self.daily_retention_report.is_running():
+            self.daily_retention_report.start()
 
     @commands.Cog.listener()
     async def on_invite_create(self, invite: Invite):
@@ -56,7 +70,7 @@ class JoinManager(commands.Cog):
 
     async def handle_ban_appeal_server_join(self, member: Member):
         try:
-            await member.guild.fetch_ban(discord.Object(id=member.id))
+            await self.guild.fetch_ban(discord.Object(id=member.id))
             is_banned = True
         except discord.NotFound:
             is_banned = False
@@ -66,20 +80,14 @@ class JoinManager(commands.Cog):
             return
 
         if not is_banned:
-            embed = embed_handler.info(
-                "You are not currently banned from Tortoise Community, "
-                "or your ban has been lifted.\n\nYou can rejoin using the link below.\n\n"
-                f"👉 [Invite Link]({constants.server_link}) 👈",
-                self.bot.user,
-                "Unban Notice!",
-                "Welcome back to our server!"
-            )
+            embed = self.get_unbanned_embed()
             try:
                 await member.send(embed=embed)
             except discord.Forbidden:
                 pass
 
             await member.kick(reason="Not banned from Tortoise Programming Community")
+            await asyncio.sleep(3)
 
     @staticmethod
     def get_post_intro_message() -> str:
@@ -153,7 +161,14 @@ class JoinManager(commands.Cog):
 
         await self.retention.add_join(member.guild.id)
 
-        inviter, code = await self.tracker.track_inviter_and_code()
+        inviter, code = None, None
+
+        if self.tracker:
+            try:
+                inviter, code = await self.tracker.track_inviter_and_code()
+            except Exception:
+                inviter, code = None, None
+
         created_at = f"<t:{int(member.created_at.timestamp())}:R>"
 
         if inviter:
