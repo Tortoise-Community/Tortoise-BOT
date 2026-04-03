@@ -127,17 +127,15 @@ class Moderation(commands.Cog):
         try:
             await member.kick(reason=reason)
         except Exception:
-            await interaction.followup.send(
+            return await interaction.followup.send(
                 embed=failure("Failed to kick member."),
                 ephemeral=True
             )
-            return
+
 
         deterrence_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason)
         await self.deterrence_log_channel.send(embed=deterrence_embed)
-
-
-        await interaction.followup.send(embed=success(f"{member.name} successfully kicked."))
+        return await interaction.followup.send(embed=success(f"{member.name} successfully kicked."))
 
 
     # @app_commands.command()

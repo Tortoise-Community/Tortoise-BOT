@@ -270,7 +270,7 @@ def infraction_embed(
     """
 
     embed = Embed(title="**Infraction information**", color=infraction_type.value)
-    embed.set_author(name="Tortoise Community", icon_url=interaction.client.user.avatar.url)
+    embed.set_author(name="Tortoise Community", icon_url=interaction.client.user.display_avatar.url)
 
     embed.add_field(name="**Member**", value=f"{infracted_member}", inline=False)
     embed.add_field(name="**Type**", value=infraction_type.name, inline=False)
