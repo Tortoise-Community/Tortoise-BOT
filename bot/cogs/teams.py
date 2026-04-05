@@ -68,7 +68,13 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                 role: discord.PermissionOverwrite(
                     view_channel=True,
                     send_messages=True,
-                    connect=True
+                    connect=True,
+                    speak=True,
+                    stream=True,
+                    use_soundboard=True,
+                    use_external_sounds=True,
+                    use_external_emojis=True,
+                    use_external_stickers=True
                 )
             }
 
@@ -690,7 +696,7 @@ class TeamCog(commands.Cog):
 
             desc += (
                 f"## {team['name']}\n"
-                f"Lead: {leader.display_name if leader else 'Unknown'}\n"
+                f"Lead: `{leader.display_name if leader else 'Unknown'}`\n"
                 f"Timezone: `{team['timezone']}`\n"
                 f"Channel: <#{team['text_channel_id']}>\n"
                 f"Members: `{len(members)}`\n\n"
