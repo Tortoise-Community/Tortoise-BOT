@@ -4,7 +4,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from bot.constants import challenger_role_id, accepting_team_invites_role_id
+from bot.constants import (
+    challenger_role_id, accepting_team_invites_role_id, tortoise_guild_id,
+    join_a_team_channel_id, teams_dashboard_message_id
+)
 from bot.utils.checks import tortoise_bot_developer_only
 from bot.utils.embed_handler import info, failure
 
@@ -233,7 +236,9 @@ class ButtonUtility(commands.Cog):
             description=(
                 "Click here to receive team invites from team leads.\n\n"
                 "Teams are designed for focused DSA preparation with like-minded people, preferably in the same timezone.\n"
-                "This may include organized group calls, discussions, and collaboration."
+                "This may include organized group calls, discussions, and collaboration.\n\n"
+                f"**All Teams: **: https://discord.com/channels/"
+                f"{tortoise_guild_id}/{join_a_team_channel_id}/{teams_dashboard_message_id}\n\n"
             ),
             color=discord.Color.blurple(),
         )

@@ -702,7 +702,10 @@ class TeamCog(commands.Cog):
                 f"Members: `{len(members)}`\n\n"
             )
 
-        return info(desc, self.bot.user, "", "Powered by Tortoise Programming Community")
+        return info(
+            desc, self.bot.user, "",
+            "Enable “Show All Channels” in server settings to view all team channels"
+        )
 
     async def update_dashboard(self, guild: discord.Guild):
 
