@@ -23,7 +23,7 @@ LANG_ALIASES = {
 view = discord.ui.View()
 view.add_item(
     discord.ui.Button(
-        label="Add to Server",
+        label="Invite to Server",
         emoji=discord.PartialEmoji(name="plus", id=1481788040232833075),
         url="https://discord.com/oauth2/authorize?client_id=780132667265122315",
     )
@@ -154,7 +154,7 @@ class SandboxExec(commands.Cog):
 
         if not lang:
             await message.channel.send(
-                "Unsupported language. Use python, javascript or java in the code block header."
+               embed=failure("Unsupported language. Use python, javascript or java in the code block header.")
             )
             return
 
