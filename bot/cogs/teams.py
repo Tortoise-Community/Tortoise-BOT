@@ -72,6 +72,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                     speak=True,
                     stream=True,
                     use_soundboard=True,
+                    use_voice_activation=True,
                     use_external_sounds=True,
                     use_external_emojis=True,
                     use_external_stickers=True
@@ -344,22 +345,6 @@ class TeamCog(commands.Cog):
                     )
             return
 
-
-    # @app_commands.command(name="create_team")
-    # @app_commands.check(tortoise_bot_developer_only)
-    # async def create_team(
-    #         self,
-    #         interaction: discord.Interaction,
-    #         leader: discord.Member
-    # ):
-    #     if await self.team.leader_has_team(interaction.guild.id, leader.id):
-    #         return await interaction.followup.send(
-    #             embed=warning("This user is already leading a team."),
-    #             ephemeral=True
-    #         )
-    #     await interaction.response.send_modal(
-    #         CreateTeamModal(self, leader)
-    #     )
 
     @app_commands.command(name="send_team_setup")
     @app_commands.check(tortoise_bot_developer_only)

@@ -78,6 +78,13 @@ class Bot(commands.Bot):
         self.afk_manager = None
         self.retention_manager = None
         self.team_manager = None
+        self._sys_log_channel = None
+
+    @property
+    def sys_log_channel(self) -> discord.TextChannel:
+        if self._sys_log_channel is None:
+            self._sys_log_channel = self.get_channel(system_log_channel_id)
+        return self._sys_log_channel
 
     @tasks.loop(minutes=1)
     async def rotate_status(self):
@@ -107,17 +114,13 @@ class Bot(commands.Bot):
         except Exception:
             commit_hash = os.getenv("BOT_BUILD_VERSION", "mystery-build")
 
-        channel = self.get_channel(system_log_channel_id)
         self.build_version = commit_hash
-
-        if channel is None:
-            return
 
         try:
             embed = simple_embed(message=f"Build version: [{commit_hash}]({github_repo_link}/commit/{commit_hash})",
                                  title="")
             embed.set_footer(text=f"🔄 Bot Restarted")
-            await channel.send(
+            await self.sys_log_channel.send(
                 embed=embed,
             )
         except discord.Forbidden:

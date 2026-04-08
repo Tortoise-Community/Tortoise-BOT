@@ -192,7 +192,7 @@ class Leaderboard(commands.Cog):
         pts = await self.manager.get_points(interaction.guild.id, target.id)
 
         await interaction.response.send_message(
-            embed=info(f"{target.mention} has **{pts}** points.", self.bot.user,"📊 Points"),
+            embed=info(f"{target.mention} has **{pts}** points.", self.bot.user,"Points"),
             ephemeral=True
         )
 
