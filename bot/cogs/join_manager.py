@@ -25,7 +25,7 @@ class JoinManager(commands.Cog):
         return embed_handler.info(
             "You are not currently banned from Tortoise Community, "
             "or your ban has been lifted.\n\nYou can rejoin using the link below.\n\n"
-            f"👉 [Invite Link]({constants.server_link}) 👈",
+            f"👉 [Invite Link]({constants.server_link}) ",
             self.bot.user,
             "Unban Notice!",
             "Welcome back to our server!"
@@ -97,7 +97,7 @@ class JoinManager(commands.Cog):
             f"Thanks for introducing yourself! Feel free to continue the conversation in <#{constants.general_channel_id}>.",
             f"Welcome! Now you can head to <#{constants.general_channel_id}> and start connecting with others.",
             f"Nice to meet you! Go ahead and say hi in <#{constants.general_channel_id}> to meet more people.",
-            f"Good intro 👍 Continue chatting and get involved in <#{constants.general_channel_id}>.",
+            f"Good intro. Continue chatting and get involved in <#{constants.general_channel_id}>.",
             f"Welcome aboard! You can now join the discussion in <#{constants.general_channel_id}>.",
             f"Awesome intro! Head over to <#{constants.general_channel_id}> and start interacting.",
             f"Thanks for sharing! Now jump into <#{constants.general_channel_id}> and meet the community.",
@@ -146,7 +146,7 @@ class JoinManager(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: Member):
-
+        # If user joins appeal server, check if they are banned in tortoise.
         if member.guild.id == constants.ban_appeal_server_id:
             await self.handle_ban_appeal_server_join(member)
             return
@@ -154,6 +154,7 @@ class JoinManager(commands.Cog):
         if member.guild.id != constants.tortoise_guild_id:
             return
 
+        # Instantly ban any bots joining when bot protection is enabled.
         if member.bot and self.bot.advanced_protection:
             await self.log_channel.send(embed=embed_handler.warning(f"{member.mention} bot was banned due to Advanced Protection™"))
             await member.ban(reason="Advanced Protection™ enabled. Bot joins are prohibited.")
