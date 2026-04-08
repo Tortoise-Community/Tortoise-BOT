@@ -60,7 +60,7 @@ class Miscellaneous(commands.Cog):
     @app_commands.command(name="members")
     async def members(self, interaction: discord.Interaction):
         await interaction.response.send_message(
-            embed=info(f"{interaction.guild.member_count}", interaction.guild.me, "Member count")
+            embed=info(f"**Member count:** {interaction.guild.member_count}", interaction.guild.me, "")
         )
 
     @app_commands.command(name="status")
@@ -228,12 +228,14 @@ class Miscellaneous(commands.Cog):
             "\\`\\`\\`\n\n"
             "This would give you:\n"
             "```python\n"
-            "print('Hello world')```\n"
-            "Note that character ` is not a quote but a backtick.\n\n"
+            "print('Hello world')```\n\n"
             # "If, however, you have large amounts of code then it's better to use our paste service: "
-            # f"{tortoise_paste_service_link}"
+            # f"{tortoise_paste_service_link}",
         )
-        embed = info(content, interaction.guild.me, "")
+        embed = info(
+            content, interaction.guild.me, "",
+            "Note: The character ` is not a quote but a backtick."
+        )
         await interaction.response.send_message(embed=embed)
         message = await interaction.original_response()
         await RemovableMessage.create_instance(self.bot, message, interaction.user)
@@ -422,6 +424,7 @@ class Miscellaneous(commands.Cog):
     @app_commands.command(name="run_help", description="Show how to run code with the execution bot")
     async def run_help(self, interaction: discord.Interaction):
         content = (
+            "# How to Run Code using the bot\n\n"
             "Run code by sending a message that starts with `/run` followed by a fenced code block.\n\n"
             "**Format:**\n\n"
             "/run\n\\`\\`\\`<language>\n"
@@ -445,10 +448,12 @@ class Miscellaneous(commands.Cog):
             "    }\n"
             "}\n"
             "```\n\n"
-            "You can edit your message within 2 minutes to re-run the code automatically."
         )
 
-        embed = info(content, interaction.guild.me, "How to Run Code")
+        embed = info(
+            content, interaction.guild.me, "",
+            "You can edit your message within 2 minutes to re-run the code automatically."
+        )
         await interaction.response.send_message(embed=embed)
         message = await interaction.original_response()
         await RemovableMessage.create_instance(self.bot, message, interaction.user)
