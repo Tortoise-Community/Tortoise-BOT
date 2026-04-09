@@ -34,7 +34,6 @@ class Bot(commands.Bot):
         "documentation",
         "games",
         "help",
-        "music",
         "piston",
         "reddit",
         "socket_comm",
