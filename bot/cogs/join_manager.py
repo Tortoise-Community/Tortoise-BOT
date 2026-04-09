@@ -123,6 +123,7 @@ class JoinManager(commands.Cog):
             return
 
         try:
+            await asyncio.sleep(0.3)
             await message.add_reaction(
                 random.choice(
                     [
@@ -137,6 +138,7 @@ class JoinManager(commands.Cog):
                 self.bot.user,
                 ""
             )
+            await asyncio.sleep(0.7)
             await message.channel.send(embed=embed, delete_after=30)
 
         except discord.Forbidden:
