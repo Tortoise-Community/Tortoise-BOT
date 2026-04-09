@@ -48,7 +48,7 @@ class AntiRaidSpam(commands.Cog):
         if member.guild_permissions.manage_messages:
             return
 
-        #MENTIONED EVERYONE/HERE: IMMEDIATE BAN
+        # MENTIONED EVERYONE/HERE: IMMEDIATE BAN
         if everyone_mention in message.clean_content or here_mention in message.clean_content:
             await self.handle_raid(
                 member,
@@ -57,7 +57,7 @@ class AntiRaidSpam(commands.Cog):
             self.message_log[guild.id].pop(member.id, None)
             return
 
-        #BAIT CHANNEL: IMMEDIATE BAN
+        # BAIT CHANNEL: IMMEDIATE BAN
         if message.channel.id == bait_channel_id:
             await self.handle_raid(
                 member,
