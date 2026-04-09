@@ -31,7 +31,6 @@ class Bot(commands.Bot):
     allowed_extensions = ()
     banned_extensions = (
         "advent_of_code",
-        "defcon",
         "documentation",
         "games",
         "help",
@@ -45,7 +44,7 @@ class Bot(commands.Bot):
     build_version = "mystery-build"
     advanced_protection: bool = True
 
-    def __init__(self, prefix="t.", *args, **kwargs):
+    def __init__(self, prefix=None, *args, **kwargs):
         intents = discord.Intents.default()
         intents.members = True
         intents.message_content = True
