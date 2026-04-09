@@ -36,7 +36,6 @@ class Bot(commands.Bot):
         "help",
         "piston",
         "reddit",
-        "socket_comm",
         "tortoise_api",
         "utility"
     )
