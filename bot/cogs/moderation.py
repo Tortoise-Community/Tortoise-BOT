@@ -243,6 +243,50 @@ class Moderation(commands.Cog):
         await self._ban_helper(interaction, user, reason)
         await interaction.followup.send(embed=success(f"{user} successfully banned."), ephemeral=True)
 
+    @app_commands.command(name="ban_with_id")
+    @app_commands.checks.bot_has_permissions(ban_members=True)
+    @app_commands.check(check_if_tortoise_staff)
+    @app_commands.checks.cooldown(1, 120)
+    @app_commands.describe(user_id="ID of the user to ban")
+    async def ban_with_id(
+            self,
+            interaction: discord.Interaction,
+            user_id: str,
+            reason: str = "Reason not stated."
+    ):
+        """Ban a user using their ID (even if they are not in the server)."""
+
+        await interaction.response.defer(ephemeral=True)
+
+        try:
+            user_id_int = int(user_id)
+        except ValueError:
+            return await interaction.followup.send(
+                embed=failure("Invalid user ID."),
+                ephemeral=True
+            )
+
+        try:
+            user = await self.bot.fetch_user(user_id_int)
+        except discord.HTTPException:
+            return await interaction.followup.send(
+                embed=failure("Could not find user with that ID."),
+                ephemeral=True
+            )
+
+        try:
+            await self._ban_helper(interaction, user, reason)
+        except Exception as e:
+            return await interaction.followup.send(
+                embed=failure(f"Failed to ban user: {e}"),
+                ephemeral=True
+            )
+
+        return await interaction.followup.send(
+            embed=success(f"{user} successfully banned by ID."),
+            ephemeral=True
+        )
+
     async def _ban_helper(
             self,
             interaction: discord.Interaction,

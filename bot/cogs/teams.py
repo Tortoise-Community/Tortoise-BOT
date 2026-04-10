@@ -5,7 +5,7 @@ from discord import app_commands
 
 from bot.constants import (
     accepting_team_invites_role_id, system_log_channel_id, success_emoji,
-    teams_dashboard_message_id, join_a_team_channel_id
+    teams_dashboard_message_id, join_a_team_channel_id, moderator_role_id
 )
 from bot.utils.embed_handler import success, failure, warning, info, authored_sm
 from bot.utils.checks import tortoise_bot_developer_only
@@ -57,6 +57,7 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         try:
 
             role = await guild.create_role(name=name)
+            mod = guild.get_role(moderator_role_id)
             category = await guild.create_category(f"Team - {name}")
 
             overwrites = {
@@ -76,6 +77,19 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
                     use_external_sounds=True,
                     use_external_emojis=True,
                     use_external_stickers=True
+                ),
+                mod: discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=True,
+                    connect=True,
+                    speak=True,
+                    stream=True,
+                    use_soundboard=True,
+                    use_voice_activation=True,
+                    use_external_sounds=True,
+                    use_external_emojis=True,
+                    use_external_stickers=True,
+                    manage_messages=True,
                 )
             }
 
