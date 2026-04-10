@@ -348,53 +348,6 @@ async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: 
 
     return suggestion_msg
 
-
-def black_jack_template(author: User, player, description: str, color: Color) -> Embed:
-    """
-    Creates black jack embed template.
-    :param author: User discord user from which to get name and avatar
-    :param player: player object
-    :param description: embed description
-    :param color: discord.Color
-    :return: discord.Embed
-    """
-    embed = authored(description, author=author)
-    embed.colour = color
-    embed.set_thumbnail(
-        url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-icon-splash-diwali-coasters-black-background.png"
-    )
-    card_string = player.get_emote_string(hidden=False)
-    embed.add_field(name="Your hand", value=f"{card_string}")
-    embed.set_footer(
-        text="BlackJack",
-        icon_url="https://i.pinimg.com/originals/c3/5f/63/c35f630a4efb237206ec94f8950dcad5.png"
-    )
-    return embed
-
-
-def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = True) -> Embed:
-    """
-    Creates embed based on set of constraints for blackjack
-    :param user:  discord.User
-    :param player: player object for blackjack
-    :param outcome: blackjack game outcome
-    :param hidden: dealer card value
-    :return: discord.Embed
-    """
-    embed = black_jack_template(user, player, "", Color.gold())
-    embed.add_field(name="Dealer hand", value=player.game.dealer.get_emote_string(hidden=hidden))
-    if outcome == "win":
-        embed.colour = Color.dark_green()
-        embed.description = "**Outcome:** You won!"
-    elif outcome == "lose":
-        embed.colour = Color.dark_red()
-        embed.description = "**Outcome:** You lost!"
-    elif outcome == "tie":
-        embed.colour = Color.dark_grey()
-        embed.description = "**Outcome:** It's a tie!"
-    return embed
-
-
 def project_embed(projects: dict, me):
     desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
     embed = simple_embed(title="Tortoise Community", message=desc,

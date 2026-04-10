@@ -32,7 +32,6 @@ class Bot(commands.Bot):
     banned_extensions = (
         "advent_of_code",
         "documentation",
-        "games",
         "help",
         "piston",
         "reddit",
