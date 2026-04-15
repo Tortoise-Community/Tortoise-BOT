@@ -1,5 +1,4 @@
 import os
-import asyncio
 import json
 import logging
 from datetime import datetime, timezone
@@ -293,19 +292,42 @@ class HataAPI(BaseAPIClient):
 
 
 class AdventOfCodeAPI(BaseAPIClient):
-    AOC_REQUEST_HEADER = {"user-agent": "Tortoise Discord Community AoC event bot"}
-    COOKIES = {"session": os.getenv("AOC_COOKIE")}
+    AOC_REQUEST_HEADER = {
+        "User-Agent": "Tortoise Discord Community AoC bot (github: Tortoise-Community)"
+    }
+
     AOC_API_URL = "https://adventofcode.com/{year}/leaderboard/private/view/{leaderboard_id}"
 
-    def __init__(self, leaderboard_id: str, year: int = 2020):
+    def __init__(
+        self,
+        leaderboard_id: str,
+        year: int,
+        session_cookie: Optional[str] = None,
+    ) -> None:
+        session_cookie = session_cookie or os.getenv("AOC_COOKIE")
+
+        if not session_cookie:
+            raise ValueError(
+                "AdventOfCodeAPI: session cookie is missing. "
+                "Pass session_cookie=... or set AOC_COOKIE."
+            )
+
+        base_url = self.AOC_API_URL.format(
+            year=year,
+            leaderboard_id=leaderboard_id
+        )
+
         super().__init__(
-            self.AOC_API_URL.format(year=year, leaderboard_id=leaderboard_id),
+            base_api_url=base_url,
             headers=self.AOC_REQUEST_HEADER,
-            cookies=self.COOKIES
+            cookies={"session": session_cookie},
         )
 
     async def get_leaderboard(self):
         return await self.get(endpoint=".json")
+
+    async def close(self):
+        await self.session.close()
 
 
 class StackAPI(BaseAPIClient):

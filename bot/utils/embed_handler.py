@@ -8,9 +8,7 @@ from discord import Embed, Color, Member, User, Status, Message, TextChannel
 
 from bot import constants
 from bot.utils.custom_types import FakeInteraction
-from bot.utils.misc import (
-    get_badges, get_join_pos, has_verified_role, format_activity, get_device_status, format_date, get_user_avatar
-)
+from bot.utils.misc import get_user_avatar
 
 
 def simple_embed(message: str, title: str, color: Union[Color, int] = constants.default_color) -> Embed:
@@ -196,60 +194,6 @@ def thumbnail(message: str, member: Union[Member, User], title: str = None) -> E
     return embed
 
 
-def status_embed(ctx, member: Member) -> Embed:
-    """
-    Construct status embed for certain member.
-    Status will have info such as member device, online status, activity, roles etc.
-    :param ctx: context variable to get the member
-    :param member: member to get data from
-    :return: discord.Embed
-    """
-
-    color_dict = {
-        Status.online: Color.green(),
-        Status.offline: 0x000000,
-        Status.idle: Color.orange(),
-        Status.dnd: Color.red()
-    }
-
-    embed = Embed(title=str(member), color=color_dict[member.status])
-    embed.description = get_badges(member)
-    embed.set_thumbnail(url=member.display_avatar.url)
-
-    bot = constants.tick_no
-    nick = member.nick
-    verified = constants.tick_no
-    join_pos = get_join_pos(ctx, member)
-    activities = ""
-
-    if member.bot:
-        bot = constants.tick_yes
-
-    if has_verified_role(ctx, member):
-        verified = constants.tick_yes
-
-    if not nick:
-        nick = constants.tick_no
-
-    for activity in member.activities:
-
-        clean_activity = format_activity(activity)
-        activities += f"{clean_activity}\n"
-
-    embed.add_field(name=f"{constants.pin_emoji} General info",
-                    value=f"**Nick** : {nick}\n**Bot** : {bot}\n"
-                          f"**Verified** : {verified}\n**Join position** : {join_pos}")
-    embed.add_field(name=f"{constants.user_emoji} Status", value=get_device_status(member), inline=False)
-    embed.add_field(name="📆 Dates",
-                    value=f"**Join date** : {format_date(member.joined_at)}\n "
-                          f"**Creation Date** : {format_date(member.created_at)}",
-                    inline=False)
-
-    if not activities == "":
-        embed.add_field(name='Activities', value=activities, inline=False)
-    return embed
-
-
 def infraction_embed(
         interaction: Union[discord.Interaction, FakeInteraction],
         infracted_member: Union[Member, User],
@@ -347,53 +291,6 @@ async def create_suggestion_msg(channel: TextChannel, author: User, suggestion: 
     await suggestion_msg.add_reaction(thumbs_down_reaction)
 
     return suggestion_msg
-
-
-def black_jack_template(author: User, player, description: str, color: Color) -> Embed:
-    """
-    Creates black jack embed template.
-    :param author: User discord user from which to get name and avatar
-    :param player: player object
-    :param description: embed description
-    :param color: discord.Color
-    :return: discord.Embed
-    """
-    embed = authored(description, author=author)
-    embed.colour = color
-    embed.set_thumbnail(
-        url="https://www.vhv.rs/dpng/d/541-5416003_poker-club-icon-splash-diwali-coasters-black-background.png"
-    )
-    card_string = player.get_emote_string(hidden=False)
-    embed.add_field(name="Your hand", value=f"{card_string}")
-    embed.set_footer(
-        text="BlackJack",
-        icon_url="https://i.pinimg.com/originals/c3/5f/63/c35f630a4efb237206ec94f8950dcad5.png"
-    )
-    return embed
-
-
-def black_jack_embed(user: User, player, outcome: str = None, hidden: bool = True) -> Embed:
-    """
-    Creates embed based on set of constraints for blackjack
-    :param user:  discord.User
-    :param player: player object for blackjack
-    :param outcome: blackjack game outcome
-    :param hidden: dealer card value
-    :return: discord.Embed
-    """
-    embed = black_jack_template(user, player, "", Color.gold())
-    embed.add_field(name="Dealer hand", value=player.game.dealer.get_emote_string(hidden=hidden))
-    if outcome == "win":
-        embed.colour = Color.dark_green()
-        embed.description = "**Outcome:** You won!"
-    elif outcome == "lose":
-        embed.colour = Color.dark_red()
-        embed.description = "**Outcome:** You lost!"
-    elif outcome == "tie":
-        embed.colour = Color.dark_grey()
-        embed.description = "**Outcome:** It's a tie!"
-    return embed
-
 
 def project_embed(projects: dict, me):
     desc = f"▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱▰▱\n\n**Active repositories: **{len(projects)-1}\n"
