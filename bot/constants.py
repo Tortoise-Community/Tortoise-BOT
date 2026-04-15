@@ -77,6 +77,8 @@ boot_role_id = 1472793802740596839
 apprentice_role_id = 1472725760723648522
 fellow_role_id = 1472793939630358731
 
+mod_mail_ping_role_id = 1493890424518086807
+
 # Dev constants
 # active_role_id = 1482855148077187102
 # active_plus_role_id = 1482855121649012758

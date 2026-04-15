@@ -216,6 +216,7 @@ class TortoiseDM(commands.Cog):
         self._tortoise_guild = None
         self._admin_role = None
         self._moderator_role = None
+        self._mod_mail_ping_role = None
         self.cool_down = CoolDown(seconds=120)
         self.bot.loop.create_task(self.cool_down.start())
 
@@ -296,6 +297,12 @@ class TortoiseDM(commands.Cog):
         if self._moderator_role is None:
             self._moderator_role = self.tortoise_guild.get_role(constants.moderator_role_id)
         return self._moderator_role
+
+    @property
+    def mod_mail_ping_role(self):
+        if self._mod_mail_ping_role is None:
+            self._mod_mail_ping_role = self.tortoise_guild.get_role(constants.mod_mail_ping_role_id)
+        return self._mod_mail_ping_role
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -451,8 +458,8 @@ class TortoiseDM(commands.Cog):
         submission_embed = authored_sm(f"{user.name} {source_text}", author=user)
         view = ModMailAcceptView(self, user.id)
 
-        await self.staff_channel.send("@here", delete_after=30)
         msg = await self.staff_channel.send(
+            self.mod_mail_ping_role.mention,
             embed=submission_embed,
             view=view
         )
