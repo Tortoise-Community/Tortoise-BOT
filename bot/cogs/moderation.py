@@ -314,10 +314,17 @@ class Moderation(commands.Cog):
     @app_commands.command()
     @app_commands.checks.bot_has_permissions(ban_members=True)
     @app_commands.check(check_if_tortoise_staff)
-    async def unban(self, interaction: discord.Interaction, user_id: int, reason: str = "Reason not stated."):
+    async def unban(self, interaction: discord.Interaction, user_id: str, reason: str = "Reason not stated."):
         """Unbans  member from the guild."""
         await interaction.response.defer()
-        user = await self.bot.fetch_user(user_id)
+        try:
+            user_id_int = int(user_id)
+        except ValueError:
+            return await interaction.followup.send(
+                embed=failure("Invalid user ID."),
+                ephemeral=True
+            )
+        user = await self.bot.fetch_user(user_id_int)
         await interaction.guild.unban(user=user, reason=reason)
         await interaction.followup.send(embed=success(f"{user} successfully unbanned."), ephemeral=True)
 

@@ -107,15 +107,20 @@ class Bot(commands.Bot):
                 ["git", "rev-parse", "--short", "HEAD"],
                 stderr=subprocess.DEVNULL,
             ).decode().strip()
+            commit_message = subprocess.check_output(
+                ["git", "log", "-1", "--pretty=%s"],
+                stderr=subprocess.DEVNULL,
+            ).decode().strip()
         except Exception:
             commit_hash = os.getenv("BOT_BUILD_VERSION", "mystery-build")
+            commit_message = ""
 
         self.build_version = commit_hash
 
         try:
             embed = simple_embed(message=f"Build version: [{commit_hash}]({github_repo_link}/commit/{commit_hash})",
                                  title="")
-            embed.set_footer(text=f"🔄 Bot Restarted")
+            embed.set_footer(text=commit_message)
             await self.sys_log_channel.send(
                 embed=embed,
             )
