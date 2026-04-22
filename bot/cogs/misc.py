@@ -143,7 +143,8 @@ class Miscellaneous(commands.Cog):
             "\\`\\`\\`\n\n"
             "This would give you:\n"
             "```python\n"
-            "print('Hello world')```\n\n"
+            "print('Hello world')```\n"
+            "**Video explanation:**\n"
             # "If, however, you have large amounts of code then it's better to use our paste service: "
             # f"{tortoise_paste_service_link}",
         )
@@ -151,6 +152,7 @@ class Miscellaneous(commands.Cog):
             content, interaction.guild.me, "",
             "Note: The character ` is not a quote but a backtick."
         )
+        embed.set_image(url="https://lairesit.sirv.com/Tortoise/howto.gif")
         await interaction.response.send_message(embed=embed)
         message = await interaction.original_response()
         await RemovableMessage.create_instance(self.bot, message, interaction.user)
@@ -209,12 +211,14 @@ class Miscellaneous(commands.Cog):
             "    }\n"
             "}\n"
             "```\n\n"
+            "**Video Explanation:**\n"
         )
 
         embed = info(
             content, interaction.guild.me, "",
             "You can edit your message within 2 minutes to re-run the code automatically."
         )
+        embed.set_image(url="https://lairesit.sirv.com/Tortoise/howtoruncode.gif")
         await interaction.response.send_message(embed=embed)
         message = await interaction.original_response()
         await RemovableMessage.create_instance(self.bot, message, interaction.user)
