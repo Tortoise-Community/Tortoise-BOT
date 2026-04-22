@@ -207,7 +207,7 @@ class Giveaway(commands.Cog):
     async def giveaway_create(
             self,
             interaction: discord.Interaction,
-            duration_minutes: app_commands.Range[int, 1, 10080],
+            duration_minutes: app_commands.Range[int, 1, 21600],
             winners: app_commands.Range[int, 1, 10] = 1
     ):
         await interaction.response.send_modal(CreateModal(self, duration_minutes, winners))
