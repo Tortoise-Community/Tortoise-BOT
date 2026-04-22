@@ -128,6 +128,13 @@ class Questionnaire(discord.ui.View):
         # Check if finished
         if self.current_index >= len(self.questions):
             success_joined = await self.cog.manager.enter(self.row['message_id'], self.user_id)
+            if success_joined:
+                try:
+                    await self.cog.bot.sys_log_channel.send(embed=info(
+                       f"{interaction.user.mention} joined the giveaway.", self.cog.bot.user, ""
+                    ))
+                except Exception as e:
+                    pass
             msg = 'Entry successful! Good luck.' if success_joined else 'You have already entered this giveaway.'
             await interaction.response.edit_message(embed=success(msg), view=None)
         else:
@@ -158,6 +165,13 @@ class JoinView(discord.ui.View):
 
         if not questions:
             joined = await self.cog.manager.enter(row["message_id"], interaction.user.id)
+            if joined:
+                try:
+                    await self.cog.bot.sys_log_channel.send(embed=info(
+                       f"{interaction.user.mention} joined the giveaway.", self.cog.bot.user, ""
+                    ))
+                except Exception as e:
+                    pass
             embed = success("You joined the giveaway!") if joined else warning("You already joined this giveaway.")
             return await interaction.response.send_message(embed=embed, ephemeral=True)
 
