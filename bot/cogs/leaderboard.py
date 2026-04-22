@@ -63,6 +63,7 @@ class Leaderboard(commands.Cog):
         interaction: discord.Interaction,
         member: discord.Member,
         amount: app_commands.Range[int, 1, 10_000],
+        silent: bool = True,
     ):
 
         await interaction.response.defer(ephemeral=True)
@@ -79,6 +80,19 @@ class Leaderboard(commands.Cog):
             "Points Removed",
             f"Removed by: {interaction.user.display_name}",
         )
+
+        if not silent:
+            dm_embed = info((
+                f"**{amount}** points removed\n"
+                f"New total: **{new_total}** points."
+            ),
+                self.bot.user,
+                "Points Removed ;(",
+            )
+            try:
+                await member.send(embed=dm_embed)
+            except discord.Forbidden:
+                pass
 
         await self.log_channel.send(embed=embed)
 

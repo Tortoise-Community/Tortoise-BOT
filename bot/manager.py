@@ -651,3 +651,115 @@ class TeamManager:
             WHERE team_id=$1
         """, team_id)
 
+
+class GiveawayManager:
+    def __init__(self, db):
+        self.db = db
+
+    async def setup(self):
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS giveaways (
+            message_id BIGINT PRIMARY KEY,
+            guild_id BIGINT NOT NULL,
+            channel_id BIGINT NOT NULL,
+            host_id BIGINT NOT NULL,
+            name TEXT NOT NULL,
+            description TEXT,
+            prizes TEXT NOT NULL,
+            questions JSONB NOT NULL DEFAULT '[]'::jsonb,
+            winners INTEGER NOT NULL DEFAULT 10,
+            ends_at TIMESTAMPTZ NOT NULL,
+            ended BOOLEAN NOT NULL DEFAULT FALSE,
+            winner_ids BIGINT[] NOT NULL DEFAULT '{}'
+        )
+        """)
+
+        await self.db.pool.execute("""
+        CREATE TABLE IF NOT EXISTS giveaway_entries (
+            message_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            PRIMARY KEY (message_id, user_id)
+        )
+        """)
+
+    async def create_giveaway(
+        self,
+        message_id: int,
+        guild_id: int,
+        channel_id: int,
+        host_id: int,
+        name: str,
+        description: str,
+        prizes: str,
+        questions_json: str,
+        winners: int,
+        ends_at,
+    ):
+        await self.db.pool.execute("""
+        INSERT INTO giveaways (
+            message_id, guild_id, channel_id, host_id,
+            name, description, prizes, questions,
+            winners, ends_at
+        ) VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10
+        )
+        """,
+        message_id, guild_id, channel_id, host_id,
+        name, description, prizes, questions_json,
+        winners, ends_at)
+
+    async def get_active(self, message_id: int):
+        return await self.db.pool.fetchrow(
+            "SELECT * FROM giveaways WHERE message_id=$1 AND ended=FALSE",
+            message_id,
+        )
+
+    async def get_pending(self):
+        return await self.db.pool.fetch(
+            "SELECT * FROM giveaways WHERE ended=FALSE ORDER BY ends_at ASC"
+        )
+
+    async def enter(self, message_id: int, user_id: int) -> bool:
+        result = await self.db.pool.execute("""
+        INSERT INTO giveaway_entries (message_id, user_id)
+        VALUES ($1,$2)
+        ON CONFLICT DO NOTHING
+        """, message_id, user_id)
+        return result != "INSERT 0 0"
+
+    async def get_entries(self, message_id: int):
+        rows = await self.db.pool.fetch(
+            "SELECT user_id FROM giveaway_entries WHERE message_id=$1",
+            message_id,
+        )
+        return [r['user_id'] for r in rows]
+
+    async def get_entry_count(self, message_id: int) -> int:
+        return await self.db.pool.fetchval(
+            "SELECT COUNT(*) FROM giveaway_entries WHERE message_id=$1",
+            message_id,
+        ) or 0
+
+    async def finish(self, message_id: int, winner_ids: list[int]):
+        await self.db.pool.execute("""
+        UPDATE giveaways
+        SET ended=TRUE, winner_ids=$2
+        WHERE message_id=$1
+        """, message_id, winner_ids)
+
+    async def get_giveaway(self, message_id: int):
+        return await self.db.pool.fetchrow(
+            "SELECT * FROM giveaways WHERE message_id=$1",
+            message_id,
+        )
+
+    async def delete_giveaway(self, message_id: int):
+        await self.db.pool.execute(
+            "DELETE FROM giveaway_entries WHERE message_id=$1",
+            message_id,
+        )
+        await self.db.pool.execute(
+            "DELETE FROM giveaways WHERE message_id=$1",
+            message_id,
+        )
+
