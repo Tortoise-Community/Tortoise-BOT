@@ -2,12 +2,12 @@ from datetime import time as dtime, timezone
 import random
 import discord
 import asyncio
-from discord import Invite, Member, Message
+from discord import Invite, Member, Message, app_commands
 from discord.ext import commands, tasks
 
 from bot.utils import invite_help, embed_handler
 from bot import constants
-
+from bot.utils.checks import tortoise_bot_developer_only
 
 class JoinManager(commands.Cog):
     def __init__(self, bot):
@@ -19,6 +19,7 @@ class JoinManager(commands.Cog):
         self.ban_appeal_guild = None
         self.introduction_channel = None
         self.retention = bot.retention_manager
+        self.custom_welcome_content = None
 
 
     def get_unbanned_embed(self):
@@ -53,8 +54,7 @@ class JoinManager(commands.Cog):
     async def on_invite_delete(self, invite: Invite):
         await self.tracker.remove_invite(invite)
 
-    @staticmethod
-    async def _send_dm_message(member: discord.Member):
+    async def _send_dm_message(self, member: discord.Member):
         if not member.bot:
             dm_msg = (
                 f"Introduce yourself in <#{constants.introduction_channel_id}>\n\n"
@@ -64,9 +64,21 @@ class JoinManager(commands.Cog):
             )
             # User could have DMs disabled
             try:
-                await member.send(embed=embed_handler.footer_embed(dm_msg, "Welcome to Tortoise Programming Community!"))
+                await member.send(
+                    content=self.custom_welcome_content,
+                    embed=embed_handler.footer_embed(dm_msg, "Welcome to Tortoise Programming Community!")
+                )
             except discord.Forbidden:
                 pass
+
+    @app_commands.command(description="Set custom welcome message content")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def set_welcome_message_content(self, interaction: discord.Interaction, content: str):
+        if content.lower() == "none":
+            self.custom_welcome_content = None
+        else:
+            self.custom_welcome_content = content
+        await interaction.response.send_message(embed=embed_handler.success("Custom welcome content set"))
 
     async def handle_ban_appeal_server_join(self, member: Member):
         try:
