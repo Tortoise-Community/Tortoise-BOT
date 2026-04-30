@@ -72,7 +72,7 @@ class DutyScheduleModal(discord.ui.Modal, title="Set Daily Mod Mail Schedule"):
 
         await interaction.response.send_message(
             embed=success(
-                f"Schedule set! You'll receive the pings daily between "
+                f"You'll receive the pings daily between "
                 f"{self.start_time.value} and {self.end_time.value} ({tz_str})."
             ), ephemeral=True
         )
@@ -365,7 +365,7 @@ class TortoiseDM(commands.Cog):
             self._mod_mail_ping_role = self.tortoise_guild.get_role(constants.mod_mail_ping_role_id)
         return self._mod_mail_ping_role
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=5)
     async def duty_automation_loop(self):
         """Background task running every minute to check schedules."""
         await self.bot.wait_until_ready()
