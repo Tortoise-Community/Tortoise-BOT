@@ -1,12 +1,16 @@
+import datetime
 import logging
 from io import StringIO
 from typing import Union
 from asyncio import TimeoutError
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
+from discord import app_commands
 
 from bot import constants
+from bot.utils.checks import check_if_tortoise_staff
 from bot.utils.cooldown import CoolDown
 from bot.utils.message_logger import MessageLogger
 from bot.utils.embed_handler import authored, failure, success, info, create_suggestion_msg, authored_sm
@@ -21,6 +25,57 @@ class UnsupportedFileExtension(Exception):
 
 class UnsupportedFileEncoding(ValueError):
     pass
+
+class DutyScheduleModal(discord.ui.Modal, title="Set Daily Mod Mail Schedule"):
+    start_time = discord.ui.TextInput(
+        label="Start Time (24h format)",
+        placeholder="e.g. 09:00",
+        min_length=5, max_length=5
+    )
+    end_time = discord.ui.TextInput(
+        label="End Time (24h format)",
+        placeholder="e.g. 17:00",
+        min_length=5, max_length=5
+    )
+    timezone = discord.ui.TextInput(
+        label="Your Timezone (IANA Name)",
+        placeholder="e.g. Europe/London, America/New_York, Asia/Kolkata",
+        min_length=4
+    )
+
+    def __init__(self, cog: "TortoiseDM"):
+        super().__init__()
+        self.cog = cog
+
+    async def on_submit(self, interaction: discord.Interaction):
+        tz_str = self.timezone.value.strip().replace(" ", "_")
+        try:
+            datetime.datetime.strptime(self.start_time.value, "%H:%M")
+            datetime.datetime.strptime(self.end_time.value, "%H:%M")
+            ZoneInfo(tz_str)
+        except ValueError:
+            await interaction.response.send_message(embed=failure("Invalid time format. Use HH:MM."), ephemeral=True)
+            return
+        except ZoneInfoNotFoundError:
+            await interaction.response.send_message(embed=failure(
+                "Invalid timezone. Example: 'UTC' or 'Europe/London'."
+            ), ephemeral=True)
+            return
+
+        await self.cog.duty_manager.set_schedule(
+            interaction.guild.id,
+            interaction.user.id,
+            self.start_time.value,
+            self.end_time.value,
+            tz_str
+        )
+
+        await interaction.response.send_message(
+            embed=success(
+                f"Schedule set! You'll receive the pings daily between "
+                f"{self.start_time.value} and {self.end_time.value} ({tz_str})."
+            ), ephemeral=True
+        )
 
 class DMInitView(discord.ui.View):
     def __init__(self, cog: "TortoiseDM", user: discord.User):
@@ -211,6 +266,8 @@ class ModMailAcceptView(discord.ui.View):
 
 
 class TortoiseDM(commands.Cog):
+    mod_mail_group = app_commands.Group(name="mod_mail", description="Manage your mod mail ping schedule")
+
     def __init__(self, bot):
         self.bot = bot
         self._tortoise_guild = None
@@ -219,6 +276,7 @@ class TortoiseDM(commands.Cog):
         self._mod_mail_ping_role = None
         self.cool_down = CoolDown(seconds=120)
         self.bot.loop.create_task(self.cool_down.start())
+        self.duty_manager = bot.duty_manager
 
         # Key is user id value is mod/admin id
         self.active_mod_mails = {}
@@ -280,6 +338,9 @@ class TortoiseDM(commands.Cog):
         self.staff_channel = self.bot.get_channel(constants.staff_channel_id)
         self.staff_applications_channel = self.bot.get_channel(constants.system_log_channel_id)
 
+        if not self.duty_automation_loop.is_running():
+            self.duty_automation_loop.start()
+
     @property
     def tortoise_guild(self):
         if self._tortoise_guild is None:
@@ -303,6 +364,44 @@ class TortoiseDM(commands.Cog):
         if self._mod_mail_ping_role is None:
             self._mod_mail_ping_role = self.tortoise_guild.get_role(constants.mod_mail_ping_role_id)
         return self._mod_mail_ping_role
+
+    @tasks.loop(hours=1)
+    async def duty_automation_loop(self):
+        """Background task running every minute to check schedules."""
+        await self.bot.wait_until_ready()
+        try:
+            schedules = await self.duty_manager.get_all_schedules()
+            now_utc = datetime.datetime.now(datetime.timezone.utc)
+
+            for record in schedules:
+                guild = self.bot.get_guild(record["guild_id"])
+                if not guild: continue
+
+                member = guild.get_member(record["user_id"])
+                if not member: continue
+
+                user_tz = ZoneInfo(record["timezone"])
+                local_now = now_utc.astimezone(user_tz)
+                current_local_hm = local_now.strftime("%H:%M")
+
+                start = record["start_time"]
+                end = record["end_time"]
+
+                if start < end:
+                    is_duty = start <= current_local_hm < end
+                else:
+                    is_duty = current_local_hm >= start or current_local_hm < end
+
+                role = self.mod_mail_ping_role
+                has_role = role in member.roles
+
+                if is_duty and not has_role:
+                    await member.add_roles(role, reason="Scheduled duty started.")
+                elif not is_duty and has_role:
+                    await member.remove_roles(role, reason="Scheduled duty ended.")
+
+        except Exception as e:
+            logger.error(f"Error in duty loop: {e}")
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -631,6 +730,19 @@ class TortoiseDM(commands.Cog):
         urls = '\n'.join(attachment.url for attachment in message.attachments)
         return f"\nAttachments:\n{urls}"
 
+    @mod_mail_group.command(name="ping_schedule", description="Set your daily recurring mod mail ping hours.")
+    @app_commands.check(check_if_tortoise_staff)
+    async def set_ping_schedule(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(DutyScheduleModal(self))
+
+    @mod_mail_group.command(name="stop_ping", description="Remove your automatic ping schedule.")
+    @app_commands.check(check_if_tortoise_staff)
+    async def stop_duty_schedule(self, interaction: discord.Interaction):
+        await self.duty_manager.remove_schedule(interaction.guild.id, interaction.user.id)
+
+        if self.mod_mail_ping_role in interaction.user.roles:
+            await interaction.user.remove_roles(self.mod_mail_ping_role, reason="Schedule deleted.")
+        await interaction.response.send_message(embed=success("Your ping schedule has been deleted."), ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(TortoiseDM(bot))
