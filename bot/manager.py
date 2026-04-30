@@ -763,3 +763,44 @@ class GiveawayManager:
             message_id,
         )
 
+class DutyManager:
+    def __init__(self, db: Database):
+        self.db = db
+
+    async def setup(self):
+        await self.db.pool.execute(
+            """
+            CREATE TABLE IF NOT EXISTS duty_schedules (
+                guild_id BIGINT NOT NULL,
+                user_id BIGINT NOT NULL,
+                start_time TEXT NOT NULL,
+                end_time TEXT NOT NULL,
+                timezone TEXT NOT NULL,
+                PRIMARY KEY (guild_id, user_id)
+            )
+            """
+        )
+
+    async def set_schedule(self, guild_id: int, user_id: int, start: str, end: str, tz: str):
+        await self.db.pool.execute(
+            """
+            INSERT INTO duty_schedules (guild_id, user_id, start_time, end_time, timezone)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (guild_id, user_id)
+            DO UPDATE SET 
+                start_time = EXCLUDED.start_time,
+                end_time = EXCLUDED.end_time,
+                timezone = EXCLUDED.timezone
+            """,
+            guild_id, user_id, start, end, tz
+        )
+
+    async def remove_schedule(self, guild_id: int, user_id: int):
+        await self.db.pool.execute(
+            "DELETE FROM duty_schedules WHERE guild_id = $1 AND user_id = $2",
+            guild_id, user_id
+        )
+
+    async def get_all_schedules(self):
+        return await self.db.pool.fetch("SELECT * FROM duty_schedules")
+

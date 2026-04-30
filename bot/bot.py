@@ -15,7 +15,7 @@ from discord.ext import commands, tasks
 from bot.api_client import TortoiseAPI
 from bot.constants import error_log_channel_id, system_log_channel_id, github_repo_link
 from bot.manager import (
-    Database, ProgressionManager, AFKManager, PointsManager, RetentionManager, TeamManager, GiveawayManager
+    Database, ProgressionManager, AFKManager, PointsManager, RetentionManager, TeamManager, GiveawayManager, DutyManager
 )
 from bot.utils.embed_handler import simple_embed
 from bot.utils.error_handler import TortoiseCommandTree
@@ -75,6 +75,7 @@ class Bot(commands.Bot):
         self.retention_manager = None
         self.team_manager = None
         self.giveaway_manager = None
+        self.duty_manager = None
         self._sys_log_channel = None
 
     @property
@@ -140,6 +141,7 @@ class Bot(commands.Bot):
         self.retention_manager = RetentionManager(self.db)
         self.team_manager = TeamManager(self.db)
         self.giveaway_manager = GiveawayManager(self.db)
+        self.duty_manager = DutyManager(self.db)
 
         await self.progression_manager.setup()
         await self.afk_manager.setup()
@@ -147,6 +149,7 @@ class Bot(commands.Bot):
         await self.retention_manager.setup()
         await self.team_manager.setup()
         await self.giveaway_manager.setup()
+        await self.duty_manager.setup()
 
         await self.load_extensions()
         # await self.reload_tortoise_meta_cache()
