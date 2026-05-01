@@ -141,7 +141,7 @@ class Github(commands.Cog):
                             links = link_header.split(',')
                             for link in links:
                                 if 'rel="last"' in link:
-                                    match = re.search(r'page=(\d+)', link)
+                                    match = re.search(r'&page=(\d+)', link)
                                     if match:
                                         project['commit_count'] = int(match.group(1))
                                         break

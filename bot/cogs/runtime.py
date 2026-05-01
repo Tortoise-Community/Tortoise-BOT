@@ -6,7 +6,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 from typing import Dict
 
-from bot.utils.checks import tortoise_bot_developer_only
+from bot.utils.checks import check_if_tortoise_staff
 from bot.utils.embed_handler import code_eval_embed, failure, success
 from bot.constants import tortoise_guild_id
 
@@ -33,6 +33,9 @@ view.add_item(
 )
 
 class SandboxExec(commands.Cog):
+    runtime_group = app_commands.Group(
+        name="runtime", description="Manage runtime functions", guild_ids=[tortoise_guild_id]
+    )
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
@@ -159,7 +162,7 @@ class SandboxExec(commands.Cog):
 
         if not lang:
             await message.channel.send(
-               embed=failure("Unsupported language. Use python, javascript, java or cpp in the code block header.")
+               embed=failure("Unsupported language. Use `python`, `javascript`, `java` or `cpp` in the code block header.")
             )
             return
 
@@ -222,16 +225,18 @@ class SandboxExec(commands.Cog):
             target_message=bot_msg,
         )
 
-    @app_commands.command(description="Disable runtime execution in this guild")
-    @app_commands.check(tortoise_bot_developer_only)
-    async def disable_runtime(self, interaction: discord.Interaction):
+    @runtime_group.command(name="disable", description="Disable runtime execution")
+    @app_commands.default_permissions(manage_messages=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def disable(self, interaction: discord.Interaction):
         await interaction.response.defer()
         self.runtime_enabled = False
         await interaction.followup.send(embed=success("Runtime Disabled"))
 
-    @app_commands.command(description="Enable runtime execution in this guild")
-    @app_commands.check(tortoise_bot_developer_only)
-    async def enable_runtime(self, interaction: discord.Interaction):
+    @runtime_group.command(name="enabled", description="Enable runtime execution")
+    @app_commands.default_permissions(manage_messages=True)
+    @app_commands.check(check_if_tortoise_staff)
+    async def enable(self, interaction: discord.Interaction):
         await interaction.response.defer()
         self.runtime_enabled = True
         await interaction.followup.send(embed=success("Runtime Enabled"))
