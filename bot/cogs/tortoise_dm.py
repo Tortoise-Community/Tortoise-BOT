@@ -730,14 +730,16 @@ class TortoiseDM(commands.Cog):
         urls = '\n'.join(attachment.url for attachment in message.attachments)
         return f"\nAttachments:\n{urls}"
 
-    @mod_mail_group.command(name="ping_schedule", description="Set your daily recurring mod mail ping hours.")
+    @mod_mail_group.command(name="schedule", description="Set your daily recurring mod mail ping hours.")
+    @app_commands.default_permissions(manage_messages=True)
     @app_commands.check(check_if_tortoise_staff)
-    async def set_ping_schedule(self, interaction: discord.Interaction):
+    async def schedule(self, interaction: discord.Interaction):
         await interaction.response.send_modal(DutyScheduleModal(self))
 
-    @mod_mail_group.command(name="stop_ping", description="Remove your automatic ping schedule.")
+    @mod_mail_group.command(name="stop", description="Remove your automatic ping schedule.")
+    @app_commands.default_permissions(manage_messages=True)
     @app_commands.check(check_if_tortoise_staff)
-    async def stop_duty_schedule(self, interaction: discord.Interaction):
+    async def stop(self, interaction: discord.Interaction):
         await self.duty_manager.remove_schedule(interaction.guild.id, interaction.user.id)
 
         if self.mod_mail_ping_role in interaction.user.roles:
