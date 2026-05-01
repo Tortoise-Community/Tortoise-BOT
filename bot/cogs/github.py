@@ -1,3 +1,4 @@
+import re
 import datetime
 import logging
 import aiohttp.client_exceptions
@@ -7,11 +8,8 @@ from discord.ext import commands, tasks
 from discord import app_commands
 
 from bot.api_client import GithubAPI
-from bot.constants import project_url
 from bot.utils.embed_handler import project_embed
 
-
-USE_STATIC = True
 
 STATIC_PROJECTS_DATA = [
     {
@@ -71,8 +69,8 @@ STATIC_PROJECTS_DATA = [
     },
     {
         "name": "BladeList",
-        "html_url": "https://github.com/Bladelist",
-        "web_link": "https://github.com/Bladelist",
+        "html_url": "https://github.com/Bladelist/Bladelist",
+        "web_link": "https://github.com/Bladelist/Bladelist",
         "forks_count": 7,
         "commit_count": 290,
         "stargazers_count": 9,
@@ -98,11 +96,8 @@ class Github(commands.Cog):
         self.bot = bot
         self.github_client = GithubAPI()
         self.projects = {}
-
-        if USE_STATIC:
-            self._load_static()
-        else:
-            self.update_github_stats.start()
+        self._load_static()
+        self.update_static_projects.start()
 
 
     def _load_static(self):
@@ -116,34 +111,50 @@ class Github(commands.Cog):
         except Exception as e:
             logging.error(f"Failed loading static GitHub data: {e}")
 
+    def cog_unload(self):
+        self.update_static_projects.cancel()
 
-    @classmethod
-    def get_project_name(cls, link):
-        return link.rsplit("/")[-1]
+    @tasks.loop(hours=6)
+    async def update_static_projects(self):
+        headers = {"User-Agent": "Tortoise-Discord-Bot"}
+        async with aiohttp.ClientSession(headers=headers) as session:
+            for project in STATIC_PROJECTS_DATA:
+                try:
+                    parts = project['html_url'].rstrip('/').split('/')
+                    repo_path = f"{parts[-2]}/{parts[-1]}"
 
-    async def get_project_stats(self, project):
-        name = self.get_project_name(project["github"])
-        stats = await self.github_client.get(name)
-        stats["commit_count"] = await self.github_client.get_project_commits(name)
-        contributors = await self.github_client.get(f"{name}/contributors")
-        stats["contributors_count"] = len(contributors)
-        stats["web_link"] = f"{project_url}{project.get('pk')}"
-        return stats
+                    api_url = f"https://api.github.com/repos/{repo_path}"
+                    # These data are available from API directly
+                    async with session.get(api_url) as resp:
+                        if resp.status == 200:
+                            data = await resp.json()
+                            project['stargazers_count'] = data.get('stargazers_count', 0)
+                            project['forks_count'] = data.get('forks_count', 0)
+                            project['language'] = data.get('language', 'Python')
 
-    @tasks.loop(hours=3)
-    async def update_github_stats(self):
-        try:
-            project_list = await self.bot.api_client.get_projects_data()
-            for project in project_list:
-                project_stats = await self.get_project_stats(project)
-                item = Project(project_stats)
-                self.projects[item.name] = item
-                self.projects["last_updated"] = datetime.datetime.now()
-                await self.bot.api_client.put_project_data(project["pk"], vars(item))
-        except aiohttp.client_exceptions.ClientConnectorDNSError as e:
-            logging.error(f"DNS resolution failed in GitHub stats update: {e}")
-        except Exception as e:
-            logging.error(f"Unexpected error in GitHub stats update: {e}")
+                    # Fetch Commit Count (Efficiently via Link Header)
+                    commits_url = f"{api_url}/commits?per_page=1"
+                    async with session.get(commits_url) as resp:
+                        link_header = resp.headers.get('Link', '')
+                        if 'rel="last"' in link_header:
+                            match = re.search(r'page=(\d+)[^>]*>;\s*rel="last"', link_header)
+                            project['commit_count'] = int(match.group(1)) if match else 1
+                        else:
+                            commits = await resp.json()
+                            project['commit_count'] = len(commits) if isinstance(commits, list) else 0
+
+                    item = Project(project)
+                    self.projects[item.name] = item
+
+                except Exception as e:
+                    logging.error(f"Failed to background update {project['name']}: {e}")
+
+            self.projects["last_updated"] = datetime.datetime.now()
+            logging.info("GitHub static projects data refreshed.")
+
+    @update_static_projects.before_loop
+    async def before_update_static_projects(self):
+        await self.bot.wait_until_ready()
 
     async def _github_handler(self, interaction: discord.Interaction):
         await interaction.response.send_message(
