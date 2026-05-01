@@ -11,6 +11,8 @@ from bot.utils.embed_handler import code_eval_embed, failure, success
 from bot.constants import tortoise_guild_id
 
 EXECUTE_URL = os.getenv("EXECUTION_API_URL")
+API_TOKEN = os.getenv("EXECUTION_API_KEY")
+
 
 LANG_ALIASES = {
     "py": "python",
@@ -18,6 +20,7 @@ LANG_ALIASES = {
     "js": "javascript",
     "javascript": "javascript",
     "java": "java",
+    "cpp": "cpp",
 }
 
 view = discord.ui.View()
@@ -69,8 +72,10 @@ class SandboxExec(commands.Cog):
             "language": language,
             "code": code,
         }
-
-        async with self.session.post(EXECUTE_URL, json=payload, timeout=30) as resp:
+        headers = {
+            "Authorization": f"Bearer {API_TOKEN}",
+        }
+        async with self.session.post(EXECUTE_URL, json=payload, headers=headers, timeout=30) as resp:
             if resp.status == 429:
                 return {
                     "code": -1,
@@ -154,7 +159,7 @@ class SandboxExec(commands.Cog):
 
         if not lang:
             await message.channel.send(
-               embed=failure("Unsupported language. Use python, javascript or java in the code block header.")
+               embed=failure("Unsupported language. Use python, javascript, java or cpp in the code block header.")
             )
             return
 
