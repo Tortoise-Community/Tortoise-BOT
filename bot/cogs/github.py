@@ -136,12 +136,20 @@ class Github(commands.Cog):
                     commits_url = f"{api_url}/commits?per_page=1"
                     async with session.get(commits_url) as resp:
                         link_header = resp.headers.get('Link', '')
-                        if 'rel="last"' in link_header:
-                            match = re.search(r'page=(\d+)[^>]*>;\s*rel="last"', link_header)
-                            project['commit_count'] = int(match.group(1)) if match else 1
+
+                        if link_header and 'rel="last"' in link_header:
+                            links = link_header.split(',')
+                            for link in links:
+                                if 'rel="last"' in link:
+                                    match = re.search(r'page=(\d+)', link)
+                                    if match:
+                                        project['commit_count'] = int(match.group(1))
+                                        break
+                            else:
+                                project['commit_count'] = 1
                         else:
-                            commits = await resp.json()
-                            project['commit_count'] = len(commits) if isinstance(commits, list) else 0
+                            data = await resp.json()
+                            project['commit_count'] = len(data) if isinstance(data, list) else 0
 
                     item = Project(project)
                     self.projects[item.name] = item
