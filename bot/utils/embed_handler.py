@@ -203,7 +203,7 @@ def infraction_embed(
         infraction_type: constants.Infraction,
         reason: str,
         is_dm: bool = False,
-        can_appeal: bool = False,
+        permanent: bool = False,
 ) -> Embed:
     """
     :param interaction: interaction to get mod member from (the one who issued this infraction) and
@@ -212,7 +212,7 @@ def infraction_embed(
     :param infraction_type: infraction type
     :param reason: str reason for infraction
     :param is_dm: bool indicate if embed is DM embed or not
-    :param can_appeal: bool indicate if member can appeal
+    :param permanent: bool indicate if member can appeal
     :return: discord Embed
     """
 
@@ -223,15 +223,22 @@ def infraction_embed(
     embed.add_field(name="**Type**", value=infraction_type.name, inline=False)
     embed.add_field(name="**Reason**", value=reason, inline=False)
 
+    if permanent:
+        embed.add_field(name="**Duration**", value="Permanent", inline=False)
+        if is_dm:
+            embed.set_footer(text="This is a permanent ban and cannot be appealed.")
+
+    else:
+        embed.add_field(name="**Duration**", value="Temporary", inline=False)
+        if is_dm:
+            embed.add_field(name="Appeal Server",
+                               value=f"[Click Here to Join]({constants.appeal_server_link})",
+                               inline=False
+                               )
+            embed.set_footer(text="If you think this happened by a mistake join our Appeal Server.")
+
     if not is_dm:
         embed.add_field(name="**Mod**", value=interaction.user.mention, inline=False)
-
-    if can_appeal:
-        embed.add_field(name="Appeal Server",
-                           value=f"[Click Here to Join]({constants.appeal_server_link})",
-                           inline=False
-                           )
-        embed.set_footer(text="If you think this happened by a mistake join our Appeal Server.")
 
     return embed
 

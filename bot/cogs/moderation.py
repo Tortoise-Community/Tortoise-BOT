@@ -119,7 +119,7 @@ class Moderation(commands.Cog):
         await interaction.response.defer()
 
         try:
-            dm_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason, True, True)
+            dm_embed = infraction_embed(interaction, member, constants.Infraction.kick, reason, True, False)
             await member.send(embed=dm_embed)
         except discord.Forbidden:
             pass
@@ -237,10 +237,14 @@ class Moderation(commands.Cog):
     @app_commands.checks.bot_has_permissions(ban_members=True)
     @app_commands.check(check_if_tortoise_staff)
     @app_commands.checks.cooldown(1, 120)
-    async def ban(self, interaction: discord.Interaction, user: discord.Member, reason: str = "Reason not stated."):
+    async def ban(self,
+                  interaction: discord.Interaction,
+                  user: discord.Member,
+                  reason: str = "Reason not stated.",
+                  permanent: bool = False):
         """Bans  member from the guild."""
         await interaction.response.defer()
-        await self._ban_helper(interaction, user, reason)
+        await self._ban_helper(interaction, user, reason,True, True, permanent)
         await interaction.followup.send(embed=success(f"{user} successfully banned."), ephemeral=True)
 
     @app_commands.command(name="ban_with_id")
@@ -252,7 +256,8 @@ class Moderation(commands.Cog):
             self,
             interaction: discord.Interaction,
             user_id: str,
-            reason: str = "Reason not stated."
+            reason: str = "Reason not stated.",
+            permanent: bool = True
     ):
         """Ban a user using their ID (even if they are not in the server)."""
 
@@ -275,7 +280,7 @@ class Moderation(commands.Cog):
             )
 
         try:
-            await self._ban_helper(interaction, user, reason)
+            await self._ban_helper(interaction, user, reason, False, True, permanent)
         except Exception as e:
             return await interaction.followup.send(
                 embed=failure(f"Failed to ban user: {e}"),
@@ -294,14 +299,15 @@ class Moderation(commands.Cog):
             reason: str,
             send_dm: bool = True,
             log_deterrence: bool = True,
+            permanent: bool = False,
     ):
-        embed = infraction_embed(interaction, user, constants.Infraction.ban, reason)
 
         if log_deterrence:
+            embed = infraction_embed(interaction, user, constants.Infraction.ban, reason, False, permanent)
             await self.deterrence_log_channel.send(embed=embed)
 
         if send_dm:
-            embed = infraction_embed(interaction, user, constants.Infraction.ban, reason, True, True)
+            embed = infraction_embed(interaction, user, constants.Infraction.ban, reason, True, permanent)
             try:
                 await user.send(embed=embed)
             except discord.Forbidden:
