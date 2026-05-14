@@ -842,14 +842,14 @@ class TeamCog(commands.Cog):
         if "leader_approve" in custom_id:
             if not member:
                 await self.team.update_request_status(team_id, user_id, "expired")
-                return await interaction.edit_original_response(embed=failure("User left the server."), view=None)
+                return await interaction.message.edit(embed=failure("User left the server."), view=None)
 
             role = guild.get_role(team["role_id"])
             await self.team.add_member(team_id, guild.id, user_id)
             await member.add_roles(role)
             await self.team.update_request_status(team_id, user_id, "accepted")
 
-            await interaction.edit_original_response(
+            await interaction.message.edit(
                 content=member.mention,
                 embed=authored_sm(message=f"{member} has joined the team.", author=member),
                 view=None
@@ -867,7 +867,7 @@ class TeamCog(commands.Cog):
             )
         else:
             await self.team.update_request_status(team_id, user_id, "rejected")
-            await interaction.edit_original_response(
+            await interaction.message.edit(
                 embed=info(f"{member}'s join request was rejected.", self.bot.user, ""),
                 view=None
             )
