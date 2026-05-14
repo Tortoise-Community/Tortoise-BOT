@@ -66,8 +66,8 @@ class JoinManager(commands.Cog):
         if not member.bot:
             dm_msg = (
                 f"Please introduce yourself [here]({self.introduction_channel.jump_url})\n\n"
-                f"### <:leetcode:1504479355970129992> Leetcode discussion\n <#{constants.leetcode_channel_id}>\n\n"
-                f"### <:leetcode:1504479355970129992> Leetcode challenges\n <#{constants.challenges_channel_id}>\n\n"
+                f"### <:leetcode:1504482678840361115> Leetcode discussion\n <#{constants.leetcode_channel_id}>\n\n"
+                f"### <:leetcode:1504482678840361115> Leetcode challenges\n <#{constants.challenges_channel_id}>\n\n"
                 f"### 🎓 Join our DSA Study Group\n <#{constants.join_a_team_channel_id}>"
             )
             # User could have DMs disabled
