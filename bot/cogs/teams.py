@@ -194,7 +194,7 @@ class TeamSelectionView(discord.ui.View):
             discord.SelectOption(
                 label=t['name'],
                 value=str(t['team_id']),
-                description=f"Lead: {t['timezone']}"
+                description=f"Timezone: {t['timezone']}"
             ) for t in teams[:25]
         ]
 
@@ -865,7 +865,10 @@ class TeamCog(commands.Cog):
             )
         else:
             await self.team.update_request_status(team_id, user_id, "rejected")
-            await interaction.response.edit_message(embed=warning(f"{user_id}'s join request was rejected."), view=None)
+            await interaction.response.edit_message(
+                embed=info(f"{member}'s join request was rejected.", self.bot.user, ""),
+                view=None
+            )
             if member:
                 try:
                     await member.send(embed=failure(f"Your request for **{team['name']}** was rejected."))
