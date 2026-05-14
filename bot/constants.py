@@ -13,13 +13,15 @@ tortoise_paste_service_link = "https://paste.tortoisecommunity.org/"
 tortoise_paste_endpoint = "https://paste.tortoisecommunity.org/documents/"
 line_img_url = "https://www.animatedimages.org/data/media/562/animated-line-image-0015.gif"
 infraction_img_url = "https://www.animatedimages.org/data/media/562/animated-line-image-0538.gif"
+banner_url = "https://lairesit.sirv.com/Tortoise/banner.jpg"
 github_repo_stats_endpoint = "https://api.github.com/repos/Tortoise-Community/"
 project_url = "https://www.tortoisecommunity.org/projects/"
 events_url = "https://www.tortoisecommunity.org/events/"
 default_avatar_url = "https://cdn.discordapp.com/embed/avatars/4.png"
 appeal_server_link = "https://discord.com/invite/YxEzEqMNY8"
 server_link = "https://discord.com/invite/Ex8xeWD"
-
+online_compiler_link = "https://execute.tortoisecommunity.org"
+runtime_bot_link = "https://runtime-bot.tortoisecommunity.org/"
 
 # Channel IDs
 welcome_channel_id = 738731842538176522

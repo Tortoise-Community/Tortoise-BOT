@@ -24,13 +24,16 @@ def footer_embed(message: str, title) -> Embed:
     :return: Embed object
     """
     content_footer = (
-        f"Links: [Website]({constants.website_url}) | "
-        f"[Events]({constants.events_url}) | "
+        f"Links: [Website]({constants.website_url})  ⟡  "
+        f"[Online Compiler]({constants.online_compiler_link})  ⟡  "
+        f"[Runtime Bot]({constants.runtime_bot_link})  ⟡  "
+        f"[Events]({constants.events_url})  ⟡  "
         f"[Rules]({constants.rules_url})"
     )
     message = f"{message}\n\n{content_footer}"
-    embed = simple_embed(message, title, color=Color.dark_green())
-    embed.set_image(url=constants.line_img_url)
+    embed = simple_embed(message, title, color=0xffb101)
+    embed.set_image(url=constants.banner_url)
+    embed.set_footer(text="We hope you enjoy your stay.")
     return embed
 
 
