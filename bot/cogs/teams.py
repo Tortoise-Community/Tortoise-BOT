@@ -229,9 +229,9 @@ class TeamSelect(discord.ui.Select):
                 embed=failure("Team channel not found."), view=None
             )
 
-        leader_embed = info(
-            f"{interaction.user.mention} (`{interaction.user.id}`) has requested to join your team.",
-            interaction.user, "New Join Request"
+        leader_embed = authored_sm(
+            message=f"{interaction.user} has requested to join your team.",
+            author=interaction.user
         )
 
         view = discord.ui.View(timeout=None)
@@ -249,6 +249,14 @@ class TeamSelect(discord.ui.Select):
         await interaction.response.edit_message(
             embed=success(f"Request sent to **{team['name']}**!"), view=None
         )
+
+        await self.cog.log_channel.send(
+            embed=info(
+                f"{interaction.user.mention} requested to join **{team['name']}**",
+                self.cog.bot.user, ""
+            )
+        )
+        return None
 
 
 class PersistentJoinRequestView(discord.ui.View):
@@ -839,19 +847,38 @@ class TeamCog(commands.Cog):
             await member.add_roles(role)
             await self.team.update_request_status(team_id, user_id, "accepted")
 
-            await interaction.response.edit_message(embed=success(f"Approved {member.mention}"), view=None)
+            await interaction.response.edit_message(
+                content=member.mention,
+                embed=authored_sm(message=f"{member} has joined the team.", author=member),
+                view=None
+            )
+            await interaction.followup.send(content=member.mention, delete_after=1)
             try:
-                await member.send(embed=success(f"You joined **{team['name']}**!"))
+                await member.send(embed=success(f"You joined team **{team['name']}**!"))
             except:
                 pass
+            await self.log_channel.send(
+                embed=info(
+                    f"{member.mention} joined **{team['name']}**",
+                    self.bot.user, ""
+                )
+            )
         else:
             await self.team.update_request_status(team_id, user_id, "rejected")
-            await interaction.response.edit_message(embed=warning(f"Rejected request from {user_id}"), view=None)
+            await interaction.response.edit_message(embed=warning(f"{user_id}'s join request was rejected."), view=None)
             if member:
                 try:
                     await member.send(embed=failure(f"Your request for **{team['name']}** was rejected."))
                 except:
                     pass
+                await self.log_channel.send(
+                    embed=info(
+                        f"{member.mention}'s request to join **{team['name']}** was rejected.",
+                        self.bot.user, ""
+                    )
+                )
+        return None
+
 
     @app_commands.command(name="send_join_request_button")
     @app_commands.check(tortoise_bot_developer_only)
