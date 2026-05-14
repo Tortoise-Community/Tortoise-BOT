@@ -8,6 +8,8 @@ from discord.ext import commands, tasks
 from bot.utils import invite_help, embed_handler
 from bot import constants
 from bot.utils.checks import tortoise_bot_developer_only
+from bot.utils.embed_handler import success
+
 
 class JoinManager(commands.Cog):
     def __init__(self, bot):
@@ -54,13 +56,19 @@ class JoinManager(commands.Cog):
     async def on_invite_delete(self, invite: Invite):
         await self.tracker.remove_invite(invite)
 
+    @app_commands.command()
+    @app_commands.check(tortoise_bot_developer_only)
+    async def send_welcome(self, interaction: discord.Interaction):
+        await self._send_dm_message(interaction.user)
+        await interaction.response.send_message(embed=success("Sent."), ephemeral=True)
+
     async def _send_dm_message(self, member: discord.Member):
         if not member.bot:
             dm_msg = (
-                f"Introduce yourself in <#{constants.introduction_channel_id}>\n\n"
-                f"Leetcode discussion <#{constants.leetcode_channel_id}>\n\n"
-                f"For **Leetcode challenges** checkout <#{constants.challenges_channel_id}>\n\n"
-                f"We hope you enjoy your stay!"
+                f"Please introduce yourself [here]({self.introduction_channel.jump_url})\n\n"
+                f"### <:leetcode:1504479355970129992> Leetcode discussion\n <#{constants.leetcode_channel_id}>\n\n"
+                f"### <:leetcode:1504479355970129992> Leetcode challenges\n <#{constants.challenges_channel_id}>\n\n"
+                f"### 🎓 Join our DSA Study Group\n <#{constants.join_a_team_channel_id}>"
             )
             # User could have DMs disabled
             try:
