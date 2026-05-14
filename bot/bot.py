@@ -36,7 +36,8 @@ class Bot(commands.Bot):
         "piston",
         "reddit",
         "tortoise_api",
-        "utility"
+        "utility",
+        "health"
     )
     build_version = "mystery-build"
     advanced_protection: bool = True

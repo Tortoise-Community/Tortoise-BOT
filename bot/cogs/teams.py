@@ -855,7 +855,7 @@ class TeamCog(commands.Cog):
                 view=None
             )
             await interaction.channel.send(content=member.mention, delete_after=1)
-            await interaction.followup.send(embed=success("Join request accepted"))
+            await interaction.followup.send(embed=success("Join request accepted"), ephemeral=True)
             try:
                 await member.send(embed=success(f"You joined team **{team['name']}**!"))
             except:
@@ -872,7 +872,7 @@ class TeamCog(commands.Cog):
                 embed=info(f"{member}'s join request was rejected.", self.bot.user, ""),
                 view=None
             )
-            await interaction.followup.send(embed=success("Join request rejected"))
+            await interaction.followup.send(embed=success("Join request rejected"), ephemeral=True)
             if member:
                 try:
                     await member.send(embed=failure(f"Your request for **{team['name']}** was rejected."))
