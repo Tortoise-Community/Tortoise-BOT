@@ -185,6 +185,101 @@ class CreateTeamModal(discord.ui.Modal, title="Create Team"):
         return None
 
 
+class TeamSelectionView(discord.ui.View):
+    def __init__(self, cog, teams):
+        super().__init__(timeout=60)
+        self.cog = cog
+
+        options = [
+            discord.SelectOption(
+                label=t['name'],
+                value=str(t['team_id']),
+                description=f"Lead: {t['timezone']}"
+            ) for t in teams[:25]
+        ]
+
+        self.add_item(TeamSelect(cog, options))
+
+
+class TeamSelect(discord.ui.Select):
+    def __init__(self, cog, options):
+        super().__init__(
+            placeholder="Choose a team...",
+            options=options,
+            custom_id="team_select_request"
+        )
+        self.cog = cog
+
+    async def callback(self, interaction: discord.Interaction):
+        team_id = int(self.values[0])
+        team = await self.cog.team.get_team(team_id)
+
+        created = await self.cog.team.create_join_request(
+            interaction.guild.id, team_id, interaction.user.id
+        )
+
+        if not created:
+            return await interaction.response.edit_message(
+                embed=failure("You already have a pending request for this team."), view=None
+            )
+
+        team_channel = self.cog.bot.get_channel(team["text_channel_id"])
+        if not team_channel:
+            return await interaction.response.edit_message(
+                embed=failure("Team channel not found."), view=None
+            )
+
+        leader_embed = info(
+            f"{interaction.user.mention} (`{interaction.user.id}`) has requested to join your team.",
+            interaction.user, "New Join Request"
+        )
+
+        view = discord.ui.View(timeout=None)
+        view.add_item(discord.ui.Button(
+            label="Approve", style=discord.ButtonStyle.green,
+            custom_id=f"leader_approve:{interaction.user.id}:{team_id}"
+        ))
+        view.add_item(discord.ui.Button(
+            label="Reject", style=discord.ButtonStyle.red,
+            custom_id=f"leader_reject:{interaction.user.id}:{team_id}"
+        ))
+
+        await team_channel.send(content=f"<@{team['leader_id']}>", embed=leader_embed, view=view)
+
+        await interaction.response.edit_message(
+            embed=success(f"Request sent to **{team['name']}**!"), view=None
+        )
+
+
+class PersistentJoinRequestView(discord.ui.View):
+    def __init__(self, cog):
+        super().__init__(timeout=None)
+        self.cog = cog
+
+    @discord.ui.button(
+        label="Request to Join a Team",
+        style=discord.ButtonStyle.blurple,
+        custom_id="team_request_join_start"
+    )
+    async def request_join(self, interaction: discord.Interaction, button: discord.ui.Button):
+        existing = await self.cog.team.get_user_team(interaction.guild.id, interaction.user.id)
+        if existing:
+            return await interaction.response.send_message(
+                embed=failure("You are already in a team."), ephemeral=True
+            )
+
+        teams = await self.cog.team.get_all_teams(interaction.guild.id)
+        if not teams:
+            return await interaction.response.send_message(
+                embed=failure("No teams are currently available."), ephemeral=True
+            )
+
+        view = TeamSelectionView(self.cog, teams)
+        await interaction.response.send_message(
+            "Select a team you wish to join:", view=view, ephemeral=True
+        )
+
+
 class TeamCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -326,6 +421,7 @@ class TeamCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.log_channel = self.bot.get_channel(system_log_channel_id)
+        self.bot.add_view(PersistentJoinRequestView(self))
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction: discord.Interaction):
@@ -333,31 +429,16 @@ class TeamCog(commands.Cog):
         if not interaction.data:
             return
 
-        custom_id = interaction.data.get("custom_id")
-        if not custom_id:
-            return
+        custom_id = interaction.data.get("custom_id", "")
 
-        if custom_id.startswith(("team_accept", "team_reject")):
-            try:
-                await self._handle_team_invite(interaction, custom_id)
-            except Exception as e:
-                if not interaction.response.is_done():
-                    await interaction.response.send_message(
-                        embed=failure("Something went wrong."),
-                        ephemeral=True
-                    )
-            return
+        if custom_id.startswith("team_accept") or custom_id.startswith("team_reject"):
+            await self._handle_team_invite(interaction, custom_id)
 
-        if custom_id.startswith("team_setup"):
-            try:
-                await self._handle_team_setup(interaction, custom_id)
-            except Exception as e:
-                if not interaction.response.is_done():
-                    await interaction.response.send_message(
-                        embed=failure("Something went wrong."),
-                        ephemeral=True
-                    )
-            return
+        elif custom_id.startswith("team_setup"):
+            await self._handle_team_setup(interaction, custom_id)
+
+        elif custom_id.startswith("leader_approve") or custom_id.startswith("leader_reject"):
+            await self._handle_leader_decision(interaction, custom_id)
 
 
     @app_commands.command(name="send_team_setup")
@@ -728,6 +809,59 @@ class TeamCog(commands.Cog):
             embed=success("Dashboard updated."),
             ephemeral=True
         )
+
+    async def _handle_leader_decision(self, interaction: discord.Interaction, custom_id: str):
+        action, user_id, team_id = custom_id.split(":")
+        user_id, team_id = int(user_id), int(team_id)
+
+        team = await self.team.get_team(team_id)
+        if interaction.user.id != team["leader_id"]:
+            return await interaction.response.send_message(
+                embed=failure("Only the Team Leader can handle this request."), ephemeral=True
+            )
+
+        request = await self.team.get_pending_request(team_id, user_id)
+        if not request:
+            return await interaction.response.edit_message(
+                embed=failure("This request is no longer valid or has already been handled."), view=None
+            )
+
+        guild = interaction.guild
+        member = guild.get_member(user_id)
+
+        if "leader_approve" in custom_id:
+            if not member:
+                await self.team.update_request_status(team_id, user_id, "expired")
+                return await interaction.response.edit_message(embed=failure("User left the server."), view=None)
+
+            role = guild.get_role(team["role_id"])
+            await self.team.add_member(team_id, guild.id, user_id)
+            await member.add_roles(role)
+            await self.team.update_request_status(team_id, user_id, "accepted")
+
+            await interaction.response.edit_message(embed=success(f"Approved {member.mention}"), view=None)
+            try:
+                await member.send(embed=success(f"You joined **{team['name']}**!"))
+            except:
+                pass
+        else:
+            await self.team.update_request_status(team_id, user_id, "rejected")
+            await interaction.response.edit_message(embed=warning(f"Rejected request from {user_id}"), view=None)
+            if member:
+                try:
+                    await member.send(embed=failure(f"Your request for **{team['name']}** was rejected."))
+                except:
+                    pass
+
+    @app_commands.command(name="send_join_request_button")
+    @app_commands.check(tortoise_bot_developer_only)
+    async def send_join_request_button(self, interaction: discord.Interaction):
+        embed = info(
+            "Click below to browse available teams and send a join request to a leader.",
+            self.bot.user, "Join a Team"
+        )
+        await interaction.channel.send(embed=embed, view=PersistentJoinRequestView(self))
+        await interaction.response.send_message(embed=success("Button sent!"), ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(TeamCog(bot))

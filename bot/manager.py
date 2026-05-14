@@ -507,6 +507,17 @@ class TeamManager:
             created_at TIMESTAMPTZ DEFAULT NOW()
         )
         """)
+        await self.db.pool.execute("""
+            CREATE TABLE IF NOT EXISTS team_join_requests (
+                request_id SERIAL PRIMARY KEY,
+                guild_id BIGINT NOT NULL,
+                team_id INT NOT NULL,
+                user_id BIGINT NOT NULL,
+                status TEXT DEFAULT 'pending',
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+            """)
+
 
     async def create_team(self, *args):
         row = await self.db.pool.fetchrow("""
@@ -651,6 +662,33 @@ class TeamManager:
             WHERE team_id=$1
         """, team_id)
 
+    async def create_join_request(self, guild_id: int, team_id: int, user_id: int) -> bool:
+        existing = await self.db.pool.fetchval("""
+            SELECT 1 FROM team_join_requests 
+            WHERE team_id=$1 AND user_id=$2 AND status='pending'
+        """, team_id, user_id)
+
+        if existing:
+            return False
+
+        await self.db.pool.execute("""
+            INSERT INTO team_join_requests (guild_id, team_id, user_id)
+            VALUES ($1, $2, $3)
+        """, guild_id, team_id, user_id)
+        return True
+
+    async def get_pending_request(self, team_id: int, user_id: int):
+        return await self.db.pool.fetchrow("""
+            SELECT * FROM team_join_requests 
+            WHERE team_id=$1 AND user_id=$2 AND status='pending'
+        """, team_id, user_id)
+
+    async def update_request_status(self, team_id: int, user_id: int, status: str):
+        await self.db.pool.execute("""
+            UPDATE team_join_requests 
+            SET status=$3 
+            WHERE team_id=$1 AND user_id=$2 AND status='pending'
+        """, team_id, user_id, status)
 
 class GiveawayManager:
     def __init__(self, db):
