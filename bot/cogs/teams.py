@@ -192,7 +192,7 @@ class TeamSelectionView(discord.ui.View):
 
         options = [
             discord.SelectOption(
-                label=t['name'],
+                label=f"Team {t['name']}",
                 value=str(t['team_id']),
                 description=f"Timezone: {t['timezone']}"
             ) for t in teams[:25]
@@ -834,7 +834,7 @@ class TeamCog(commands.Cog):
                 embed=failure("This request is no longer valid or has already been handled."), view=None
             )
 
-        await interaction.response.defer(thinking=True)
+        await interaction.response.defer(ephemeral=True)
 
         guild = interaction.guild
         member = guild.get_member(user_id)
@@ -855,6 +855,7 @@ class TeamCog(commands.Cog):
                 view=None
             )
             await interaction.channel.send(content=member.mention, delete_after=1)
+            await interaction.followup.send(embed=success("Join request accepted"))
             try:
                 await member.send(embed=success(f"You joined team **{team['name']}**!"))
             except:
@@ -871,6 +872,7 @@ class TeamCog(commands.Cog):
                 embed=info(f"{member}'s join request was rejected.", self.bot.user, ""),
                 view=None
             )
+            await interaction.followup.send(embed=success("Join request rejected"))
             if member:
                 try:
                     await member.send(embed=failure(f"Your request for **{team['name']}** was rejected."))
