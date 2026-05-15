@@ -514,6 +514,7 @@ class TeamManager:
                 team_id INT NOT NULL,
                 user_id BIGINT NOT NULL,
                 status TEXT DEFAULT 'pending',
+                reason TEXT DEFAULT 'Reason not stated',
                 created_at TIMESTAMPTZ DEFAULT NOW()
             )
             """)
@@ -662,7 +663,7 @@ class TeamManager:
             WHERE team_id=$1
         """, team_id)
 
-    async def create_join_request(self, guild_id: int, team_id: int, user_id: int) -> bool:
+    async def create_join_request(self, guild_id: int, team_id: int, user_id: int, reason: str = None) -> bool:
         existing = await self.db.pool.fetchval("""
             SELECT 1 FROM team_join_requests 
             WHERE team_id=$1 AND user_id=$2 AND status='pending'
@@ -672,9 +673,9 @@ class TeamManager:
             return False
 
         await self.db.pool.execute("""
-            INSERT INTO team_join_requests (guild_id, team_id, user_id)
-            VALUES ($1, $2, $3)
-        """, guild_id, team_id, user_id)
+            INSERT INTO team_join_requests (guild_id, team_id, user_id, reason)
+            VALUES ($1, $2, $3, $4)
+        """, guild_id, team_id, user_id, reason)
         return True
 
     async def get_pending_request(self, team_id: int, user_id: int):

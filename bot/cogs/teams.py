@@ -210,53 +210,31 @@ class TeamSelect(discord.ui.Select):
         )
         self.cog = cog
 
-    async def callback(self, interaction: discord.Interaction):
-        team_id = int(self.values[0])
-        team = await self.cog.team.get_team(team_id)
 
-        created = await self.cog.team.create_join_request(
-            interaction.guild.id, team_id, interaction.user.id
-        )
-
-        if not created:
-            return await interaction.response.edit_message(
-                embed=failure("You already have a pending request for this team."), view=None
+    class TeamSelect(discord.ui.Select):
+        def __init__(self, cog, options):
+            super().__init__(
+                placeholder="Choose a team...",
+                options=options,
+                custom_id="team_select_request"
             )
+            self.cog = cog
 
-        team_channel = self.cog.bot.get_channel(team["text_channel_id"])
-        if not team_channel:
-            return await interaction.response.edit_message(
-                embed=failure("Team channel not found."), view=None
-            )
+        async def callback(self, interaction: discord.Interaction):
+            team_id = int(self.values[0])
+            team = await self.cog.team.get_team(team_id)
 
-        leader_embed = authored_sm(
-            message=f"{interaction.user} has requested to join your team.",
-            author=interaction.user
-        )
+            if not team:
+                return await interaction.response.send_message(
+                    embed=failure("The selected team no longer exists."), ephemeral=True
+                )
 
-        view = discord.ui.View(timeout=None)
-        view.add_item(discord.ui.Button(
-            label="Approve", style=discord.ButtonStyle.green,
-            custom_id=f"leader_approve:{interaction.user.id}:{team_id}"
-        ))
-        view.add_item(discord.ui.Button(
-            label="Reject", style=discord.ButtonStyle.red,
-            custom_id=f"leader_reject:{interaction.user.id}:{team_id}"
-        ))
+            try:
+                await interaction.message.delete()
+            except discord.HTTPException:
+                pass
 
-        await team_channel.send(content=f"<@{team['leader_id']}>", embed=leader_embed, view=view)
-
-        await interaction.response.edit_message(
-            embed=success(f"Request sent to **{team['name']}**!"), view=None
-        )
-
-        await self.cog.log_channel.send(
-            embed=info(
-                f"{interaction.user.mention} requested to join **{team['name']}**",
-                self.cog.bot.user, ""
-            )
-        )
-        return None
+            return await interaction.response.send_modal(JoinReasonModal(self.cog, team_id, team))
 
 
 class PersistentJoinRequestView(discord.ui.View):
@@ -285,6 +263,66 @@ class PersistentJoinRequestView(discord.ui.View):
         view = TeamSelectionView(self.cog, teams)
         await interaction.response.send_message(
             "Select a team you wish to join:", view=view, ephemeral=True
+        )
+
+class JoinReasonModal(discord.ui.Modal, title="Join Team Reason"):
+    reason = discord.ui.TextInput(
+        label="Why do you want to join this team?",
+        style=discord.TextStyle.paragraph,
+        placeholder="Share your goals, skills, or availability...",
+        max_length=500,
+        required=True
+    )
+
+    def __init__(self, cog, team_id, team):
+        super().__init__()
+        self.cog = cog
+        self.team_id = team_id
+        self.team = team
+
+    async def on_submit(self, interaction: discord.Interaction):
+        created = await self.cog.team.create_join_request(
+            interaction.guild.id, self.team_id, interaction.user.id
+        )
+
+        if not created:
+            return await interaction.response.send_message(
+                embed=failure("You already have a pending request for this team."), ephemeral=True
+            )
+
+        team_channel = self.cog.bot.get_channel(self.team["text_channel_id"])
+        if not team_channel:
+            return await interaction.response.send_message(
+                embed=failure("Team channel not found."), ephemeral=True
+            )
+
+        leader_embed = authored_sm(
+            message=f"{interaction.user} has requested to join your team.\n\nReason: {self.reason.value}",
+            author=interaction.user
+        )
+
+        view = discord.ui.View(timeout=None)
+        view.add_item(discord.ui.Button(
+            label="Approve", style=discord.ButtonStyle.green,
+            custom_id=f"leader_approve:{interaction.user.id}:{self.team_id}"
+        ))
+        view.add_item(discord.ui.Button(
+            label="Reject", style=discord.ButtonStyle.red,
+            custom_id=f"leader_reject:{interaction.user.id}:{self.team_id}"
+        ))
+
+        await team_channel.send(content=f"<@{self.team['leader_id']}>", embed=leader_embed, view=view)
+
+        await interaction.response.send_message(
+            embed=success(f"Your application has been sent to **{self.team['name']}**!"), ephemeral=True
+        )
+
+        return await self.cog.log_channel.send(
+            embed=info(
+                f"{interaction.user.mention} requested to join **{self.team['name']}**.\n\n"
+                f"**Reason:** {self.reason.value}",
+                self.cog.bot.user, ""
+            )
         )
 
 
