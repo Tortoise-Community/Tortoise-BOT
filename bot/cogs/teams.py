@@ -210,31 +210,16 @@ class TeamSelect(discord.ui.Select):
         )
         self.cog = cog
 
+    async def callback(self, interaction: discord.Interaction):
+        team_id = int(self.values[0])
+        team = await self.cog.team.get_team(team_id)
 
-    class TeamSelect(discord.ui.Select):
-        def __init__(self, cog, options):
-            super().__init__(
-                placeholder="Choose a team...",
-                options=options,
-                custom_id="team_select_request"
+        if not team:
+            return await interaction.response.send_message(
+                embed=failure("The selected team no longer exists."), ephemeral=True
             )
-            self.cog = cog
 
-        async def callback(self, interaction: discord.Interaction):
-            team_id = int(self.values[0])
-            team = await self.cog.team.get_team(team_id)
-
-            if not team:
-                return await interaction.response.send_message(
-                    embed=failure("The selected team no longer exists."), ephemeral=True
-                )
-
-            try:
-                await interaction.message.delete()
-            except discord.HTTPException:
-                pass
-
-            return await interaction.response.send_modal(JoinReasonModal(self.cog, team_id, team))
+        return await interaction.response.send_modal(JoinReasonModal(self.cog, team_id, team))
 
 
 class PersistentJoinRequestView(discord.ui.View):
