@@ -267,7 +267,7 @@ class JoinReasonModal(discord.ui.Modal, title="Join Team Reason"):
 
     async def on_submit(self, interaction: discord.Interaction):
         created = await self.cog.team.create_join_request(
-            interaction.guild.id, self.team_id, interaction.user.id
+            interaction.guild.id, self.team_id, interaction.user.id, self.reason.value
         )
 
         if not created:
