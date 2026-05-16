@@ -57,7 +57,6 @@ class SetupView(discord.ui.View):
         embed = info(description_body, interaction.client.user, '🎉 Giveaway Started')
         msg = await interaction.channel.send(embed=embed, view=JoinView(self.cog))
 
-        # Persist to DB
         await self.cog.manager.create_giveaway(
             msg.id, interaction.guild.id, interaction.channel.id,
             interaction.user.id, self.data['name'], self.data['description'],
@@ -65,7 +64,6 @@ class SetupView(discord.ui.View):
             self.data['winners'], end_time
         )
 
-        # Start the background timer
         self.cog.tasks[msg.id] = asyncio.create_task(self.cog.finish_task(msg.id, end_time))
 
         await interaction.response.edit_message(content='✅ Giveaway published successfully.', view=None)
@@ -115,13 +113,12 @@ class Questionnaire(discord.ui.View):
         if interaction.user.id != self.user_id:
             return await interaction.response.send_message('This is not your session.', ephemeral=True)
 
-        # Validate answer
         if ans != self.questions[self.current_index]['answer']:
             await interaction.response.edit_message(
                 embed=warning("You do not qualify for this giveaway based on your answers."),
                 view=None
             )
-            return
+            return None
 
         self.current_index += 1
 
@@ -136,9 +133,9 @@ class Questionnaire(discord.ui.View):
                 except Exception as e:
                     pass
             msg = 'Entry successful! Good luck.' if success_joined else 'You have already entered this giveaway.'
-            await interaction.response.edit_message(embed=success(msg), view=None)
+            return await interaction.response.edit_message(embed=success(msg), view=None)
         else:
-            await self._update_question(interaction)
+            return await self._update_question(interaction)
 
     @discord.ui.button(label='Yes', style=discord.ButtonStyle.green)
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -179,7 +176,7 @@ class JoinView(discord.ui.View):
         row_dict["questions"] = questions
         view = Questionnaire(self.cog, row_dict, interaction.user.id)
 
-        await interaction.response.send_message(
+        return await interaction.response.send_message(
             embed=info(questions[0]["question"], self.cog.bot.user, f"Question 1/{len(questions)}"),
             view=view,
             ephemeral=True
