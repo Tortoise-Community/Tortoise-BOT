@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 
@@ -62,10 +61,8 @@ class AFK(commands.Cog):
 
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
-        await asyncio.sleep(1)
-
         log_embed = info(
-            f"{interaction.message.author.mention} is AFK for {total}.",
+            f"{interaction.user.mention} is AFK for {total}.",
             self.bot.user,
             ""
         )
@@ -86,8 +83,6 @@ class AFK(commands.Cog):
             await self.manager.remove_afk(guild_id, user_id)
 
             await self.bot.safe_send(message.author, embed=success("You are no longer AFK"))
-
-            await asyncio.sleep(1)
 
             log_embed = info(
                 f"{message.author.mention} is no longer AFK.",
@@ -150,7 +145,6 @@ class AFK(commands.Cog):
             user = self.bot.get_user(user_id)
             if user:
                 await self.bot.safe_send(user, embed=success("You are no longer AFK"))
-                await asyncio.sleep(1)
 
 
     @cleanup_expired.before_loop
