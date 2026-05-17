@@ -8,14 +8,14 @@ from discord.ext import commands
 
 from bot.constants import (
     system_log_channel_id, bait_channel_id, new_member_role_id, tortoise_guild_id, here_mention,
-    everyone_mention, infraction_img_url
+    everyone_mention, infraction_img_url, bot_trap_role_id
 )
 from bot.utils.embed_handler import simple_embed
 
 
 class AntiRaidSpam(commands.Cog):
     """
-    Bans users who spam messages across multiple channels.
+    Bans users who spam messages across multiple channels or fail pre-join bot traps.
 
     Trust model:
     - Users with the new member role are treated as untrusted.
@@ -23,6 +23,7 @@ class AntiRaidSpam(commands.Cog):
     """
 
     BAN_REASON = "Raid protection: multi-channel spam"
+    BOT_TRAP_BAN_REASON = "Raid protection: Failed pre-join bot trap question"
     APPEAL_SERVER_URL = "https://discord.gg/YxEzEqMNY8"
 
     SPAM_WINDOW = 20
@@ -35,6 +36,16 @@ class AntiRaidSpam(commands.Cog):
         # guild_id -> member_id -> deque[(ts, channel_id, content, message_id)]
         self.message_log = defaultdict(lambda: defaultdict(deque))
 
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        if after.guild.id != tortoise_guild_id:
+            return
+
+        had_role = any(r.id == bot_trap_role_id for r in before.roles)
+        has_role = any(r.id == bot_trap_role_id for r in after.roles)
+
+        if has_role and not had_role:
+            await self.handle_bot_trap_raid(after)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
@@ -123,6 +134,21 @@ class AntiRaidSpam(commands.Cog):
 
         return " | ".join(parts)[:500]
 
+    async def handle_bot_trap_raid(self, member: discord.Member):
+        guild = member.guild
+
+        await self.send_dm_notice(member, guild)
+
+        try:
+            await guild.ban(
+                member,
+                reason=self.BOT_TRAP_BAN_REASON,
+                delete_message_days=1,
+            )
+        except discord.Forbidden:
+            return
+
+        await self.log_bot_trap_to_mod_channel(guild, member)
 
     async def handle_raid(
         self,
@@ -168,6 +194,40 @@ class AntiRaidSpam(commands.Cog):
         except discord.Forbidden:
             pass
 
+    async def log_bot_trap_to_mod_channel(self, guild: discord.Guild, member: discord.Member):
+        """Logs bot trap bans to the dedicated system log channel."""
+        channel = guild.get_channel(system_log_channel_id)
+        if channel is None:
+            return
+
+        embed = discord.Embed(
+            title="Bot Trap Ban Triggered",
+            color=discord.Color.red(),
+        )
+        embed.add_field(
+            name="User",
+            value=f"{member} (`{member.id}`)",
+            inline=False,
+        )
+        embed.add_field(
+            name="Joined",
+            value=(
+                f"<t:{int(member.joined_at.timestamp())}:R>"
+                if member.joined_at else "Unknown"
+            ),
+            inline=False,
+        )
+        embed.add_field(
+            name="Reason",
+            value="Selected 'I am a bot' answer option in the prejoin setup.",
+            inline=False,
+        )
+        embed.set_footer(text=self.BOT_TRAP_BAN_REASON)
+
+        try:
+            await channel.send(embed=embed)
+        except discord.Forbidden:
+            pass
 
     async def log_to_mod_channel(
         self,
