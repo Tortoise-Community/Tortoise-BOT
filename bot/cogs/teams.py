@@ -959,7 +959,7 @@ class TeamCog(commands.Cog):
 
             member_m = guild.get_member(user_id)
             if member_m:
-                member_mentions.append(member_m.mention)
+                member_mentions.append(f"`{member_m.display_name}`")
             else:
                 member_mentions.append(f"Unknown User (`{user_id}`)")
 

@@ -4,7 +4,7 @@ from typing import Union
 import discord
 from asyncpraw import models
 
-from discord import Embed, Color, Member, User, Status, Message, TextChannel
+from discord import Embed, Color, Member, User, Message, TextChannel, ClientUser
 
 from bot import constants
 from bot.utils.custom_types import FakeInteraction
@@ -109,7 +109,7 @@ async def reddit_embed(ctx, submission: models.Submission, color=0x3498d) -> Emb
     return embed
 
 
-def info(message: str, member: Union[Member, User], title: str = "Info", footer_text = None) -> Embed:
+def info(message: str, member: Union[Member, User, ClientUser], title: str = "Info", footer_text = None) -> Embed:
     """
     Constructs success embed with custom title and description.
     Color depends on passed member top role color.

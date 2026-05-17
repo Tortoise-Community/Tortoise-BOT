@@ -10,6 +10,7 @@ from typing import Generator
 
 import aiohttp.client_exceptions
 import discord
+from discord.abc import Messageable
 from discord.ext import commands, tasks
 
 from bot.api_client import TortoiseAPI
@@ -129,6 +130,18 @@ class Bot(commands.Bot):
             )
         except discord.Forbidden:
             pass
+
+    @staticmethod
+    async def safe_send(
+            target: Messageable,
+            *args,
+            **kwargs
+    ) -> bool:
+        try:
+            await target.send(*args, **kwargs)
+            return True
+        except (discord.Forbidden, discord.HTTPException):
+            return False
 
     async def setup_hook(self):
         self.api_client: TortoiseAPI = TortoiseAPI()
